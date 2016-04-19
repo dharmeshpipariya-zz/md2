@@ -12,10 +12,7 @@ NgClass,
 NgStyle
 } from 'angular2/common';
 import {SelectItem} from './select-item';
-import {
-HightlightPipe,
-stripTags
-} from './select-pipes';
+import {HightlightPipe} from './select-pipes';
 import {IOptionsBehavior} from './select-interfaces';
 
 let optionsTemplate = `
@@ -498,7 +495,6 @@ export class Select {
         if (this.multiple === true) {
             this.focusToInput('');
         } else {
-            this.focusToInput(stripTags(value.text));
             this.element.nativeElement.querySelector('.md2-select-container').focus();
         }
     }
@@ -600,7 +596,7 @@ export class GenericBehavior extends Behavior implements IOptionsBehavior {
 
     public filter(query: RegExp) {
         let options = this.actor.itemObjects
-            .filter(option => stripTags(option.text).match(query) &&
+            .filter(option => query.test(option.text) &&
                 (this.actor.multiple === false ||
                     (this.actor.multiple === true &&
                         this.actor.active.indexOf(option) < 0)));
