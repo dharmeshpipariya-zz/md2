@@ -64,7 +64,6 @@ let optionsTemplate = `
 .md2-select-container {
   position: relative;
   display: block;
-  margin: 20px 0 26px;
   outline: none;
   /*.md2-select-container { outline: none; }*/ }
   .md2-select-container[disabled] .md2-select-value {
