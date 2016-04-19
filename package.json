@@ -1,7 +1,7 @@
 {
-  "name": "ng2-select",
-  "version": "1.0.1-beta.0",
-  "description": "Angular2 based replacement for select boxes",
+  "name": "md2",
+  "version": "0.0.1-beta.1",
+  "description": "Angular2 based replacement for custom components",
   "scripts": {
     "deploy": "NODE_ENV=production webpack -p --progress --color --optimize-minimize --optimize-dedupe --optimize-occurence-order",
     "prepublish": "gulp clean && tsc",
@@ -9,24 +9,14 @@
     "start": "npm run dev",
     "test": "gulp lint"
   },
-  "main": "ng2-select.js",
-  "typings": "ng2-select.d.ts",
   "keywords": [
     "angular2",
     "select",
     "selectify",
     "angularjs"
   ],
-  "author": "Vyacheslav Chub <vyacheslav.chub@valor-software.com>",
+  "author": "Dharmesh Pipariya <pipariyadharmesh@gmail.com>",
   "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "git+ssh://git@github.com/valor-software/ng2-select.git"
-  },
-  "bugs": {
-    "url": "https://github.com/valor-software/ng2-select/issues"
-  },
-  "homepage": "https://github.com/valor-software/ng2-select#readme",
   "dependencies": {},
   "devDependencies": {
     "angular2": "2.0.0-beta.1",
