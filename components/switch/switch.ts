@@ -89,11 +89,11 @@ enum TransitionCheckState {
   position: absolute;
   background-color: #9e9e9e; }
 .md-switch.md-switch-checked .md2-switch-bar {
-  background-color: rgba(56, 126, 245, 0.5); }
+  background-color: rgba(33, 150, 243, 0.5); }
 .md-switch.md-switch-checked .md2-switch-thumb-container {
   transform: translate3d(100%, 0, 0); }
 .md-switch.md-switch-checked .md2-switch-thumb {
-  background-color: #387ef5; }
+  background-color: #2196f3; }
 .md-switch .md2-switch-thumb-container {
   top: 2px;
   left: 0;

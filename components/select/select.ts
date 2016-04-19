@@ -91,7 +91,7 @@ let optionsTemplate = `
       padding: 2px 2px 1px;
       border-bottom-width: 1px;
       border-bottom-style: solid;
-      border-bottom-color: rgba(0, 0, 0, 0.12);
+      border-bottom-color: rgba(0, 0, 0, 0.38);
       position: relative;
       box-sizing: content-box;
       min-width: 64px;
@@ -116,7 +116,7 @@ let optionsTemplate = `
         height: 0;
         border-left: 6px solid transparent;
         border-right: 6px solid transparent;
-        border-top: 6px solid rgba(0, 0, 0, 0.38);
+        border-top: 6px solid rgba(0, 0, 0, 0.60);
         margin: 0 4px;
         -webkit-transform: translate3d(0, 1px, 0);
         transform: translate3d(0, 1px, 0); }
@@ -702,6 +702,3 @@ export class ChildrenBehavior extends Behavior implements IOptionsBehavior {
         }
     }
 }
-
-
-export const SELECT_DIRECTIVES: Array<any> = [Select];

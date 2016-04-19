@@ -56,3 +56,8 @@ Thanks for understanding!
 ### License
 
 The MIT License (see the [LICENSE](https://github.com/valor-software/ng2-select/blob/master/LICENSE) file for the full text)
+
+
+### Referenced From
+
+ng2-select (see the repo (https://github.com/valor-software/ng2-select) repository for the angular2 based select component)

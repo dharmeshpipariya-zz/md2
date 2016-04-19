@@ -1,67 +1,72 @@
 {
-  "name": "md2",
-  "version": "0.0.1-beta.1",
-  "description": "Angular2 based replacement for custom components",
-  "scripts": {
-    "deploy": "NODE_ENV=production webpack -p --progress --color --optimize-minimize --optimize-dedupe --optimize-occurence-order",
-    "prepublish": "gulp clean && tsc",
-    "dev": "webpack-dev-server --hot --inline --colors --display-error-details --display-cached",
-    "start": "npm run dev",
-    "test": "gulp lint"
-  },
-  "keywords": [
-    "angular2",
-    "select",
-    "selectify",
-    "angularjs"
-  ],
-  "author": "Dharmesh Pipariya <pipariyadharmesh@gmail.com>",
-  "license": "MIT",
-  "dependencies": {},
-  "devDependencies": {
-    "angular2": "2.0.0-beta.1",
-    "bootstrap": "3.3.6",
-    "clean-webpack-plugin": "0.1.8",
-    "compression-webpack-plugin": "0.3.1",
-    "es6-shim": "0.33.13",
-    "eslint": "1.10.3",
-    "exports-loader": "0.6.3",
-    "file-loader": "0.8.5",
-    "gulp": "3.9.1",
-    "gulp-clean": "0.3.2",
-    "gulp-eslint": "1.1.1",
-    "gulp-size": "2.1.0",
-    "gulp-tsc": "1.1.4",
-    "gulp-tslint": "4.3.5",
-    "html-loader": "0.4.2",
-    "markdown-loader": "0.1.7",
-    "marked": "0.3.5",
-    "moment": "2.12.0",
-    "ng2-bootstrap": "1.0.11",
-    "pre-commit": "1.1.2",
-    "prismjs": "valorkin/prism",
-    "prismjs-loader": "0.0.2",
-    "raw-loader": "0.5.1",
-    "reflect-metadata": "0.1.2",
-    "require-dir": "0.3.0",
-    "rxjs": "5.0.0-beta.0",
-    "ts-loader": "0.8.2",
-    "tslint": "3.7.1",
-    "typescript": "1.8.9",
-    "webpack": "1.12.15",
-    "webpack-dev-server": "1.14.0",
-    "zone.js": "0.6.10"
-  },
-  "contributors": [
-    {
-      "name": "Vyacheslav Chub",
-      "email": "vyacheslav.chub@valor-software.com",
-      "url": "https://github.com/buchslava"
+    "name": "md2",
+    "version": "0.0.1-beta.1",
+    "description": "Angular2 Material based replacement for select component",
+    "scripts": {
+        "deploy": "NODE_ENV=production webpack -p --progress --color --optimize-minimize --optimize-dedupe --optimize-occurence-order",
+        "prepublish": "gulp clean && tsc",
+        "dev": "webpack-dev-server --hot --inline --colors --display-error-details --display-cached",
+        "start": "npm run dev",
+        "test": "gulp lint"
     },
-    {
-      "name": "Dmitriy Shekhovtsov",
-      "email": "valorkin@gmail.com",
-      "url": "https://github.com/valorkin"
-    }
-  ]
+    "main": "md2.js",
+    "typings": "md2.d.ts",
+    "keywords": [
+        "angular2",
+        "select",
+        "selectify",
+        "angularjs"
+    ],
+    "author": "Dharmesh Pipariya <pipariyadharmesh@gmail.com>",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "git+ssh://git@github.com/DharmeshPipariya/md2.git"
+    },
+    "bugs": {
+        "url": "https://github.com/DharmeshPipariya/md2/issues"
+    },
+    "homepage": "https://github.com/DharmeshPipariya/md2#readme",
+    "dependencies": { },
+    "devDependencies": {
+        "angular2": "2.0.0-beta.1",
+        "bootstrap": "3.3.6",
+        "clean-webpack-plugin": "0.1.8",
+        "compression-webpack-plugin": "0.3.1",
+        "es6-shim": "0.33.13",
+        "eslint": "1.10.3",
+        "exports-loader": "0.6.3",
+        "file-loader": "0.8.5",
+        "gulp": "3.9.1",
+        "gulp-clean": "0.3.2",
+        "gulp-eslint": "1.1.1",
+        "gulp-size": "2.1.0",
+        "gulp-tsc": "1.1.4",
+        "gulp-tslint": "4.3.5",
+        "html-loader": "0.4.2",
+        "markdown-loader": "0.1.7",
+        "marked": "0.3.5",
+        "moment": "2.12.0",
+        "ng2-bootstrap": "1.0.11",
+        "pre-commit": "1.1.2",
+        "prismjs": "valorkin/prism",
+        "prismjs-loader": "0.0.2",
+        "raw-loader": "0.5.1",
+        "reflect-metadata": "0.1.2",
+        "require-dir": "0.3.0",
+        "rxjs": "5.0.0-beta.0",
+        "ts-loader": "0.8.2",
+        "tslint": "3.7.1",
+        "typescript": "1.8.9",
+        "webpack": "1.12.15",
+        "webpack-dev-server": "1.14.0",
+        "zone.js": "0.6.10"
+    },
+    "contributors": [
+        {
+            "name": "Dharmesh Pipariya",
+            "email": "pipariyadharmesh@gmail.com",
+            "url": "https://github.com/DharmeshPipariya"
+        }
+    ]
 }
