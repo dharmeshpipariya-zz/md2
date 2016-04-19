@@ -63,7 +63,7 @@ let optionsTemplate = `
     styles: [`
 .md2-select-container {
   position: relative;
-  display: flex;
+  display: block;
   margin: 20px 0 26px;
   outline: none;
   /*.md2-select-container { outline: none; }*/ }
@@ -143,7 +143,8 @@ let optionsTemplate = `
     position: absolute;
     left: 0;
     top: 0;
-    display: flex;
+    display: block;
+z-index:10;
     flex-direction: column;
     width: 100%;
     margin: 0;
@@ -151,18 +152,18 @@ let optionsTemplate = `
     box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14), 0 2px 1px -1px rgba(0, 0, 0, 0.12);
     max-height: 256px;
     min-height: 48px;
-    overflow-y: hidden;
+    overflow-y: auto;
     transform: scale(1);
     background: #fff; }
     .md2-select-container .md2-select-menu .md2-option {
       cursor: pointer;
       position: relative;
-      display: flex;
+      display: block;
       align-items: center;
       width: auto;
       transition: background 0.15s linear;
       padding: 0 16px;
-      height: 48px; }
+      height: 48px;line-height: 48px; }
       .md2-select-container .md2-select-menu .md2-option:hover, .md2-select-container .md2-select-menu .md2-option.active {
         background: #eeeeee; }
       .md2-select-container .md2-select-menu .md2-option .md2-text {
