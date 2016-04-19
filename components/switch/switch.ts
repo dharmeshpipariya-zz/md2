@@ -1,21 +1,21 @@
 /// ADAPTED FROM angular/material2 REPO.
 
 import {
-  ChangeDetectionStrategy,
-  Component,
-  ElementRef,
-  EventEmitter,
-  Input,
-  Output,
-  Provider,
-  Renderer,
-  ViewEncapsulation,
-  forwardRef
+ChangeDetectionStrategy,
+Component,
+ElementRef,
+EventEmitter,
+Input,
+Output,
+Provider,
+Renderer,
+ViewEncapsulation,
+forwardRef
 } from 'angular2/core';
 
 import {
-  NG_VALUE_ACCESSOR,
-  ControlValueAccessor
+NG_VALUE_ACCESSOR,
+ControlValueAccessor
 } from 'angular2/src/common/forms/directives/control_value_accessor';
 import {CONST_EXPR} from 'angular2/src/facade/lang';
 
@@ -30,22 +30,22 @@ let nextId = 0;
  */
 const MD_SWITCH_CONTROL_VALUE_ACCESSOR = CONST_EXPR(new Provider(
     NG_VALUE_ACCESSOR, {
-      useExisting: forwardRef(() => MdSwitch),
-      multi: true
+        useExisting: forwardRef(() => MdSwitch),
+        multi: true
     }));
 
 /**
  * Represents the different states that require custom transitions between them.
  */
 enum TransitionCheckState {
-  /** The initial state of the component before any user interaction. */
-  Init,
-  /** The state representing the component when it's becoming checked. */
-  Checked,
-  /** The state representing the component when it's becoming unchecked. */
-  Unchecked,
-  /** The state representing the component when it's becoming indeterminate. */
-  Indeterminate
+    /** The initial state of the component before any user interaction. */
+    Init,
+    /** The state representing the component when it's becoming checked. */
+    Checked,
+    /** The state representing the component when it's becoming unchecked. */
+    Unchecked,
+    /** The state representing the component when it's becoming indeterminate. */
+    Indeterminate
 }
 
 /**
@@ -57,14 +57,14 @@ enum TransitionCheckState {
  * See: https://www.google.com/design/spec/components/selection-controls.html
  */
 @Component({
-  selector: 'md2-switch',
-  template: `<div class="md2-switch-container">
+    selector: 'md2-switch',
+    template: `<div class="md2-switch-container">
                 <div class="md2-switch-bar"></div>
                 <div class="md2-switch-thumb-container">
                   <div class="md2-switch-thumb"></div>
                 </div>
             </div>`,
-  styles: [`
+    styles: [`
 .md-switch:focus {
   outline: none; }
 .md-switch .md2-switch-container {
@@ -124,199 +124,193 @@ enum TransitionCheckState {
   transition: all 0.08s linear;
   transition-property: transform, background-color; }
     `],
-  host: {
-    'role': 'checkbox',
-    '[id]': 'id',
-    '[class.md-switch]': 'true',
-    '[class.md-switch-indeterminate]': 'indeterminate',
-    '[class.md-switch-checked]': 'checked',
-    '[class.md-switch-disabled]': 'disabled',
-    '[class.md-switch-align-end]': 'align == "end"',
-    '[tabindex]': 'disabled ? -1 : tabindex',
-    '[attr.aria-label]': 'ariaLabel',
-    '[attr.aria-labelledby]': 'labelId',
-    '[attr.aria-checked]': 'getAriaChecked()',
-    '[attr.aria-disabled]': 'disabled',
-    '(click)': 'onInteractionEvent($event)',
-    '(keyup.space)': 'onInteractionEvent($event)',
-    '(blur)': 'onTouched()'
-  },
-  providers: [MD_SWITCH_CONTROL_VALUE_ACCESSOR],
-  encapsulation: ViewEncapsulation.None,
-  changeDetection: ChangeDetectionStrategy.OnPush
+    host: {
+        'role': 'checkbox',
+        '[id]': 'id',
+        '[class.md-switch]': 'true',
+        '[class.md-switch-indeterminate]': 'indeterminate',
+        '[class.md-switch-checked]': 'checked',
+        '[class.md-switch-disabled]': 'disabled',
+        '[class.md-switch-align-end]': 'align == "end"',
+        '[tabindex]': 'disabled ? -1 : tabindex',
+        '[attr.aria-label]': 'ariaLabel',
+        '[attr.aria-labelledby]': 'labelId',
+        '[attr.aria-checked]': 'getAriaChecked()',
+        '[attr.aria-disabled]': 'disabled',
+        '(click)': 'onInteractionEvent($event)',
+        '(keyup.space)': 'onInteractionEvent($event)',
+        '(blur)': 'onTouched()'
+    },
+    providers: [MD_SWITCH_CONTROL_VALUE_ACCESSOR],
+    encapsulation: ViewEncapsulation.None,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MdSwitch implements ControlValueAccessor {
-  /**
-   * Attached to the aria-label attribute of the host element. In most cases, arial-labelledby will
-   * take precedence so this may be omitted.
-   */
-  @Input('aria-label') ariaLabel: string = '';
+    /**
+     * Attached to the aria-label attribute of the host element. In most cases, arial-labelledby will
+     * take precedence so this may be omitted.
+     */
+    @Input('aria-label') ariaLabel: string = '';
 
-  /** A unique id for the checkbox. If one is not supplied, it is auto-generated. */
-  @Input() id: string = `md-switch-${++nextId}`;
+    /** A unique id for the checkbox. If one is not supplied, it is auto-generated. */
+    @Input() id: string = `md-switch-${++nextId}`;
 
-  /** Whether or not the checkbox should come before or after the label. */
-  @Input() align: string = 'start';
+    /** Whether or not the checkbox should come before or after the label. */
+    @Input() align: string = 'start';
 
-  /**
-   * Whether the checkbox is disabled. When the checkbox is disabled it cannot be interacted with.
-   * The correct ARIA attributes are applied to denote this to assistive technology.
-   */
-  @Input() disabled: boolean = false;
+    /**
+     * Whether the checkbox is disabled. When the checkbox is disabled it cannot be interacted with.
+     * The correct ARIA attributes are applied to denote this to assistive technology.
+     */
+    @Input() disabled: boolean = false;
 
-  /**
-   * The tabindex attribute for the checkbox. Note that when the checkbox is disabled, the attribute
-   * on the host element will be set to -1, regardless of the actual tabindex value.
-   */
-  @Input() tabindex: number = 0;
+    /**
+     * The tabindex attribute for the checkbox. Note that when the checkbox is disabled, the attribute
+     * on the host element will be set to -1, regardless of the actual tabindex value.
+     */
+    @Input() tabindex: number = 0;
 
-  /** Event emitted when the checkbox's `checked` value changes. */
-  @Output() change: EventEmitter<boolean> = new EventEmitter();
+    /** Event emitted when the checkbox's `checked` value changes. */
+    @Output() change: EventEmitter<boolean> = new EventEmitter();
 
-  /** Called when the checkbox is blurred. Needed to properly implement ControlValueAccessor. */
-  onTouched: () => any = () => {};
+    /** Called when the checkbox is blurred. Needed to properly implement ControlValueAccessor. */
+    onTouched: () => any = () => { };
 
-  private _currentAnimationClass: string = '';
+    private _currentAnimationClass: string = '';
 
-  private _currentCheckState: TransitionCheckState = TransitionCheckState.Init;
+    private _currentCheckState: TransitionCheckState = TransitionCheckState.Init;
 
-  private _checked: boolean = false;
+    private _checked: boolean = false;
 
-  private _indeterminate: boolean = false;
+    private _indeterminate: boolean = false;
 
-  private _changeSubscription: {unsubscribe: () => any} = null;
+    private _changeSubscription: { unsubscribe: () => any } = null;
 
-  constructor(private _renderer: Renderer, private _elementRef: ElementRef) {}
+    constructor(private _renderer: Renderer, private _elementRef: ElementRef) { }
 
-  /**
-   * Whether the checkbox is checked. Note that setting `checked` will immediately set
-   * `indeterminate` to false.
-   */
-  @Input() get checked() {
-    return this._checked;
-  }
-
-  set checked(checked: boolean) {
-    this._indeterminate = false;
-    this._checked = checked;
-    this._transitionCheckState(
-        this._checked ? TransitionCheckState.Checked : TransitionCheckState.Unchecked);
-    this.change.emit(this._checked);
-  }
-
-  /**
-   * Whether the checkbox is indeterminate. This is also known as "mixed" mode and can be used to
-   * represent a checkbox with three states, e.g. a checkbox that represents a nested list of
-   * checkable items. Note that whenever `checked` is set, indeterminate is immediately set to
-   * false. This differs from the web platform in that indeterminate state on native
-   * checkboxes is only remove when the user manually checks the checkbox (rather than setting the
-   * `checked` property programmatically). However, we feel that this behavior is more accommodating
-   * to the way consumers would envision using this component.
-   */
-  @Input() get indeterminate() {
-    return this._indeterminate;
-  }
-
-  set indeterminate(indeterminate: boolean) {
-    this._indeterminate = indeterminate;
-    if (this._indeterminate) {
-      this._transitionCheckState(TransitionCheckState.Indeterminate);
-    } else {
-      this._transitionCheckState(
-          this.checked ? TransitionCheckState.Checked : TransitionCheckState.Unchecked);
-    }
-  }
-
-  /** The id that is attached to the checkbox's label. */
-  get labelId() {
-    return `${this.id}-label`;
-  }
-
-  /** Returns the proper aria-checked attribute value based on the checkbox's state. */
-  getAriaChecked() {
-    if (this.indeterminate) {
-      return 'mixed';
-    }
-    return this.checked ? 'true' : 'false';
-  }
-
-  /** Toggles the checked state of the checkbox. If the checkbox is disabled, this does nothing. */
-  toggle() {
-    this.checked = !this.checked;
-  }
-
-  /**
-   * Event handler used for both (click) and (keyup.space) events. Delegates to toggle().
-   */
-  onInteractionEvent(event: Event) {
-    if (this.disabled) {
-      event.stopPropagation();
-      return;
-    }
-    this.toggle();
-  }
-
-  /** Implemented as part of ControlValueAccessor. */
-  writeValue(value: any) {
-    this.checked = !!value;
-  }
-
-  /** Implemented as part of ControlValueAccessor. */
-  registerOnChange(fn: any) {
-    if (this._changeSubscription) {
-      this._changeSubscription.unsubscribe();
-    }
-    this._changeSubscription = <{unsubscribe: () => any}>this.change.subscribe(fn);
-  }
-
-  /** Implemented as part of ControlValueAccessor. */
-  registerOnTouched(fn: any) {
-    this.onTouched = fn;
-  }
-
-  private _transitionCheckState(newState: TransitionCheckState) {
-    let oldState = this._currentCheckState;
-    let renderer = this._renderer;
-    let elementRef = this._elementRef;
-
-    if (oldState === newState) {
-      return;
-    }
-    if (this._currentAnimationClass.length > 0) {
-      renderer.setElementClass(elementRef, this._currentAnimationClass, false);
+    /**
+     * Whether the checkbox is checked. Note that setting `checked` will immediately set
+     * `indeterminate` to false.
+     */
+    @Input() get checked() {
+        return this._checked;
     }
 
-    this._currentAnimationClass = this._getAnimationClassForCheckStateTransition(
-        oldState, newState);
-    this._currentCheckState = newState;
-
-    if (this._currentAnimationClass.length > 0) {
-      renderer.setElementClass(elementRef, this._currentAnimationClass, true);
-    }
-  }
-
-  private _getAnimationClassForCheckStateTransition(
-      oldState: TransitionCheckState, newState: TransitionCheckState): string {
-    var animSuffix: string;
-
-    switch (oldState) {
-    case TransitionCheckState.Init:
-      return '';
-    case TransitionCheckState.Unchecked:
-      animSuffix = newState === TransitionCheckState.Checked ?
-          'unchecked-checked' : 'unchecked-indeterminate';
-      break;
-    case TransitionCheckState.Checked:
-      animSuffix = newState === TransitionCheckState.Unchecked ?
-          'checked-unchecked' : 'checked-indeterminate';
-      break;
-    case TransitionCheckState.Indeterminate:
-      animSuffix = newState === TransitionCheckState.Checked ?
-          'indeterminate-checked' : 'indeterminate-unchecked';
+    set checked(checked: boolean) {
+        this._indeterminate = false;
+        this._checked = checked;
+        this._transitionCheckState(
+            this._checked ? TransitionCheckState.Checked : TransitionCheckState.Unchecked);
+        this.change.emit(this._checked);
     }
 
-    return `md-switch-anim-${animSuffix}`;
-  }
+    /**
+     * Whether the checkbox is indeterminate. This is also known as "mixed" mode and can be used to
+     * represent a checkbox with three states, e.g. a checkbox that represents a nested list of
+     * checkable items. Note that whenever `checked` is set, indeterminate is immediately set to
+     * false. This differs from the web platform in that indeterminate state on native
+     * checkboxes is only remove when the user manually checks the checkbox (rather than setting the
+     * `checked` property programmatically). However, we feel that this behavior is more accommodating
+     * to the way consumers would envision using this component.
+     */
+    @Input() get indeterminate() {
+        return this._indeterminate;
+    }
+
+    set indeterminate(indeterminate: boolean) {
+        this._indeterminate = indeterminate;
+        if (this._indeterminate) {
+            this._transitionCheckState(TransitionCheckState.Indeterminate);
+        } else {
+            this._transitionCheckState(
+                this.checked ? TransitionCheckState.Checked : TransitionCheckState.Unchecked);
+        }
+    }
+
+    /** The id that is attached to the checkbox's label. */
+    get labelId() {
+        return `${this.id}-label`;
+    }
+
+    /** Returns the proper aria-checked attribute value based on the checkbox's state. */
+    getAriaChecked() {
+        if (this.indeterminate) {
+            return 'mixed';
+        }
+        return this.checked ? 'true' : 'false';
+    }
+
+    /** Toggles the checked state of the checkbox. If the checkbox is disabled, this does nothing. */
+    toggle() {
+        this.checked = !this.checked;
+    }
+
+    /**
+     * Event handler used for both (click) and (keyup.space) events. Delegates to toggle().
+     */
+    onInteractionEvent(event: Event) {
+        if (this.disabled) {
+            event.stopPropagation();
+            return;
+        }
+        this.toggle();
+    }
+
+    /** Implemented as part of ControlValueAccessor. */
+    writeValue(value: any) {
+        this.checked = !!value;
+    }
+
+    /** Implemented as part of ControlValueAccessor. */
+    registerOnChange(fn: any) {
+        if (this._changeSubscription) {
+            this._changeSubscription.unsubscribe();
+        }
+        this._changeSubscription = <{ unsubscribe: () => any }>this.change.subscribe(fn);
+    }
+
+    /** Implemented as part of ControlValueAccessor. */
+    registerOnTouched(fn: any) {
+        this.onTouched = fn;
+    }
+
+    private _transitionCheckState(newState: TransitionCheckState) {
+        let oldState = this._currentCheckState;
+        let renderer = this._renderer;
+        let elementRef = this._elementRef;
+
+        if (oldState === newState) {
+            return;
+        }
+
+        this._currentAnimationClass = this._getAnimationClassForCheckStateTransition(
+            oldState, newState);
+        this._currentCheckState = newState;
+
+    }
+
+    private _getAnimationClassForCheckStateTransition(
+        oldState: TransitionCheckState, newState: TransitionCheckState): string {
+        var animSuffix: string;
+
+        switch (oldState) {
+            case TransitionCheckState.Init:
+                return '';
+            case TransitionCheckState.Unchecked:
+                animSuffix = newState === TransitionCheckState.Checked ?
+                    'unchecked-checked' : 'unchecked-indeterminate';
+                break;
+            case TransitionCheckState.Checked:
+                animSuffix = newState === TransitionCheckState.Unchecked ?
+                    'checked-unchecked' : 'checked-indeterminate';
+                break;
+            case TransitionCheckState.Indeterminate:
+                animSuffix = newState === TransitionCheckState.Checked ?
+                    'indeterminate-checked' : 'indeterminate-unchecked';
+        }
+
+        return `md-switch-anim-${animSuffix}`;
+    }
 }
 
 /*
