@@ -18,14 +18,14 @@ import {IOptionsBehavior} from './select-interfaces';
 let optionsTemplate = `
     <ul *ngIf="optionsOpened && options && options.length > 0 && !itemObjects[0].hasChildren()" class="md2-select-menu">
         <li class="md2-option" *ngFor="#o of options" [class.active]="isActive(o)" (mouseenter)="selectActive(o)" (click)="selectMatch(o, $event)">
-            <div class="md2-text" [innerHtml]="o.text | hightlight:inputValue"></div>
+            <div class="md2-text" [innerHtml]="o.name | hightlight:inputValue"></div>
         </li>
     </ul>
     <div *ngIf="optionsOpened && options && options.length > 0 && itemObjects[0].hasChildren()" class="md2-select-menu">
         <div class="md2-optgroup" *ngFor="#c of options; #index=index">
-            <label>{{c.text}}</label>
+            <label>{{c.name}}</label>
             <div class="md2-option" *ngFor="#o of c.children" [class.active]="isActive(o)" (mouseenter)="selectActive(o)" (click)="selectMatch(o, $event)">
-                <div class="md2-text" [innerHtml]="o.text | hightlight:inputValue"></div>
+                <div class="md2-text" [innerHtml]="o.name | hightlight:inputValue"></div>
             </div>
         </div>
     </div>
@@ -40,7 +40,7 @@ let optionsTemplate = `
     <div class="md2-select-value-container">
         <div class="md2-select-value" *ngIf="!inputMode" tabindex="-1" (^click)="matchClick()">
             <span *ngIf="active.length <= 0" class="md2-select-placeholder">{{placeholder}}</span>
-            <span *ngIf="active.length > 0" class="md2-select-match-text" [ngClass]="{'ui-select-allow-clear': allowClear && active.length > 0}">{{active[0].text}}</span>
+            <span *ngIf="active.length > 0" class="md2-select-match-text" [ngClass]="{'ui-select-allow-clear': allowClear && active.length > 0}">{{active[0].name}}</span>
             <i class="md2-select-icon"></i>
         </div>
         <input type="text" autocomplete="false" tabindex="-1" (keydown)="inputEvent($event)" (keyup)="inputEvent($event, true)" [disabled]="disabled" class="md2-select-input" *ngIf="inputMode" placeholder="{{active.length <= 0 ? placeholder : ''}}">
@@ -52,7 +52,7 @@ let optionsTemplate = `
     <div [ngClass]="{'md2-disabled': disabled}"></div>
         <span class="md2-select-items">
           <span *ngFor="#a of active" class="md2-select-item" tabindex="-1">
-            <span class="md2-select-match-text">{{a.text}}</span>
+            <span class="md2-select-match-text">{{a.name}}</span>
             <a class="md2-select-icon" (click)="remove(a)">&nbsp;&times;</a>
           </span>
         </span>
@@ -307,7 +307,7 @@ export class Select {
     private open() {
         this.options = this.itemObjects
             .filter(option => (this.multiple === false ||
-                this.multiple === true && !this.active.find(o => option.text === o.text)));
+                this.multiple === true && !this.active.find(o => option.name === o.name)));
 
         if (this.options.length > 0) {
             this.behavior.first();
@@ -509,7 +509,7 @@ export class Select {
     }
 
     private isActive(value: SelectItem): boolean {
-        return this.activeOption.text === value.text;
+        return this.activeOption.name === value.name;
     }
 }
 
@@ -601,7 +601,7 @@ export class GenericBehavior extends Behavior implements IOptionsBehavior {
 
     public filter(query: RegExp) {
         let options = this.actor.itemObjects
-            .filter(option => query.test(option.text) &&
+            .filter(option => query.test(option.name) &&
                 (this.actor.multiple === false ||
                     (this.actor.multiple === true &&
                         this.actor.active.indexOf(option) < 0)));
@@ -683,7 +683,7 @@ export class ChildrenBehavior extends Behavior implements IOptionsBehavior {
         let startPos = 0;
 
         for (let si of this.actor.itemObjects) {
-            let children: Array<SelectItem> = si.children.filter(option => query.test(option.text));
+            let children: Array<SelectItem> = si.children.filter(option => query.test(option.name));
             startPos = si.fillChildrenHash(optionsMap, startPos);
 
             if (children.length > 0) {

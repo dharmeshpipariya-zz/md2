@@ -1,21 +1,20 @@
 {
-  "version": "1.7.5",
-  "compilerOptions": {
-    "target": "es5",
-    "module": "commonjs",
-    "sourceMap": true,
-    "declaration": true,
-    "removeComments": true,
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "noImplicitAny": true,
-    "listFiles": false,
-    "noLib": false
-  },
-  "exclude": [
-    "node_modules"
-  ],
-  "files": [
-    "./ng2-select.ts"
-  ]
+    "version": "1.7.5",
+    "compilerOptions": {
+        "target": "es5",
+        "module": "commonjs",
+        "sourceMap": true,
+        "declaration": true,
+        "removeComments": true,
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "noImplicitAny": true,
+        "listFiles": false,
+        "noLib": false
+    },
+    "exclude": [
+        "node_modules",
+        "typings/main",
+        "typings/main.d.ts"
+    ]
 }
