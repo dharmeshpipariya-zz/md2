@@ -58,16 +58,43 @@ enum TransitionCheckState {
  */
 @Component({
     selector: 'md2-switch',
-    template: `<div class="md2-switch-container">
+    template: `<div class="md2-switch-layout">
+<div class="md2-switch-container">
                 <div class="md2-switch-bar"></div>
                 <div class="md2-switch-thumb-container">
                   <div class="md2-switch-thumb"></div>
                 </div>
-            </div>`,
+            </div>
+<label [id]="labelId">
+    <ng-content></ng-content>
+  </label>
+</div>`,
     styles: [`
+.md2-switch-layout{margin: 16px;
+    margin-left: inherit;
+    white-space: nowrap;
+    cursor: pointer;
+    outline: 0;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    height: 30px;
+    line-height: 28px;
+    -webkit-align-items: center;
+    -ms-flex-align: center;
+    align-items: center;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;}
+.md2-switch-layout label{border-color: transparent;
+    border-width: 0;
+cursor: pointer;
+    float: left;}
 .md-switch:focus {
   outline: none; }
 .md-switch .md2-switch-container {
+display: inline-block;
   cursor: pointer;
   width: 36px;
   height: 24px;
