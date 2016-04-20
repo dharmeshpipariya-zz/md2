@@ -13,7 +13,7 @@ var control_value_accessor_1 = require('angular2/src/common/forms/directives/con
 var lang_1 = require('angular2/src/facade/lang');
 var nextId = 0;
 var MD_SWITCH_CONTROL_VALUE_ACCESSOR = lang_1.CONST_EXPR(new core_1.Provider(control_value_accessor_1.NG_VALUE_ACCESSOR, {
-    useExisting: core_1.forwardRef(function () { return MdSwitch; }),
+    useExisting: core_1.forwardRef(function () { return Md2Switch; }),
     multi: true
 }));
 var TransitionCheckState;
@@ -23,8 +23,8 @@ var TransitionCheckState;
     TransitionCheckState[TransitionCheckState["Unchecked"] = 2] = "Unchecked";
     TransitionCheckState[TransitionCheckState["Indeterminate"] = 3] = "Indeterminate";
 })(TransitionCheckState || (TransitionCheckState = {}));
-var MdSwitch = (function () {
-    function MdSwitch(_renderer, _elementRef) {
+var Md2Switch = (function () {
+    function Md2Switch(_renderer, _elementRef) {
         this._renderer = _renderer;
         this._elementRef = _elementRef;
         this.ariaLabel = '';
@@ -40,7 +40,7 @@ var MdSwitch = (function () {
         this._indeterminate = false;
         this._changeSubscription = null;
     }
-    Object.defineProperty(MdSwitch.prototype, "checked", {
+    Object.defineProperty(Md2Switch.prototype, "checked", {
         get: function () {
             return this._checked;
         },
@@ -53,7 +53,7 @@ var MdSwitch = (function () {
         enumerable: true,
         configurable: true
     });
-    Object.defineProperty(MdSwitch.prototype, "indeterminate", {
+    Object.defineProperty(Md2Switch.prototype, "indeterminate", {
         get: function () {
             return this._indeterminate;
         },
@@ -69,42 +69,42 @@ var MdSwitch = (function () {
         enumerable: true,
         configurable: true
     });
-    Object.defineProperty(MdSwitch.prototype, "labelId", {
+    Object.defineProperty(Md2Switch.prototype, "labelId", {
         get: function () {
             return this.id + "-label";
         },
         enumerable: true,
         configurable: true
     });
-    MdSwitch.prototype.getAriaChecked = function () {
+    Md2Switch.prototype.getAriaChecked = function () {
         if (this.indeterminate) {
             return 'mixed';
         }
         return this.checked ? 'true' : 'false';
     };
-    MdSwitch.prototype.toggle = function () {
+    Md2Switch.prototype.toggle = function () {
         this.checked = !this.checked;
     };
-    MdSwitch.prototype.onInteractionEvent = function (event) {
+    Md2Switch.prototype.onInteractionEvent = function (event) {
         if (this.disabled) {
             event.stopPropagation();
             return;
         }
         this.toggle();
     };
-    MdSwitch.prototype.writeValue = function (value) {
+    Md2Switch.prototype.writeValue = function (value) {
         this.checked = !!value;
     };
-    MdSwitch.prototype.registerOnChange = function (fn) {
+    Md2Switch.prototype.registerOnChange = function (fn) {
         if (this._changeSubscription) {
             this._changeSubscription.unsubscribe();
         }
         this._changeSubscription = this.change.subscribe(fn);
     };
-    MdSwitch.prototype.registerOnTouched = function (fn) {
+    Md2Switch.prototype.registerOnTouched = function (fn) {
         this.onTouched = fn;
     };
-    MdSwitch.prototype._transitionCheckState = function (newState) {
+    Md2Switch.prototype._transitionCheckState = function (newState) {
         var oldState = this._currentCheckState;
         var renderer = this._renderer;
         var elementRef = this._elementRef;
@@ -114,7 +114,7 @@ var MdSwitch = (function () {
         this._currentAnimationClass = this._getAnimationClassForCheckStateTransition(oldState, newState);
         this._currentCheckState = newState;
     };
-    MdSwitch.prototype._getAnimationClassForCheckStateTransition = function (oldState, newState) {
+    Md2Switch.prototype._getAnimationClassForCheckStateTransition = function (oldState, newState) {
         var animSuffix;
         switch (oldState) {
             case TransitionCheckState.Init:
@@ -136,36 +136,36 @@ var MdSwitch = (function () {
     __decorate([
         core_1.Input('aria-label'), 
         __metadata('design:type', String)
-    ], MdSwitch.prototype, "ariaLabel", void 0);
+    ], Md2Switch.prototype, "ariaLabel", void 0);
     __decorate([
         core_1.Input(), 
         __metadata('design:type', String)
-    ], MdSwitch.prototype, "id", void 0);
+    ], Md2Switch.prototype, "id", void 0);
     __decorate([
         core_1.Input(), 
         __metadata('design:type', String)
-    ], MdSwitch.prototype, "align", void 0);
+    ], Md2Switch.prototype, "align", void 0);
     __decorate([
         core_1.Input(), 
         __metadata('design:type', Boolean)
-    ], MdSwitch.prototype, "disabled", void 0);
+    ], Md2Switch.prototype, "disabled", void 0);
     __decorate([
         core_1.Input(), 
         __metadata('design:type', Number)
-    ], MdSwitch.prototype, "tabindex", void 0);
+    ], Md2Switch.prototype, "tabindex", void 0);
     __decorate([
         core_1.Output(), 
         __metadata('design:type', core_1.EventEmitter)
-    ], MdSwitch.prototype, "change", void 0);
+    ], Md2Switch.prototype, "change", void 0);
     __decorate([
         core_1.Input(), 
         __metadata('design:type', Object)
-    ], MdSwitch.prototype, "checked", null);
+    ], Md2Switch.prototype, "checked", null);
     __decorate([
         core_1.Input(), 
         __metadata('design:type', Object)
-    ], MdSwitch.prototype, "indeterminate", null);
-    MdSwitch = __decorate([
+    ], Md2Switch.prototype, "indeterminate", null);
+    Md2Switch = __decorate([
         core_1.Component({
             selector: 'md2-switch',
             template: "<div class=\"md2-switch-container\">\n                <div class=\"md2-switch-bar\"></div>\n                <div class=\"md2-switch-thumb-container\">\n                  <div class=\"md2-switch-thumb\"></div>\n                </div>\n            </div>",
@@ -192,8 +192,8 @@ var MdSwitch = (function () {
             changeDetection: core_1.ChangeDetectionStrategy.OnPush
         }), 
         __metadata('design:paramtypes', [core_1.Renderer, core_1.ElementRef])
-    ], MdSwitch);
-    return MdSwitch;
+    ], Md2Switch);
+    return Md2Switch;
 }());
-exports.MdSwitch = MdSwitch;
+exports.Md2Switch = Md2Switch;
 //# sourceMappingURL=switch.js.map

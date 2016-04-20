@@ -1,24 +1,8 @@
-# ng2-select [![npm version](https://badge.fury.io/js/ng2-select.svg)](http://badge.fury.io/js/ng2-select) [![npm downloads](https://img.shields.io/npm/dm/ng2-select.svg)](https://npmjs.org/ng2-select)
+# md2
 
-Follow me at [twitter](https://twitter.com/valorkin) to be notified about new releases.
-
-[![Code Climate](https://codeclimate.com/github/valor-software/ng2-select/badges/gpa.svg)](https://codeclimate.com/github/valor-software/ng2-select)
-[![Join the chat at https://gitter.im/valor-software/ng2-bootstrap](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/valor-software/ng2-bootstrap?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![devDependency Status](https://david-dm.org/valor-software/ng2-select/dev-status.svg)](https://david-dm.org/valor-software/ng2-select#info=devDependencies)
-[![Throughput Graph](https://graphs.waffle.io/valor-software/ng2-select/throughput.svg)](https://waffle.io/valor-software/ng2-select/metrics)
-
-Native Select Angular2 component
+Native Angular2 Material Select component
 
 ## Quick start
-
-1. A recommended way to install ***ng2-select*** is through [npm](https://www.npmjs.com/search?q=ng2-select) package manager using the following command:
-
-  `npm i ng2-select --save`
-
-2. Include `ng2-select.css` in your project
-
-3. More information regarding of using ***ng2-select*** is located in
-  [demo](http://valor-software.github.io/ng2-select/) and [demo sources](https://github.com/valor-software/ng2-select/tree/master/demo).
 
 ## API
 
@@ -44,20 +28,6 @@ Native Select Angular2 component
   - `removed` - it fires after an option removed; returns object with `id` and `text` properties that describes a removed option.
   - `typed` - it fires after changing of search input; returns `string` with that value.
 
-# Troubleshooting
-
-Please follow this guidelines when reporting bugs and feature requests:
-
-1. Use [GitHub Issues](https://github.com/valor-software/ng2-select/issues) board to report bugs and feature requests (not our email address)
-2. Please **always** write steps to reproduce the error. That way we can focus on fixing the bug, not scratching our heads trying to reproduce it.
-
-Thanks for understanding!
-
-### License
-
-The MIT License (see the [LICENSE](https://github.com/valor-software/ng2-select/blob/master/LICENSE) file for the full text)
-
 
 ### Referenced From
-
-ng2-select (see the repo (https://github.com/valor-software/ng2-select) repository for the angular2 based select component)
+ng2-select (see the repo [https://github.com/valor-software/ng2-select](https://github.com/valor-software/ng2-select) repository for the angular2 based select component)

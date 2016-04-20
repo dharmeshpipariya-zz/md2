@@ -1,6 +1,6 @@
 import { ElementRef, EventEmitter, Renderer } from 'angular2/core';
 import { ControlValueAccessor } from 'angular2/src/common/forms/directives/control_value_accessor';
-export declare class MdSwitch implements ControlValueAccessor {
+export declare class Md2Switch implements ControlValueAccessor {
     private _renderer;
     private _elementRef;
     ariaLabel: string;

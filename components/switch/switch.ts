@@ -30,7 +30,7 @@ let nextId = 0;
  */
 const MD_SWITCH_CONTROL_VALUE_ACCESSOR = CONST_EXPR(new Provider(
     NG_VALUE_ACCESSOR, {
-        useExisting: forwardRef(() => MdSwitch),
+        useExisting: forwardRef(() => Md2Switch),
         multi: true
     }));
 
@@ -145,7 +145,7 @@ enum TransitionCheckState {
     encapsulation: ViewEncapsulation.None,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class MdSwitch implements ControlValueAccessor {
+export class Md2Switch implements ControlValueAccessor {
     /**
      * Attached to the aria-label attribute of the host element. In most cases, arial-labelledby will
      * take precedence so this may be omitted.

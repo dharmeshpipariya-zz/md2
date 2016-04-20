@@ -1,13 +1,13 @@
 ### Usage
 ```typescript
-import {SELECT_DIRECTIVES} from 'ng2-select/ng2-select';
+import {Md2Select} from 'md2/select';
 ```
 
 ### Annotations
 ```typescript
 // class Select
 @Component({
-  selector: 'ng2-select',
+  selector: 'md2-select',
   properties: [
     'allowClear',
     'placeholder',
