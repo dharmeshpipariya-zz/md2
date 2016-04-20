@@ -1,2 +1,3 @@
-export * from './components/select/select';
-export * from './components/select';
+export * from './switch';
+export * from './select';
+export * from './modal';

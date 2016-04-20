@@ -2,5 +2,5 @@
 function __export(m) {
     for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
 }
-__export(require('./switch/switch'));
+__export(require('./components/switch/switch'));
 //# sourceMappingURL=switch.js.map
