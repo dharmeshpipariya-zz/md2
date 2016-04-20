@@ -2,13 +2,13 @@ import {Component, ElementRef, Input, Output, EventEmitter} from 'angular2/core'
 import {CORE_DIRECTIVES} from 'angular2/common';
 
 @Component({
-    selector: 'md2-modal',
+    selector: 'md2-dialog',
     template: `
     <div class="modal" [ngClass]="{customFadeIn: displayed}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" [style.display]="displayed ? 'block' : 'none'">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <button *ngIf="closeButton" type="button" class="close" aria-label="Close" (click)="showModal(false)">
+                <button *ngIf="closeButton" type="button" class="close" aria-label="Close" (click)="show(false)">
                     <span aria-hidden="true">&#215;</span>
                     <span class="sr-only">Close</span>
                 </button>
@@ -26,12 +26,13 @@ import {CORE_DIRECTIVES} from 'angular2/common';
     },
     directives: [CORE_DIRECTIVES]
 })
-export class Modal {
+
+export class Md2Dialog {
     private _el: HTMLElement;
     displayed: boolean = false;
     @Input() closeOnUnfocus: boolean = true;
     @Input() closeButton: boolean = true;
-    @Input() modalTitle: string = '';
+    @Input() dialogTitle: string = '';
 
     constructor(el: ElementRef) {
         this._el = el.nativeElement;
@@ -39,8 +40,9 @@ export class Modal {
 
     clickElement(e: any) {
         if (this.closeOnUnfocus) {
-            if (e.srcElement.className == 'modal customFadeIn' || e.srcElement.className == 'modal-dialog')
-                this.showModal(false);
+            if (e.srcElement.className == 'modal customFadeIn' || e.srcElement.className == 'modal-dialog') {
+                this.show(false);
+            }
         }
     }
 
@@ -48,38 +50,30 @@ export class Modal {
         return this._el;
     }
 
-    closeModal(): boolean {
-        return this.showModal(false);
+    hide(): boolean {
+        return this.show(false);
     }
 
-    showModal(isDisplayed: boolean): boolean {
+    show(isDisplayed: boolean): boolean {
         var body = document.body;
-
         if (isDisplayed === undefined) {
             this.displayed = !this.displayed;
-        }
-        else {
+        } else {
             this.displayed = isDisplayed;
         }
 
         if (this.displayed) {
             body.classList.add('modal-open');
-        }
-        else {
+        } else {
             body.classList.remove('modal-open');
-
             if (this.closeOnUnfocus) {
                 this._el.childNodes[0].removeEventListener('click', (e: Event) => {
-                    if (e.srcElement.className == 'modal customFadeIn' || e.srcElement.className == 'modal-dialog')
-                        this.showModal(false);
+                    if (e.srcElement.className == 'modal customFadeIn' || e.srcElement.className == 'modal-dialog') {
+                        this.show(false);
+                    }
                 });
             }
         }
-
         return false;
     }
 }
-
-export var MODAL_PROVIDERS = [
-    Modal
-];
