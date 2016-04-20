@@ -701,3 +701,6 @@ export class ChildrenBehavior extends Behavior implements IOptionsBehavior {
         }
     }
 }
+
+
+export const Md2Select: Array<any> = [Select];

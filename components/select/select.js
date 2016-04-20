@@ -509,4 +509,5 @@ var ChildrenBehavior = (function (_super) {
     return ChildrenBehavior;
 }(Behavior));
 exports.ChildrenBehavior = ChildrenBehavior;
+exports.Md2Select = [Select];
 //# sourceMappingURL=select.js.map
