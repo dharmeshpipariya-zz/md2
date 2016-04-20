@@ -3,7 +3,6 @@ import { AutocompleteItem } from './autocomplete-item';
 import { IOptionsBehavior } from './autocomplete-interfaces';
 export declare class Autocomplete {
     element: ElementRef;
-    allowClear: boolean;
     placeholder: string;
     item: string;
     initData: Array<any>;

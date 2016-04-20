@@ -13,21 +13,21 @@ import {IOptionsBehavior} from './autocomplete-interfaces';
     <div class="md2-autocomplete-value-container">
         <div class="md2-autocomplete-value" *ngIf="!inputMode" tabindex="-1" (^click)="matchClick()">
             <span *ngIf="active.length <= 0" class="md2-autocomplete-placeholder">{{placeholder}}</span>
-            <span *ngIf="active.length > 0" class="md2-autocomplete-match-text" [ngClass]="{'ui-autocomplete-allow-clear': allowClear && active.length > 0}">{{active[0].text}}</span>
-            <i *ngIf="allowClear && active.length>0" (click)="remove(activeOption)" class="md2-autocomplete-icon-clear"></i>
+            <span *ngIf="active.length > 0" class="md2-autocomplete-match-text">{{active[0].name}}</span>
+            <i *ngIf="active.length>0" (click)="remove(activeOption)" class="md2-autocomplete-icon-clear"></i>
         </div>
         <input type="text" autocomplete="false" tabindex="-1" (keydown)="inputEvent($event)" (keyup)="inputEvent($event, true)" [disabled]="disabled" class="md2-autocomplete-input" *ngIf="inputMode" placeholder="{{active.length <= 0 ? placeholder : ''}}">
     </div>
     <ul *ngIf="optionsOpened && options && options.length > 0 && !itemObjects[0].hasChildren()" class="md2-autocomplete-menu">
         <li class="md2-option" *ngFor="#o of options" [class.active]="isActive(o)" (mouseenter)="activeItem(o)" (click)="matchItem(o, $event)">
-            <div class="md2-text" [innerHtml]="o.text | hightlight:inputValue"></div>
+            <div class="md2-text" [innerHtml]="o.name | hightlight:inputValue"></div>
         </li>
     </ul>
     <div *ngIf="optionsOpened && options && options.length > 0 && itemObjects[0].hasChildren()" class="md2-autocomplete-menu">
         <div class="md2-optgroup" *ngFor="#c of options; #index=index">
-            <label>{{c.text}}</label>
+            <label>{{c.name}}</label>
             <div class="md2-option" *ngFor="#o of c.children" [class.active]="isActive(o)" (mouseenter)="activeItem(o)" (click)="matchItem(o, $event)">
-                <div class="md2-text" [innerHtml]="o.text | hightlight:inputValue"></div>
+                <div class="md2-text" [innerHtml]="o.name | hightlight:inputValue"></div>
             </div>
         </div>
     </div>    
@@ -79,15 +79,42 @@ import {IOptionsBehavior} from './autocomplete-interfaces';
         white-space: nowrap;
         overflow: hidden; }
       .md2-autocomplete-container .md2-autocomplete-value-container .md2-autocomplete-value .md2-autocomplete-icon-clear {
-        display: block;
-        width: 30px;
-        height: 30px;
-        border-left: 6px solid transparent;
-        border-right: 6px solid transparent;
-        border-top: 6px solid rgba(0, 0, 0, 0.60);
+        position: relative;
+        display: inline-block;
+        width: 18px;
+        height: 18px;
         margin: 0 4px;
-        -webkit-transform: translate3d(0, 1px, 0);
-        transform: translate3d(0, 1px, 0); }
+        overflow: hidden;
+    }
+    .md2-autocomplete-container .md2-autocomplete-value-container .md2-autocomplete-value .md2-autocomplete-icon-clear::before,
+    .md2-autocomplete-container .md2-autocomplete-value-container .md2-autocomplete-value .md2-autocomplete-icon-clear::after {
+        content: '';
+        position: absolute;
+        height: 2px;
+        width: 100%;
+        top: 50%;
+        left: 0;
+        margin-top: -1px;
+        background: #888;
+        border-radius: 2px;
+        height: 2px;
+    }
+.md2-autocomplete-container .md2-autocomplete-value-container .md2-autocomplete-value .md2-autocomplete-icon-clear::before {
+    -webkit-transform: rotate(45deg);
+    -moz-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    -o-transform: rotate(45deg);
+    transform: rotate(45deg);
+}
+.md2-autocomplete-container .md2-autocomplete-value-container .md2-autocomplete-value .md2-autocomplete-icon-clear::after {
+    -webkit-transform: rotate(-45deg);
+    -moz-transform: rotate(-45deg);
+    -ms-transform: rotate(-45deg);
+    -o-transform: rotate(-45deg);
+    transform: rotate(-45deg);
+}
+
+
       .md2-autocomplete-container .md2-autocomplete-value-container .md2-autocomplete-value .md2-autocomplete-placeholder {
         color: rgba(0, 0, 0, 0.38); }
     .md2-autocomplete-container .md2-autocomplete-value-container .md2-autocomplete-input {
@@ -167,8 +194,6 @@ pointer-events: none;
 `]
 })
 export class Autocomplete {
-    @Input()
-    allowClear: boolean = false;
     @Input()
     placeholder: string = '';
 
@@ -273,7 +298,7 @@ export class Autocomplete {
 
     private open() {
         this.options = this.itemObjects
-            .filter(option => (!this.active.find(o => option.text === o.text)));
+            .filter(option => (!this.active.find(o => option.name === o.name)));
 
         if (this.options.length > 0) {
             this.behavior.first();
@@ -454,7 +479,7 @@ export class Autocomplete {
     }
 
     private isActive(value: AutocompleteItem): boolean {
-        return this.activeOption.text === value.text;
+        return this.activeOption.name === value.name;
     }
 }
 
@@ -546,7 +571,7 @@ export class GenericBehavior extends Behavior implements IOptionsBehavior {
 
     public filter(query: RegExp) {
         let options = this.actor.itemObjects
-            .filter(option => query.test(option.text));
+            .filter(option => query.test(option.name));
         this.actor.options = options;
 
         if (this.actor.options.length > 0) {
@@ -625,7 +650,7 @@ export class ChildrenBehavior extends Behavior implements IOptionsBehavior {
         let startPos = 0;
 
         for (let si of this.actor.itemObjects) {
-            let children: Array<AutocompleteItem> = si.children.filter(option => query.test(option.text));
+            let children: Array<AutocompleteItem> = si.children.filter(option => query.test(option.name));
             startPos = si.fillChildrenHash(optionsMap, startPos);
 
             if (children.length > 0) {

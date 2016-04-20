@@ -3,18 +3,18 @@ var AutocompleteItem = (function () {
     function AutocompleteItem(source) {
         var _this = this;
         if (typeof source === 'string') {
-            this.id = this.text = source;
+            this.id = this.name = source;
         }
         if (typeof source === 'object') {
-            this.id = source.id || source.text;
-            this.text = source.text;
-            if (source.children && source.text) {
+            this.id = source.id || source.name;
+            this.name = source.name;
+            if (source.children && source.name) {
                 this.children = source.children.map(function (c) {
                     var r = new AutocompleteItem(c);
                     r.parent = _this;
                     return r;
                 });
-                this.text = source.text;
+                this.name = source.name;
             }
         }
     }
@@ -31,7 +31,7 @@ var AutocompleteItem = (function () {
     AutocompleteItem.prototype.getSimilar = function () {
         var r = new AutocompleteItem(false);
         r.id = this.id;
-        r.text = this.text;
+        r.name = this.name;
         r.parent = this.parent;
         return r;
     };

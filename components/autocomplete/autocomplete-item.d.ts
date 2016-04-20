@@ -1,6 +1,6 @@
 export declare class AutocompleteItem {
     id: string;
-    text: string;
+    name: string;
     children: Array<AutocompleteItem>;
     parent: AutocompleteItem;
     constructor(source: any);

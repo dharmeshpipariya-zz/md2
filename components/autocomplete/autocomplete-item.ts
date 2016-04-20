@@ -1,25 +1,25 @@
 export class AutocompleteItem {
     public id: string;
-    public text: string;
+    public name: string;
     public children: Array<AutocompleteItem>;
     public parent: AutocompleteItem;
 
     constructor(source: any) {
         if (typeof source === 'string') {
-            this.id = this.text = source;
+            this.id = this.name = source;
         }
 
         if (typeof source === 'object') {
-            this.id = source.id || source.text;
-            this.text = source.text;
+            this.id = source.id || source.name;
+            this.name = source.name;
 
-            if (source.children && source.text) {
+            if (source.children && source.name) {
                 this.children = source.children.map((c: any) => {
                     let r: AutocompleteItem = new AutocompleteItem(c);
                     r.parent = this;
                     return r;
                 });
-                this.text = source.text;
+                this.name = source.name;
             }
         }
     }
@@ -40,7 +40,7 @@ export class AutocompleteItem {
     public getSimilar(): AutocompleteItem {
         let r: AutocompleteItem = new AutocompleteItem(false);
         r.id = this.id;
-        r.text = this.text;
+        r.name = this.name;
         r.parent = this.parent;
         return r;
     }
