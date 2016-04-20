@@ -97,10 +97,10 @@ import {IOptionsBehavior} from './autocomplete-interfaces';
       background: transparent;
       border: 0;
       align-items: center;
-      padding: 2px 0 0;
-      border-bottom-width: 2px;
+      padding: 2px 0 1px;
+      border-bottom-width: 1px;
       border-bottom-style: solid;
-      border-bottom-color: #106cc8;
+      border-bottom-color: rgba(0, 0, 0, 0.38);
       position: relative;
       box-sizing: content-box;
       min-width: 64px;
@@ -218,7 +218,7 @@ export class Autocomplete {
 
     private focusToInput(value: string = '') {
         setTimeout(() => {
-            let el = this.element.nativeElement.querySelector('div.md2-autocomplete-container > input');
+            let el = this.element.nativeElement.querySelector('div.md2-autocomplete-container input');
             if (el) {
                 el.focus();
                 el.value = value;
@@ -354,7 +354,7 @@ export class Autocomplete {
         // backspace
         if (!isUpMode && e.keyCode === 8) {
             let el: any = this.element.nativeElement
-                .querySelector('div.md2-autocomplete-container > input');
+                .querySelector('div.md2-autocomplete-container input');
 
             if (!el.value || el.value.length <= 0) {
                 if (this.active.length > 0) {

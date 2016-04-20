@@ -65,7 +65,7 @@ var Select = (function () {
         var _this = this;
         if (value === void 0) { value = ''; }
         setTimeout(function () {
-            var el = _this.element.nativeElement.querySelector('div.md2-select-container > input');
+            var el = _this.element.nativeElement.querySelector('div.md2-select-container input');
             if (el) {
                 el.focus();
                 el.value = value;
@@ -188,7 +188,7 @@ var Select = (function () {
         }
         if (!isUpMode && e.keyCode === 8) {
             var el = this.element.nativeElement
-                .querySelector('div.md2-select-container > input');
+                .querySelector('div.md2-select-container input');
             if (!el.value || el.value.length <= 0) {
                 if (this.active.length > 0) {
                     this.remove(this.active[this.active.length - 1]);

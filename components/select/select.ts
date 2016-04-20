@@ -251,7 +251,7 @@ export class Select {
 
     private focusToInput(value: string = '') {
         setTimeout(() => {
-            let el = this.element.nativeElement.querySelector('div.md2-select-container > input');
+            let el = this.element.nativeElement.querySelector('div.md2-select-container input');
             if (el) {
                 el.focus();
                 el.value = value;
@@ -398,7 +398,7 @@ export class Select {
         // backspace
         if (!isUpMode && e.keyCode === 8) {
             let el: any = this.element.nativeElement
-                .querySelector('div.md2-select-container > input');
+                .querySelector('div.md2-select-container input');
 
             if (!el.value || el.value.length <= 0) {
                 if (this.active.length > 0) {
