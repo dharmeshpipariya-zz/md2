@@ -14,7 +14,7 @@ import {IOptionsBehavior} from './autocomplete-interfaces';
         <div class="md2-autocomplete-value" *ngIf="!inputMode" tabindex="-1" (^click)="matchClick()">
             <span *ngIf="active.length <= 0" class="md2-autocomplete-placeholder">{{placeholder}}</span>
             <span *ngIf="active.length > 0" class="md2-autocomplete-match-text" [ngClass]="{'ui-autocomplete-allow-clear': allowClear && active.length > 0}">{{active[0].text}}</span>
-            <i class="md2-autocomplete-icon"></i>
+            <i *ngIf="allowClear && active.length>0" (click)="remove(activeOption)" class="md2-autocomplete-icon-clear"></i>
         </div>
         <input type="text" autocomplete="false" tabindex="-1" (keydown)="inputEvent($event)" (keyup)="inputEvent($event, true)" [disabled]="disabled" class="md2-autocomplete-input" *ngIf="inputMode" placeholder="{{active.length <= 0 ? placeholder : ''}}">
     </div>
@@ -78,14 +78,10 @@ import {IOptionsBehavior} from './autocomplete-interfaces';
         text-overflow: ellipsis;
         white-space: nowrap;
         overflow: hidden; }
-      .md2-autocomplete-container .md2-autocomplete-value-container .md2-autocomplete-value .md2-autocomplete-icon {
+      .md2-autocomplete-container .md2-autocomplete-value-container .md2-autocomplete-value .md2-autocomplete-icon-clear {
         display: block;
-        -webkit-align-items: flex-end;
-        -ms-flex-align: end;
-        align-items: flex-end;
-        text-align: end;
-        width: 0;
-        height: 0;
+        width: 30px;
+        height: 30px;
         border-left: 6px solid transparent;
         border-right: 6px solid transparent;
         border-top: 6px solid rgba(0, 0, 0, 0.60);
@@ -114,7 +110,7 @@ import {IOptionsBehavior} from './autocomplete-interfaces';
   .md2-autocomplete-container .md2-autocomplete-menu {
     position: absolute;
     left: 0;
-    top: 0;
+    top: 100%;
     display: block;
 z-index:10;
     flex-direction: column;
@@ -647,3 +643,5 @@ export class ChildrenBehavior extends Behavior implements IOptionsBehavior {
         }
     }
 }
+
+export const Md2Autocomplete: Array<any> = [Autocomplete];

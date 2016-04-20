@@ -67,3 +67,4 @@ export declare class ChildrenBehavior extends Behavior implements IOptionsBehavi
     next(): void;
     filter(query: RegExp): void;
 }
+export declare const Md2Autocomplete: Array<any>;
