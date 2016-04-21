@@ -202,10 +202,7 @@ export class Select {
     placeholder: string = '';
 
     @Input()
-    item: string = '';
-
-    @Input()
-    initData: Array<any> = [];
+    initItem: Array<any> = [];
 
     @Input()
     multiple: boolean = false;
@@ -319,8 +316,8 @@ export class Select {
         this.offSideClickHandler = this.getOffSideClickHandler(this);
         document.addEventListener('click', this.offSideClickHandler);
 
-        if (this.initData) {
-            this.active = this.initData.map(d => new SelectItem(d));
+        if (this.initItem) {
+            this.active = this.initItem.map(d => new SelectItem(d));
             this.data.emit(this.active);
         }
     }
@@ -491,7 +488,7 @@ export class Select {
             this.data.next(this.active[0]);
         }
 
-        this.doEvent('selected', value.value);
+        this.doEvent('selected', value);
         this.hideOptions();
 
         if (this.multiple === true) {

@@ -21,8 +21,7 @@ var Select = (function () {
     function Select(element) {
         this.element = element;
         this.placeholder = '';
-        this.item = '';
-        this.initData = [];
+        this.initItem = [];
         this.multiple = false;
         this.data = new core_1.EventEmitter();
         this.selected = new core_1.EventEmitter();
@@ -119,8 +118,8 @@ var Select = (function () {
             new ChildrenBehavior(this) : new GenericBehavior(this);
         this.offSideClickHandler = this.getOffSideClickHandler(this);
         document.addEventListener('click', this.offSideClickHandler);
-        if (this.initData) {
-            this.active = this.initData.map(function (d) { return new select_item_1.SelectItem(d); });
+        if (this.initItem) {
+            this.active = this.initItem.map(function (d) { return new select_item_1.SelectItem(d); });
             this.data.emit(this.active);
         }
     };
@@ -256,7 +255,7 @@ var Select = (function () {
             this.active[0] = value;
             this.data.next(this.active[0]);
         }
-        this.doEvent('selected', value.value);
+        this.doEvent('selected', value);
         this.hideOptions();
         if (this.multiple === true) {
             this.focusToInput('');
@@ -277,12 +276,8 @@ var Select = (function () {
     ], Select.prototype, "placeholder", void 0);
     __decorate([
         core_1.Input(), 
-        __metadata('design:type', String)
-    ], Select.prototype, "item", void 0);
-    __decorate([
-        core_1.Input(), 
         __metadata('design:type', Array)
-    ], Select.prototype, "initData", void 0);
+    ], Select.prototype, "initItem", void 0);
     __decorate([
         core_1.Input(), 
         __metadata('design:type', Boolean)

@@ -4,8 +4,7 @@ import { IOptionsBehavior } from './select-interfaces';
 export declare class Select {
     element: ElementRef;
     placeholder: string;
-    item: string;
-    initData: Array<any>;
+    initItem: Array<any>;
     multiple: boolean;
     items: Array<any>;
     disabled: boolean;
