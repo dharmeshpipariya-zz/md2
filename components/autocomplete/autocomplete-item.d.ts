@@ -1,5 +1,5 @@
 export declare class AutocompleteItem {
-    id: string;
+    value: string;
     name: string;
     children: Array<AutocompleteItem>;
     parent: AutocompleteItem;

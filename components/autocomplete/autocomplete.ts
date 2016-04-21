@@ -203,7 +203,7 @@ export class Autocomplete {
     }
 
     @Input()
-    initData: Array<any> = [];
+    initItem: Array<any> = [];
 
     @Input() set items(value: Array<any>) {
         this._items = value;
@@ -220,7 +220,7 @@ export class Autocomplete {
     @Output()
     data: EventEmitter<any> = new EventEmitter();
     @Output()
-    ngModel: EventEmitter<any> = new EventEmitter();
+    selected: EventEmitter<any> = new EventEmitter();
     @Output()
     removed: EventEmitter<any> = new EventEmitter();
     @Output()
@@ -313,8 +313,8 @@ export class Autocomplete {
         this.offSideClickHandler = this.getOffSideClickHandler(this);
         document.addEventListener('click', this.offSideClickHandler);
 
-        if (this.initData) {
-            this.active = this.initData.map(d => new AutocompleteItem(d));
+        if (this.initItem) {
+            this.active = this.initItem.map(d => new AutocompleteItem(d));
             this.data.emit(this.active);
         }
     }
@@ -468,7 +468,7 @@ export class Autocomplete {
         this.active[0] = value;
         this.data.next(this.active[0]);
 
-        this.doEvent('ngModel', value);
+        this.doEvent('selected', value);
         this.hideOptions();
 
         this.element.nativeElement.querySelector('.md2-autocomplete-container').focus();
@@ -493,7 +493,7 @@ export class Behavior {
         let ai = this.actor.options.indexOf(this.actor.activeOption);
 
         if (ai < 0 && optionsMap !== null) {
-            ai = optionsMap.get(this.actor.activeOption.id);
+            ai = optionsMap.get(this.actor.activeOption.value);
         }
 
         return ai;
@@ -603,9 +603,9 @@ export class ChildrenBehavior extends Behavior implements IOptionsBehavior {
 
     public prev() {
         let indexParent = this.actor.options
-            .findIndex(a => this.actor.activeOption.parent && this.actor.activeOption.parent.id === a.id);
+            .findIndex(a => this.actor.activeOption.parent && this.actor.activeOption.parent.value === a.value);
         let index = this.actor.options[indexParent].children
-            .findIndex(a => this.actor.activeOption && this.actor.activeOption.id === a.id);
+            .findIndex(a => this.actor.activeOption && this.actor.activeOption.value === a.value);
         this.actor.activeOption = this.actor.options[indexParent].children[index - 1];
 
         if (!this.actor.activeOption) {
@@ -626,9 +626,9 @@ export class ChildrenBehavior extends Behavior implements IOptionsBehavior {
 
     public next() {
         let indexParent = this.actor.options
-            .findIndex(a => this.actor.activeOption.parent && this.actor.activeOption.parent.id === a.id);
+            .findIndex(a => this.actor.activeOption.parent && this.actor.activeOption.parent.value === a.value);
         let index = this.actor.options[indexParent].children
-            .findIndex(a => this.actor.activeOption && this.actor.activeOption.id === a.id);
+            .findIndex(a => this.actor.activeOption && this.actor.activeOption.value === a.value);
         this.actor.activeOption = this.actor.options[indexParent].children[index + 1];
         if (!this.actor.activeOption) {
             if (this.actor.options[indexParent + 1]) {

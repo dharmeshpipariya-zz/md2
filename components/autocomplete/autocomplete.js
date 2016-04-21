@@ -20,9 +20,9 @@ var Autocomplete = (function () {
     function Autocomplete(element) {
         this.element = element;
         this.placeholder = '';
-        this.initData = [];
+        this.initItem = [];
         this.data = new core_1.EventEmitter();
-        this.ngModel = new core_1.EventEmitter();
+        this.selected = new core_1.EventEmitter();
         this.removed = new core_1.EventEmitter();
         this.typed = new core_1.EventEmitter();
         this.options = [];
@@ -121,8 +121,8 @@ var Autocomplete = (function () {
             new ChildrenBehavior(this) : new GenericBehavior(this);
         this.offSideClickHandler = this.getOffSideClickHandler(this);
         document.addEventListener('click', this.offSideClickHandler);
-        if (this.initData) {
-            this.active = this.initData.map(function (d) { return new autocomplete_item_1.AutocompleteItem(d); });
+        if (this.initItem) {
+            this.active = this.initItem.map(function (d) { return new autocomplete_item_1.AutocompleteItem(d); });
             this.data.emit(this.active);
         }
     };
@@ -244,7 +244,7 @@ var Autocomplete = (function () {
         }
         this.active[0] = value;
         this.data.next(this.active[0]);
-        this.doEvent('ngModel', value);
+        this.doEvent('selected', value);
         this.hideOptions();
         this.element.nativeElement.querySelector('.md2-autocomplete-container').focus();
     };
@@ -266,7 +266,7 @@ var Autocomplete = (function () {
     __decorate([
         core_1.Input(), 
         __metadata('design:type', Array)
-    ], Autocomplete.prototype, "initData", void 0);
+    ], Autocomplete.prototype, "initItem", void 0);
     __decorate([
         core_1.Input(), 
         __metadata('design:type', Array), 
@@ -284,7 +284,7 @@ var Autocomplete = (function () {
     __decorate([
         core_1.Output(), 
         __metadata('design:type', core_1.EventEmitter)
-    ], Autocomplete.prototype, "ngModel", void 0);
+    ], Autocomplete.prototype, "selected", void 0);
     __decorate([
         core_1.Output(), 
         __metadata('design:type', core_1.EventEmitter)
@@ -314,7 +314,7 @@ var Behavior = (function () {
         if (optionsMap === void 0) { optionsMap = null; }
         var ai = this.actor.options.indexOf(this.actor.activeOption);
         if (ai < 0 && optionsMap !== null) {
-            ai = optionsMap.get(this.actor.activeOption.id);
+            ai = optionsMap.get(this.actor.activeOption.value);
         }
         return ai;
     };
@@ -416,9 +416,9 @@ var ChildrenBehavior = (function (_super) {
     ChildrenBehavior.prototype.prev = function () {
         var _this = this;
         var indexParent = this.actor.options
-            .findIndex(function (a) { return _this.actor.activeOption.parent && _this.actor.activeOption.parent.id === a.id; });
+            .findIndex(function (a) { return _this.actor.activeOption.parent && _this.actor.activeOption.parent.value === a.value; });
         var index = this.actor.options[indexParent].children
-            .findIndex(function (a) { return _this.actor.activeOption && _this.actor.activeOption.id === a.id; });
+            .findIndex(function (a) { return _this.actor.activeOption && _this.actor.activeOption.value === a.value; });
         this.actor.activeOption = this.actor.options[indexParent].children[index - 1];
         if (!this.actor.activeOption) {
             if (this.actor.options[indexParent - 1]) {
@@ -436,9 +436,9 @@ var ChildrenBehavior = (function (_super) {
     ChildrenBehavior.prototype.next = function () {
         var _this = this;
         var indexParent = this.actor.options
-            .findIndex(function (a) { return _this.actor.activeOption.parent && _this.actor.activeOption.parent.id === a.id; });
+            .findIndex(function (a) { return _this.actor.activeOption.parent && _this.actor.activeOption.parent.value === a.value; });
         var index = this.actor.options[indexParent].children
-            .findIndex(function (a) { return _this.actor.activeOption && _this.actor.activeOption.id === a.id; });
+            .findIndex(function (a) { return _this.actor.activeOption && _this.actor.activeOption.value === a.value; });
         this.actor.activeOption = this.actor.options[indexParent].children[index + 1];
         if (!this.actor.activeOption) {
             if (this.actor.options[indexParent + 1]) {

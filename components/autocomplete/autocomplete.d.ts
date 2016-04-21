@@ -5,11 +5,11 @@ export declare class Autocomplete {
     element: ElementRef;
     placeholder: string;
     item: string;
-    initData: Array<any>;
+    initItem: Array<any>;
     items: Array<any>;
     disabled: boolean;
     data: EventEmitter<any>;
-    ngModel: EventEmitter<any>;
+    selected: EventEmitter<any>;
     removed: EventEmitter<any>;
     typed: EventEmitter<any>;
     options: Array<AutocompleteItem>;
