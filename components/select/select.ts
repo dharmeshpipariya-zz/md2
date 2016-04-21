@@ -40,7 +40,7 @@ let optionsTemplate = `
     <div class="md2-select-value-container">
         <div class="md2-select-value" *ngIf="!inputMode" tabindex="-1" (^click)="matchClick()">
             <span *ngIf="active.length <= 0" class="md2-select-placeholder">{{placeholder}}</span>
-            <span *ngIf="active.length > 0" class="md2-select-match-text" [ngClass]="{'ui-select-allow-clear': allowClear && active.length > 0}">{{active[0].name}}</span>
+            <span *ngIf="active.length > 0" class="md2-select-match-text">{{active[0].name}}</span>
             <i class="md2-select-icon"></i>
         </div>
         <input type="text" autocomplete="false" tabindex="-1" (keydown)="inputEvent($event)" (keyup)="inputEvent($event, true)" [disabled]="disabled" class="md2-select-input" *ngIf="inputMode" placeholder="{{active.length <= 0 ? placeholder : ''}}">
@@ -199,17 +199,14 @@ pointer-events: none;
 })
 export class Select {
     @Input()
-    allowClear: boolean = false;
-    @Input()
     placeholder: string = '';
 
-    //_item: string = '';
-    @Input() set item(value: string) {
-
-    }
+    @Input()
+    item: string = '';
 
     @Input()
     initData: Array<any> = [];
+
     @Input()
     multiple: boolean = false;
 
@@ -228,7 +225,7 @@ export class Select {
     @Output()
     data: EventEmitter<any> = new EventEmitter();
     @Output()
-    ngModel: EventEmitter<any> = new EventEmitter();
+    selected: EventEmitter<any> = new EventEmitter();
     @Output()
     removed: EventEmitter<any> = new EventEmitter();
     @Output()
@@ -494,7 +491,7 @@ export class Select {
             this.data.next(this.active[0]);
         }
 
-        this.doEvent('ngModel', value);
+        this.doEvent('selected', value.value);
         this.hideOptions();
 
         if (this.multiple === true) {
@@ -523,7 +520,7 @@ export class Behavior {
         let ai = this.actor.options.indexOf(this.actor.activeOption);
 
         if (ai < 0 && optionsMap !== null) {
-            ai = optionsMap.get(this.actor.activeOption.id);
+            ai = optionsMap.get(this.actor.activeOption.value);
         }
 
         return ai;
@@ -636,9 +633,9 @@ export class ChildrenBehavior extends Behavior implements IOptionsBehavior {
 
     public prev() {
         let indexParent = this.actor.options
-            .findIndex(a => this.actor.activeOption.parent && this.actor.activeOption.parent.id === a.id);
+            .findIndex(a => this.actor.activeOption.parent && this.actor.activeOption.parent.value === a.value);
         let index = this.actor.options[indexParent].children
-            .findIndex(a => this.actor.activeOption && this.actor.activeOption.id === a.id);
+            .findIndex(a => this.actor.activeOption && this.actor.activeOption.value === a.value);
         this.actor.activeOption = this.actor.options[indexParent].children[index - 1];
 
         if (!this.actor.activeOption) {
@@ -659,9 +656,9 @@ export class ChildrenBehavior extends Behavior implements IOptionsBehavior {
 
     public next() {
         let indexParent = this.actor.options
-            .findIndex(a => this.actor.activeOption.parent && this.actor.activeOption.parent.id === a.id);
+            .findIndex(a => this.actor.activeOption.parent && this.actor.activeOption.parent.value === a.value);
         let index = this.actor.options[indexParent].children
-            .findIndex(a => this.actor.activeOption && this.actor.activeOption.id === a.id);
+            .findIndex(a => this.actor.activeOption && this.actor.activeOption.value === a.value);
         this.actor.activeOption = this.actor.options[indexParent].children[index + 1];
         if (!this.actor.activeOption) {
             if (this.actor.options[indexParent + 1]) {

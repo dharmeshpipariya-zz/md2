@@ -1,16 +1,16 @@
 export class SelectItem {
-    public id: string;
+    public value: string;
     public name: string;
     public children: Array<SelectItem>;
     public parent: SelectItem;
 
     constructor(source: any) {
         if (typeof source === 'string') {
-            this.id = this.name = source;
+            this.value = this.name = source;
         }
 
         if (typeof source === 'object') {
-            this.id = source.id || source.name;
+            this.value = source.value || source.name;
             this.name = source.name;
 
             if (source.children && source.name) {
@@ -27,7 +27,7 @@ export class SelectItem {
     public fillChildrenHash(optionsMap: Map<string, number>, startIndex: number): number {
         let i = startIndex;
         this.children.map(child => {
-            optionsMap.set(child.id, i++);
+            optionsMap.set(child.value, i++);
         });
 
         return i;
@@ -39,7 +39,7 @@ export class SelectItem {
 
     public getSimilar(): SelectItem {
         let r: SelectItem = new SelectItem(false);
-        r.id = this.id;
+        r.value = this.value;
         r.name = this.name;
         r.parent = this.parent;
         return r;

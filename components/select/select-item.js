@@ -3,10 +3,10 @@ var SelectItem = (function () {
     function SelectItem(source) {
         var _this = this;
         if (typeof source === 'string') {
-            this.id = this.name = source;
+            this.value = this.name = source;
         }
         if (typeof source === 'object') {
-            this.id = source.id || source.name;
+            this.value = source.value || source.name;
             this.name = source.name;
             if (source.children && source.name) {
                 this.children = source.children.map(function (c) {
@@ -21,7 +21,7 @@ var SelectItem = (function () {
     SelectItem.prototype.fillChildrenHash = function (optionsMap, startIndex) {
         var i = startIndex;
         this.children.map(function (child) {
-            optionsMap.set(child.id, i++);
+            optionsMap.set(child.value, i++);
         });
         return i;
     };
@@ -30,7 +30,7 @@ var SelectItem = (function () {
     };
     SelectItem.prototype.getSimilar = function () {
         var r = new SelectItem(false);
-        r.id = this.id;
+        r.value = this.value;
         r.name = this.name;
         r.parent = this.parent;
         return r;

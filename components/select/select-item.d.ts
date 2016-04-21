@@ -1,5 +1,5 @@
 export declare class SelectItem {
-    id: string;
+    value: string;
     name: string;
     children: Array<SelectItem>;
     parent: SelectItem;

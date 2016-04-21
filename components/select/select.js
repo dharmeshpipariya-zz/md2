@@ -20,12 +20,12 @@ var optionsTemplate = "\n    <ul *ngIf=\"optionsOpened && options && options.len
 var Select = (function () {
     function Select(element) {
         this.element = element;
-        this.allowClear = false;
         this.placeholder = '';
+        this.item = '';
         this.initData = [];
         this.multiple = false;
         this.data = new core_1.EventEmitter();
-        this.ngModel = new core_1.EventEmitter();
+        this.selected = new core_1.EventEmitter();
         this.removed = new core_1.EventEmitter();
         this.typed = new core_1.EventEmitter();
         this.options = [];
@@ -37,12 +37,6 @@ var Select = (function () {
         this._items = [];
         this._disabled = false;
     }
-    Object.defineProperty(Select.prototype, "item", {
-        set: function (value) {
-        },
-        enumerable: true,
-        configurable: true
-    });
     Object.defineProperty(Select.prototype, "items", {
         set: function (value) {
             this._items = value;
@@ -262,7 +256,7 @@ var Select = (function () {
             this.active[0] = value;
             this.data.next(this.active[0]);
         }
-        this.doEvent('ngModel', value);
+        this.doEvent('selected', value.value);
         this.hideOptions();
         if (this.multiple === true) {
             this.focusToInput('');
@@ -279,17 +273,12 @@ var Select = (function () {
     };
     __decorate([
         core_1.Input(), 
-        __metadata('design:type', Boolean)
-    ], Select.prototype, "allowClear", void 0);
-    __decorate([
-        core_1.Input(), 
         __metadata('design:type', String)
     ], Select.prototype, "placeholder", void 0);
     __decorate([
         core_1.Input(), 
-        __metadata('design:type', String), 
-        __metadata('design:paramtypes', [String])
-    ], Select.prototype, "item", null);
+        __metadata('design:type', String)
+    ], Select.prototype, "item", void 0);
     __decorate([
         core_1.Input(), 
         __metadata('design:type', Array)
@@ -315,7 +304,7 @@ var Select = (function () {
     __decorate([
         core_1.Output(), 
         __metadata('design:type', core_1.EventEmitter)
-    ], Select.prototype, "ngModel", void 0);
+    ], Select.prototype, "selected", void 0);
     __decorate([
         core_1.Output(), 
         __metadata('design:type', core_1.EventEmitter)
@@ -328,7 +317,7 @@ var Select = (function () {
         core_1.Component({
             selector: 'md2-select',
             pipes: [select_pipes_1.HightlightPipe],
-            template: "\n<div tabindex=\"0\" *ngIf=\"multiple === false\" (keyup)=\"mainClick($event)\" class=\"md2-select-container\">\n    <div [ngClass]=\"{'ui-disabled': disabled}\"></div>\n    <div class=\"md2-select-value-container\">\n        <div class=\"md2-select-value\" *ngIf=\"!inputMode\" tabindex=\"-1\" (^click)=\"matchClick()\">\n            <span *ngIf=\"active.length <= 0\" class=\"md2-select-placeholder\">{{placeholder}}</span>\n            <span *ngIf=\"active.length > 0\" class=\"md2-select-match-text\" [ngClass]=\"{'ui-select-allow-clear': allowClear && active.length > 0}\">{{active[0].name}}</span>\n            <i class=\"md2-select-icon\"></i>\n        </div>\n        <input type=\"text\" autocomplete=\"false\" tabindex=\"-1\" (keydown)=\"inputEvent($event)\" (keyup)=\"inputEvent($event, true)\" [disabled]=\"disabled\" class=\"md2-select-input\" *ngIf=\"inputMode\" placeholder=\"{{active.length <= 0 ? placeholder : ''}}\">\n    </div>\n    " + optionsTemplate + "    \n</div>\n\n<div tabindex=\"0\" *ngIf=\"multiple === true\" (keyup)=\"mainClick($event)\" (focus)=\"focusToInput('')\" class=\"md2-multiselect-container\">\n    <div [ngClass]=\"{'md2-disabled': disabled}\"></div>\n        <span class=\"md2-select-items\">\n          <span *ngFor=\"#a of active\" class=\"md2-select-item\" tabindex=\"-1\">\n            <span class=\"md2-select-match-text\">{{a.name}}</span>\n            <a class=\"md2-select-icon\" (click)=\"remove(a)\">&nbsp;&times;</a>\n          </span>\n        </span>\n        <input class=\"md2-multiselect-input\" type=\"text\" (keydown)=\"inputEvent($event)\" (keyup)=\"inputEvent($event, true)\" (click)=\"matchClick($event)\" [disabled]=\"disabled\" autocomplete=\"false\" autocorrect=\"off\" autocapitalize=\"off\" spellcheck=\"false\" placeholder=\"{{active.length <= 0 ? placeholder : ''}}\" role=\"combobox\">\n        " + optionsTemplate + "\n    </div>\n",
+            template: "\n<div tabindex=\"0\" *ngIf=\"multiple === false\" (keyup)=\"mainClick($event)\" class=\"md2-select-container\">\n    <div [ngClass]=\"{'ui-disabled': disabled}\"></div>\n    <div class=\"md2-select-value-container\">\n        <div class=\"md2-select-value\" *ngIf=\"!inputMode\" tabindex=\"-1\" (^click)=\"matchClick()\">\n            <span *ngIf=\"active.length <= 0\" class=\"md2-select-placeholder\">{{placeholder}}</span>\n            <span *ngIf=\"active.length > 0\" class=\"md2-select-match-text\">{{active[0].name}}</span>\n            <i class=\"md2-select-icon\"></i>\n        </div>\n        <input type=\"text\" autocomplete=\"false\" tabindex=\"-1\" (keydown)=\"inputEvent($event)\" (keyup)=\"inputEvent($event, true)\" [disabled]=\"disabled\" class=\"md2-select-input\" *ngIf=\"inputMode\" placeholder=\"{{active.length <= 0 ? placeholder : ''}}\">\n    </div>\n    " + optionsTemplate + "    \n</div>\n\n<div tabindex=\"0\" *ngIf=\"multiple === true\" (keyup)=\"mainClick($event)\" (focus)=\"focusToInput('')\" class=\"md2-multiselect-container\">\n    <div [ngClass]=\"{'md2-disabled': disabled}\"></div>\n        <span class=\"md2-select-items\">\n          <span *ngFor=\"#a of active\" class=\"md2-select-item\" tabindex=\"-1\">\n            <span class=\"md2-select-match-text\">{{a.name}}</span>\n            <a class=\"md2-select-icon\" (click)=\"remove(a)\">&nbsp;&times;</a>\n          </span>\n        </span>\n        <input class=\"md2-multiselect-input\" type=\"text\" (keydown)=\"inputEvent($event)\" (keyup)=\"inputEvent($event, true)\" (click)=\"matchClick($event)\" [disabled]=\"disabled\" autocomplete=\"false\" autocorrect=\"off\" autocapitalize=\"off\" spellcheck=\"false\" placeholder=\"{{active.length <= 0 ? placeholder : ''}}\" role=\"combobox\">\n        " + optionsTemplate + "\n    </div>\n",
             styles: ["\n.md2-select-container {\n  position: relative;\n  display: block;\n  outline: none;\n  /*.md2-select-container { outline: none; }*/ }\n  .md2-select-container[disabled] .md2-select-value {\n    background-position: 0 bottom; }\n    .md2-select-container[disabled] .md2-select-value:focus {\n      outline: none; }\n    .md2-select-container[disabled] .md2-select-value[disabled]:hover {\n      cursor: default; }\n    .md2-select-container[disabled] .md2-select-value:not([disabled]):hover {\n      cursor: pointer; }\n    .md2-select-container[disabled] .md2-select-value:not([disabled]).ng-invalid.ng-dirty .md2-select-value {\n      border-bottom: 2px solid;\n      padding-bottom: 0; }\n    .md2-select-container[disabled] .md2-select-value:not([disabled]):focus .md2-select-value {\n      border-bottom-width: 2px;\n      border-bottom-style: solid;\n      padding-bottom: 0; }\n  .md2-select-container .md2-select-value-container {\n    width: 100%;\n    outline: none; }\n    .md2-select-container .md2-select-value-container .md2-select-value {\n      display: flex;\n      align-items: center;\n      padding: 2px 2px 1px;\n      border-bottom-width: 1px;\n      border-bottom-style: solid;\n      border-bottom-color: rgba(0, 0, 0, 0.38);\n      position: relative;\n      box-sizing: content-box;\n      min-width: 64px;\n      min-height: 26px;\n      flex-grow: 1;\n      cursor: pointer;\n      outline: none; }\n      .md2-select-container .md2-select-value-container .md2-select-value > span:not(.md2-select-icon) {\n        max-width: 100%;\n        flex: 1 1 auto;\n        transform: translate3d(0, 2px, 0);\n        text-overflow: ellipsis;\n        white-space: nowrap;\n        overflow: hidden; }\n      .md2-select-container .md2-select-value-container .md2-select-value .md2-select-icon {\n        display: block;\n        -webkit-align-items: flex-end;\n        -ms-flex-align: end;\n        align-items: flex-end;\n        text-align: end;\n        width: 0;\n        height: 0;\n        border-left: 6px solid transparent;\n        border-right: 6px solid transparent;\n        border-top: 6px solid rgba(0, 0, 0, 0.60);\n        margin: 0 4px;\n        -webkit-transform: translate3d(0, 1px, 0);\n        transform: translate3d(0, 1px, 0); }\n      .md2-select-container .md2-select-value-container .md2-select-value .md2-select-placeholder {\n        color: rgba(0, 0, 0, 0.38); }\n    .md2-select-container .md2-select-value-container .md2-select-input {\n      width: 100%;\n      height: 26px;\n      outline: none;\n      background: transparent;\n      border: 0;\n      align-items: center;\n      padding: 2px 0 0;\n      border-bottom-width: 2px;\n      border-bottom-style: solid;\n      border-bottom-color: #106cc8;\n      position: relative;\n      box-sizing: content-box;\n      min-width: 64px;\n      min-height: 26px;\n      flex-grow: 1;\n      cursor: pointer; }\n  .md2-select-container .md2-select-menu {\n    position: absolute;\n    left: 0;\n    top: 0;\n    display: block;\nz-index:10;\n    flex-direction: column;\n    width: 100%;\n    margin: 0;\n    padding: 8px 0;\n    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14), 0 2px 1px -1px rgba(0, 0, 0, 0.12);\n    max-height: 256px;\n    min-height: 48px;\n    overflow-y: auto;\n    transform: scale(1);\n    background: #fff; }\n    .md2-select-container .md2-select-menu .md2-option {\n      cursor: pointer;\n      position: relative;\n      display: block;\n      align-items: center;\n      width: auto;\n      transition: background 0.15s linear;\n      padding: 0 16px;\n      height: 48px;line-height: 48px; }\n      .md2-select-container .md2-select-menu .md2-option:hover, .md2-select-container .md2-select-menu .md2-option.active {\n        background: #eeeeee; }\n      .md2-select-container .md2-select-menu .md2-option .md2-text {\n        width: auto;\n        white-space: nowrap;\n        overflow: hidden;\n        text-overflow: ellipsis;\n        font-size: rem(1.6); }\n    .md2-select-container .md2-select-menu .md2-optgroup {\n      display: block; }\n      .md2-select-container .md2-select-menu .md2-optgroup label {\n        display: block;\n        font-size: rem(1.4);\n        text-transform: uppercase;\n        padding: 16px;\n        font-weight: 500; }\n      .md2-select-container .md2-select-menu .md2-optgroup .md2-option {\n        padding-left: 32px;\n        padding-right: 32px; }\n.md2-disabled {\n    background-color: #eceeef;\n    border-radius: 4px;\n    position: absolute;\n    width: 100%;\n    height: 100%;\npointer-events: none;\n    z-index: 5;\n    opacity: 0.6;\n    top: 0;\n    left: 0;\n    cursor: not-allowed;\n}\n"]
         }), 
         __metadata('design:paramtypes', [core_1.ElementRef])
@@ -345,7 +334,7 @@ var Behavior = (function () {
         if (optionsMap === void 0) { optionsMap = null; }
         var ai = this.actor.options.indexOf(this.actor.activeOption);
         if (ai < 0 && optionsMap !== null) {
-            ai = optionsMap.get(this.actor.activeOption.id);
+            ai = optionsMap.get(this.actor.activeOption.value);
         }
         return ai;
     };
@@ -451,9 +440,9 @@ var ChildrenBehavior = (function (_super) {
     ChildrenBehavior.prototype.prev = function () {
         var _this = this;
         var indexParent = this.actor.options
-            .findIndex(function (a) { return _this.actor.activeOption.parent && _this.actor.activeOption.parent.id === a.id; });
+            .findIndex(function (a) { return _this.actor.activeOption.parent && _this.actor.activeOption.parent.value === a.value; });
         var index = this.actor.options[indexParent].children
-            .findIndex(function (a) { return _this.actor.activeOption && _this.actor.activeOption.id === a.id; });
+            .findIndex(function (a) { return _this.actor.activeOption && _this.actor.activeOption.value === a.value; });
         this.actor.activeOption = this.actor.options[indexParent].children[index - 1];
         if (!this.actor.activeOption) {
             if (this.actor.options[indexParent - 1]) {
@@ -471,9 +460,9 @@ var ChildrenBehavior = (function (_super) {
     ChildrenBehavior.prototype.next = function () {
         var _this = this;
         var indexParent = this.actor.options
-            .findIndex(function (a) { return _this.actor.activeOption.parent && _this.actor.activeOption.parent.id === a.id; });
+            .findIndex(function (a) { return _this.actor.activeOption.parent && _this.actor.activeOption.parent.value === a.value; });
         var index = this.actor.options[indexParent].children
-            .findIndex(function (a) { return _this.actor.activeOption && _this.actor.activeOption.id === a.id; });
+            .findIndex(function (a) { return _this.actor.activeOption && _this.actor.activeOption.value === a.value; });
         this.actor.activeOption = this.actor.options[indexParent].children[index + 1];
         if (!this.actor.activeOption) {
             if (this.actor.options[indexParent + 1]) {

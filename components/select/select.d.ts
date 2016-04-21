@@ -3,7 +3,6 @@ import { SelectItem } from './select-item';
 import { IOptionsBehavior } from './select-interfaces';
 export declare class Select {
     element: ElementRef;
-    allowClear: boolean;
     placeholder: string;
     item: string;
     initData: Array<any>;
@@ -11,7 +10,7 @@ export declare class Select {
     items: Array<any>;
     disabled: boolean;
     data: EventEmitter<any>;
-    ngModel: EventEmitter<any>;
+    selected: EventEmitter<any>;
     removed: EventEmitter<any>;
     typed: EventEmitter<any>;
     options: Array<SelectItem>;
