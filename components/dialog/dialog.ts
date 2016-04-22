@@ -25,7 +25,11 @@ import {CORE_DIRECTIVES} from 'angular2/common';
     }
 
     .md2-dialog-header { background: #2196f3; padding: 1rem; border-bottom: 1px solid #e5e5e5; }
-    .md2-dialog-header .close { -webkit-appearance: none; padding: 0; cursor: pointer; background: 0 0; border: 0; float: right; font-size: 35px; line-height: 27px; color: #fff; opacity: 0.8; }
+    .md2-dialog-header .close { position: relative;display: inline-block;width: 18px;height: 18px;margin-top: 4px;overflow: hidden;-webkit-appearance: none; padding: 0; cursor: pointer; background: 0 0; border: 0; float: right; opacity: 0.8; }
+    .md2-dialog-header .close::before,
+    .md2-dialog-header .close::after {content: '';position: absolute;height: 2px;width: 100%;top: 50%;left: 0;margin-top: -1px;background: #fff;border-radius: 2px;height: 2px;}
+    .md2-dialog-header .close::before {-webkit-transform: rotate(45deg);-moz-transform: rotate(45deg);-ms-transform: rotate(45deg);-o-transform: rotate(45deg);transform: rotate(45deg);}
+    .md2-dialog-header .close::after {-webkit-transform: rotate(-45deg);-moz-transform: rotate(-45deg);-ms-transform: rotate(-45deg);-o-transform: rotate(-45deg);transform: rotate(-45deg);}
     .md2-dialog-header .close:hover { opacity: 1; }
     .md2-dialog-header .md2-dialog-title { margin: 0; color: #fff; }
     .md2-dialog-body { position: relative; padding: 1rem; }
@@ -50,7 +54,7 @@ export class Md2Dialog {
 
     clickElement(e: any) {
         if (this.closeOnUnfocus) {
-            if (e.srcElement.className == 'modal customFadeIn' || e.srcElement.className == 'modal-dialog') {
+            if (e.srcElement.className == 'dialog open') {
                 this.show(false);
             }
         }
@@ -73,12 +77,12 @@ export class Md2Dialog {
         }
 
         if (this.displayed) {
-            body.classList.add('modal-open');
+            body.classList.add('dialog-open');
         } else {
-            body.classList.remove('modal-open');
+            body.classList.remove('dialog-open');
             if (this.closeOnUnfocus) {
                 this._el.childNodes[0].removeEventListener('click', (e: Event) => {
-                    if (e.srcElement.className == 'modal customFadeIn' || e.srcElement.className == 'modal-dialog') {
+                    if (e.srcElement.className == 'dialog open') {
                         this.show(false);
                     }
                 });

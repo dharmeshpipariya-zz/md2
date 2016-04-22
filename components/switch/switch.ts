@@ -90,13 +90,16 @@ enum TransitionCheckState {
 .md2-switch-layout label{border-color: transparent;
     border-width: 0;
 cursor: pointer;
-    float: left;}
+    float: left;word-wrap: break-word;
+    max-width: 100%;
+    white-space: normal;line-height: normal;}
 .md-switch:focus {
   outline: none; }
 .md-switch .md2-switch-container {
 display: inline-block;
   cursor: pointer;
   width: 36px;
+min-width: 36px;
   height: 24px;
   position: relative;
   user-select: none;

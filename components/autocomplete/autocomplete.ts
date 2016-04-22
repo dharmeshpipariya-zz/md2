@@ -308,8 +308,10 @@ export class Autocomplete {
     }
 
     ngOnInit() {
-        this.behavior = this.itemObjects[0].hasChildren() ?
-            new ChildrenBehavior(this) : new GenericBehavior(this);
+        if (this.itemObjects) {
+            this.behavior = this.itemObjects[0].hasChildren() ?
+                new ChildrenBehavior(this) : new GenericBehavior(this);
+        }
         this.offSideClickHandler = this.getOffSideClickHandler(this);
         document.addEventListener('click', this.offSideClickHandler);
 
@@ -331,7 +333,8 @@ export class Autocomplete {
                 return;
             }
 
-            if (e.srcElement && e.srcElement.className &&
+            if (context.element.nativeElement.contains(e.srcElement)
+                && e.srcElement && e.srcElement.className &&
                 e.srcElement.className.indexOf('md2-autocomplete') >= 0) {
                 if (e.target.nodeName !== 'INPUT') {
                     context.matchClick(null);

@@ -117,8 +117,10 @@ var Autocomplete = (function () {
         this.optionsOpened = true;
     };
     Autocomplete.prototype.ngOnInit = function () {
-        this.behavior = this.itemObjects[0].hasChildren() ?
-            new ChildrenBehavior(this) : new GenericBehavior(this);
+        if (this.itemObjects) {
+            this.behavior = this.itemObjects[0].hasChildren() ?
+                new ChildrenBehavior(this) : new GenericBehavior(this);
+        }
         this.offSideClickHandler = this.getOffSideClickHandler(this);
         document.addEventListener('click', this.offSideClickHandler);
         if (this.initItem) {
@@ -136,7 +138,8 @@ var Autocomplete = (function () {
                 && e.target.className && e.target.className.indexOf('md2-autocomplete') >= 0) {
                 return;
             }
-            if (e.srcElement && e.srcElement.className &&
+            if (context.element.nativeElement.contains(e.srcElement)
+                && e.srcElement && e.srcElement.className &&
                 e.srcElement.className.indexOf('md2-autocomplete') >= 0) {
                 if (e.target.nodeName !== 'INPUT') {
                     context.matchClick(null);

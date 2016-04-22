@@ -334,7 +334,8 @@ export class Select {
                 return;
             }
 
-            if (e.srcElement && e.srcElement.className &&
+            if (context.element.nativeElement.contains(e.srcElement)
+                && e.srcElement && e.srcElement.className &&
                 e.srcElement.className.indexOf('md2-select') >= 0) {
                 if (e.target.nodeName !== 'INPUT') {
                     context.matchClick(null);
