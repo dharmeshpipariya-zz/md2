@@ -34,12 +34,6 @@ var Autocomplete = (function () {
         this._items = [];
         this._disabled = false;
     }
-    Object.defineProperty(Autocomplete.prototype, "item", {
-        set: function (value) {
-        },
-        enumerable: true,
-        configurable: true
-    });
     Object.defineProperty(Autocomplete.prototype, "items", {
         set: function (value) {
             this._items = value;
@@ -261,11 +255,6 @@ var Autocomplete = (function () {
         core_1.Input(), 
         __metadata('design:type', String)
     ], Autocomplete.prototype, "placeholder", void 0);
-    __decorate([
-        core_1.Input(), 
-        __metadata('design:type', String), 
-        __metadata('design:paramtypes', [String])
-    ], Autocomplete.prototype, "item", null);
     __decorate([
         core_1.Input(), 
         __metadata('design:type', Array)

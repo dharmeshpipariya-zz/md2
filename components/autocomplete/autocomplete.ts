@@ -197,11 +197,6 @@ export class Autocomplete {
     @Input()
     placeholder: string = '';
 
-    //_item: string = '';
-    @Input() set item(value: string) {
-
-    }
-
     @Input()
     initItem: Array<any> = [];
 

@@ -4,7 +4,6 @@ import { IOptionsBehavior } from './autocomplete-interfaces';
 export declare class Autocomplete {
     element: ElementRef;
     placeholder: string;
-    item: string;
     initItem: Array<any>;
     items: Array<any>;
     disabled: boolean;

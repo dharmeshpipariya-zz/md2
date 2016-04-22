@@ -1,0 +1,14 @@
+﻿<div class="md2-menu">
+    <button class="md2-menu-button" type="button" (click)="toggleDropdown()" [innerhtml]="menuLabel"></button>
+    <div class="md2-menu-content" *ngif="dropdownOpen" (click)="toggleDropdown()">
+        <ng-content></ng-content>
+    </div>
+</div>
+
+<style>
+    .md2-menu { position: relative; }
+    .md2-menu .md2-menu-button { border-radius: 3px; -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box; color: currentColor; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; position: relative; outline: 0; border: 0; display: inline-block; padding: 0 6px; margin: 6px 8px; line-height: 36px; min-height: 36px; background: 0 0; white-space: nowrap; min-width: 88px; font-weight: 500; font-size: 14px; font-style: inherit; font-variant: inherit; font-family: inherit; text-decoration: none; cursor: pointer; overflow: hidden; }
+    .md2-menu .md2-menu-content { position: absolute; top: 0; left: 0; display: inline-block; background: #fff; list-style: none; min-width: 100px; max-height: 304px; overflow-y: auto; margin: 0; padding: 8px 0; -moz-transform: scale(0); -ms-transform: scale(0); -o-transform: scale(0); -webkit-transform: scale(0); transform: scale(0); -moz-transform-origin: left top; -ms-transform-origin: left top; -o-transform-origin: left top; -webkit-transform-origin: left top; transform-origin: left top; -moz-transition: all .4s linear; -o-transition: all .4s linear; -webkit-transition: all .4s linear; transition: all .4s linear; -moz-transition-duration: 0.2s; -o-transition-duration: 0.2s; -webkit-transition-duration: 0.2s; transition-duration: 0.2s; box-shadow: 0 2px 4px -1px rgba(0,0,0,.2),0 4px 5px 0 rgba(0,0,0,.14),0 1px 10px 0 rgba(0,0,0,.12); z-index: 1; border-radius: 2px; }
+    .md2-menu.open .md2-menu-content { -moz-transform: scale(1); -ms-transform: scale(1); -o-transform: scale(1); -webkit-transform: scale(1); transform: scale(1); }
+    .md2-menu .md2-menu-item { position: relative; display: block; padding: 0 1rem; line-height: 36px; cursor: pointer; }
+</style>

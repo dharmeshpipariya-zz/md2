@@ -1,10 +1,35 @@
-# md2
+# md2-select
 
 Native Angular2 Material Select component
 
-## Quick start
-
 ## API
+
+Example:
+ 
+ ```html
+<md2-select [items]="items"
+            [initItem]="item"
+            (selected)="selected($event)"
+            placeholder="Placeholder Text">
+</md2-select>
+ ```
+ ```ts
+private items: Array<any> =
+    [
+        { name: 'Amsterdam', value: '1' },
+        { name: 'Birmingham', value: '2' },
+        { name: 'Dortmund', value: '3' },
+        { name: 'Gothenburg', value: '4' },
+        { name: 'London', value: '5' },
+        { name: 'Seville', value: '6' }
+    ];
+
+private item: Array<any> = [{ name: 'Dortmund', value: '3' }];
+
+private selected(value: any) {
+    console.log('Selected value is: ', value);
+}
+ ```
 
 ### Properties
 
