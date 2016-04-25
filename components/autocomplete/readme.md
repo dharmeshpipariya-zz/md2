@@ -14,20 +14,38 @@ Example:
 </md2-autocomplete>
  ```
  ```ts
-private items: Array<any> =
-    [
-        { name: 'Amsterdam', value: '1' },
-        { name: 'Birmingham', value: '2' },
-        { name: 'Dortmund', value: '3' },
-        { name: 'Gothenburg', value: '4' },
-        { name: 'London', value: '5' },
-        { name: 'Seville', value: '6' }
-    ];
 
-private item: Array<any> = [{ name: 'Dortmund', value: '3' }];
+...
 
-private selected(value: any) {
-    console.log('Selected value is: ', value);
+import {Md2Autocomplete} from 'md2/autocomplete';
+
+@Component({
+    selector: "...",
+    directives: [Md2Autocomplete]
+})
+
+export class ... {
+    
+    ...
+    
+    private items: Array<any> =
+        [
+            { name: 'Amsterdam', value: '1' },
+            { name: 'Birmingham', value: '2' },
+            { name: 'Dortmund', value: '3' },
+            { name: 'Gothenburg', value: '4' },
+            { name: 'London', value: '5' },
+            { name: 'Seville', value: '6' }
+        ];
+
+    private item: Array<any> = [{ name: 'Dortmund', value: '3' }];
+
+    private selected(value: any) {
+        console.log('Selected value is: ', value);
+    }
+
+    ...
+
 }
  ```
 

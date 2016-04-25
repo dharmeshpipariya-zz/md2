@@ -22,7 +22,25 @@ Example:
 </md2-menu>
  ```
  ```ts
-private menuLabel: string = 'Lorum Ipsum';
+
+...
+
+import {Md2Menu} from 'md2/menu';
+
+@Component({
+    selector: "...",
+    directives: [Md2Menu]
+})
+
+export class ... {
+    
+    ...
+    
+    private menuLabel: string = 'Lorum Ipsum';
+
+    ...
+
+}
  ```
 
 

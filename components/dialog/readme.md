@@ -25,10 +25,28 @@ Example:
 </md2-dialog>
  ```
  ```ts
-private dialogTitle: string = 'Lorum Ipsum';
 
-private launchDialog(dialog: any) {
-    dialog.show();
+...
+
+import {Md2Dialog} from 'md2/dialog';
+
+@Component({
+    selector: "...",
+    directives: [Md2Dialog]
+})
+
+export class ... {
+    
+    ...
+    
+    private dialogTitle: string = 'Lorum Ipsum';
+    
+    private launchDialog(dialog: any) {
+        dialog.show();
+    }
+
+    ...
+
 }
  ```
 

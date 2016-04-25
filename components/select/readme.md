@@ -14,20 +14,38 @@ Example:
 </md2-select>
  ```
  ```ts
-private items: Array<any> =
-    [
-        { name: 'Amsterdam', value: '1' },
-        { name: 'Birmingham', value: '2' },
-        { name: 'Dortmund', value: '3' },
-        { name: 'Gothenburg', value: '4' },
-        { name: 'London', value: '5' },
-        { name: 'Seville', value: '6' }
-    ];
 
-private item: Array<any> = [{ name: 'Dortmund', value: '3' }];
+...
 
-private selected(value: any) {
-    console.log('Selected value is: ', value);
+import {Md2Select} from 'md2/select';
+
+@Component({
+    selector: "...",
+    directives: [Md2Select]
+})
+
+export class ... {
+    
+    ...
+    
+    private items: Array<any> =
+        [
+            { name: 'Amsterdam', value: '1' },
+            { name: 'Birmingham', value: '2' },
+            { name: 'Dortmund', value: '3' },
+            { name: 'Gothenburg', value: '4' },
+            { name: 'London', value: '5' },
+            { name: 'Seville', value: '6' }
+        ];
+
+    private item: Array<any> = [{ name: 'Dortmund', value: '3' }];
+
+    private selected(value: any) {
+        console.log('Selected value is: ', value);
+    }
+
+    ...
+
 }
  ```
 
