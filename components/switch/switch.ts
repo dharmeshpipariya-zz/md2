@@ -1,22 +1,7 @@
 /// ADAPTED FROM angular/material2 REPO.
 
-import {
-ChangeDetectionStrategy,
-Component,
-ElementRef,
-EventEmitter,
-Input,
-Output,
-Provider,
-Renderer,
-ViewEncapsulation,
-forwardRef
-} from 'angular2/core';
-
-import {
-NG_VALUE_ACCESSOR,
-ControlValueAccessor
-} from 'angular2/src/common/forms/directives/control_value_accessor';
+import {ChangeDetectionStrategy, Component, ElementRef, EventEmitter, Input, Output, Provider, Renderer, ViewEncapsulation, forwardRef} from 'angular2/core';
+import {NG_VALUE_ACCESSOR, ControlValueAccessor} from 'angular2/src/common/forms/directives/control_value_accessor';
 import {CONST_EXPR} from 'angular2/src/facade/lang';
 
 /**
