@@ -1,8 +1,11 @@
-import {Component, Input, Output, EventEmitter, ElementRef} from 'angular2/core';
-import {CORE_DIRECTIVES, FORM_DIRECTIVES, NgClass, NgStyle} from 'angular2/common';
-import {AutocompleteItem} from './autocomplete-item';
-import {HightlightPipe} from './autocomplete-pipes';
-import {IOptionsBehavior} from './autocomplete-interfaces';
+import {Component, Provider, forwardRef, Input, Output, EventEmitter, ElementRef} from 'angular2/core';
+import {ControlValueAccessor, NG_VALUE_ACCESSOR, CORE_DIRECTIVES, FORM_DIRECTIVES, NgClass, NgStyle} from 'angular2/common';
+
+const MD2_AUTOCOMPLETE_CONTROL_VALUE_ACCESSOR = new Provider(
+    NG_VALUE_ACCESSOR, {
+        useExisting: forwardRef(() => Md2Autocomplete),
+        multi: true
+    });
 
 @Component({
     selector: 'md2-autocomplete',
@@ -191,9 +194,10 @@ pointer-events: none;
     left: 0;
     cursor: not-allowed;
 }
-`]
+`],
+    providers: [MD2_AUTOCOMPLETE_CONTROL_VALUE_ACCESSOR]
 })
-export class Autocomplete {
+export class Md2Autocomplete {
     @Input()
     placeholder: string = '';
 
@@ -481,10 +485,58 @@ export class Autocomplete {
     }
 }
 
-export class Behavior {
+class AutocompleteItem {
+    public value: string;
+    public name: string;
+    public children: Array<AutocompleteItem>;
+    public parent: AutocompleteItem;
+
+    constructor(source: any) {
+        if (typeof source === 'string') {
+            this.value = this.name = source;
+        }
+
+        if (typeof source === 'object') {
+            this.value = source.value || source.name;
+            this.name = source.name;
+
+            if (source.children && source.name) {
+                this.children = source.children.map((c: any) => {
+                    let r: AutocompleteItem = new AutocompleteItem(c);
+                    r.parent = this;
+                    return r;
+                });
+                this.name = source.name;
+            }
+        }
+    }
+
+    public fillChildrenHash(optionsMap: Map<string, number>, startIndex: number): number {
+        let i = startIndex;
+        this.children.map(child => {
+            optionsMap.set(child.value, i++);
+        });
+
+        return i;
+    }
+
+    public hasChildren(): boolean {
+        return this.children && this.children.length > 0;
+    }
+
+    public getSimilar(): AutocompleteItem {
+        let r: AutocompleteItem = new AutocompleteItem(false);
+        r.value = this.value;
+        r.name = this.name;
+        r.parent = this.parent;
+        return r;
+    }
+}
+
+class Behavior {
     public optionsMap: Map<string, number> = new Map<string, number>();
 
-    constructor(public actor: Autocomplete) {
+    constructor(public actor: Md2Autocomplete) {
     }
 
     private getActiveIndex(optionsMap: Map<string, number> = null): number {
@@ -538,8 +590,8 @@ export class Behavior {
     }
 }
 
-export class GenericBehavior extends Behavior implements IOptionsBehavior {
-    constructor(public actor: Autocomplete) {
+class GenericBehavior extends Behavior implements IOptionsBehavior {
+    constructor(public actor: Md2Autocomplete) {
         super(actor);
     }
 
@@ -579,92 +631,33 @@ export class GenericBehavior extends Behavior implements IOptionsBehavior {
     }
 }
 
-export class ChildrenBehavior extends Behavior implements IOptionsBehavior {
-    constructor(public actor: Autocomplete) {
-        super(actor);
-    }
-
-    public first() {
-        this.actor.activeOption = this.actor.options[0].children[0];
-        this.fillOptionsMap();
-        this.ensureHighlightVisible(this.optionsMap);
-    }
-
-    public last() {
-        this.actor.activeOption =
-            this.actor
-                .options[this.actor.options.length - 1]
-                .children[this.actor.options[this.actor.options.length - 1].children.length - 1];
-        this.fillOptionsMap();
-        this.ensureHighlightVisible(this.optionsMap);
-    }
-
-    public prev() {
-        let indexParent = this.actor.options
-            .findIndex(a => this.actor.activeOption.parent && this.actor.activeOption.parent.value === a.value);
-        let index = this.actor.options[indexParent].children
-            .findIndex(a => this.actor.activeOption && this.actor.activeOption.value === a.value);
-        this.actor.activeOption = this.actor.options[indexParent].children[index - 1];
-
-        if (!this.actor.activeOption) {
-            if (this.actor.options[indexParent - 1]) {
-                this.actor.activeOption = this.actor
-                    .options[indexParent - 1]
-                    .children[this.actor.options[indexParent - 1].children.length - 1];
-            }
-        }
-
-        if (!this.actor.activeOption) {
-            this.last();
-        }
-
-        this.fillOptionsMap();
-        this.ensureHighlightVisible(this.optionsMap);
-    }
-
-    public next() {
-        let indexParent = this.actor.options
-            .findIndex(a => this.actor.activeOption.parent && this.actor.activeOption.parent.value === a.value);
-        let index = this.actor.options[indexParent].children
-            .findIndex(a => this.actor.activeOption && this.actor.activeOption.value === a.value);
-        this.actor.activeOption = this.actor.options[indexParent].children[index + 1];
-        if (!this.actor.activeOption) {
-            if (this.actor.options[indexParent + 1]) {
-                this.actor.activeOption = this.actor.options[indexParent + 1].children[0];
-            }
-        }
-
-        if (!this.actor.activeOption) {
-            this.first();
-        }
-
-        this.fillOptionsMap();
-        this.ensureHighlightVisible(this.optionsMap);
-    }
-
-    public filter(query: RegExp) {
-        let options: Array<AutocompleteItem> = [];
-        let optionsMap: Map<string, number> = new Map<string, number>();
-        let startPos = 0;
-
-        for (let si of this.actor.itemObjects) {
-            let children: Array<AutocompleteItem> = si.children.filter(option => query.test(option.name));
-            startPos = si.fillChildrenHash(optionsMap, startPos);
-
-            if (children.length > 0) {
-                let newSi = si.getSimilar();
-                newSi.children = children;
-                options.push(newSi);
-            }
-        }
-
-        this.actor.options = options;
-
-        if (this.actor.options.length > 0) {
-            this.actor.activeOption = this.actor.options[0].children[0];
-            super.ensureHighlightVisible(optionsMap);
-        }
-    }
+interface IOptionsBehavior {
+    first(): any;
+    last(): any;
+    prev(): any;
+    next(): any;
+    filter(query: RegExp): any;
 }
 
-export const Md2Autocomplete: Array<any> = [Autocomplete];
+import {Pipe} from 'angular2/core';
+
+@Pipe({
+    name: 'hightlight'
+})
+class HightlightPipe {
+    transform(value: string, args: any[]) {
+        if (args.length < 1) {
+            return value;
+        }
+
+        let query = args[0];
+
+        return query ?
+            value.replace(new RegExp(this.escapeRegexp(query), 'gi'), '<strong>$&</strong>') :
+            value;
+    }
+
+    private escapeRegexp(queryToEscape: string) {
+        return queryToEscape.replace(/([.?*+^$[\]\\(){}|-])/g, '\\$1');
+    }
+}
