@@ -1,5 +1,9 @@
 # md2
 
+## Getting Started
+
+npm install md2
+
 ## Components
 
 - [md2-autocomplete](https://github.com/DharmeshPipariya/md2/tree/master/components/autocomplete)
