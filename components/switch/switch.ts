@@ -64,7 +64,7 @@ enum TransitionCheckState {
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
-    height: 30px;
+    min-height: 30px;
     line-height: 28px;
     -webkit-align-items: center;
     -ms-flex-align: center;
