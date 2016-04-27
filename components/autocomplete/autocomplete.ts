@@ -20,7 +20,7 @@ const MD2_AUTOCOMPLETE_CONTROL_VALUE_ACCESSOR = new Provider(
         </div>
         <ul *ngIf="isSuggestions && options && options.length > 0" class="md2-autocomplete-suggestions">
             <li class="md2-item" *ngFor="#o of options" [class.active]="isActive(o)" (click)="matchItem(o, $event)">
-                <div class="md2-text" [innerHtml]="o.name | hightlight:inputValue"></div>
+                <div class="md2-text" [innerHtml]="o.text | hightlight:inputValue"></div>
             </li>
         </ul>
     </div>
@@ -45,9 +45,9 @@ const MD2_AUTOCOMPLETE_CONTROL_VALUE_ACCESSOR = new Provider(
     providers: [MD2_AUTOCOMPLETE_CONTROL_VALUE_ACCESSOR]
 })
 export class Md2Autocomplete implements ControlValueAccessor {
-    public options: Array<AutocompleteItem> = [];
-    public active: AutocompleteItem;
-    public activeOption: AutocompleteItem;
+    public options: Array<Item> = [];
+    public active: Item;
+    public activeOption: Item;
     private offSideClickHandler: any;
     private inputMode: boolean = false;
     private isSuggestions: boolean = false;
@@ -104,7 +104,7 @@ export class Md2Autocomplete implements ControlValueAccessor {
     }
 
     private open() {
-        this.options = this._items.map((item: any) => new AutocompleteItem(item, this.itemText));
+        this.options = this._items.map((item: any) => new Item(item, this.itemText));
         //.filter( option => ( !this.active ) );
 
         if (this.options.length > 0) {
@@ -148,12 +148,11 @@ export class Md2Autocomplete implements ControlValueAccessor {
         };
     }
 
-    public clear(item: AutocompleteItem) {
+    public clear(item: Item) {
         if (this._disabled === true) {
             return;
         }
-        this.active.name = '';
-        this.active.value = '';
+        this.active.text = '';
         //this.doEvent( 'cleard', item );
     }
 
@@ -236,7 +235,7 @@ export class Md2Autocomplete implements ControlValueAccessor {
         this.matchItem(this.activeOption);
     }
 
-    private matchItem(value: AutocompleteItem, e: Event = null) {
+    private matchItem(value: Item, e: Event = null) {
         if (e) {
             e.stopPropagation();
             e.preventDefault();
@@ -253,8 +252,8 @@ export class Md2Autocomplete implements ControlValueAccessor {
         this.element.nativeElement.querySelector('.md2-autocomplete-container input').focus();
     }
 
-    private isActive(value: AutocompleteItem): boolean {
-        return this.activeOption.name === value.name;
+    private isActive(value: Item): boolean {
+        return this.activeOption.text === value.text;
     }
 
 
@@ -277,22 +276,19 @@ export class Md2Autocomplete implements ControlValueAccessor {
     }
 }
 
-class AutocompleteItem {
-    public value: string;
-    public name: string;
+class Item {
+    public text: string;
 
     constructor(source: any, itemText: string) {
         if (typeof source === 'string') {
-            this.value = this.name = source;
+            this.text = source;
         }
 
         if (typeof source === 'object') {
             if (itemText) {
-                this.value = source.value || source[itemText];
-                this.name = source[itemText];
+                this.text = source[itemText];
             } else {
-                this.value = source.value || source.name;
-                this.name = source.name;
+                this.text = source.text;
             }
         }
     }
@@ -308,7 +304,7 @@ class Behavior {
         let ai = this.actor.options.indexOf(this.actor.activeOption);
 
         if (ai < 0 && optionsMap !== null) {
-            ai = optionsMap.get(this.actor.activeOption.value);
+            ai = optionsMap.get(this.actor.activeOption.text);
         }
 
         return ai;
@@ -378,7 +374,7 @@ class GenericBehavior extends Behavior implements IOptionsBehavior {
 
     public filter(query: RegExp) {
         let options = this.actor._items
-            .filter(option => query.test(option.name));
+            .filter(option => query.test(option.text));
         this.actor.options = options;
 
         if (this.actor.options.length > 0) {
