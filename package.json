@@ -1,56 +1,54 @@
 {
-    "name": "md2",
-    "version": "0.0.1-beta.1",
-    "description": "Angular2 Material based replacement for select component",
-    "scripts": {
-        "clean": "gulp clean",
-        "compile": "gulp compile",
-        "build": "gulp build",
-        "start": "concurrent --kill-others \"gulp watch\" \"lite-server\"",
-        "postinstall": "typings install"
-    },
-    "main": "md2.js",
-    "typings": "md2.d.ts",
-    "keywords": [
-        "angular2",
-        "select",
-        "selectify",
-        "angularjs"
-    ],
-    "author": "Dharmesh Pipariya <pipariyadharmesh@gmail.com>",
-    "license": "MIT",
-    "repository": {
-        "type": "git",
-        "url": "git+ssh://git@github.com/DharmeshPipariya/md2.git"
-    },
-    "bugs": {
-        "url": "https://github.com/DharmeshPipariya/md2/issues"
-    },
-    "homepage": "https://github.com/DharmeshPipariya/md2#readme",
-    "dependencies": { },
-    "devDependencies": {
-        "angular2": "2.0.0-beta.15",
-        "systemjs": "0.19.26",
-        "es6-shim": "^0.35.0",
-        "reflect-metadata": "0.1.2",
-        "rxjs": "5.0.0-beta.2",
-        "zone.js": "0.6.10",
-        "concurrently": "^2.0.0",
-        "del": "^2.2.0",
-        "gulp": "^3.9.1",
-        "gulp-sourcemaps": "^1.6.0",
-        "gulp-tslint": "^4.3.3",
-        "gulp-typescript": "^2.12.0",
-        "lite-server": "^2.1.0",
-        "tslint": "^3.5.0",
-        "typescript": "^1.8.10",
-        "typings": "^0.7.12"
-    },
-    "contributors": [
-        {
-            "name": "Dharmesh Pipariya",
-            "email": "pipariyadharmesh@gmail.com",
-            "url": "https://github.com/DharmeshPipariya"
-        }
-    ]
+  "name": "md2",
+  "version": "2.0.0",
+  "description": "Angular2 based Material design components are select, autocomplete, switch, modal dialog.",
+  "scripts": {
+  },
+  "main": "gulpfile.js",
+  "typings": "md2.d.ts",
+  "keywords": [
+    "angular2",
+	"angularjs",
+	"material",
+	"component",
+	"autocomplete",
+	"dialog",
+	"modal",
+	"menu",
+	"dropdown",
+	"select",
+	"switch",
+	"multiselect",
+    "tab"
+  ],
+  "author": "Dharmesh Pipariya <pipariyadharmesh@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DharmeshPipariya/md2.git"
+  },
+  "bugs": {
+    "url": "https://github.com/DharmeshPipariya/md2/issues"
+  },
+  "homepage": "https://github.com/DharmeshPipariya/md2#readme",
+  "dependencies": {},
+  "devDependencies": {
+	"cors": "2.7.1",
+	"express": "4.13.4",
+    "express-jwt": "3.3.0",
+	"angular2": "2.0.0-beta.16",
+    "systemjs": "0.19.26",
+	"es6-promise": "3.1.2",
+    "es6-shim": "^0.35.0",
+    "reflect-metadata": "0.1.2",
+    "rxjs": "5.0.0-beta.2",
+    "zone.js": "0.6.12",
+	"del": "^2.2.0",
+    "browser-sync": "^2.9.3",
+    "gulp": "^3.9.1",
+    "gulp-sourcemaps": "^1.5.2",
+    "gulp-tslint": "^3.2.0",
+    "gulp-typescript": "^2.10.0",
+    "superstatic": "^1.2.3"
+  }
 }
