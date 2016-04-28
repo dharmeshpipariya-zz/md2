@@ -1,7 +1,4 @@
 .idea
-demo
+src
 build
-gulp-tasks
-logs
-
-webpack.config.js
+published
