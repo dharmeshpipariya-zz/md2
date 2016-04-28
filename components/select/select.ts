@@ -7,19 +7,18 @@ const MD2_SELECT_CONTROL_VALUE_ACCESSOR = new Provider(
         multi: true
     });
 
-
 @Component({
     selector: 'md2-select',
     template: `
-        <div tabindex="0" class="md2-select-container" [class.disabled]="_disabled" (keydown)="inputEvent($event)" (keyup)="inputEvent($event, true)">
-            <div class="md2-select-value" (^click)="matchClick()">
-                <span *ngIf="active.length <= 0" class="md2-select-placeholder">{{placeholder}}</span>
-                <span *ngIf="active.length > 0" class="md2-select-match-text">{{active[0].name}}</span>
+        <div tabindex="0" class="md2-select-container" [class.disabled]="_disabled" (keydown)="keyEvent($event)" (keyup)="keyEvent($event, true)">
+            <div class="md2-select-value" (^click)="clickEvent()">
+                <span *ngIf="activeItem.length <= 0" class="md2-select-placeholder">{{placeholder}}</span>
+                <span *ngIf="activeItem.length > 0" class="md2-select-match-text">{{activeItem[0].text}}</span>
                 <i class="md2-select-icon"></i>
             </div>
-            <ul *ngIf="optionsOpened && options && options.length > 0" class="md2-select-menu">
-                <li class="md2-option" *ngFor="#o of options" [class.active]="isActive(o)" (click)="selectMatch(o, $event)">
-                    <div class="md2-text" [innerHtml]="o.name"></div>
+            <ul *ngIf="isMenuOpened && list && list.length > 0" class="md2-select-menu">
+                <li class="md2-option" *ngFor="#o of list" [class.active]="isActive(o)" (click)="selectItem(o, $event)">
+                    <div class="md2-text" [innerHtml]="o.text"></div>
                 </li>
             </ul>
         </div>
@@ -42,19 +41,21 @@ const MD2_SELECT_CONTROL_VALUE_ACCESSOR = new Provider(
     providers: [MD2_SELECT_CONTROL_VALUE_ACCESSOR]
 })
 export class Md2Select implements ControlValueAccessor {
-    public options: Array<SelectItem> = [];
-    public active: Array<SelectItem> = [];
-    public activeOption: SelectItem;
+    public list: Array<SelectItem> = [];
+    public activeItem: Array<SelectItem> = [];
+    public currentItem: SelectItem;
     private offSideClickHandler: any;
-    private inputMode: boolean = false;
-    private optionsOpened: boolean = false;
-    private behavior: IOptionsBehavior;
+    private isMenuOpened: boolean = false;
+    private behavior: IListsBehavior;
     private _items: Array<any> = [];
+    private _item: any = '';
     private _disabled: boolean = false;
-
 
     @Input()
     placeholder: string = '';
+
+    @Input()
+    itemText: string = 'text';
 
     @Input() set items(value: Array<any>) {
         this._items = value;
@@ -63,38 +64,14 @@ export class Md2Select implements ControlValueAccessor {
     @Input() set disabled(value: boolean) {
         this._disabled = value;
         if (this._disabled === true) {
-            this.hideOptions();
+            this.hide();
         }
     }
 
     @Output()
     change: EventEmitter<any> = new EventEmitter();
 
-
-
     constructor(public element: ElementRef) { }
-
-    private matchClick(e: any) {
-        if (this._disabled === true) {
-            return;
-        }
-
-        this.inputMode = !this.inputMode;
-        if (this.inputMode === true) {
-            //this.focusToInput();
-            this.open();
-        }
-    }
-
-    private open() {
-        this.options = this._items.map((item: any) => new SelectItem(item));
-
-        if (this.options.length > 0) {
-            this.behavior.first();
-        }
-
-        this.optionsOpened = true;
-    }
 
     ngOnInit() {
         this.behavior = new GenericBehavior(this);
@@ -105,6 +82,24 @@ export class Md2Select implements ControlValueAccessor {
     ngOnDestroy() {
         document.removeEventListener('click', this.offSideClickHandler);
         this.offSideClickHandler = null;
+    }
+
+    private clickEvent(e: any) {
+        if (this._disabled === true) {
+            return;
+        }
+
+        this.isMenuOpened = !this.isMenuOpened;
+        if (this.isMenuOpened === true) {
+            this.open();
+        }
+    }
+
+    private open() {
+        this.list = this._items.map((item: any) => new SelectItem(item, this.itemText));
+        if (this.list.length > 0) {
+            this.behavior.first();
+        }
     }
 
     private getOffSideClickHandler(context: any) {
@@ -118,13 +113,12 @@ export class Md2Select implements ControlValueAccessor {
                 && e.srcElement && e.srcElement.className &&
                 e.srcElement.className.indexOf('md2-select') >= 0) {
                 if (e.target.nodeName !== 'INPUT') {
-                    context.matchClick(null);
+                    context.clickEvent(null);
                 }
                 return;
             }
 
-            context.inputMode = false;
-            context.optionsOpened = false;
+            context.isMenuOpened = false;
         };
     }
 
@@ -134,12 +128,9 @@ export class Md2Select implements ControlValueAccessor {
         }
     }
 
-    private hideOptions() {
-        this.inputMode = false;
-        this.optionsOpened = false;
-    }
+    private hide() { this.isMenuOpened = false; }
 
-    public inputEvent(e: any, isUpMode: boolean = false) {
+    public keyEvent(e: any, isUpMode: boolean = false) {
         // check enabled
         if (this._disabled === true) { return; }
 
@@ -154,7 +145,7 @@ export class Md2Select implements ControlValueAccessor {
 
         // esc
         if (!isUpMode && e.keyCode === 27) {
-            this.hideOptions();
+            this.hide();
             this.element.nativeElement.children[0].focus();
             e.preventDefault();
             return;
@@ -190,8 +181,8 @@ export class Md2Select implements ControlValueAccessor {
 
         // enter
         if (!isUpMode && e.keyCode === 13) {
-            if (this.active.indexOf(this.activeOption) == -1) {
-                this.selectActiveMatch();
+            if (this.activeItem.indexOf(this.currentItem) == -1) {
+                this.selectItem(this.currentItem);
                 this.behavior.next();
             }
             e.preventDefault();
@@ -199,115 +190,90 @@ export class Md2Select implements ControlValueAccessor {
         }
     }
 
-    private selectActiveMatch() {
-        this.selectMatch(this.activeOption);
-    }
-
-    private selectMatch(value: SelectItem, e: Event = null) {
+    private selectItem(value: SelectItem, e: Event = null) {
         if (e) {
             e.stopPropagation();
             e.preventDefault();
         }
 
-        if (this.options.length <= 0) {
+        if (this.list.length <= 0) {
             return;
         }
 
-        this.active[0] = value;
+        this.activeItem[0] = value;
+
+        if (typeof this._item === 'string') {
+            this._item = this.activeItem[0].text;
+        }
+        if (typeof this._item === 'object') {
+            this._item[0] = this._items.find((item: any) => item[this.itemText] == value.text);
+        }
+
 
         this.doEvent('change', value);
-        this.hideOptions();
+        this.hide();
         this.element.nativeElement.querySelector('.md2-select-container').focus();
     }
 
-    private isActive(value: SelectItem): boolean {
-        return this.activeOption.name === value.name;
-    }
+    private isActive(value: SelectItem): boolean { return this.currentItem.text === value.text; }
 
-    //Placeholders for the callbacks
     onTouched: () => any = () => { };
 
-    //From ControlValueAccessor interface
     writeValue(value: any) {
-        this.active = value;
+        this._item = value;
+        if (this._item && typeof this._item === 'string') {
+            if (this.activeItem.length > 0) {
+                this.activeItem[0].text = this._item;
+            } else {
+                this.activeItem.push({ text: this._item });
+            }
+        }
+        if (this._item && typeof this._item === 'object') {
+            if (this.activeItem.length > 0) {
+                this.activeItem[0].text = this._item[0][this.itemText];
+            } else {
+                this.activeItem.push({ text: this._item[0][this.itemText] });
+            }
+        }
     }
 
-    //From ControlValueAccessor interface
-    registerOnChange(fn: any) {
-        this.onTouched = fn;
-    }
+    registerOnChange(fn: any) { this.onTouched = fn; }
 
-    //From ControlValueAccessor interface
     registerOnTouched(fn: any) {
         this.onTouched = fn;
     }
 }
 
 class SelectItem {
-    public value: string;
-    public name: string;
-    public children: Array<SelectItem>;
-    public parent: SelectItem;
+    public text: string;
 
-    constructor(source: any) {
+    constructor(source: any, itemText: string) {
         if (typeof source === 'string') {
-            this.value = this.name = source;
+            this.text = source;
         }
-
         if (typeof source === 'object') {
-            this.value = source.value || source.name;
-            this.name = source.name;
-
-            if (source.children && source.name) {
-                this.children = source.children.map((c: any) => {
-                    let r: SelectItem = new SelectItem(c);
-                    r.parent = this;
-                    return r;
-                });
-                this.name = source.name;
-            }
+            this.text = source[itemText];
         }
-    }
-
-    public fillChildrenHash(optionsMap: Map<string, number>, startIndex: number): number {
-        let i = startIndex;
-        this.children.map(child => {
-            optionsMap.set(child.value, i++);
-        });
-
-        return i;
-    }
-
-    public hasChildren(): boolean {
-        return this.children && this.children.length > 0;
-    }
-
-    public getSimilar(): SelectItem {
-        let r: SelectItem = new SelectItem(false);
-        r.value = this.value;
-        r.name = this.name;
-        r.parent = this.parent;
-        return r;
     }
 }
 
 class Behavior {
-    public optionsMap: Map<string, number> = new Map<string, number>();
+    public listMap: Map<string, number> = new Map<string, number>();
 
     constructor(public actor: Md2Select) {
     }
 
-    private getActiveIndex(optionsMap: Map<string, number> = null): number {
-        let ai = this.actor.options.indexOf(this.actor.activeOption);
+    private getActiveIndex(listMap: Map<string, number> = null): number {
+        let ai = this.actor.list.indexOf(this.actor.currentItem);
 
-        if (ai < 0 && optionsMap !== null) {
-            ai = optionsMap.get(this.actor.activeOption.value);
+        if (ai < 0 && listMap !== null) {
+            ai = listMap.get(this.actor.currentItem.text);
         }
 
         return ai;
     }
 
-    public ensureHighlightVisible(optionsMap: Map<string, number> = null) {
+    public ensureHighlightVisible(listMap: Map<string, number> = null) {
         let container = this.actor.element.nativeElement.querySelector('.md2-select-menu');
 
         if (!container) {
@@ -319,7 +285,7 @@ class Behavior {
             return;
         }
 
-        let activeIndex = this.getActiveIndex(optionsMap);
+        let activeIndex = this.getActiveIndex(listMap);
         if (activeIndex < 0) {
             return;
         }
@@ -340,37 +306,37 @@ class Behavior {
     }
 }
 
-class GenericBehavior extends Behavior implements IOptionsBehavior {
+class GenericBehavior extends Behavior implements IListsBehavior {
     constructor(public actor: Md2Select) {
         super(actor);
     }
 
     public first() {
-        this.actor.activeOption = this.actor.options[0];
+        this.actor.currentItem = this.actor.list[0];
         super.ensureHighlightVisible();
     }
 
     public last() {
-        this.actor.activeOption = this.actor.options[this.actor.options.length - 1];
+        this.actor.currentItem = this.actor.list[this.actor.list.length - 1];
         super.ensureHighlightVisible();
     }
 
     public prev() {
-        let index = this.actor.options.indexOf(this.actor.activeOption);
-        this.actor.activeOption = this.actor
-            .options[index - 1 < 0 ? this.actor.options.length - 1 : index - 1];
+        let index = this.actor.list.indexOf(this.actor.currentItem);
+        this.actor.currentItem = this.actor
+            .list[index - 1 < 0 ? this.actor.list.length - 1 : index - 1];
         super.ensureHighlightVisible();
     }
 
     public next() {
-        let index = this.actor.options.indexOf(this.actor.activeOption);
-        this.actor.activeOption = this.actor
-            .options[index + 1 > this.actor.options.length - 1 ? 0 : index + 1];
+        let index = this.actor.list.indexOf(this.actor.currentItem);
+        this.actor.currentItem = this.actor
+            .list[index + 1 > this.actor.list.length - 1 ? 0 : index + 1];
         super.ensureHighlightVisible();
     }
 }
 
-interface IOptionsBehavior {
+interface IListsBehavior {
     first(): any;
     last(): any;
     prev(): any;
