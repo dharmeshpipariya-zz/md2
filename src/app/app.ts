@@ -11,9 +11,8 @@ import { Profile } from './components/profile/profile';
 declare var Auth0Lock;
 
 @Component({
-	selector: 'my-app',
+	selector: 'md2-app',
   templateUrl: './app/app.html',
-  styleUrls: ['./app/app.css'],
 	directives: [RouterOutlet, RouterLink]
 })
 @RouteConfig([

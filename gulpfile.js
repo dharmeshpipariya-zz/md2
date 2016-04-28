@@ -36,44 +36,50 @@ gulp.task('compile', ['tslint'],function() {
         .pipe(gulp.dest(config.tsOutputPath));
 });
 
+gulp.task('compile-select', ['tslint'],function() {
+    gulp.src(['src/components/select/*.ts'])
+    .pipe(tsc())
+    .pipe(gulp.dest('./'))
+});
+
 gulp.task("resources", function() {
     return gulp.src(["src/**/*", "!**/*.ts"])
         .pipe(gulp.dest("build"));
 });
 
-gulp.task('watch', function () {
-    gulp.watch([config.allTs], ['compile']).on('change', function (e) {
-        console.log('TypeScript file ' + e.path + ' has been changed. Compiling.');
-    });
-    // gulp.watch(["src/**/*.html", "src/**/*.css"], ['resources']).on('change', function (e) {
-        // console.log('Resource file ' + e.path + ' has been changed. Updating.');
-    // });
-});
-
-// gulp.task("libs", function() {
-    // return gulp.src([
-            // 'es6-shim/es6-shim.min.js',
-            // 'systemjs/dist/system-polyfills.js',
-            // 'angular2/bundles/angular2-polyfills.js',
-            // 'angular2/es6/dev/src/testing/shims_for_IE.js',
-            // 'systemjs/dist/system.src.js',
-            // 'rxjs/bundles/Rx.js',
-            // 'angular2/bundles/angular2.dev.js',
-            // 'angular2/bundles/router.dev.js'
-        // ], {cwd: "node_modules/**"}) /* Glob required here. */
-        // .pipe(gulp.dest("build/lib"));
+// gulp.task('watch', function () {
+//     gulp.watch([config.allTs], ['compile']).on('change', function (e) {
+//         console.log('TypeScript file ' + e.path + ' has been changed. Compiling.');
+//     });
+//     gulp.watch(["src/**/*.html", "src/**/*.css"], ['resources']).on('change', function (e) {
+//         console.log('Resource file ' + e.path + ' has been changed. Updating.');
+//     });
 // });
+
+gulp.task('libs', function (done) {
+    gulp.src([
+      'node_modules/systemjs/dist/system.js',
+      'node_modules/angular2/bundles/angular2.dev.js',
+      'node_modules/angular2/bundles/angular2-polyfills.js',
+      'node_modules/angular2/bundles/http.dev.js',
+      'node_modules/angular2/bundles/upgrade.dev.js',
+      'node_modules/angular2/bundles/router.dev.js',
+      'node_modules/es6-shim/es6-shim.js',
+      'node_modules/es6-promise/dist/es6-promise.js',
+      'node_modules/rxjs/bundles/Rx.js'
+    ]).pipe(gulp.dest('./build/lib'));
+});
 
 // gulp.task("build", ['compile', 'resources'], function() {
     // console.log("Building the project ...");
 // });
 
-gulp.task("publish", ['compile'], function() {
-    return gulp.src(["src/components/**/*"])
-        .pipe(gulp.dest("publish"));
-});
+// gulp.task("publish", ['compile'], function() {
+//     return gulp.src(["src/components/**/*"])
+//         .pipe(gulp.dest("publish"));
+// });
 
-gulp.task('serve', ['tslint', 'compile'], function() {
+gulp.task('serve', ['tslint', 'compile','libs'], function() {
     	
     gulp.watch([config.allTs], ['tslint', 'compile']);
 	

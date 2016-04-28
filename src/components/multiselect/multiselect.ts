@@ -1,8 +1,8 @@
 import {Component, Input, Output, EventEmitter, ElementRef} from 'angular2/core';
 import {CORE_DIRECTIVES, FORM_DIRECTIVES, NgClass, NgStyle} from 'angular2/common';
-import {SelectItem} from './select-item';
-import {HightlightPipe} from './select-pipes';
-import {IOptionsBehavior} from './select-interfaces';
+import {SelectItem} from './multiselect-item';
+import {HightlightPipe} from './multiselect-pipes';
+import {IOptionsBehavior} from './multiselect-interfaces';
 
 let optionsTemplate = `
     <ul *ngIf="optionsOpened && options && options.length > 0 && !itemObjects[0].hasChildren()" class="md2-select-menu">
