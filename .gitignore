@@ -7,4 +7,3 @@ src/**/*.d.ts
 *.js.map
 *.d.ts
 build
-publish

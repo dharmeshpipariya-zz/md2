@@ -1,4 +1,8 @@
 .idea
-src
-build
-published
+node_modules/
+*.log
+build/
+src/
+gulpfile.js
+gulp.config.js
+tsconfig.json
