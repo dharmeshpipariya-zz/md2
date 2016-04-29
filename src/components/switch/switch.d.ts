@@ -1,8 +1,11 @@
-import { EventEmitter } from 'angular2/core';
-import { ControlValueAccessor } from 'angular2/common';
+import { ElementRef, EventEmitter, Renderer } from 'angular2/core';
+import { ControlValueAccessor } from 'angular2/src/common/forms/directives/control_value_accessor';
 export declare class Md2Switch implements ControlValueAccessor {
+    private _renderer;
+    private _elementRef;
     ariaLabel: string;
     id: string;
+    align: string;
     disabled: boolean;
     tabindex: number;
     change: EventEmitter<boolean>;
@@ -12,7 +15,7 @@ export declare class Md2Switch implements ControlValueAccessor {
     private _checked;
     private _indeterminate;
     private _changeSubscription;
-    constructor();
+    constructor(_renderer: Renderer, _elementRef: ElementRef);
     checked: boolean;
     indeterminate: boolean;
     labelId: string;
@@ -22,5 +25,6 @@ export declare class Md2Switch implements ControlValueAccessor {
     writeValue(value: any): void;
     registerOnChange(fn: any): void;
     registerOnTouched(fn: any): void;
+    private _transitionCheckState(newState);
     private _getAnimationClassForCheckStateTransition(oldState, newState);
 }

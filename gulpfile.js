@@ -10,7 +10,7 @@ var browserSync = require('browser-sync');
 var superstatic = require('superstatic');
 
 gulp.task('clean', function (cb) {
-    return del(['build'], cb);
+    return del(['build', 'src/**/*.js', 'src/**/*.js.map', 'src/**/*.d.ts', '*.js', '!gulpfile.js', '!gulp.config.js', '*.js.map', '*.d.ts'], cb);
 });
 
 gulp.task('tslint', function () {
