@@ -2,7 +2,10 @@
 node_modules/
 *.log
 build/
-src/
+src/app/
+src/sever/
+src/index.html
+src/style.css
 gulpfile.js
 gulp.config.js
 tsconfig.json

@@ -1,17 +1,20 @@
 {
+    "version": "1.7.5",
     "compilerOptions": {
-        "target": "es6",
-        "module": "system",
-        "moduleResolution": "node",
+        "target": "es5",
+        "module": "commonjs",
         "sourceMap": true,
+        "declaration": true,
+        "removeComments": true,
         "emitDecoratorMetadata": true,
         "experimentalDecorators": true,
-        "removeComments": false,
-        "noImplicitAny": false
+        "noImplicitAny": true,
+        "listFiles": false,
+        "noLib": false
     },
     "exclude": [
         "node_modules",
-        "typings",
-        "build"
+        "typings/main",
+        "typings/main.d.ts"
     ]
 }
