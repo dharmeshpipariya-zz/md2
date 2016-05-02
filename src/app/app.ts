@@ -5,6 +5,8 @@ import {HTTP_PROVIDERS} from 'angular2/http';
 import { Autocomplete } from './components/autocomplete/autocomplete';
 import { Dialog } from './components/dialog/dialog';
 import { Menu } from './components/menu/menu';
+import { Select } from './components/select/select';
+import { Switch } from './components/switch/switch';
 
 @Component({
     selector: 'md2-app',
@@ -28,6 +30,16 @@ import { Menu } from './components/menu/menu';
         path: '/Menu',
         name: 'Menu',
         component: Menu,
+    },
+    {
+        path: '/Select',
+        name: 'Select',
+        component: Select,
+    },
+    {
+        path: '/Switch',
+        name: 'Switch',
+        component: Switch,
     }
 ])
 export class AppComponent { }

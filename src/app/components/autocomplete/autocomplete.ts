@@ -1,5 +1,4 @@
 import {Component} from 'angular2/core';
-import {RouteParams} from 'angular2/router';
 
 import {Md2Switch} from '../../../components/switch/switch';
 
@@ -9,6 +8,5 @@ import {Md2Switch} from '../../../components/switch/switch';
     directives: [Md2Switch]
 })
 export class Autocomplete {
-    disabled:boolean=false;
-    switchState:boolean=true;
- }
+
+}
