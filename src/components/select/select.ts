@@ -40,6 +40,7 @@ const MD2_SELECT_CONTROL_VALUE_ACCESSOR = new Provider(
     `],
     providers: [MD2_SELECT_CONTROL_VALUE_ACCESSOR]
 })
+
 export class Md2Select implements ControlValueAccessor {
     public list: Array<SelectItem> = [];
     public activeItem: Array<SelectItem> = [];

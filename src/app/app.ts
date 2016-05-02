@@ -5,6 +5,7 @@ import {HTTP_PROVIDERS} from 'angular2/http';
 import { Autocomplete } from './components/autocomplete/autocomplete';
 import { Dialog } from './components/dialog/dialog';
 import { Menu } from './components/menu/menu';
+import { Multiselect } from './components/multiselect/multiselect';
 import { Select } from './components/select/select';
 import { Switch } from './components/switch/switch';
 
@@ -16,30 +17,35 @@ import { Switch } from './components/switch/switch';
 })
 @RouteConfig([
     {
-        path: '/',
+        path: '/Autocomplete',
         name: 'Autocomplete',
-        component: Autocomplete,
-        useAsDefault: true
+        component: Autocomplete
     },
     {
         path: '/Dialog',
         name: 'Dialog',
-        component: Dialog,
+        component: Dialog
     },
     {
         path: '/Menu',
         name: 'Menu',
-        component: Menu,
+        component: Menu
+    },
+    {
+        path: '/',
+        name: 'Multiselect',
+        component: Multiselect,
+        useAsDefault: true
     },
     {
         path: '/Select',
         name: 'Select',
-        component: Select,
+        component: Select
     },
     {
         path: '/Switch',
         name: 'Switch',
-        component: Switch,
+        component: Switch
     }
 ])
 export class AppComponent { }

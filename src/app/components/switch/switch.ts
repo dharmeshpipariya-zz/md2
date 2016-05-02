@@ -7,6 +7,12 @@ import {Md2Switch} from '../../../components/switch/switch';
     directives: [Md2Switch]
 })
 export class Switch {
-    disabled: boolean = false;
-    switchState: boolean = true;
+    disabled: boolean;
+    switchState: boolean;
+    constructor() {
+        this.disabled = false;
+        this.switchState = true;
+    }
+
+
 }

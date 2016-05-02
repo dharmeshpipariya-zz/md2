@@ -62,6 +62,7 @@ const MD2_SWITCH_CONTROL_VALUE_ACCESSOR = CONST_EXPR(new Provider(
     encapsulation: ViewEncapsulation.None,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
+
 export class Md2Switch implements ControlValueAccessor {
 
     @Input('aria-label') ariaLabel: string = '';
@@ -72,7 +73,7 @@ export class Md2Switch implements ControlValueAccessor {
 
     @Input() tabindex: number = 0;
 
-    @Output() change: EventEmitter<boolean> = new EventEmitter();
+    @Output() change: EventEmitter<any> = new EventEmitter();
 
     onTouched: () => any = () => { };
 

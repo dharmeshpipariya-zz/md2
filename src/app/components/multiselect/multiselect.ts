@@ -1,13 +1,13 @@
 import {Component} from 'angular2/core';
 
-import {Md2Autocomplete} from '../../../components/autocomplete/autocomplete';
+import {Md2Multiselect} from '../../../components/multiselect/multiselect';
 
 @Component({
-    selector: 'autocomplete',
-    templateUrl: './app/components/autocomplete/autocomplete.html',
-    directives: [Md2Autocomplete]
+    selector: 'multiselect',
+    templateUrl: './app/components/multiselect/multiselect.html',
+    directives: [Md2Multiselect]
 })
-export class Autocomplete {
+export class Multiselect {
     private disabled: boolean = false;
     private items: Array<any> =
     [

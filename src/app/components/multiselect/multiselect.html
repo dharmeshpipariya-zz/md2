@@ -1,0 +1,10 @@
+<h2>Multiselect Component</h2>
+<div>
+    <md2-multiselect [items]="items"
+                     [itemtext]="'name'"
+                     [(ngmodel)]="item"
+                     [disabled]="disabled"
+                     (change)="change($event)"
+                     placeholder="No city selected">
+    </md2-multiselect>
+</div>
