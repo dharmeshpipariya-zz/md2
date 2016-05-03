@@ -14,19 +14,23 @@ const MD2_MULTISELECT_CONTROL_VALUE_ACCESSOR = CONST_EXPR(new Provider(
     selector: 'md2-multiselect',
     templateUrl: './components/multiselect/multiselect.html',
     styles: [`
+        .md2-multiselect { -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
         .md2-multiselect:focus { outline: none; }
-        .md2-multiselect-layout { position: relative; display: block; outline: none; }
-        .md2-multiselect-layout .md2-multiselect-container { display: flex; width: 100%; outline: none; align-items: center; padding: 2px 0 1px; border-bottom: 1px solid rgba(0, 0, 0, 0.38); position: relative; -moz-box-sizing: content-box; -webkit-box-sizing: content-box; box-sizing: content-box; min-width: 64px; min-height: 26px; flex-grow: 1; cursor: pointer; }
-        .md2-multiselect-layout:focus .md2-multiselect-container { padding-bottom: 0; border-bottom: 2px solid #106cc8; }
-        .md2-multiselect-layout.disabled .md2-multiselect-container { color: rgba(0,0,0,0.38); }
-        .md2-multiselect-layout.disabled:focus .md2-multiselect-container { padding-bottom: 1px; border-bottom: 1px solid rgba(0, 0, 0, 0.38); }
-        .md2-multiselect-layout .md2-multiselect-container > span:not(.md2-multiselect-icon) { max-width: 100%; -ms-flex: 1 1 auto; -webkit-flex: 1 1 auto; flex: 1 1 auto; -moz-transform: translate3d(0, 2px, 0); -ms-transform: translate3d(0, 2px, 0); -o-transform: translate3d(0, 2px, 0); -webkit-transform: translate3d(0, 2px, 0); transform: translate3d(0, 2px, 0); -ms-text-overflow: ellipsis; -o-text-overflow: ellipsis; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; }
-        .md2-multiselect-layout .md2-multiselect-container .md2-multiselect-icon { display: block; -webkit-align-items: flex-end; -ms-flex-align: end; align-items: flex-end; text-align: end; width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 6px solid rgba(0, 0, 0, 0.60); margin: 0 4px; -webkit-transform: translate3d(0, 1px, 0); -moz-transform: translate3d(0, 1px, 0); -ms-transform: translate3d(0, 1px, 0); -o-transform: translate3d(0, 1px, 0); transform: translate3d(0, 1px, 0); }
-        .md2-multiselect-layout .md2-multiselect-container .md2-multiselect-placeholder { color: rgba(0, 0, 0, 0.38); }
-        .md2-multiselect-layout .md2-multiselect-menu { position: absolute; left: 0; top: 0; display: block; z-index: 10; -ms-flex-direction: column; -webkit-flex-direction: column; flex-direction: column; width: 100%; margin: 0; padding: 8px 0; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14), 0 2px 1px -1px rgba(0, 0, 0, 0.12); max-height: 256px; min-height: 48px; overflow-y: auto; -moz-transform: scale(1); -ms-transform: scale(1); -o-transform: scale(1); -webkit-transform: scale(1); transform: scale(1); background: #fff; }
-        .md2-multiselect-layout .md2-multiselect-menu .md2-option { cursor: pointer; position: relative; display: block; align-items: center; width: auto; -moz-transition: background 0.15s linear; -o-transition: background 0.15s linear; -webkit-transition: background 0.15s linear; transition: background 0.15s linear; padding: 0 16px; height: 48px; line-height: 48px; }
-        .md2-multiselect-layout .md2-multiselect-menu .md2-option:hover, .md2-multiselect-layout .md2-multiselect-menu .md2-option.active { background: #eeeeee; }
-        .md2-multiselect-layout .md2-multiselect-menu .md2-option .md2-option-text { width: auto; white-space: nowrap; overflow: hidden; -ms-text-overflow: ellipsis; -o-text-overflow: ellipsis; text-overflow: ellipsis; font-size: 1rem; }
+        .md2-multiselect .md2-multiselect-layout { position: relative; display: block; }
+        .md2-multiselect .md2-multiselect-container { display: flex; width: 100%; align-items: center; padding: 2px 0 1px; border-bottom: 1px solid rgba(0, 0, 0, 0.38); position: relative; -moz-box-sizing: content-box; -webkit-box-sizing: content-box; box-sizing: content-box; min-width: 64px; min-height: 26px; flex-grow: 1; cursor: pointer; }
+        .md2-multiselect:focus .md2-multiselect-container { padding-bottom: 0; border-bottom: 2px solid #106cc8; }
+        .md2-multiselect.md2-multiselect-disabled .md2-multiselect-container { color: rgba(0,0,0,0.38); }
+        .md2-multiselect.md2-multiselect-disabled:focus .md2-multiselect-container { padding-bottom: 1px; border-bottom: 1px solid rgba(0, 0, 0, 0.38); }
+        .md2-multiselect .md2-multiselect-container > span:not(.md2-multiselect-icon) { max-width: 100%; -ms-flex: 1 1 auto; -webkit-flex: 1 1 auto; flex: 1 1 auto; -ms-text-overflow: ellipsis; -o-text-overflow: ellipsis; text-overflow: ellipsis; overflow: hidden; }
+        .md2-multiselect .md2-multiselect-container .md2-multiselect-icon { display: block; -webkit-align-items: flex-end; -ms-flex-align: end; align-items: flex-end; text-align: end; width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 6px solid rgba(0, 0, 0, 0.60); margin: 0 4px; }
+        .md2-multiselect .md2-multiselect-container .md2-multiselect-placeholder { color: rgba(0, 0, 0, 0.38); }
+        .md2-multiselect .md2-multiselect-menu { position: absolute; left: 0; top: 0; display: block; z-index: 10; -ms-flex-direction: column; -webkit-flex-direction: column; flex-direction: column; width: 100%; margin: 0; padding: 8px 0; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14), 0 2px 1px -1px rgba(0, 0, 0, 0.12); max-height: 256px; min-height: 48px; overflow-y: auto; -moz-transform: scale(1); -ms-transform: scale(1); -o-transform: scale(1); -webkit-transform: scale(1); transform: scale(1); background: #fff; }
+        .md2-multiselect .md2-multiselect-menu .md2-option { cursor: pointer; position: relative; display: block; align-items: center; width: auto; -moz-transition: background 0.15s linear; -o-transition: background 0.15s linear; -webkit-transition: background 0.15s linear; transition: background 0.15s linear; padding: 0 16px 0 40px; height: 48px; line-height: 48px; }
+        .md2-multiselect .md2-multiselect-menu .md2-option.active { color: #106cc8; }
+        .md2-multiselect .md2-multiselect-menu .md2-option:hover, .md2-multiselect-layout .md2-multiselect-menu .md2-option.focus { background: #eeeeee; }
+        .md2-multiselect .md2-multiselect-menu .md2-option .md2-option-text { width: auto; white-space: nowrap; overflow: hidden; -ms-text-overflow: ellipsis; -o-text-overflow: ellipsis; text-overflow: ellipsis; font-size: 1rem; }
+        .md2-multiselect .md2-option .md2-option-icon { position: absolute; top: 14px; left: 12px; width: 1rem; height: 1rem; border: 2px solid rgba(0,0,0,0.54); border-radius: 2px; box-sizing: border-box; transition: 240ms; }
+        .md2-multiselect .md2-option.active .md2-option-icon { -moz-transform: rotate(-45deg); -ms-transform: rotate(-45deg); -o-transform: rotate(-45deg); -webkit-transform: rotate(-45deg); transform: rotate(-45deg); height: 0.5rem; top: 17px; border-color: #106cc8; border-top-style: none; border-right-style: none; }
     `],
     host: {
         'role': 'multiselect',
@@ -34,11 +38,10 @@ const MD2_MULTISELECT_CONTROL_VALUE_ACCESSOR = CONST_EXPR(new Provider(
         '[class.md2-multiselect]': 'true',
         '[class.md2-multiselect-disabled]': 'disabled',
         '[tabindex]': 'disabled ? -1 : tabindex',
-        '[attr.aria-disabled]': 'disabled'
-        //,
-        //'(click)': 'onInteractionEvent($event)',
-        //'(keyup.space)': 'onInteractionEvent($event)',
-        //'(blur)': 'onTouched()'
+        '[attr.aria-disabled]': 'disabled',
+        '(click)': 'onClickEvent($event)',
+        '(keydown)': 'onKeyEvent($event)',
+        '(blur)': 'onBlurEvent($event)'
     },
     providers: [MD2_MULTISELECT_CONTROL_VALUE_ACCESSOR],
     encapsulation: ViewEncapsulation.None,
@@ -49,7 +52,6 @@ export class Md2Multiselect implements ControlValueAccessor {
     public list: Array<ListItem> = [];
     public activeItem: Array<ListItem> = [];
     public currentItem: ListItem;
-    private offSideClickHandler: any;
     private isMenuOpened: boolean = false;
     private behavior: IListsBehavior;
     private _items: Array<any> = [];
@@ -75,13 +77,6 @@ export class Md2Multiselect implements ControlValueAccessor {
 
     ngOnInit() {
         this.behavior = new GenericBehavior(this);
-        this.offSideClickHandler = this.getOffSideClickHandler(this);
-        document.addEventListener('click', this.offSideClickHandler);
-    }
-
-    ngOnDestroy() {
-        document.removeEventListener('click', this.offSideClickHandler);
-        this.offSideClickHandler = null;
     }
 
     private clickEvent(e: any) {
@@ -102,111 +97,27 @@ export class Md2Multiselect implements ControlValueAccessor {
         }
     }
 
-    private getOffSideClickHandler(context: any) {
-        return function (e: any) {
-            if (e.target && e.target.nodeName === 'INPUT'
-                && e.target.className && e.target.className.indexOf('md2-multiselect') >= 0) {
-                return;
-            }
-
-            if (context.element.nativeElement.contains(e.srcElement)
-                && e.srcElement && e.srcElement.className &&
-                e.srcElement.className.indexOf('md2-multiselect') >= 0) {
-                if (e.target.nodeName !== 'INPUT') {
-                    context.clickEvent(null);
-                }
-                return;
-            }
-
-            context.isMenuOpened = false;
-        };
-    }
-
     public doEvent(type: string, value: any) {
         if ((<any>this)[type] && value) {
             (<any>this)[type].next(value);
         }
     }
 
-    private hide() { this.isMenuOpened = false; }
+    private selectItemOnMatch(value: ListItem, e: Event = null) {
+        if (e) { e.preventDefault(); }
+        if (this.list.length <= 0) { return; }
 
-    public keyEvent(e: any, isUpMode: boolean = false) {
-        // check enabled
-        if (this.disabled === true) { return; }
-
-        // tab key
-        if (e.keyCode === 9) { return; }
-
-        if (isUpMode && (e.keyCode === 37 || e.keyCode === 39 || e.keyCode === 38 ||
-            e.keyCode === 40 || e.keyCode === 13)) {
-            e.preventDefault();
-            return;
-        }
-
-        // esc
-        if (!isUpMode && e.keyCode === 27) {
-            this.hide();
-            this.element.nativeElement.children[0].focus();
-            e.preventDefault();
-            return;
-        }
-
-        // left
-        if (!isUpMode && e.keyCode === 37 && this._items.length > 0) {
-            this.behavior.first();
-            e.preventDefault();
-            return;
-        }
-
-        // right
-        if (!isUpMode && e.keyCode === 39 && this._items.length > 0) {
-            this.behavior.last();
-            e.preventDefault();
-            return;
-        }
-
-        // up
-        if (!isUpMode && e.keyCode === 38) {
-            this.behavior.prev();
-            e.preventDefault();
-            return;
-        }
-
-        // down
-        if (!isUpMode && e.keyCode === 40) {
-            this.behavior.next();
-            e.preventDefault();
-            return;
-        }
-
-        // enter
-        if (!isUpMode && e.keyCode === 13) {
-            if (this.activeItem.indexOf(this.currentItem) == -1) {
-                this.selectItem(this.currentItem);
-                this.behavior.next();
-            }
-            e.preventDefault();
-            return;
-        }
-    }
-
-    private selectItem(value: ListItem, e: Event = null) {
-        if (e) {
-            e.stopPropagation();
-            e.preventDefault();
-        }
-
-        if (this.list.length <= 0) {
-            return;
-        }
-        let index = this.activeItem.indexOf(value);
+        let index = this.activeItem.findIndex(item => item.text == value.text);
         if (index == -1) {
+            var indexToBePushed = 1;
+
             this.activeItem.push(value);
+            //this.activeItem = this.activeItem.sort((a, b) => {
+            //    return this.list.findIndex(item=> item.text == a.text) - this.list.findIndex(item=> item.text == b.text);
+            //});
         } else {
             this.activeItem.splice(index, 1);
         }
-
-        //this.activeItem[0] = value;
 
         //if (typeof this._item === 'string') {
         //    this._item = this.activeItem[0].text;
@@ -217,38 +128,97 @@ export class Md2Multiselect implements ControlValueAccessor {
 
 
         this.doEvent('change', value);
-        //this.hide();
-        //this.element.nativeElement.querySelector('.md2-multiselect-container').focus();
     }
 
-    private isActive(value: ListItem): boolean { return this.currentItem.text === value.text; }
+    private isActive(value: ListItem): boolean {
+        let index = this.activeItem.findIndex(item => item.text == value.text);
+        return index == -1 ? false : true;
+    }
+    private isFocus(value: ListItem): boolean { return this.currentItem.text === value.text; }
 
     onTouched: () => any = () => { };
 
-    //toggle() { this.checked = !this.checked; }
+    onBlurEvent(e: Event) { this.isMenuOpened = false; }
 
-    //onInteractionEvent(event: Event) {
-    //    if (this.disabled) {
-    //        event.stopPropagation();
-    //        return;
-    //    }
-    //    this.toggle();
-    //}
+    onKeyEvent(e: any) {
+        // check enabled
+        if (this.disabled === true) { return; }
+
+        // Tab Key
+        if (e.keyCode === 9) {
+            if (this.isMenuOpened) {
+                this.onBlurEvent(e);
+                e.preventDefault();
+            }
+            return;
+        }
+
+        // Escape Key
+        if (e.keyCode === 27) {
+            this.onBlurEvent(e);
+            e.stopPropagation();
+            e.preventDefault();
+            return;
+        }
+
+        // Up Arrow
+        if (e.keyCode === 38) {
+            this.behavior.prev();
+            if (!this.isMenuOpened) {
+                this.onClickEvent(e);
+            }
+            e.stopPropagation();
+            e.preventDefault();
+            return;
+        }
+
+        // Down Arrow
+        if (e.keyCode === 40) {
+            this.behavior.next();
+            if (!this.isMenuOpened) {
+                this.onClickEvent(e);
+            }
+            e.stopPropagation();
+            e.preventDefault();
+            return;
+        }
+
+        // Enter / Space
+        if (e.keyCode === 13 || e.keyCode === 32) {
+            if (this.isMenuOpened) {
+                if (this.activeItem.indexOf(this.currentItem) == -1) {
+                    this.selectItemOnMatch(this.currentItem);
+                }
+            } else {
+                this.onClickEvent(e);
+            }
+            e.preventDefault();
+            return;
+        }
+    }
+
+    onClickEvent(e: Event) {
+        if (this.disabled) {
+            e.stopPropagation();
+            e.preventDefault();
+            return;
+        }
+        this.isMenuOpened = true;
+        this.open();
+    }
 
     writeValue(value: any) {
         this._item = value;
         if (this._item && typeof this._item === 'string') {
-            if (this.activeItem.length > 0) {
-                this.activeItem[0].text = this._item;
-            } else {
-                this.activeItem.push({ text: this._item });
+            this.activeItem = [];
+            for (let i = 0; i < this._item.length; i++) {
+                this.activeItem.push({ text: this._item[i] });
             }
         }
         if (this._item && typeof this._item === 'object') {
-            if (this.activeItem.length > 0) {
-                this.activeItem[0].text = this._item[0][this.itemText];
-            } else {
-                this.activeItem.push({ text: this._item[0][this.itemText] });
+            this.activeItem = [];
+            for (let i = 0; i < this._item.length; i++) {
+                this.activeItem.push({ text: this._item[i][this.itemText] });
             }
         }
     }
@@ -330,29 +300,21 @@ class GenericBehavior extends Behavior implements IListsBehavior {
         super.ensureHighlightVisible();
     }
 
-    public last() {
-        this.actor.currentItem = this.actor.list[this.actor.list.length - 1];
-        super.ensureHighlightVisible();
-    }
-
     public prev() {
-        let index = this.actor.list.indexOf(this.actor.currentItem);
-        this.actor.currentItem = this.actor
-            .list[index - 1 < 0 ? this.actor.list.length - 1 : index - 1];
+        let index: number = this.actor.list.indexOf(this.actor.currentItem);
+        this.actor.currentItem = this.actor.list[index - 1 < 0 ? this.actor.list.length - 1 : index - 1];
         super.ensureHighlightVisible();
     }
 
     public next() {
-        let index = this.actor.list.indexOf(this.actor.currentItem);
-        this.actor.currentItem = this.actor
-            .list[index + 1 > this.actor.list.length - 1 ? 0 : index + 1];
+        let index: number = this.actor.list.indexOf(this.actor.currentItem);
+        this.actor.currentItem = this.actor.list[index + 1 > this.actor.list.length - 1 ? 0 : index + 1];
         super.ensureHighlightVisible();
     }
 }
 
 interface IListsBehavior {
     first(): any;
-    last(): any;
     prev(): any;
     next(): any;
 }
