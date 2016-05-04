@@ -12,7 +12,25 @@ const MD2_MULTISELECT_CONTROL_VALUE_ACCESSOR = CONST_EXPR(new Provider(
 
 @Component({
     selector: 'md2-multiselect',
-    templateUrl: './components/multiselect/multiselect.html',
+    template: `
+        <div class="md2-multiselect-layout">
+            <div class="md2-multiselect-container">
+                <span *ngIf="activeItem.length <= 0" class="md2-multiselect-placeholder">{{placeholder}}</span>
+                <span class="md2-multiselect-value">
+                    <span *ngFor="let a of activeItem; let last = last" class="md2-multiselect-value-item">
+                        <span class="md2-multiselect-text">{{a.text}}</span><span *ngIf="!last">,&nbsp;</span>
+                    </span>
+                </span>
+                <i class="md2-multiselect-icon"></i>
+            </div>
+            <ul *ngIf="isMenuOpened && list && list.length > 0" class="md2-multiselect-menu">
+                <li class="md2-option" *ngFor="let l of list" [class.active]="isActive(l)" [class.focus]="isFocus(l)" (click)="selectItemOnMatch(l, $event)">
+                    <div class="md2-option-icon"></div>
+                    <div class="md2-option-text" [innerHtml]="l.text"></div>
+                </li>
+            </ul>
+        </div>
+    `,
     styles: [`
         .md2-multiselect { -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
         .md2-multiselect:focus { outline: none; }

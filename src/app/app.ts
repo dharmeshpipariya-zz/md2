@@ -3,6 +3,7 @@ import {RouteConfig, ROUTER_DIRECTIVES} from "angular2/router";
 import {HTTP_PROVIDERS} from 'angular2/http';
 
 import { Autocomplete } from './components/autocomplete/autocomplete';
+import { Collapse } from './components/collapse/collapse';
 import { Dialog } from './components/dialog/dialog';
 import { Menu } from './components/menu/menu';
 import { Multiselect } from './components/multiselect/multiselect';
@@ -22,6 +23,12 @@ import { Switch } from './components/switch/switch';
         component: Autocomplete
     },
     {
+        path: '/Collapse',
+        name: 'Collapse',
+        component: Collapse,
+        useAsDefault: true
+    },
+    {
         path: '/Dialog',
         name: 'Dialog',
         component: Dialog
@@ -34,8 +41,7 @@ import { Switch } from './components/switch/switch';
     {
         path: '/',
         name: 'Multiselect',
-        component: Multiselect,
-        useAsDefault: true
+        component: Multiselect
     },
     {
         path: '/Select',
