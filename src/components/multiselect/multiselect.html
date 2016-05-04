@@ -2,8 +2,8 @@
     <div class="md2-multiselect-container">
         <span *ngIf="activeItem.length <= 0" class="md2-multiselect-placeholder">{{placeholder}}</span>
         <span class="md2-multiselect-value">
-            <span *ngFor="let a of activeItem" class="md2-multiselect-value-item">
-                <span class="md2-multiselect-text">{{a.text}}</span>,
+            <span *ngFor="let a of activeItem; let last = last" class="md2-multiselect-value-item">
+                <span class="md2-multiselect-text">{{a.text}}</span><span *ngIf="!last">,&nbsp;</span>
             </span>
         </span>
         <i class="md2-multiselect-icon"></i>

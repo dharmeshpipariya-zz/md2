@@ -79,20 +79,10 @@ export class Md2Multiselect implements ControlValueAccessor {
         this.behavior = new GenericBehavior(this);
     }
 
-    private clickEvent(e: any) {
-        if (this.disabled === true) {
-            return;
-        }
-
-        this.isMenuOpened = !this.isMenuOpened;
-        if (this.isMenuOpened === true) {
-            this.open();
-        }
-    }
-
-    private open() {
+    private openMenu() {
         this.list = this._items.map((item: any) => new ListItem(item, this.itemText));
         if (this.list.length > 0) {
+            this.isMenuOpened = true;
             this.behavior.first();
         }
     }
@@ -109,23 +99,15 @@ export class Md2Multiselect implements ControlValueAccessor {
 
         let index = this.activeItem.findIndex(item => item.text == value.text);
         if (index == -1) {
-            var indexToBePushed = 1;
-
+            //let ind = this.list.findIndex(item => item.text == value.text);
+            //let ind1 = this.activeItem.findIndex(item => item.text == this.list[ind+1].text);
+            this._item.push(this._items.find((item: any) => item[this.itemText] == value.text));
             this.activeItem.push(value);
-            //this.activeItem = this.activeItem.sort((a, b) => {
-            //    return this.list.findIndex(item=> item.text == a.text) - this.list.findIndex(item=> item.text == b.text);
-            //});
+            //this.activeItem = this.activeItem.sort((a, b) => { return this.list.findIndex(item=> item.text == a.text) - this.list.findIndex(item=> item.text == b.text); });
         } else {
             this.activeItem.splice(index, 1);
+            this._item.splice(index, 1);
         }
-
-        //if (typeof this._item === 'string') {
-        //    this._item = this.activeItem[0].text;
-        //}
-        //if (typeof this._item === 'object') {
-        //    this._item[0] = this._items.find((item: any) => item[this.itemText] == value.text);
-        //}
-
 
         this.doEvent('change', value);
     }
@@ -186,9 +168,7 @@ export class Md2Multiselect implements ControlValueAccessor {
         // Enter / Space
         if (e.keyCode === 13 || e.keyCode === 32) {
             if (this.isMenuOpened) {
-                if (this.activeItem.indexOf(this.currentItem) == -1) {
-                    this.selectItemOnMatch(this.currentItem);
-                }
+                this.selectItemOnMatch(this.currentItem, e);
             } else {
                 this.onClickEvent(e);
             }
@@ -203,8 +183,7 @@ export class Md2Multiselect implements ControlValueAccessor {
             e.preventDefault();
             return;
         }
-        this.isMenuOpened = true;
-        this.open();
+        this.openMenu();
     }
 
     writeValue(value: any) {
