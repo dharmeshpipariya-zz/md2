@@ -13,6 +13,4 @@ export class Switch {
         this.disabled = false;
         this.switchState = true;
     }
-
-
 }

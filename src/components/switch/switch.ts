@@ -67,7 +67,7 @@ export class Md2Switch implements ControlValueAccessor {
 
     @Input('aria-label') ariaLabel: string = '';
 
-    @Input() id: string = `md2-switch-${++nextId}`;
+    @Input() id: string = 'md2-switch-' + (++nextId);
 
     @Input() disabled: boolean = false;
 
@@ -90,7 +90,7 @@ export class Md2Switch implements ControlValueAccessor {
         this.change.emit(this._checked);
     }
 
-    get labelId() { return `${this.id}-label`; }
+    get labelId() { return this.id + '-label'; }
 
     getAriaChecked() { return this.checked ? 'true' : 'false'; }
 
