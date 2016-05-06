@@ -11,6 +11,7 @@ import { Multiselect } from './components/multiselect/multiselect';
 import { Select } from './components/select/select';
 import { Switch } from './components/switch/switch';
 import { Tabs } from './components/tabs/tabs';
+import { Tooltip } from './components/tooltip/tooltip';
 
 @Component({
     selector: 'md2-app',
@@ -30,10 +31,9 @@ import { Tabs } from './components/tabs/tabs';
         component: Autocomplete
     },
     {
-        path: '/',
+        path: '/Collapse',
         name: 'Collapse',
-        component: Collapse,
-        useAsDefault: true
+        component: Collapse
     },
     {
         path: '/Dialog',
@@ -61,9 +61,15 @@ import { Tabs } from './components/tabs/tabs';
         component: Switch
     },
     {
-        path: '/Tabs',
+        path: '/',
         name: 'Tabs',
-        component: Tabs
+        component: Tabs,
+        useAsDefault: true
+    },
+    {
+        path: '/Tooltip',
+        name: 'Tooltip',
+        component: Tooltip
     }
 ])
 export class AppComponent { }

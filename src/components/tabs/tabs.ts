@@ -1,132 +1,100 @@
-import {Component, OnInit, OnDestroy, HostBinding, Input} from 'angular2/core';
-import {NgClass} from 'angular2/common';
-import {NgTranscludeDirective} from '../common';
-import {TabDirective} from './tab.directive';
-// todo: add active event to tab
-// todo: fix? mixing static and dynamic tabs position tabs in order of creation
+import {Component, ElementRef, Input, Output, EventEmitter, Query, QueryList, ViewEncapsulation} from 'angular2/core';
+import {Md2Tab} from './tab';
+
 @Component({
-    selector: 'tabset',
-    directives: [NgClass, NgTranscludeDirective],
+    selector: 'md2-tabs',
     template: `
-    <ul class="nav" [ngClass]="classMap" (click)="$event.preventDefault()">
-        <li *ngFor="#tabz of tabs" class="nav-item"
-          [class.active]="tabz.active" [class.disabled]="tabz.disabled">
-          <a href class="nav-link"
-            [class.active]="tabz.active" [class.disabled]="tabz.disabled"
-            (click)="tabz.active = true">
-            <span [ngTransclude]="tabz.headingRef">{{tabz.heading}}</span>
-            <span *ngIf="tabz.removable">
-              <span (click)="$event.preventDefault(); removeTab(tabz);" class="glyphicon glyphicon-remove-circle"></span>
-            </span>
-          </a>
-        </li>
-    </ul>
-    <div class="tab-content">
-      <ng-content></ng-content>
-    </div>
-  `
+        <ul class="md2-tabs-wrapper">
+            <li *ngFor="let tab of tabs" [class]="tab.headerStyleClass" [class]="'md2-tab-item'" [class.active]="tab.active" [class.hover]="tab.hovered && !tab.disabled" [class.disabled]="tab.disabled"
+                (mouseenter)="tab.hovered=true" (mouseleave)="tab.hovered=false" (click)="open($event,tab)" *ngIf="!tab.removed">
+                <span>{{tab.header}}</span>
+                <button *ngIf="tab.removable" type="button" class="close" aria-label="Close" (click)="remove($event,tab)">&times;</button>
+            </li>
+        </ul>
+        <div class="md2-tabs-content-wrapper">
+            <ng-content></ng-content>
+        </div>
+    `,
+    styles: [``],
+    host: {
+        '[class]': 'styleClass',
+        '[class.md2-tabs]': 'true'
+    },
+    encapsulation: ViewEncapsulation.None
 })
-export class TabsetComponent implements OnInit, OnDestroy {
-    @Input()
-    public get vertical(): boolean { return this._vertical; };
+export class Md2Tabs {
 
-    @Input()
-    public get justified(): boolean { return this._justified; };
+    @Input() styleClass: string;
 
-    @Input()
-    public get type(): string { return this._type; };
+    @Output() onChange: EventEmitter<any> = new EventEmitter();
 
-    @HostBinding('class.tab-container') protected clazz: boolean = true;
+    @Output() onRemove: EventEmitter<any> = new EventEmitter();
 
-    public set vertical(value: boolean) {
-        this._vertical = value;
-        this.setClassMap();
+    initialized: boolean;
+
+    tabs: Md2Tab[];
+
+    constructor(private el: ElementRef, @Query(Md2Tab) tabs: QueryList<Md2Tab>) {
+        tabs.changes.subscribe(_ => {
+            this.tabs = tabs.toArray();
+            let activeTab: Md2Tab = this.findActiveTab();
+            if (!activeTab && this.tabs.length) {
+                this.tabs[0].active = true;
+            }
+        });
     }
 
-    public set justified(value: boolean) {
-        this._justified = value;
-        this.setClassMap();
-    }
-
-    public set type(value: string) {
-        this._type = value;
-        this.setClassMap();
-    }
-
-    public tabs: Array<TabDirective> = [];
-
-    private isDestroyed: boolean;
-    private _vertical: boolean;
-    private _justified: boolean;
-    private _type: string;
-    private classMap: any = {};
-
-    public ngOnInit(): void {
-        this.type = this.type !== 'undefined' ? this.type : 'tabs';
-    }
-
-    public ngOnDestroy(): void {
-        this.isDestroyed = true;
-    }
-
-    public addTab(tab: TabDirective): void {
-        this.tabs.push(tab);
-        tab.active = this.tabs.length === 1 && tab.active !== false;
-    }
-
-    public removeTab(tab: TabDirective): void {
-        let index = this.tabs.indexOf(tab);
-        if (index === -1 || this.isDestroyed) {
+    open(event, tab: Md2Tab) {
+        if (tab.disabled) {
+            event.preventDefault();
             return;
         }
-        // Select a new tab if the tab to be removed is selected and not destroyed
-        if (tab.active && this.hasAvailableTabs(index)) {
-            let newActiveIndex = this.getClosestTabIndex(index);
-            this.tabs[newActiveIndex].active = true;
-        }
 
-        tab.removed.emit(tab);
-        this.tabs.splice(index, 1);
+        if (!tab.active) {
+            let activeTab: Md2Tab = this.findActiveTab();
+            if (activeTab) {
+                activeTab.active = false
+            }
+            tab.active = true;
+            this.onChange.emit({ originalEvent: event, index: this.findTabIndex(tab) });
+        }
+        event.preventDefault();
     }
 
-    private getClosestTabIndex(index: number): number {
-        let tabsLength = this.tabs.length;
-        if (!tabsLength) {
-            return -1;
+    remove(event, tab: Md2Tab) {
+        if (tab.active) {
+            tab.active = false;
+            for (let i = 0; i < this.tabs.length; i++) {
+                let tab = this.tabs[i];
+                if (!tab.removed && !tab.disabled) {
+                    tab.active = true;
+                    break;
+                }
+            }
         }
 
-        for (let step = 1; step <= tabsLength; step += 1) {
-            let prevIndex = index - step;
-            let nextIndex = index + step;
-            if (this.tabs[prevIndex] && !this.tabs[prevIndex].disabled) {
-                return prevIndex;
-            }
-            if (this.tabs[nextIndex] && !this.tabs[nextIndex].disabled) {
-                return nextIndex;
-            }
-        }
-        return -1;
+        tab.removed = true;
+        this.onRemove.emit({ originalEvent: event, index: this.findTabIndex(tab) });
+        event.stopPropagation();
     }
 
-    private hasAvailableTabs(index: number): boolean {
-        let tabsLength = this.tabs.length;
-        if (!tabsLength) {
-            return false;
-        }
-
-        for (let i = 0; i < tabsLength; i += 1) {
-            if (!this.tabs[i].disabled && i !== index) {
-                return true;
+    findActiveTab() {
+        for (let i = 0; i < this.tabs.length; i++) {
+            if (this.tabs[i].active) {
+                return this.tabs[i];
             }
         }
-        return false;
+        return null;
     }
 
-    private setClassMap(): void {
-        this.classMap = {
-            'nav-stacked': this.vertical,
-            'nav-justified': this.justified,
-            ['nav-' + (this.type || 'tabs')]: true
-        };
+    findTabIndex(tab: Md2Tab) {
+        let index = -1;
+        for (let i = 0; i < this.tabs.length; i++) {
+            if (this.tabs[i] == tab) {
+                index = i;
+                break;
+            }
+        }
+        return index;
     }
 }

@@ -19,7 +19,7 @@ const MD2_AUTOCOMPLETE_CONTROL_VALUE_ACCESSOR = new Provider(
             <i *ngIf="inputValue.length>0" (click)="clear(currentItem)" class="md2-autocomplete-icon-clear"></i>
         </div>
         <ul *ngIf="isMenuOpened && list && list.length > 0" class="md2-autocomplete-suggestions">
-            <li class="md2-item" *ngFor="#o of list" [class.active]="isActive(o)" (click)="selectItem(o, $event)">
+            <li class="md2-item" *ngFor="let o of list" [class.active]="isActive(o)" (click)="selectItem(o, $event)">
                 <div class="md2-text" [innerHtml]="o.text | hightlight:inputValue"></div>
             </li>
         </ul>

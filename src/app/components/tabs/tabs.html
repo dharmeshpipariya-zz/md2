@@ -9,35 +9,27 @@
         <button type="button" class="btn btn-primary btn-sm" (click)="tabs[1].disabled = ! tabs[1].disabled">Enable / Disable third tab</button>
     </p>
     <hr />
-    <tabset>
-        <tab heading="Static title">Static content</tab>
-        <tab *ngfor="#tabz of tabs"
-             [heading]="tabz.title"
-             [active]="tabz.active"
-             (select)="tabz.active = true"
-             (deselect)="tabz.active = false"
-             [disabled]="tabz.disabled"
-             [removable]="tabz.removable"
-             (removed)="removeTabHandler(tabz)">
-            {{tabz?.content}}
-        </tab>
-        <tab (select)="alertMe()">
-            <template tabheading>
-                <i class="glyphicon glyphicon-bell"></i> Alert!
-            </template>
-            I've got an HTML heading, and a select callback. Pretty cool!
-        </tab>
-    </tabset>
+    <md2-tabs>
+        <md2-tab header="Static title">Static content</md2-tab>
+        <!--<md2-tab *ngFor="let tabz of tabs"
+                 [header]="tabz.title"
+                 [active]="tabz.active"
+                 [disabled]="tabz.disabled"
+                 [removable]="tabz.removable"
+                 (onRemove)="removeTabHandler(tabz)">
+            {{tabz.content}}
+        </md2-tab>-->
+    </md2-tabs>
     <hr />
-    <tabset [vertical]="true" type="pills">
-        <tab heading="Vertical 1">Vertical content 1</tab>
-        <tab heading="Vertical 2">Vertical content 2</tab>
-    </tabset>
+    <md2-tabs [vertical]="true" type="pills">
+        <md2-tab header="Vertical 1">Vertical content 1</md2-tab>
+        <md2-tab header="Vertical 2">Vertical content 2</md2-tab>
+    </md2-tabs>
     <hr />
     <p><i>Bootstrap 4 doesn't have justified classes</i></p>
-    <tabset [justified]="true">
-        <tab heading="Justified">Justified content</tab>
-        <tab heading="SJ">Short Labeled Justified content</tab>
-        <tab heading="Long Justified">Long Labeled Justified content</tab>
-    </tabset>
+    <md2-tabs>
+        <md2-tab header="Justified">Justified content</md2-tab>
+        <md2-tab header="SJ">Short Labeled Justified content</md2-tab>
+        <md2-tab header="Long Justified">Long Labeled Justified content</md2-tab>
+    </md2-tabs>
 </div>
