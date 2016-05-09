@@ -1,35 +1,15 @@
 <h2>Tabs Component</h2>
 <div>
-    <p>Select a tab by setting active binding to true:</p>
-    <p>
-        <button type="button" class="btn btn-primary btn-sm" (click)="tabs[0].active = true">Select second tab</button>
-        <button type="button" class="btn btn-primary btn-sm" (click)="tabs[1].active = true">Select third tab</button>
-    </p>
-    <p>
-        <button type="button" class="btn btn-primary btn-sm" (click)="tabs[1].disabled = ! tabs[1].disabled">Enable / Disable third tab</button>
-    </p>
-    <hr />
     <md2-tabs>
         <md2-tab header="Static title">Static content</md2-tab>
-        <!--<md2-tab *ngFor="let tabz of tabs"
+        <md2-tab *ngFor="let tabz of tabs"
                  [header]="tabz.title"
                  [active]="tabz.active"
                  [disabled]="tabz.disabled"
                  [removable]="tabz.removable"
-                 (onRemove)="removeTabHandler(tabz)">
+                 (change)="change($event)">
             {{tabz.content}}
-        </md2-tab>-->
-    </md2-tabs>
-    <hr />
-    <md2-tabs [vertical]="true" type="pills">
-        <md2-tab header="Vertical 1">Vertical content 1</md2-tab>
-        <md2-tab header="Vertical 2">Vertical content 2</md2-tab>
-    </md2-tabs>
-    <hr />
-    <p><i>Bootstrap 4 doesn't have justified classes</i></p>
-    <md2-tabs>
-        <md2-tab header="Justified">Justified content</md2-tab>
-        <md2-tab header="SJ">Short Labeled Justified content</md2-tab>
-        <md2-tab header="Long Justified">Long Labeled Justified content</md2-tab>
+        </md2-tab>
+      <md2-tab header="Static title2">Static content2</md2-tab>
     </md2-tabs>
 </div>

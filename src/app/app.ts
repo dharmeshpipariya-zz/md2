@@ -14,62 +14,62 @@ import { Tabs } from './components/tabs/tabs';
 import { Tooltip } from './components/tooltip/tooltip';
 
 @Component({
-    selector: 'md2-app',
-    templateUrl: './app/app.html',
-    directives: [ROUTER_DIRECTIVES],
-    providers: [HTTP_PROVIDERS]
+  selector: 'md2-app',
+  templateUrl: './app/app.html',
+  directives: [ROUTER_DIRECTIVES],
+  providers: [HTTP_PROVIDERS]
 })
 @RouteConfig([
-    {
-        path: '/Accordion',
-        name: 'Accordion',
-        component: Accordion
-    },
-    {
-        path: '/Autocomplete',
-        name: 'Autocomplete',
-        component: Autocomplete
-    },
-    {
-        path: '/Collapse',
-        name: 'Collapse',
-        component: Collapse
-    },
-    {
-        path: '/Dialog',
-        name: 'Dialog',
-        component: Dialog
-    },
-    {
-        path: '/Menu',
-        name: 'Menu',
-        component: Menu
-    },
-    {
-        path: '/Multiselect',
-        name: 'Multiselect',
-        component: Multiselect
-    },
-    {
-        path: '/Select',
-        name: 'Select',
-        component: Select
-    },
-    {
-        path: '/Switch',
-        name: 'Switch',
-        component: Switch
-    },
-    {
-        path: '/',
-        name: 'Tabs',
-        component: Tabs,
-        useAsDefault: true
-    },
-    {
-        path: '/Tooltip',
-        name: 'Tooltip',
-        component: Tooltip
-    }
+  {
+    path: '/Accordion',
+    name: 'Accordion',
+    component: Accordion
+  },
+  {
+    path: '/Autocomplete',
+    name: 'Autocomplete',
+    component: Autocomplete
+  },
+  {
+    path: '/Collapse',
+    name: 'Collapse',
+    component: Collapse
+  },
+  {
+    path: '/Dialog',
+    name: 'Dialog',
+    component: Dialog
+  },
+  {
+    path: '/Menu',
+    name: 'Menu',
+    component: Menu
+  },
+  {
+    path: '/Multiselect',
+    name: 'Multiselect',
+    component: Multiselect
+  },
+  {
+    path: '/Select',
+    name: 'Select',
+    component: Select
+  },
+  {
+    path: '/Switch',
+    name: 'Switch',
+    component: Switch
+  },
+  {
+    path: '/Tabs',
+    name: 'Tabs',
+    component: Tabs
+  },
+  {
+    path: '/',
+    name: 'Tooltip',
+    component: Tooltip,
+    useAsDefault: true
+  }
 ])
 export class AppComponent { }

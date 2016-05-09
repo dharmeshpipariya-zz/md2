@@ -1,33 +1,33 @@
 <html>
-  <head>
-    <base href="/">
-    <title>Angular Material 2 Components</title>
-    <link rel="stylesheet" href="style.css">    
-    <script src="lib/es6-shim.js"></script>
-    <script src="lib/angular2-polyfills.js"></script>
-    <script src="lib/system.js"></script>
-    <script src="lib/Rx.js"></script>
-    <script src="lib/angular2.dev.js"></script>
-    <script src="lib/router.dev.js"></script>
-    <script src="lib/http.dev.js"></script>
-    <script>
-        System.config({
-            packages: {
-                app: {
-                    format: 'register',
-                    defaultExtension: 'js'
-                },
-                components: {
-                    format: 'register',
-                    defaultExtension: 'js'
-                }
-            }
-        });
-        System.import('app/boot')
-              .then(null, console.error.bind(console));
-    </script>
-  </head>
-  <body>
-    <md2-app>Loading...</my-app>
-  </body>
+<head>
+  <base href="/">
+  <title>Angular Material 2 Components</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="lib/es6-shim.js"></script>
+  <script src="lib/angular2-polyfills.js"></script>
+  <script src="lib/system.js"></script>
+  <script src="lib/Rx.js"></script>
+  <script src="lib/angular2.dev.js"></script>
+  <script src="lib/router.dev.js"></script>
+  <script src="lib/http.dev.js"></script>
+  <script>
+    System.config({
+      packages: {
+        app: {
+          format: 'register',
+          defaultExtension: 'js'
+        },
+        components: {
+          format: 'register',
+          defaultExtension: 'js'
+        }
+      }
+    });
+    System.import('app/boot')
+          .then(null, console.error.bind(console));
+  </script>
+</head>
+<body>
+  <md2-app>Loading...</md2-app>
+</body>
 </html>
