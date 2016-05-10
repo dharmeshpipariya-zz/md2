@@ -1,4 +1,4 @@
-import {Component, Input, ContentChild, ViewEncapsulation} from 'angular2/core';
+import {Component, Input, ContentChild, ViewEncapsulation} from '@angular/core';
 import {Md2Accordion} from './accordion';
 
 @Component({

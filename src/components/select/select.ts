@@ -1,18 +1,17 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, Provider, ViewEncapsulation, forwardRef, ElementRef} from 'angular2/core';
-import { NG_VALUE_ACCESSOR, ControlValueAccessor } from 'angular2/src/common/forms/directives/control_value_accessor';
-import { CONST_EXPR } from 'angular2/src/facade/lang';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, Provider, ViewEncapsulation, forwardRef, ElementRef} from '@angular/core';
+import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/common';
 
 let nextId = 0;
 
-const MD2_SELECT_CONTROL_VALUE_ACCESSOR = CONST_EXPR(new Provider(
-    NG_VALUE_ACCESSOR, {
-        useExisting: forwardRef(() => Md2Select),
-        multi: true
-    }));
+const MD2_SELECT_CONTROL_VALUE_ACCESSOR = new Provider(
+  NG_VALUE_ACCESSOR, {
+    useExisting: forwardRef(() => Md2Select),
+    multi: true
+  });
 
 @Component({
-    selector: 'md2-select',
-    template: `
+  selector: 'md2-select',
+  template: `
         <div class="md2-select-layout">
             <div class="md2-select-container">
                 <span *ngIf="activeItem.length <= 0" class="md2-select-placeholder">{{placeholder}}</span>
@@ -26,7 +25,7 @@ const MD2_SELECT_CONTROL_VALUE_ACCESSOR = CONST_EXPR(new Provider(
             </ul>
         </div>
     `,
-    styles: [`
+  styles: [`
         .md2-select { -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
         .md2-select:focus { outline: none; }
         .md2-select .md2-select-layout { position: relative; display: block; }
@@ -43,273 +42,273 @@ const MD2_SELECT_CONTROL_VALUE_ACCESSOR = CONST_EXPR(new Provider(
         .md2-select .md2-select-menu .md2-option:hover, .md2-select .md2-select-menu .md2-option.focus { background: #eeeeee; }
         .md2-select .md2-select-menu .md2-option .md2-option-text { width: auto; white-space: nowrap; overflow: hidden; -ms-text-overflow: ellipsis; -o-text-overflow: ellipsis; text-overflow: ellipsis; font-size: 1rem; }
     `],
-    host: {
-        'role': 'select',
-        '[id]': 'id',
-        '[class.md2-select]': 'true',
-        '[class.md2-select-disabled]': 'disabled',
-        '[tabindex]': 'disabled ? -1 : tabindex',
-        '[attr.aria-disabled]': 'disabled',
-        '(click)': 'onClickEvent($event)',
-        '(keydown)': 'onKeyEvent($event)',
-        '(blur)': 'onBlurEvent($event)'
-    },
-    providers: [MD2_SELECT_CONTROL_VALUE_ACCESSOR],
-    encapsulation: ViewEncapsulation.None,
-    changeDetection: ChangeDetectionStrategy.OnPush
+  host: {
+    'role': 'select',
+    '[id]': 'id',
+    '[class.md2-select]': 'true',
+    '[class.md2-select-disabled]': 'disabled',
+    '[tabindex]': 'disabled ? -1 : tabindex',
+    '[attr.aria-disabled]': 'disabled',
+    '(click)': 'onClickEvent($event)',
+    '(keydown)': 'onKeyEvent($event)',
+    '(blur)': 'onBlurEvent($event)'
+  },
+  providers: [MD2_SELECT_CONTROL_VALUE_ACCESSOR],
+  encapsulation: ViewEncapsulation.None,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 
 export class Md2Select implements ControlValueAccessor {
-    public list: Array<ListItem> = [];
-    public activeItem: Array<ListItem> = [];
-    public currentItem: ListItem;
-    private isMenuOpened: boolean = false;
-    private isOpenable: boolean = true;
-    private behavior: IListsBehavior;
-    private _items: Array<any> = [];
-    private _item: any = '';
+  public list: Array<ListItem> = [];
+  public activeItem: Array<ListItem> = [];
+  public currentItem: ListItem;
+  private isMenuOpened: boolean = false;
+  private isOpenable: boolean = true;
+  private behavior: IListsBehavior;
+  private _items: Array<any> = [];
+  private _item: any = '';
 
-    @Input() id: string = 'md2-select-' + (++nextId);
+  @Input() id: string = 'md2-select-' + (++nextId);
 
-    @Input() disabled: boolean = false;
+  @Input() disabled: boolean = false;
 
-    @Input() tabindex: number = 0;
+  @Input() tabindex: number = 0;
 
-    @Input() placeholder: string = '';
+  @Input() placeholder: string = '';
 
-    @Input() itemText: string = 'text';
+  @Input() itemText: string = 'text';
 
-    @Input() set items(value: Array<any>) {
-        this._items = value;
+  @Input() set items(value: Array<any>) {
+    this._items = value;
+  }
+
+  @Output() change: EventEmitter<any> = new EventEmitter();
+
+  constructor(public element: ElementRef) { }
+
+  ngOnInit() {
+    this.behavior = new GenericBehavior(this);
+  }
+
+  private openMenu() {
+    this.list = this._items.map((item: any) => new ListItem(item, this.itemText));
+    if (this.list.length > 0 && this.isOpenable) {
+      if (this.activeItem.length > 0) {
+        this.currentItem = this.list.find((item: any) => item.text == this.activeItem[0].text);
+      }
+      this.isMenuOpened = true;
+      setTimeout(() => { this.behavior.next(); }, 0);
+    }
+    this.isOpenable = true;
+  }
+
+  public doEvent(type: string, value: any) {
+    if ((<any>this)[type] && value) {
+      (<any>this)[type].next(value);
+    }
+  }
+
+  private selectItemOnMatch(value: ListItem, e: Event = null) {
+    if (e) { e.preventDefault(); }
+    if (this.list.length <= 0) { return; }
+
+    this.activeItem[0] = value;
+    if (typeof this._item === 'string') {
+      this._item = this.activeItem[0].text;
+    }
+    if (typeof this._item === 'object') {
+      this._item[0] = this._items.find((item: any) => item[this.itemText] == value.text);
     }
 
-    @Output() change: EventEmitter<any> = new EventEmitter();
+    this.doEvent('change', value);
+    this.onBlurEvent(e);
+  }
 
-    constructor(public element: ElementRef) { }
+  private isActive(value: ListItem): boolean {
+    let index = this.activeItem.findIndex(item => item.text == value.text);
+    return index == -1 ? false : true;
+  }
 
-    ngOnInit() {
-        this.behavior = new GenericBehavior(this);
-    }
+  private isFocus(value: ListItem): boolean { return this.currentItem.text === value.text; }
 
-    private openMenu() {
-        this.list = this._items.map((item: any) => new ListItem(item, this.itemText));
-        if (this.list.length > 0 && this.isOpenable) {
-            if (this.activeItem.length > 0) {
-                this.currentItem = this.list.find((item: any) => item.text == this.activeItem[0].text);
-            }
-            this.isMenuOpened = true;
-            setTimeout(() => { this.behavior.next(); }, 0);
-        }
-        this.isOpenable = true;
-    }
+  onTouched: () => any = () => { };
 
-    public doEvent(type: string, value: any) {
-        if ((<any>this)[type] && value) {
-            (<any>this)[type].next(value);
-        }
-    }
+  onBlurEvent(e: Event) {
+    this.isMenuOpened = false;
+    this.isOpenable = false;
+    setTimeout(() => {
+      this.isOpenable = true;
+    }, 200);
+  }
 
-    private selectItemOnMatch(value: ListItem, e: Event = null) {
-        if (e) { e.preventDefault(); }
-        if (this.list.length <= 0) { return; }
+  onKeyEvent(e: any) {
+    // check enabled
+    if (this.disabled === true) { return; }
 
-        this.activeItem[0] = value;
-        if (typeof this._item === 'string') {
-            this._item = this.activeItem[0].text;
-        }
-        if (typeof this._item === 'object') {
-            this._item[0] = this._items.find((item: any) => item[this.itemText] == value.text);
-        }
-
-        this.doEvent('change', value);
+    // Tab Key
+    if (e.keyCode === 9) {
+      if (this.isMenuOpened) {
         this.onBlurEvent(e);
+        e.preventDefault();
+      }
+      return;
     }
 
-    private isActive(value: ListItem): boolean {
-        let index = this.activeItem.findIndex(item => item.text == value.text);
-        return index == -1 ? false : true;
+    // Escape Key
+    if (e.keyCode === 27) {
+      this.onBlurEvent(e);
+      e.stopPropagation();
+      e.preventDefault();
+      return;
     }
 
-    private isFocus(value: ListItem): boolean { return this.currentItem.text === value.text; }
-
-    onTouched: () => any = () => { };
-
-    onBlurEvent(e: Event) {
-        this.isMenuOpened = false;
-        this.isOpenable = false;
-        setTimeout(() => {
-            this.isOpenable = true;
-        }, 200);
+    // Up Arrow
+    if (e.keyCode === 38) {
+      this.behavior.prev();
+      if (!this.isMenuOpened) {
+        this.onClickEvent(e);
+      }
+      e.stopPropagation();
+      e.preventDefault();
+      return;
     }
 
-    onKeyEvent(e: any) {
-        // check enabled
-        if (this.disabled === true) { return; }
-
-        // Tab Key
-        if (e.keyCode === 9) {
-            if (this.isMenuOpened) {
-                this.onBlurEvent(e);
-                e.preventDefault();
-            }
-            return;
-        }
-
-        // Escape Key
-        if (e.keyCode === 27) {
-            this.onBlurEvent(e);
-            e.stopPropagation();
-            e.preventDefault();
-            return;
-        }
-
-        // Up Arrow
-        if (e.keyCode === 38) {
-            this.behavior.prev();
-            if (!this.isMenuOpened) {
-                this.onClickEvent(e);
-            }
-            e.stopPropagation();
-            e.preventDefault();
-            return;
-        }
-
-        // Down Arrow
-        if (e.keyCode === 40) {
-            this.behavior.next();
-            if (!this.isMenuOpened) {
-                this.onClickEvent(e);
-            }
-            e.stopPropagation();
-            e.preventDefault();
-            return;
-        }
-
-        // Enter / Space
-        if (e.keyCode === 13 || e.keyCode === 32) {
-            if (this.isMenuOpened) {
-                this.selectItemOnMatch(this.currentItem, e);
-            } else {
-                this.onClickEvent(e);
-            }
-            e.preventDefault();
-            return;
-        }
+    // Down Arrow
+    if (e.keyCode === 40) {
+      this.behavior.next();
+      if (!this.isMenuOpened) {
+        this.onClickEvent(e);
+      }
+      e.stopPropagation();
+      e.preventDefault();
+      return;
     }
 
-    onClickEvent(e: Event) {
-        if (this.disabled) {
-            e.stopPropagation();
-            e.preventDefault();
-            return;
-        }
-        this.openMenu();
+    // Enter / Space
+    if (e.keyCode === 13 || e.keyCode === 32) {
+      if (this.isMenuOpened) {
+        this.selectItemOnMatch(this.currentItem, e);
+      } else {
+        this.onClickEvent(e);
+      }
+      e.preventDefault();
+      return;
     }
+  }
 
-    writeValue(value: any) {
-        this._item = value;
-        if (this._item && typeof this._item === 'string') {
-            this.activeItem = [];
-            this.activeItem.push({ text: this._item });
-        }
-        if (this._item && typeof this._item === 'object') {
-            this.activeItem = [];
-            this.activeItem.push({ text: this._item[0][this.itemText] });
-        }
+  onClickEvent(e: Event) {
+    if (this.disabled) {
+      e.stopPropagation();
+      e.preventDefault();
+      return;
     }
+    this.openMenu();
+  }
 
-    registerOnChange(fn: any) { this.onTouched = fn; }
+  writeValue(value: any) {
+    this._item = value;
+    if (this._item && typeof this._item === 'string') {
+      this.activeItem = [];
+      this.activeItem.push({ text: this._item });
+    }
+    if (this._item && typeof this._item === 'object') {
+      this.activeItem = [];
+      this.activeItem.push({ text: this._item[0][this.itemText] });
+    }
+  }
 
-    registerOnTouched(fn: any) { this.onTouched = fn; }
+  registerOnChange(fn: any) { this.onTouched = fn; }
+
+  registerOnTouched(fn: any) { this.onTouched = fn; }
 }
 
 class ListItem {
-    public text: string;
+  public text: string;
 
-    constructor(source: any, itemText: string) {
-        if (typeof source === 'string') {
-            this.text = source;
-        }
-        if (typeof source === 'object') {
-            this.text = source[itemText];
-        }
+  constructor(source: any, itemText: string) {
+    if (typeof source === 'string') {
+      this.text = source;
     }
+    if (typeof source === 'object') {
+      this.text = source[itemText];
+    }
+  }
 }
 
 class Behavior {
-    public listMap: Map<string, number> = new Map<string, number>();
+  public listMap: Map<string, number> = new Map<string, number>();
 
-    constructor(public actor: Md2Select) {
+  constructor(public actor: Md2Select) {
+  }
+
+  private getActiveIndex(listMap: Map<string, number> = null): number {
+    let ai = this.actor.list.indexOf(this.actor.currentItem);
+
+    if (ai < 0 && listMap !== null) {
+      ai = listMap.get(this.actor.currentItem.text);
     }
 
-    private getActiveIndex(listMap: Map<string, number> = null): number {
-        let ai = this.actor.list.indexOf(this.actor.currentItem);
+    return ai;
+  }
 
-        if (ai < 0 && listMap !== null) {
-            ai = listMap.get(this.actor.currentItem.text);
-        }
+  public ensureHighlightVisible(listMap: Map<string, number> = null) {
+    let container = this.actor.element.nativeElement.querySelector('.md2-select-menu');
 
-        return ai;
+    if (!container) {
+      return;
     }
 
-    public ensureHighlightVisible(listMap: Map<string, number> = null) {
-        let container = this.actor.element.nativeElement.querySelector('.md2-select-menu');
-
-        if (!container) {
-            return;
-        }
-
-        let choices = container.querySelectorAll('.md2-option');
-        if (choices.length < 1) {
-            return;
-        }
-
-        let activeIndex = this.getActiveIndex(listMap);
-        if (activeIndex < 0) {
-            return;
-        }
-
-        let highlighted: any = choices[activeIndex];
-        if (!highlighted) {
-            return;
-        }
-
-        let posY: number = highlighted.offsetTop + highlighted.clientHeight - container.scrollTop;
-        let height: number = container.offsetHeight;
-
-        if (posY > height) {
-            container.scrollTop += posY - height;
-        } else if (posY < highlighted.clientHeight) {
-            container.scrollTop -= highlighted.clientHeight - posY;
-        }
+    let choices = container.querySelectorAll('.md2-option');
+    if (choices.length < 1) {
+      return;
     }
+
+    let activeIndex = this.getActiveIndex(listMap);
+    if (activeIndex < 0) {
+      return;
+    }
+
+    let highlighted: any = choices[activeIndex];
+    if (!highlighted) {
+      return;
+    }
+
+    let posY: number = highlighted.offsetTop + highlighted.clientHeight - container.scrollTop;
+    let height: number = container.offsetHeight;
+
+    if (posY > height) {
+      container.scrollTop += posY - height;
+    } else if (posY < highlighted.clientHeight) {
+      container.scrollTop -= highlighted.clientHeight - posY;
+    }
+  }
 }
 
 class GenericBehavior extends Behavior implements IListsBehavior {
-    constructor(public actor: Md2Select) {
-        super(actor);
-    }
+  constructor(public actor: Md2Select) {
+    super(actor);
+  }
 
-    public first() {
-        this.actor.currentItem = this.actor.list[0];
-        super.ensureHighlightVisible();
-    }
+  public first() {
+    this.actor.currentItem = this.actor.list[0];
+    super.ensureHighlightVisible();
+  }
 
-    public prev() {
-        let index: number = this.actor.list.indexOf(this.actor.currentItem);
-        this.actor.currentItem = this.actor.list[index - 1 < 0 ? this.actor.list.length - 1 : index - 1];
-        super.ensureHighlightVisible();
-    }
+  public prev() {
+    let index: number = this.actor.list.indexOf(this.actor.currentItem);
+    this.actor.currentItem = this.actor.list[index - 1 < 0 ? this.actor.list.length - 1 : index - 1];
+    super.ensureHighlightVisible();
+  }
 
-    public next() {
-        let index: number = this.actor.list.indexOf(this.actor.currentItem);
-        this.actor.currentItem = this.actor.list[index + 1 > this.actor.list.length - 1 ? 0 : index + 1];
-        super.ensureHighlightVisible();
-    }
+  public next() {
+    let index: number = this.actor.list.indexOf(this.actor.currentItem);
+    this.actor.currentItem = this.actor.list[index + 1 > this.actor.list.length - 1 ? 0 : index + 1];
+    super.ensureHighlightVisible();
+  }
 }
 
 interface IListsBehavior {
-    first(): any;
-    prev(): any;
-    next(): any;
+  first(): any;
+  prev(): any;
+  next(): any;
 }

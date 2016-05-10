@@ -1,4 +1,4 @@
-import {Component, Input, Output, EventEmitter, ViewEncapsulation} from 'angular2/core';
+import {Component, Input, Output, EventEmitter, ViewEncapsulation} from '@angular/core';
 import {Md2AccordionTab} from './accordiontab';
 
 @Component({
@@ -23,9 +23,9 @@ export class Md2Accordion {
 
   @Input() mdClass: string;
 
-  public tabs: AccordionTab[] = [];
+  public tabs: Md2AccordionTab[] = [];
 
-  addTab(tab: AccordionTab) {
+  addTab(tab: Md2AccordionTab) {
     this.tabs.push(tab);
   }
 }

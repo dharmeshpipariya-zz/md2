@@ -1,5 +1,5 @@
-import {Component, Provider, forwardRef, Input, Output, EventEmitter, ElementRef} from 'angular2/core';
-import {ControlValueAccessor, NG_VALUE_ACCESSOR, CORE_DIRECTIVES, FORM_DIRECTIVES, NgClass, NgStyle} from 'angular2/common';
+import {Component, Provider, forwardRef, Input, Output, EventEmitter, ElementRef} from '@angular/core';
+import {ControlValueAccessor, NG_VALUE_ACCESSOR, CORE_DIRECTIVES, FORM_DIRECTIVES, NgClass, NgStyle} from '@angular/common';
 
 import {HightlightPipe} from './autocomplete-pipes';
 

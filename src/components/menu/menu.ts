@@ -1,4 +1,4 @@
-import {Component, Input, ElementRef} from "angular2/core";
+import {Component, Input, ElementRef} from "@angular/core";
 
 @Component({
     selector: "md2-menu",

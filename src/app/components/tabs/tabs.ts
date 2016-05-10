@@ -1,4 +1,4 @@
-import {Component} from 'angular2/core';
+import {Component} from '@angular/core';
 
 import {Md2Tabs} from '../../../components/tabs/tabs';
 import {Md2Tab} from '../../../components/tabs/tab';

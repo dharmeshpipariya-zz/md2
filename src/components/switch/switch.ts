@@ -1,18 +1,17 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, Provider, ViewEncapsulation, forwardRef} from 'angular2/core';
-import { NG_VALUE_ACCESSOR, ControlValueAccessor } from 'angular2/src/common/forms/directives/control_value_accessor';
-import {CONST_EXPR } from 'angular2/src/facade/lang';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, Provider, ViewEncapsulation, forwardRef} from '@angular/core';
+import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/common';
 
 let nextId = 0;
 
-const MD2_SWITCH_CONTROL_VALUE_ACCESSOR = CONST_EXPR(new Provider(
-    NG_VALUE_ACCESSOR, {
-        useExisting: forwardRef(() => Md2Switch),
-        multi: true
-    }));
+const MD2_SWITCH_CONTROL_VALUE_ACCESSOR = new Provider(
+  NG_VALUE_ACCESSOR, {
+    useExisting: forwardRef(() => Md2Switch),
+    multi: true
+  });
 
 @Component({
-    selector: 'md2-switch',
-    template: `
+  selector: 'md2-switch',
+  template: `
         <div class="md2-switch-layout">
             <div class="md2-switch-container">
                 <div class="md2-switch-bar"></div>
@@ -25,7 +24,7 @@ const MD2_SWITCH_CONTROL_VALUE_ACCESSOR = CONST_EXPR(new Provider(
             </label>
         </div>
     `,
-    styles: [`
+  styles: [`
         .md2-switch-layout { margin: 16px; margin-left: inherit; white-space: nowrap; cursor: pointer; outline: 0; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; min-height: 30px; line-height: 28px; -webkit-align-items: center; -ms-flex-align: center; align-items: center; display: -webkit-flex; display: -ms-flexbox; display: flex; }
         .md2-switch-layout label { border-color: transparent; border-width: 0; cursor: pointer; float: left; -ms-word-wrap: break-word; word-wrap: break-word; max-width: 100%; white-space: normal; line-height: normal; }
         .md2-switch:focus { outline: none; }
@@ -43,80 +42,80 @@ const MD2_SWITCH_CONTROL_VALUE_ACCESSOR = CONST_EXPR(new Provider(
         .md2-switch:not(.md2-switch-dragging) .md2-switch-thumb { -moz-transition-delay: 0.05s; -o-transition-delay: 0.05s; -webkit-transition-delay: 0.05s; transition-delay: 0.05s; -moz-transition: all 0.08s linear; -o-transition: all 0.08s linear; -webkit-transition: all 0.08s linear; transition: all 0.08s linear; -moz-transition-property: transform, background-color; -o-transition-property: transform, background-color; -webkit-transition-property: transform, background-color; transition-property: transform, background-color; }
         .md2-switch:not(.md2-switch-dragging) .md2-switch-thumb-container { -moz-transition: all 0.08s linear; -o-transition: all 0.08s linear; -webkit-transition: all 0.08s linear; transition: all 0.08s linear; -moz-transition-property: transform, background-color; -o-transition-property: transform, background-color; -webkit-transition-property: transform, background-color; transition-property: transform, background-color; }
     `],
-    host: {
-        'role': 'checkbox',
-        '[id]': 'id',
-        '[class.md2-switch]': 'true',
-        '[class.md2-switch-checked]': 'checked',
-        '[class.md2-switch-disabled]': 'disabled',
-        '[tabindex]': 'disabled ? -1 : tabindex',
-        '[attr.aria-label]': 'ariaLabel',
-        '[attr.aria-labelledby]': 'labelId',
-        '[attr.aria-checked]': 'getAriaChecked()',
-        '[attr.aria-disabled]': 'disabled',
-        '(click)': 'onInteractionEvent($event)',
-        '(keyup.space)': 'onInteractionEvent($event)',
-        '(blur)': 'onTouched()'
-    },
-    providers: [MD2_SWITCH_CONTROL_VALUE_ACCESSOR],
-    encapsulation: ViewEncapsulation.None,
-    changeDetection: ChangeDetectionStrategy.OnPush
+  host: {
+    'role': 'checkbox',
+    '[id]': 'id',
+    '[class.md2-switch]': 'true',
+    '[class.md2-switch-checked]': 'checked',
+    '[class.md2-switch-disabled]': 'disabled',
+    '[tabindex]': 'disabled ? -1 : tabindex',
+    '[attr.aria-label]': 'ariaLabel',
+    '[attr.aria-labelledby]': 'labelId',
+    '[attr.aria-checked]': 'getAriaChecked()',
+    '[attr.aria-disabled]': 'disabled',
+    '(click)': 'onInteractionEvent($event)',
+    '(keyup.space)': 'onInteractionEvent($event)',
+    '(blur)': 'onTouched()'
+  },
+  providers: [MD2_SWITCH_CONTROL_VALUE_ACCESSOR],
+  encapsulation: ViewEncapsulation.None,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 
 export class Md2Switch implements ControlValueAccessor {
 
-    @Input('aria-label') ariaLabel: string = '';
+  @Input('aria-label') ariaLabel: string = '';
 
-    @Input() id: string = 'md2-switch-' + (++nextId);
+  @Input() id: string = 'md2-switch-' + (++nextId);
 
-    @Input() disabled: boolean = false;
+  @Input() disabled: boolean = false;
 
-    @Input() tabindex: number = 0;
+  @Input() tabindex: number = 0;
 
-    @Output() change: EventEmitter<any> = new EventEmitter<any>();
+  @Output() change: EventEmitter<any> = new EventEmitter<any>();
 
-    onTouched: () => any = () => { };
+  onTouched: () => any = () => { };
 
-    private _checked: boolean = false;
+  private _checked: boolean = false;
 
-    private _changeSubscription: { unsubscribe: () => any } = null;
+  private _changeSubscription: { unsubscribe: () => any } = null;
 
-    @Input() get checked() {
-        return this._checked;
+  @Input() get checked() {
+    return this._checked;
+  }
+
+  set checked(checked: boolean) {
+    this._checked = checked;
+    this.change.emit(this._checked);
+  }
+
+  get labelId() { return this.id + '-label'; }
+
+  getAriaChecked() { return this.checked ? 'true' : 'false'; }
+
+  toggle() { this.checked = !this.checked; }
+
+  onInteractionEvent(event: Event) {
+    if (this.disabled) {
+      event.stopPropagation();
+      return;
     }
+    this.toggle();
+  }
 
-    set checked(checked: boolean) {
-        this._checked = checked;
-        this.change.emit(this._checked);
+  writeValue(value: any) {
+    this.checked = !!value;
+  }
+
+  registerOnChange(fn: any) {
+    if (this._changeSubscription) {
+      this._changeSubscription.unsubscribe();
     }
+    this._changeSubscription = <{ unsubscribe: () => any }>this.change.subscribe(fn);
+  }
 
-    get labelId() { return this.id + '-label'; }
-
-    getAriaChecked() { return this.checked ? 'true' : 'false'; }
-
-    toggle() { this.checked = !this.checked; }
-
-    onInteractionEvent(event: Event) {
-        if (this.disabled) {
-            event.stopPropagation();
-            return;
-        }
-        this.toggle();
-    }
-
-    writeValue(value: any) {
-        this.checked = !!value;
-    }
-
-    registerOnChange(fn: any) {
-        if (this._changeSubscription) {
-            this._changeSubscription.unsubscribe();
-        }
-        this._changeSubscription = <{ unsubscribe: () => any }>this.change.subscribe(fn);
-    }
-
-    registerOnTouched(fn: any) {
-        this.onTouched = fn;
-    }
+  registerOnTouched(fn: any) {
+    this.onTouched = fn;
+  }
 
 }
