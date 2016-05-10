@@ -1,11 +1,30 @@
+# dependencies
 .idea
-node_modules/
-*.log
-build/
+node_modules
+
+# demo
+build
 src/app
-src/server
 src/index.html
 src/style.css
+src/systemjs.config.js
+
 gulpfile.js
-gulp.config.js
+
+# typescript
+*.ts
+!*.d.ts
+
+# git
+.git
+.gitignore
+
+# type definition
+typings
+typings.json
+
+# config
 tsconfig.json
+
+# misc
+*.log
