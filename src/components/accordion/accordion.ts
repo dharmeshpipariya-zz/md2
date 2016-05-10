@@ -1,41 +1,31 @@
-import { Component, Input, ViewEncapsulation} from 'angular2/core';
-
-import {Md2Panel} from './panel';
+import {Component, Input, Output, EventEmitter, ViewEncapsulation} from 'angular2/core';
+import {Md2AccordionTab} from './accordiontab';
 
 @Component({
-    selector: 'md2-accordion',
-    template: `<ng-content></ng-content>`,
-    host: {
-        '[class.md2-accordion]': 'true'
-    },
-    encapsulation: ViewEncapsulation.None
+  selector: 'md2-accordion',
+  template: `<ng-content></ng-content>`,
+  host: {
+    '[class]': 'mdClass',
+    '[class.md2-accordion]': 'true'
+  },
+  styles: [`
+    .md2-accordion { display: block; }
+  `],
+  encapsulation: ViewEncapsulation.None
 })
-
 export class Md2Accordion {
 
-    @Input() closeOthers: boolean = false;
+  @Input() multiple: boolean;
 
-    private panels: Array<Md2Panel> = [];
+  @Output() close: EventEmitter<any> = new EventEmitter();
 
-    public closeOtherPanels(openPanel: Md2Panel): void {
-        if (!this.closeOthers) {
-            return;
-        }
-        this.panels.forEach((panel: Md2Panel) => {
-            if (panel !== openPanel) {
-                panel.isOpen = false;
-            }
-        });
-    }
+  @Output() open: EventEmitter<any> = new EventEmitter();
 
-    public addPanel(panel: Md2Panel): void {
-        this.panels.push(panel);
-    }
+  @Input() mdClass: string;
 
-    public removePanel(panel: Md2Panel): void {
-        let index = this.panels.indexOf(panel);
-        if (index !== -1) {
-            this.panels.splice(index, 1);
-        }
-    }
+  public tabs: AccordionTab[] = [];
+
+  addTab(tab: AccordionTab) {
+    this.tabs.push(tab);
+  }
 }

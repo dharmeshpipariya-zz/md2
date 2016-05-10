@@ -73,7 +73,7 @@ export class Md2Switch implements ControlValueAccessor {
 
     @Input() tabindex: number = 0;
 
-    @Output() change: EventEmitter<any> = new EventEmitter();
+    @Output() change: EventEmitter<any> = new EventEmitter<any>();
 
     onTouched: () => any = () => { };
 

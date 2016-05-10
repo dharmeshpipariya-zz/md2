@@ -21,9 +21,10 @@ import { Tooltip } from './components/tooltip/tooltip';
 })
 @RouteConfig([
   {
-    path: '/Accordion',
+    path: '/',
     name: 'Accordion',
-    component: Accordion
+    component: Accordion,
+    useAsDefault: true
   },
   {
     path: '/Autocomplete',
@@ -66,10 +67,9 @@ import { Tooltip } from './components/tooltip/tooltip';
     component: Tabs
   },
   {
-    path: '/',
+    path: '/Tooltip',
     name: 'Tooltip',
-    component: Tooltip,
-    useAsDefault: true
+    component: Tooltip
   }
 ])
 export class AppComponent { }

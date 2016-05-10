@@ -1,43 +1,8 @@
 <h2>Accordion Component</h2>
 <div>
-    <p>
-        <button type="button" class="btn btn-primary btn-sm"
-                (click)="status.open = !status.open">
-            Toggle last panel
-        </button>
-        <button type="button" class="btn btn-primary btn-sm"
-                (click)="status.isFirstDisabled = ! status.isFirstDisabled">
-            Enable / Disable first panel
-        </button>
-    </p>
-    <div class="checkbox">
-        <label>
-            <input type="checkbox" [(ngmodel)]="oneAtATime">
-            Open only one at a time
-        </label>
-    </div>
-    <accordion [closeothers]="oneAtATime">
-        <accordion-group heading="Static Header, initially expanded"
-                         [isopen]="status.isFirstOpen"
-                         [isdisabled]="status.isFirstDisabled">
-            This content is straight in the template.
-        </accordion-group>
-        <accordion-group *ngfor="#group of groups" [heading]="group.title">
-            {{ group?.content }}
-        </accordion-group>
-        <accordion-group heading="Dynamic Body Content">
-            <p>The body of the accordion group grows to fit the contents</p>
-            <button type="button" class="btn btn-primary btn-sm" (click)="addItem()">Add Item</button>
-            <div *ngfor="#item of items">{{item}}</div>
-        </accordion-group>
-        <accordion-group #group [isopen]="status.open">
-            <div accordion-heading>
-                I can have markup, too!
-                <i class="pull-right glyphicon"
-                   [ngclass]="{'glyphicon-chevron-down': group?.isOpen, 'glyphicon-chevron-right': !group?.isOpen}"></i>
-            </div>
-            This is just some content to illustrate fancy headings.
-        </accordion-group>
-    </accordion>
-
+  <md2-accordion [multiple]="multiple">
+    <md2-accordion-tab *ngFor="let tab of accordions" [header]="tab.title" [active]="tab.active" [disabled]="tab.disabled">
+      {{tab.content}}
+    </md2-accordion-tab>
+  </md2-accordion>
 </div>
