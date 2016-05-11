@@ -1,0 +1,57 @@
+﻿@font-face {
+  font-family: 'Roboto-Regular';
+  src: url("../fonts/Roboto-Regular.ttf") format("truetype");
+}
+
+body {
+  position: relative;
+  font-family: "Roboto-Regular","Helvetica Neue",Helvetica,Arial,sans-serif;
+  font-size: 15px;
+  line-height: 1.42857143;
+  color: rgba(0, 0, 0, 0.7);
+  background-color: #f6f6f6;
+  height: 100%;
+}
+
+.side-nav {
+  position: fixed;
+  width: 240px;
+  left: 0;
+  top: 0;
+  margin: 0;
+  height: 100%;
+  background-color: #fff;
+  z-index: 999;
+  overflow-y: auto;
+}
+
+.side-nav ul {
+  display: block;
+  margin: 0;
+  padding: 3px 0;
+}
+
+.side-nav ul li {
+  display: block;
+}
+
+.side-nav ul li a {
+  display: block;
+  color: rgba(0, 0, 0, 0.6);
+  font-size: 16px;
+  padding: 8px 16px;
+  text-decoration: none;
+}
+
+.side-nav ul li a:hover, .side-nav ul li a:focus, .side-nav ul li a:active {
+  text-decoration: none;
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.content {
+  position: relative;
+  width: 100%;
+  padding: 0 30px 0 270px;
+}
+
+/*# sourceMappingURL=style.css.map */

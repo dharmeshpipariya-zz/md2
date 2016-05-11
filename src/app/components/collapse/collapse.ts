@@ -3,9 +3,9 @@ import {Component} from '@angular/core';
 import {Md2Collapse} from '../../../components/collapse/collapse';
 
 @Component({
-    selector: 'collapse',
-    templateUrl: './app/components/collapse/collapse.html',
-    styles: [`
+  selector: 'collapse',
+  templateUrl: './app/components/collapse/collapse.html',
+  styles: [`
         .collapse {
     display: none;
 }
@@ -29,9 +29,9 @@ import {Md2Collapse} from '../../../components/collapse/collapse';
     transition-property: height, visibility;
 }
     `],
-    directives: [Md2Collapse]
+  directives: [Md2Collapse]
 })
 export class Collapse {
-    public isCollapsedContent: boolean = false;
-    public isCollapsedImage: boolean = true;
+  public isCollapsedContent: boolean = false;
+  public isCollapsedImage: boolean = true;
 }

@@ -35,7 +35,7 @@ export class Md2Tabs {
 
   @Input() styleClass: string;
 
-  @Output() change: EventEmitter<any> = new EventEmitter();
+  @Output() change: EventEmitter<any> = new EventEmitter<any>();
 
   initialized: boolean;
 
@@ -88,3 +88,5 @@ export class Md2Tabs {
     return index;
   }
 }
+
+export const TABS_DIRECTIVES: Array<any> = [Md2Tabs, Md2Tab];

@@ -1,12 +1,11 @@
 import {Component} from '@angular/core';
 
-import {Md2Tabs} from '../../../components/tabs/tabs';
-import {Md2Tab} from '../../../components/tabs/tab';
+import {TABS_DIRECTIVES} from '../../../components/tabs/tabs';
 
 @Component({
   selector: 'tabs',
   templateUrl: './app/components/tabs/tabs.html',
-  directives: [Md2Tabs, Md2Tab]
+  directives: [TABS_DIRECTIVES]
 })
 export class Tabs {
   public tabs: Array<any> = [

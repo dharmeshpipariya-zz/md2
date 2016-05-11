@@ -12,43 +12,43 @@ const MD2_MULTISELECT_CONTROL_VALUE_ACCESSOR = new Provider(
 @Component({
   selector: 'md2-multiselect',
   template: `
-        <div class="md2-multiselect-layout">
-            <div class="md2-multiselect-container">
-                <span *ngIf="activeItem.length <= 0" class="md2-multiselect-placeholder">{{placeholder}}</span>
-                <span class="md2-multiselect-value">
-                    <span *ngFor="let a of activeItem; let last = last" class="md2-multiselect-value-item">
-                        <span class="md2-multiselect-text">{{a.text}}</span><span *ngIf="!last">,&nbsp;</span>
-                    </span>
-                </span>
-                <i class="md2-multiselect-icon"></i>
-            </div>
-            <ul *ngIf="isMenuOpened && list && list.length > 0" class="md2-multiselect-menu">
-                <li class="md2-option" *ngFor="let l of list" [class.active]="isActive(l)" [class.focus]="isFocus(l)" (click)="selectItemOnMatch(l, $event)">
-                    <div class="md2-option-icon"></div>
-                    <div class="md2-option-text" [innerHtml]="l.text"></div>
-                </li>
-            </ul>
-        </div>
-    `,
+    <div class="md2-multiselect-layout">
+      <div class="md2-multiselect-container">
+        <span *ngIf="activeItem.length <= 0" class="md2-multiselect-placeholder">{{placeholder}}</span>
+        <span class="md2-multiselect-value">
+          <span *ngFor="let a of activeItem; let last = last" class="md2-multiselect-value-item">
+            <span class="md2-multiselect-text">{{a.text}}</span><span *ngIf="!last">,&nbsp;</span>
+          </span>
+        </span>
+        <i class="md2-multiselect-icon"></i>
+      </div>
+      <ul *ngIf="isMenuOpened && list && list.length > 0" class="md2-multiselect-menu">
+        <li class="md2-option" *ngFor="let l of list" [class.active]="isActive(l)" [class.focus]="isFocus(l)" (click)="selectItemOnMatch(l, $event)">
+          <div class="md2-option-icon"></div>
+          <div class="md2-option-text" [innerHtml]="l.text"></div>
+        </li>
+      </ul>
+    </div>
+  `,
   styles: [`
-        .md2-multiselect { -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
-        .md2-multiselect:focus { outline: none; }
-        .md2-multiselect .md2-multiselect-layout { position: relative; display: block; }
-        .md2-multiselect .md2-multiselect-container { display: flex; width: 100%; align-items: center; padding: 2px 0 1px; border-bottom: 1px solid rgba(0, 0, 0, 0.38); position: relative; -moz-box-sizing: content-box; -webkit-box-sizing: content-box; box-sizing: content-box; min-width: 64px; min-height: 26px; flex-grow: 1; cursor: pointer; }
-        .md2-multiselect:focus .md2-multiselect-container { padding-bottom: 0; border-bottom: 2px solid #106cc8; }
-        .md2-multiselect.md2-multiselect-disabled .md2-multiselect-container { color: rgba(0,0,0,0.38); }
-        .md2-multiselect.md2-multiselect-disabled:focus .md2-multiselect-container { padding-bottom: 1px; border-bottom: 1px solid rgba(0, 0, 0, 0.38); }
-        .md2-multiselect .md2-multiselect-container > span:not(.md2-multiselect-icon) { max-width: 100%; -ms-flex: 1 1 auto; -webkit-flex: 1 1 auto; flex: 1 1 auto; -ms-text-overflow: ellipsis; -o-text-overflow: ellipsis; text-overflow: ellipsis; overflow: hidden; }
-        .md2-multiselect .md2-multiselect-container .md2-multiselect-icon { display: block; -webkit-align-items: flex-end; -ms-flex-align: end; align-items: flex-end; text-align: end; width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 6px solid rgba(0, 0, 0, 0.60); margin: 0 4px; }
-        .md2-multiselect .md2-multiselect-container .md2-multiselect-placeholder { color: rgba(0, 0, 0, 0.38); }
-        .md2-multiselect .md2-multiselect-menu { position: absolute; left: 0; top: 0; display: block; z-index: 10; -ms-flex-direction: column; -webkit-flex-direction: column; flex-direction: column; width: 100%; margin: 0; padding: 8px 0; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14), 0 2px 1px -1px rgba(0, 0, 0, 0.12); max-height: 256px; min-height: 48px; overflow-y: auto; -moz-transform: scale(1); -ms-transform: scale(1); -o-transform: scale(1); -webkit-transform: scale(1); transform: scale(1); background: #fff; }
-        .md2-multiselect .md2-multiselect-menu .md2-option { cursor: pointer; position: relative; display: block; align-items: center; width: auto; -moz-transition: background 0.15s linear; -o-transition: background 0.15s linear; -webkit-transition: background 0.15s linear; transition: background 0.15s linear; padding: 0 16px 0 40px; height: 48px; line-height: 48px; }
-        .md2-multiselect .md2-multiselect-menu .md2-option.active { color: #106cc8; }
-        .md2-multiselect .md2-multiselect-menu .md2-option:hover, .md2-multiselect .md2-multiselect-menu .md2-option.focus { background: #eeeeee; }
-        .md2-multiselect .md2-multiselect-menu .md2-option .md2-option-text { width: auto; white-space: nowrap; overflow: hidden; -ms-text-overflow: ellipsis; -o-text-overflow: ellipsis; text-overflow: ellipsis; font-size: 1rem; }
-        .md2-multiselect .md2-option .md2-option-icon { position: absolute; top: 14px; left: 12px; width: 1rem; height: 1rem; border: 2px solid rgba(0,0,0,0.54); border-radius: 2px; box-sizing: border-box; transition: 240ms; }
-        .md2-multiselect .md2-option.active .md2-option-icon { -moz-transform: rotate(-45deg); -ms-transform: rotate(-45deg); -o-transform: rotate(-45deg); -webkit-transform: rotate(-45deg); transform: rotate(-45deg); height: 0.5rem; top: 17px; border-color: #106cc8; border-top-style: none; border-right-style: none; }
-    `],
+    .md2-multiselect { -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
+    .md2-multiselect:focus { outline: none; }
+    .md2-multiselect .md2-multiselect-layout { position: relative; display: block; }
+    .md2-multiselect .md2-multiselect-container { display: flex; width: 100%; align-items: center; padding: 2px 0 1px; border-bottom: 1px solid rgba(0, 0, 0, 0.38); position: relative; -moz-box-sizing: content-box; -webkit-box-sizing: content-box; box-sizing: content-box; min-width: 64px; min-height: 26px; flex-grow: 1; cursor: pointer; }
+    .md2-multiselect:focus .md2-multiselect-container { padding-bottom: 0; border-bottom: 2px solid #106cc8; }
+    .md2-multiselect.md2-multiselect-disabled .md2-multiselect-container { color: rgba(0,0,0,0.38); }
+    .md2-multiselect.md2-multiselect-disabled:focus .md2-multiselect-container { padding-bottom: 1px; border-bottom: 1px solid rgba(0, 0, 0, 0.38); }
+    .md2-multiselect .md2-multiselect-container > span:not(.md2-multiselect-icon) { max-width: 100%; -ms-flex: 1 1 auto; -webkit-flex: 1 1 auto; flex: 1 1 auto; -ms-text-overflow: ellipsis; -o-text-overflow: ellipsis; text-overflow: ellipsis; overflow: hidden; }
+    .md2-multiselect .md2-multiselect-container .md2-multiselect-icon { display: block; -webkit-align-items: flex-end; -ms-flex-align: end; align-items: flex-end; text-align: end; width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 6px solid rgba(0, 0, 0, 0.60); margin: 0 4px; }
+    .md2-multiselect .md2-multiselect-container .md2-multiselect-placeholder { color: rgba(0, 0, 0, 0.38); }
+    .md2-multiselect .md2-multiselect-menu { position: absolute; left: 0; top: 0; display: block; z-index: 10; -ms-flex-direction: column; -webkit-flex-direction: column; flex-direction: column; width: 100%; margin: 0; padding: 8px 0; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14), 0 2px 1px -1px rgba(0, 0, 0, 0.12); max-height: 256px; min-height: 48px; overflow-y: auto; -moz-transform: scale(1); -ms-transform: scale(1); -o-transform: scale(1); -webkit-transform: scale(1); transform: scale(1); background: #fff; }
+    .md2-multiselect .md2-multiselect-menu .md2-option { cursor: pointer; position: relative; display: block; align-items: center; width: auto; -moz-transition: background 0.15s linear; -o-transition: background 0.15s linear; -webkit-transition: background 0.15s linear; transition: background 0.15s linear; padding: 0 16px 0 40px; height: 48px; line-height: 48px; }
+    .md2-multiselect .md2-multiselect-menu .md2-option.active { color: #106cc8; }
+    .md2-multiselect .md2-multiselect-menu .md2-option:hover, .md2-multiselect .md2-multiselect-menu .md2-option.focus { background: #eeeeee; }
+    .md2-multiselect .md2-multiselect-menu .md2-option .md2-option-text { width: auto; white-space: nowrap; overflow: hidden; -ms-text-overflow: ellipsis; -o-text-overflow: ellipsis; text-overflow: ellipsis; font-size: 16px; }
+    .md2-multiselect .md2-option .md2-option-icon { position: absolute; top: 14px; left: 12px; width: 16px; height: 16px; border: 2px solid rgba(0,0,0,0.54); border-radius: 2px; box-sizing: border-box; transition: 240ms; }
+    .md2-multiselect .md2-option.active .md2-option-icon { -moz-transform: rotate(-45deg); -ms-transform: rotate(-45deg); -o-transform: rotate(-45deg); -webkit-transform: rotate(-45deg); transform: rotate(-45deg); height: 8px; top: 17px; border-color: #106cc8; border-top-style: none; border-right-style: none; }
+  `],
   host: {
     'role': 'multiselect',
     '[id]': 'id',
@@ -66,9 +66,9 @@ const MD2_MULTISELECT_CONTROL_VALUE_ACCESSOR = new Provider(
 })
 
 export class Md2Multiselect implements ControlValueAccessor {
-  public list: Array<ListItem> = [];
-  public activeItem: Array<ListItem> = [];
-  public currentItem: ListItem;
+  public list: Array<Item> = [];
+  public activeItem: Array<Item> = [];
+  public currentItem: Item;
   private isMenuOpened: boolean = false;
   private behavior: IListsBehavior;
   private _items: Array<any> = [];
@@ -82,7 +82,7 @@ export class Md2Multiselect implements ControlValueAccessor {
 
   @Input() placeholder: string = '';
 
-  @Input() itemText: string = 'text';
+  @Input('item-text') itemText: string = 'text';
 
   @Input() set items(value: Array<any>) {
     this._items = value;
@@ -97,7 +97,7 @@ export class Md2Multiselect implements ControlValueAccessor {
   }
 
   private openMenu() {
-    this.list = this._items.map((item: any) => new ListItem(item, this.itemText));
+    this.list = this._items.map((item: any) => new Item(item, this.itemText));
     if (this.list.length > 0) {
       this.isMenuOpened = true;
       this.behavior.first();
@@ -110,7 +110,7 @@ export class Md2Multiselect implements ControlValueAccessor {
     }
   }
 
-  private selectItemOnMatch(value: ListItem, e: Event = null) {
+  private selectItemOnMatch(value: Item, e: Event = null) {
     if (e) { e.preventDefault(); }
     if (this.list.length <= 0) { return; }
 
@@ -129,12 +129,12 @@ export class Md2Multiselect implements ControlValueAccessor {
     this.doEvent('change', value);
   }
 
-  private isActive(value: ListItem): boolean {
+  private isActive(value: Item): boolean {
     let index = this.activeItem.findIndex(item => item.text == value.text);
     return index == -1 ? false : true;
   }
 
-  private isFocus(value: ListItem): boolean { return this.currentItem.text === value.text; }
+  private isFocus(value: Item): boolean { return this.currentItem.text === value.text; }
 
   onTouched: () => any = () => { };
 
@@ -225,7 +225,7 @@ export class Md2Multiselect implements ControlValueAccessor {
   registerOnTouched(fn: any) { this.onTouched = fn; }
 }
 
-export class ListItem {
+export class Item {
   public text: string;
 
   constructor(source: any, itemText: string) {

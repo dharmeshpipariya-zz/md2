@@ -8,7 +8,7 @@ Example:
  
  ```html
 <md2-multiselect [items]="items"
-            [itemText]="'name'"
+            [item-text]="'name'"
             [(ngModel)]="item"
             (change)="selected($event)"
             placeholder="Placeholder Text">
@@ -61,7 +61,7 @@ export class ... {
   or an array of such objects otherwise. This option is mutually exclusive with value.
   - `placeholder` (`?string=''`) - Placeholder text to display when the element has no focus and selected items.
   - `disabled` (`?boolean=false`) - When `true`, it specifies that the component should be disabled.
-  - `itemText` (`?string='text'`) - When items array is different with object properties then map 'text' property with the array.
+  - `item-text` (`?string='text'`) - When items array is different with object properties then map 'text' property with the array.
 
 ### Events
 

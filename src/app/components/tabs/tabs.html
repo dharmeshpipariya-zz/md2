@@ -1,15 +1,15 @@
-<h2>Tabs Component</h2>
+<h1 class="page-header">Tabs Component</h1>
 <div>
-    <md2-tabs>
-        <md2-tab header="Static title">Static content</md2-tab>
-        <md2-tab *ngFor="let tabz of tabs"
-                 [header]="tabz.title"
-                 [active]="tabz.active"
-                 [disabled]="tabz.disabled"
-                 [removable]="tabz.removable"
-                 (change)="change($event)">
-            {{tabz.content}}
-        </md2-tab>
-      <md2-tab header="Static title2">Static content2</md2-tab>
-    </md2-tabs>
+  <md2-tabs>
+    <md2-tab header="Static title">Static content</md2-tab>
+    <md2-tab *ngFor="let tabz of tabs"
+             [header]="tabz.title"
+             [active]="tabz.active"
+             [disabled]="tabz.disabled"
+             [removable]="tabz.removable"
+             (change)="change($event)">
+      {{tabz.content}}
+    </md2-tab>
+    <md2-tab header="Static title2">Static content2</md2-tab>
+  </md2-tabs>
 </div>

@@ -1,6 +1,7 @@
 import {Component, OnInit} from "@angular/core";
 import {RouteConfig, RouterLink, ROUTER_DIRECTIVES} from "@angular/router-deprecated";
 
+import { Home } from './home';
 import { Accordion } from './components/accordion/accordion';
 import { Autocomplete } from './components/autocomplete/autocomplete';
 import { Collapse } from './components/collapse/collapse';
@@ -14,11 +15,12 @@ import { Tabs } from './components/tabs/tabs';
 @Component({
   selector: "md2-app",
   templateUrl: "./app/app.html",
-  directives: [Accordion, Autocomplete, Collapse, Dialog, Menu, Multiselect, Select, Switch, Tabs, RouterLink, ROUTER_DIRECTIVES]
+  directives: [Home, Accordion, Autocomplete, Collapse, Dialog, Menu, Multiselect, Select, Switch, Tabs, RouterLink, ROUTER_DIRECTIVES]
 })
 
 @RouteConfig([
-  { path: '/', name: 'Accordion', component: Accordion },
+  { path: '/', name: 'Home', component: Home },
+  { path: '/Accordion', name: 'Accordion', component: Accordion },
   { path: '/Autocomplete', name: 'Autocomplete', component: Autocomplete },
   { path: '/Collapse', name: 'Collapse', component: Collapse },
   { path: '/Dialog', name: 'Dialog', component: Dialog },

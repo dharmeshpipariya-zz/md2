@@ -1,12 +1,20 @@
-<h2>Select Component</h2>
+<h1 class="page-header">Select Component</h1>
 <div>
-    <p>Data:{{item | json}}</p>
-
-    <md2-select [items]="items"
-                     [itemText]="'name'"
-                     [(ngModel)]="item"
-                     [disabled]="disabled"
-                     (change)="change($event)"
-                     placeholder="No city selected">
-    </md2-select>
+  <p>Data:{{item | json}}</p>
+  <md2-select [items]="items"
+              item-text="name"
+              [(ngModel)]="item"
+              [disabled]="disabled"
+              (change)="change($event)"
+              placeholder="No city selected">
+  </md2-select>
+  <hr />
+  <p>Data:{{item1 | json}}</p>
+  <md2-select [items]="items"
+              item-text="name"
+              [(ngModel)]="item1"
+              [disabled]="disabled"
+              (change)="change($event)"
+              placeholder="No city selected">
+  </md2-select>
 </div>

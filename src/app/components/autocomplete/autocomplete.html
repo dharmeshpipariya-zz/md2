@@ -1,10 +1,20 @@
-<h2>Autocomplete Component</h2>
+<h1 class="page-header">Autocomplete Component</h1>
 <div>
-    <md2-autocomplete [items]="items"
-                      [itemText]="'name'"
-                      [(ngModel)]="item"
-                      [disabled]="disabled"
-                      (change)="change($event)"
-                      placeholder="No city selected">
-    </md2-autocomplete>
+  <p>Data:{{item | json}}</p>
+  <md2-autocomplete [items]="items"
+              item-text="name"
+              [(ngModel)]="item"
+              [disabled]="disabled"
+              (change)="change($event)"
+              placeholder="No city selected">
+  </md2-autocomplete>
+  <hr />
+  <p>Data:{{item1 | json}}</p>
+  <md2-autocomplete [items]="items"
+              item-text="name"
+              [(ngModel)]="item1"
+              [disabled]="disabled"
+              (change)="change($event)"
+              placeholder="No city selected">
+  </md2-autocomplete>
 </div>

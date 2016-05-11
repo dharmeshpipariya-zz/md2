@@ -4,7 +4,7 @@
     <p>Data:{{item | json}}</p>
 
     <md2-multiselect [items]="items"
-                     [itemText]="'name'"
+                     [item-text]="'name'"
                      [(ngModel)]="item"
                      [disabled]="disabled"
                      (change)="change($event)"

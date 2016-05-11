@@ -1,5 +1,6 @@
-<span>Angular2 Material</span>
-<ul class="menu">
+<div class="side-nav">
+  <ul class="menu">
+    <li><a [routerLink]="['Home']">Home</a></li>
     <li><a [routerLink]="['Accordion']">Accordion</a></li>
     <li><a [routerLink]="['Autocomplete']">Autocomplete</a></li>
     <li><a [routerLink]="['Collapse']">Collapse</a></li>
@@ -9,8 +10,8 @@
     <li><a [routerLink]="['Select']">Select</a></li>
     <li><a [routerLink]="['Switch']">Switch</a></li>
     <li><a [routerLink]="['Tabs']">Tabs</a></li>
-</ul>
-<hr />
-<div class="container">
-    <router-outlet></router-outlet>
+  </ul>
+</div>
+<div class="content">
+  <router-outlet></router-outlet>
 </div>

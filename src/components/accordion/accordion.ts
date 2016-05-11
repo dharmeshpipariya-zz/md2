@@ -1,4 +1,4 @@
-import {Component, Input, Output, EventEmitter, ViewEncapsulation} from '@angular/core';
+import {Component, ElementRef, Input, Output, EventEmitter, ViewEncapsulation} from '@angular/core';
 import {Md2AccordionTab} from './accordiontab';
 
 @Component({
@@ -17,11 +17,11 @@ export class Md2Accordion {
 
   @Input() multiple: boolean;
 
-  @Output() close: EventEmitter<any> = new EventEmitter();
-
-  @Output() open: EventEmitter<any> = new EventEmitter();
-
   @Input() mdClass: string;
+
+  @Output() close: EventEmitter<any> = new EventEmitter<any>();
+
+  @Output() open: EventEmitter<any> = new EventEmitter<any>();
 
   public tabs: Md2AccordionTab[] = [];
 
@@ -29,3 +29,5 @@ export class Md2Accordion {
     this.tabs.push(tab);
   }
 }
+
+//export const ACCORDION_DIRECTIVES: Array<any> = [Md2Accordion, Md2AccordionTab];
