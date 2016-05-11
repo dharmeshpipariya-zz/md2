@@ -8,7 +8,7 @@ src/app
 src/index.html
 src/style.css
 src/systemjs.config.js
-
+bs-config.json
 gulpfile.js
 
 # typescript
