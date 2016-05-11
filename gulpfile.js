@@ -7,9 +7,6 @@ var tsc = require('gulp-typescript');
 var sourcemaps = require('gulp-sourcemaps');
 var tsProject = tsc.createProject('tsconfig.json');
 
-//var browserSync = require('browser-sync');
-//var superstatic = require('superstatic');
-
 gulp.task('clean', function (cb) {
   return del(['build', 'src/**/*.js', '!src/systemjs.config.js', 'src/**/*.js.map', 'src/**/*.d.ts', '*.js', '!gulpfile.js', '!gulp.config.js', '*.js.map', '*.d.ts'], cb);
 });
@@ -22,7 +19,7 @@ gulp.task('tslint', function () {
       }));
 })
 
-gulp.task("compile", ['tslint'], function () {
+gulp.task("compile", function () {
   var tsResult = gulp.src("src/**/*.ts")
       .pipe(sourcemaps.init())
       .pipe(tsc(tsProject));
@@ -63,12 +60,12 @@ gulp.task("build", ['compile', 'resources', 'libs'], function () {
   console.log("Building the project ...");
 });
 
-gulp.task("publish", ['tslint'], function () {
+gulp.task("publish", function () {
   var tsResult = gulp.src("src/**/*.ts")
       .pipe(sourcemaps.init())
       .pipe(tsc(tsProject));
 
   return tsResult.js
       .pipe(sourcemaps.write("."))
-      .pipe(gulp.dest("."));
+      .pipe(gulp.dest("test"));
 });

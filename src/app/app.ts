@@ -10,7 +10,6 @@ import { Multiselect } from './components/multiselect/multiselect';
 import { Select } from './components/select/select';
 import { Switch } from './components/switch/switch';
 import { Tabs } from './components/tabs/tabs';
-//import { Tooltip } from './components/tooltip/tooltip';
 
 @Component({
   selector: "md2-app",
@@ -28,7 +27,6 @@ import { Tabs } from './components/tabs/tabs';
   { path: '/Select', name: 'Select', component: Select },
   { path: '/Switch', name: 'Switch', component: Switch },
   { path: '/Tabs', name: 'Tabs', component: Tabs }
-  //{ path: '/Tooltip', name: 'Tooltip', component: Tooltip }
 ])
 export class AppComponent implements OnInit {
   ngOnInit() {

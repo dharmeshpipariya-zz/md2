@@ -82,7 +82,7 @@ export class Md2Select implements ControlValueAccessor {
     this._items = value;
   }
 
-  @Output() change: EventEmitter<any> = new EventEmitter();
+  @Output() change: EventEmitter<any> = new EventEmitter<any>();
 
   constructor(public element: ElementRef) { }
 
@@ -222,7 +222,7 @@ export class Md2Select implements ControlValueAccessor {
   registerOnTouched(fn: any) { this.onTouched = fn; }
 }
 
-class ListItem {
+export class ListItem {
   public text: string;
 
   constructor(source: any, itemText: string) {

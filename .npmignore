@@ -1,6 +1,9 @@
 # dependencies
 .idea
 node_modules
+*.md
+src/*.md
+src/**/*.md
 
 # demo
 build
