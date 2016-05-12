@@ -10,6 +10,20 @@ Angular2 based Material design components are Accordion, Autocomplete, Collapse,
   `npm install md2 --save`
 
 2. Set `md2` in your project
+    packages should look like:
+    ```js
+    // The md2 package dependency.
+    'md2/select': {
+      format: 'cjs',
+      defaultExtension: 'js',
+      main: 'select.js'
+    },
+    'md2/switch': {
+      format: 'cjs',
+      defaultExtension: 'js',
+      main: 'switch.js'
+    },
+    ```
 
 3. More information regarding of using ***md2*** is located in
   [demo(comming soon)](#) and [demo sources](https://github.com/DharmeshPipariya/md2/tree/master/src).

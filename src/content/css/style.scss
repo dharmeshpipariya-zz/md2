@@ -1,13 +1,25 @@
 ﻿$white: #ffffff !default;
 $black: #000000 !default;
-$bg-color: #f6f6f6;
-
+$bg-color: darken($white, 3);
+$primary: #106CC8;
 
 //Fonts
 @font-face { font-family: 'Roboto-Regular'; src: url('../fonts/Roboto-Regular.ttf') format('truetype'); }
 
+//Common
+img { display: block; margin: 0 auto; max-width: 100%; }
+.page-header { border-color: rgba($black,0.2); }
+.btn { border-radius: 3px; border-color: rgba($black,0.2) !important;
+  &.btn-primary { background-color: $primary;
+    &:hover, &:focus, &:active, &:active:hover { background-color: lighten($primary,5); }
+  }
+}
 body { position: relative; font-family: "Roboto-Regular","Helvetica Neue",Helvetica,Arial,sans-serif; font-size: 15px; line-height: 1.42857143; color: rgba($black,0.7); background-color: $bg-color; height: 100%; }
-.side-nav { position: fixed; width: 240px; left: 0; top: 0; margin: 0; height: 100%; background-color: #fff; z-index: 999; overflow-y: auto;
+.side-nav { position: fixed; left: 0; top: 0; padding: 10px 0; margin: 0; height: 100%; background-color: #fff; z-index: 999; overflow-y: auto; box-shadow: 0 0 8px rgba($black,0.3); -moz-transition: 0.3s ease-in-out; -o-transition: 0.3s ease-in-out; -webkit-transition: 0.3s ease-in-out; transition: 0.3s ease-in-out;
+  .logo { padding: 0 16px; border-bottom: 1px solid rgba($black,0.12);
+    img { max-height: 100px; }
+    h4 { white-space: nowrap; text-align: center; }
+  }
   ul { display: block; margin: 0; padding: 3px 0;
     li { display: block;
       a { display: block; color: rgba($black,0.6); font-size: 16px; padding: 8px 16px; text-decoration: none;
@@ -17,4 +29,16 @@ body { position: relative; font-family: "Roboto-Regular","Helvetica Neue",Helvet
   }
 }
 
-.content { position: relative; width: 100%; padding: 0 30px 0 270px; }
+.content { position: relative; padding: 0 30px 100px; min-height: 100%; }
+.header { position: relative; margin: 0 -30px; padding: 0 30px; color: $white; background: rgba(darken($primary,3),0.9); box-shadow: 0 0 8px rgba($black,0.3);
+  h2 { margin: 0; padding: 15px 0; }
+}
+.footer { position: absolute; border-top: 1px solid rgba($black,0.2); margin-top: 30px; padding: 15px 30px; right: 0; bottom: 0; left: 0; }
+
+
+@media (max-width: 767px) {
+  .side-nav { -moz-transform: translateX(-100%); -ms-transform: translateX(-100%); -o-transform: translateX(-100%); -webkit-transform: translateX(-100%); transform: translateX(-100%); }
+  .content { padding: 0 15px; }
+  .header { margin: 0 -15px; padding: 0 15px; }
+  .footer { padding: 15px; }
+}

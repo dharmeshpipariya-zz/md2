@@ -3,6 +3,8 @@ import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/common';
 
 let nextId = 0;
 
+const noop = () => { };
+
 const MD2_SELECT_CONTROL_VALUE_ACCESSOR = new Provider(
   NG_VALUE_ACCESSOR, {
     useExisting: forwardRef(() => Md2Select),
@@ -114,7 +116,7 @@ export class Md2Select implements ControlValueAccessor {
 
     this.activeItem[0] = value;
     if (typeof this._item === 'string') {
-      this._item = this.activeItem[0].text;
+      this._item = '1' + this.activeItem[0].text;
     }
     if (typeof this._item === 'object') {
       if (Array.isArray(this._item)) {
@@ -136,9 +138,10 @@ export class Md2Select implements ControlValueAccessor {
     return index == -1 ? false : true;
   }
 
-  private isFocus(value: Item): boolean { return this.currentItem.text === value.text; }
-
-  onTouched: () => any = () => { };
+  private isFocus(value: Item): boolean {
+    if (this.currentItem) { return this.currentItem.text === value.text; }
+    return false;
+  }
 
   onBlurEvent(e: Event) {
     this.isMenuOpened = false;
@@ -212,8 +215,32 @@ export class Md2Select implements ControlValueAccessor {
     this.openMenu();
   }
 
+  //Placeholders for the callbacks
+  private _onTouchedCallback: (_: any) => void = noop;
+
+  private _onChangeCallback: (_: any) => void = noop;
+
+  //onTouched: () => any = () => { };
+
+  //Set touched on blur
+  onTouched() {
+    this._onTouchedCallback('');
+  }
+
+  //get accessor
+  get value(): any { return this._item; };
+  
+  //set accessor including call the onchange callback
+  set value(v: any) {
+    if (v !== this._item) {
+      this._item = v;
+      this._onChangeCallback(v);
+    }
+  }
+
   writeValue(value: any) {
     this._item = value;
+    //this._item = value;
     if (this._item && typeof this._item === 'string') {
       this.activeItem = [];
       this.activeItem.push({ text: this._item });
@@ -227,10 +254,18 @@ export class Md2Select implements ControlValueAccessor {
       }
     }
   }
+  //From ControlValueAccessor interface
+  registerOnChange(fn: any) {
+    this._onChangeCallback = fn;
+  }
+  
+  //From ControlValueAccessor interface
+  registerOnTouched(fn: any) {
+    this._onTouchedCallback = fn;
+  }
+  //registerOnChange(fn: any) { this.onTouched = fn; }
 
-  registerOnChange(fn: any) { this.onTouched = fn; }
-
-  registerOnTouched(fn: any) { this.onTouched = fn; }
+  //registerOnTouched(fn: any) { this.onTouched = fn; }
 }
 
 export class Item {

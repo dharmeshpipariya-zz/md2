@@ -1,4 +1,8 @@
-<div class="side-nav">
+<div class="side-nav col-sm-3 col-md-2">
+  <div class="logo">
+    <img src="./content/img/logo.png">
+    <h4>Material Design 2</h4>
+  </div>
   <ul class="menu">
     <li><a [routerLink]="['Home']">Home</a></li>
     <li><a [routerLink]="['Accordion']">Accordion</a></li>
@@ -10,8 +14,15 @@
     <li><a [routerLink]="['Select']">Select</a></li>
     <li><a [routerLink]="['Switch']">Switch</a></li>
     <li><a [routerLink]="['Tabs']">Tabs</a></li>
+    <li><a [routerLink]="['Tooltip']">Tooltip</a></li>
   </ul>
 </div>
-<div class="content">
+<div class="content col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2">
+  <header class="header">
+    <h2>Material Design 2</h2>
+  </header>
   <router-outlet></router-outlet>
+  <footer class="footer">
+    <span><a href="https://github.com/DharmeshPipariya/md2">Md2</a> is maintained by <a href="https://github.com/DharmeshPipariya">DharmeshPipariya</a>.</span>
+  </footer>
 </div>
