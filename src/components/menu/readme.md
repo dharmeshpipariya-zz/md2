@@ -13,12 +13,25 @@ Native Angular2 Material Menu component
 Example:
  
  ```html
-<md2-menu [menuLabel]="menuLabel">
-    <a class="md2-menu-item" href="#google">Google</a>
-    <a class="md2-menu-item" href="#facebook">Facebook</a>
-    <a class="md2-menu-item" href="#test1">Test 1</a>
-    <a class="md2-menu-item" href="#test2">Test 2</a>
-    <a class="md2-menu-item" href="#test3">Test 3</a>
+<md2-menu [menu-label]="menuLabel">
+  <a class="md2-menu-item" href="#/Accordion">Accordion</a>
+  <a class="md2-menu-item" href="#/Autocomplete">Autocomplete</a>
+  <a class="md2-menu-item" href="#/Multiselect">Multiselect</a>
+  <a class="md2-menu-item" href="#/Select">Select</a>
+  <a class="md2-menu-item" href="#/Switch">Switch</a>
+</md2-menu>
+
+...
+
+<md2-menu>
+  <menu-label>
+    <b>Bold</b> Header Menu
+  </menu-label>
+  <a class="md2-menu-item" href="#/Accordion">Accordion</a>
+  <a class="md2-menu-item" href="#/Autocomplete">Autocomplete</a>
+  <a class="md2-menu-item" href="#/Multiselect">Multiselect</a>
+  <a class="md2-menu-item" href="#/Select">Select</a>
+  <a class="md2-menu-item" href="#/Switch">Switch</a>
 </md2-menu>
  ```
  ```ts

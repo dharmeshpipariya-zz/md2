@@ -1,12 +1,11 @@
 import {Component} from '@angular/core';
 
-import {Md2Accordion} from '../../../components/accordion/accordion';
-import {Md2AccordionTab} from '../../../components/accordion/accordiontab';
+import {ACCORDION_DIRECTIVES} from '../../../components/accordion/accordion';
 
 @Component({
   selector: 'accordion',
   templateUrl: './app/components/accordion/accordion.html',
-  directives: [Md2Accordion, Md2AccordionTab]
+  directives: [ACCORDION_DIRECTIVES]
 })
 export class Accordion {
   public accordions: Array<any> = [

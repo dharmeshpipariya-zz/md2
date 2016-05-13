@@ -1,5 +1,5 @@
 import {Component, Input, ViewEncapsulation} from '@angular/core';
-import {Md2Accordion} from './accordion';
+import {Md2Accordion} from './accordionpanel';
 
 @Component({
   selector: 'md2-accordion-tab',

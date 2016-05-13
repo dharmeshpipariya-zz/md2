@@ -8,6 +8,7 @@ $primary: #106CC8;
 
 //Common
 img { display: block; margin: 0 auto; max-width: 100%; }
+menu { margin: 0; padding: 0; }
 .page-header { border-color: rgba($black,0.2); }
 .btn { border-radius: 3px; border-color: rgba($black,0.2) !important;
   &.btn-primary { background-color: $primary;
