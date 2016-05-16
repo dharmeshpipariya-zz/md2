@@ -1,4 +1,4 @@
-import {Component, ChangeDetectorRef, ElementRef, Inject, AfterViewInit} from '@angular/core';
+import {Component, ChangeDetectorRef, ElementRef, ViewEncapsulation, AfterViewInit} from '@angular/core';
 import {NgClass, NgStyle} from '@angular/common';
 import {positionService} from './position';
 import {TooltipOptions} from './tooltip-options';
@@ -6,43 +6,60 @@ import {TooltipOptions} from './tooltip-options';
 @Component({
   selector: 'tooltip-container',
   directives: [NgClass, NgStyle],
-  // changeDetection: ChangeDetectionStrategy.OnPush,
   template: `<div class="tooltip" role="tooltip"
      [ngStyle]="{top: top, left: left, display: display}"
      [ngClass]="classMap">
-      <div class="tooltip-arrow"></div>
       <div class="tooltip-inner">{{content}}</div>
     </div>`,
   styles: [`
     .tooltip {
-    position: absolute;
+position: absolute;
     z-index: 1070;
-    display: block;
-    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
-    font-size: .875rem;
+    overflow: hidden;
+    pointer-events: none;
+border-radius: 4px;
+    font-weight: 500;
     font-style: normal;
-    font-weight: 400;
-    line-height: 1.5;
-    text-align: left;
-    text-align: start;
-    text-decoration: none;
-    text-shadow: none;
-    text-transform: none;
-    letter-spacing: normal;
-    word-break: normal;
-    word-spacing: normal;
-    word-wrap: normal;
-    white-space: normal;
-    line-break: auto;
-} .tooltip-inner {
-    max-width: 200px;
-    padding: 3px 8px;
-    color: #fff;
-    text-align: center;
-    background-color: #000;
-    border-radius: .25rem;
+font-size: 10px;
+display: block;
+color: rgb(255,255,255);
 }
-  `]
+
+
+.tooltip .tooltip-inner {
+    position: relative;
+color: #fff;
+text-align: center;
+    opacity: 0;
+    min-height: 22px;
+max-width: 200px;
+background-color: rgba(0,0,0,0.8);
+border-radius: 4px;
+    line-height: 1.5;
+    padding: 4px 12px;
+
+transition: all .2s cubic-bezier(.25,.8,.25,1);
+    will-change: opacity,height,width;
+-webkit-transform-origin: center top;
+    transform-origin: center top;
+    -webkit-transform: scale(0);
+    transform: scale(0);
+}
+
+.in .tooltip-inner {
+-webkit-transform: scale(1);
+    transform: scale(1);
+    opacity: 1;
+    -webkit-transform-origin: center top;
+    transform-origin: center top;
+}
+  `],
+  host: {
+    'role': 'tooltip',
+    '[class.md2-tooltip]': 'true',
+    '[class.md2-tooltip-top]': 'false'
+  },
+  encapsulation: ViewEncapsulation.None
 })
 export class TooltipContainerComponent implements AfterViewInit {
   /* tslint:disable */

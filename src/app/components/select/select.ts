@@ -20,7 +20,7 @@ export class Select {
   private items1: Array<string> = ['Amsterdam', 'Birmingham', 'Dortmund', 'Gothenburg', 'London', 'Seville'];
   private item2: string = 'Gothenburg';
   private item: Array<any> = [{ name: 'Dortmund', value: '3' }];
-  private item1: any = { name: 'Dortmund', value: '3' };
+  private item1: any = { name: 'Dortmund', value: '3' };//JSON.parse(JSON.stringify(this.items[0]));
   private change(value: any) {
     console.log('Changed data: ', value);
   }
