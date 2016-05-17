@@ -11,12 +11,13 @@ import { Multiselect } from './components/multiselect/multiselect';
 import { Select } from './components/select/select';
 import { Switch } from './components/switch/switch';
 import { Tabs } from './components/tabs/tabs';
+import { Toast } from './components/toast/toast';
 import { Tooltip } from './components/tooltip/tooltip';
 
 @Component({
   selector: "md2-app",
   templateUrl: "./app/app.html",
-  directives: [Home, Accordion, Autocomplete, Collapse, Dialog, Menu, Multiselect, Select, Switch, Tabs, Tooltip, RouterLink, ROUTER_DIRECTIVES]
+  directives: [Home, Accordion, Autocomplete, Collapse, Dialog, Menu, Multiselect, Select, Switch, Tabs, Toast, Tooltip, RouterLink, ROUTER_DIRECTIVES]
 })
 
 @RouteConfig([
@@ -30,6 +31,7 @@ import { Tooltip } from './components/tooltip/tooltip';
   { path: '/Select', name: 'Select', component: Select },
   { path: '/Switch', name: 'Switch', component: Switch },
   { path: '/Tabs', name: 'Tabs', component: Tabs },
+  { path: '/Toast', name: 'Toast', component: Toast },
   { path: '/Tooltip', name: 'Tooltip', component: Tooltip }
 ])
 export class AppComponent implements OnInit {

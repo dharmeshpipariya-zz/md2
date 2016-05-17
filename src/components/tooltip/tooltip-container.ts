@@ -1,12 +1,12 @@
 import {Component, ChangeDetectorRef, ElementRef, ViewEncapsulation, AfterViewInit} from '@angular/core';
 import {NgClass, NgStyle} from '@angular/common';
-import {positionService} from './position';
+//import {positionService} from './position';
 import {TooltipOptions} from './tooltip-options';
 
 @Component({
-  selector: 'tooltip-container',
+  selector: 'md2-tooltip',
   directives: [NgClass, NgStyle],
-  template: `<div class="tooltip" role="tooltip"
+  template: `<div class="tooltip"
      [ngStyle]="{top: top, left: left, display: display}"
      [ngClass]="classMap">
       <div class="tooltip-inner">{{content}}</div>
@@ -68,11 +68,7 @@ export class TooltipContainerComponent implements AfterViewInit {
   private left: string = '-1000px';
   private display: string = 'block';
   private content: string;
-  private placement: string;
-  private popupClass: string;
-  private animation: boolean;
-  private isOpen: boolean;
-  private appendToBody: boolean;
+  private direction: string;
   private hostEl: ElementRef;
   /* tslint:enable */
 
@@ -87,18 +83,92 @@ export class TooltipContainerComponent implements AfterViewInit {
   }
 
   public ngAfterViewInit(): void {
-    let p = positionService
-      .positionElements(
+    let p = this.positionElements(
       this.hostEl.nativeElement,
       this.element.nativeElement.children[0],
-      this.placement, this.appendToBody);
+      this.direction);
     this.top = p.top + 'px';
     this.left = p.left + 'px';
     this.classMap.in = true;
-    if (this.animation) {
-      this.classMap.fade = true;
-    }
+    this.classMap.fade = true;
 
     this.cdr.detectChanges();
+  }
+  public positionElements(hostEl: HTMLElement, targetEl: HTMLElement, positionStr: string): { top: number, left: number } {
+    let positionStrParts = positionStr.split('-');
+    let pos0 = positionStrParts[0];
+    let pos1 = positionStrParts[1] || 'center';
+    let hostElPos = this.offset(hostEl);
+    let targetElWidth = targetEl.offsetWidth;
+    let targetElHeight = targetEl.offsetHeight;
+    let shiftWidth = {
+      center: function (): number {
+        return hostElPos.left + hostElPos.width / 2 - targetElWidth / 2;
+      },
+      left: function (): number {
+        return hostElPos.left;
+      },
+      right: function (): number {
+        return hostElPos.left + hostElPos.width;
+      }
+    };
+
+    let shiftHeight = {
+      center: function (): number {
+        return hostElPos.top + hostElPos.height / 2 - targetElHeight / 2;
+      },
+      top: function (): number {
+        return hostElPos.top;
+      },
+      bottom: function (): number {
+        return hostElPos.top + hostElPos.height;
+      }
+    };
+
+    let targetElPos: { top: number, left: number };
+    switch (pos0) {
+      case 'right':
+        targetElPos = {
+          top: shiftHeight[pos1](),
+          left: shiftWidth[pos0]()
+        };
+        break;
+      case 'left':
+        targetElPos = {
+          top: shiftHeight[pos1](),
+          left: (hostElPos.left - targetElWidth)// > 0 ? (hostElPos.left - targetElWidth) : (hostElPos.width + hostElPos.left)
+        };
+        break;
+      case 'bottom':
+        targetElPos = {
+          top: shiftHeight[pos0](),
+          left: shiftWidth[pos1]()
+        };
+        break;
+      default:
+        targetElPos = {
+          top: hostElPos.top - targetElHeight,
+          left: shiftWidth[pos1]()
+        };
+        break;
+    }
+
+    return targetElPos;
+  }
+  public offset(nativeEl: any): { width: number, height: number, top: number, left: number } {
+    let boundingClientRect = nativeEl.getBoundingClientRect();
+    return {
+      width: boundingClientRect.width || nativeEl.offsetWidth,
+      height: boundingClientRect.height || nativeEl.offsetHeight,
+      top: boundingClientRect.top + (this.window.pageYOffset || this.document.documentElement.scrollTop),
+      left: boundingClientRect.left + (this.window.pageXOffset || this.document.documentElement.scrollLeft)
+    };
+  }
+  private get window(): Window {
+    return window;
+  }
+
+  private get document(): Document {
+    return window.document;
   }
 }
