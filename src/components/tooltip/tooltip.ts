@@ -1,6 +1,6 @@
 import {Directive, Input, HostListener, DynamicComponentLoader, ComponentRef, Provider, ReflectiveInjector, ViewContainerRef} from '@angular/core';
-import {TooltipContainerComponent} from './tooltip-container';
-import {TooltipOptions} from './tooltip-options';
+import {Md2TooltipComponent} from './tooltip.component';
+import {Md2TooltipOptions} from './tooltip.options';
 
 @Directive({
   selector: '[tooltip]',
@@ -34,18 +34,18 @@ export class Md2Tooltip {
       return;
     }
     this.visible = true;
-    let options = new TooltipOptions({
+    let options = new Md2TooltipOptions({
       content: this.content,
       direction: this.direction,
       hostEl: this.viewContainerRef.element
     });
 
     let binding = ReflectiveInjector.resolve([
-      new Provider(TooltipOptions, { useValue: options })
+      new Provider(Md2TooltipOptions, { useValue: options })
     ]);
 
     this.tooltip = this.loader
-      .loadNextToLocation(TooltipContainerComponent, this.viewContainerRef, binding)
+      .loadNextToLocation(Md2TooltipComponent, this.viewContainerRef, binding)
       .then((componentRef: ComponentRef) => {
         return componentRef;
       });
@@ -63,4 +63,4 @@ export class Md2Tooltip {
   }
 }
 
-export const TOOLTIP_DIRECTIVES: Array<any> = [Md2Tooltip, TooltipContainerComponent];
+export const TOOLTIP_DIRECTIVES: Array<any> = [Md2Tooltip, Md2TooltipComponent];

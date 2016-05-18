@@ -9,8 +9,7 @@ import {Md2Toast} from '../../../components/toast/toast';
 export class Toast {
   constructor(public toast: Md2Toast) { }
   toastMe() {
-    this.toast.pop('test message...');
-    //this.toast.pop({ message: 'test object message...', hideDelay: 3000 });
-    //console.log('Toasted...');
+    this.toast.show('test message...');
+    //this.toast.show({ message: 'test object message...', hideDelay: 1000 });
   }
 }

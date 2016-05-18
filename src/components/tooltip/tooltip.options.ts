@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 
 @Injectable()
-export class TooltipOptions {
+export class Md2TooltipOptions {
   public direction: string;
   public visible: boolean;
 

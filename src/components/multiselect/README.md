@@ -69,4 +69,4 @@ export class ... {
 
 
 ### Referenced From
-ng2-select (see the repo [https://github.com/valor-software/ng2-select](https://github.com/valor-software/ng2-select) repository for the angular2 based select component)
+ng2-select (see the repository [https://github.com/valor-software/ng2-select](https://github.com/valor-software/ng2-select) for the angular2 based select component)

@@ -1,58 +1,19 @@
-import {Component, ChangeDetectorRef, ElementRef, ViewEncapsulation, AfterViewInit} from '@angular/core';
+import {Component, ChangeDetectorRef, ElementRef, HostBinding, ViewEncapsulation, AfterViewInit} from '@angular/core';
 import {NgClass, NgStyle} from '@angular/common';
-//import {positionService} from './position';
-import {TooltipOptions} from './tooltip-options';
+import {Md2TooltipOptions} from './tooltip.options';
 
 @Component({
   selector: 'md2-tooltip',
   directives: [NgClass, NgStyle],
-  template: `<div class="tooltip"
-     [ngStyle]="{top: top, left: left, display: display}"
-     [ngClass]="classMap">
+  template: `
+    <div class="tooltip" [ngStyle]="{top: top, left: left, display: display}">
       <div class="tooltip-inner">{{content}}</div>
-    </div>`,
+    </div>
+  `,
   styles: [`
-    .tooltip {
-position: absolute;
-    z-index: 1070;
-    overflow: hidden;
-    pointer-events: none;
-border-radius: 4px;
-    font-weight: 500;
-    font-style: normal;
-font-size: 10px;
-display: block;
-color: rgb(255,255,255);
-}
-
-
-.tooltip .tooltip-inner {
-    position: relative;
-color: #fff;
-text-align: center;
-    opacity: 0;
-    min-height: 22px;
-max-width: 200px;
-background-color: rgba(0,0,0,0.8);
-border-radius: 4px;
-    line-height: 1.5;
-    padding: 4px 12px;
-
-transition: all .2s cubic-bezier(.25,.8,.25,1);
-    will-change: opacity,height,width;
--webkit-transform-origin: center top;
-    transform-origin: center top;
-    -webkit-transform: scale(0);
-    transform: scale(0);
-}
-
-.in .tooltip-inner {
--webkit-transform: scale(1);
-    transform: scale(1);
-    opacity: 1;
-    -webkit-transform-origin: center top;
-    transform-origin: center top;
-}
+    .md2-tooltip { position: fixed; z-index: 1070; overflow: hidden; pointer-events: none; border-radius: 4px; font-weight: 500; font-style: normal; font-size: 10px; display: block; color: rgb(255,255,255); }
+    .md2-tooltip .md2-tooltip-inner { position: relative; color: #fff; text-align: center; opacity: 0; min-height: 22px; max-width: 200px; background-color: rgba(0,0,0,0.8); border-radius: 4px; line-height: 1.5; padding: 4px 12px; -moz-transition: all .2s cubic-bezier(.25,.8,.25,1); -o-transition: all .2s cubic-bezier(.25,.8,.25,1); -webkit-transition: all .2s cubic-bezier(.25,.8,.25,1); transition: all .2s cubic-bezier(.25,.8,.25,1); -moz-transform-origin: center top; -ms-transform-origin: center top; -o-transform-origin: center top; -webkit-transform-origin: center top; transform-origin: center top; -moz-transform: scale(0); -ms-transform: scale(0); -o-transform: scale(0); -webkit-transform: scale(0); transform: scale(0); }
+    .md2-show .md2-tooltip-inner { opacity: 1; -moz-transform: scale(1); -ms-transform: scale(1); -o-transform: scale(1); -webkit-transform: scale(1); transform: scale(1); -moz-transform-origin: center top; -ms-transform-origin: center top; -o-transform-origin: center top; -webkit-transform-origin: center top; transform-origin: center top; }
   `],
   host: {
     'role': 'tooltip',
@@ -61,7 +22,7 @@ transition: all .2s cubic-bezier(.25,.8,.25,1);
   },
   encapsulation: ViewEncapsulation.None
 })
-export class TooltipContainerComponent implements AfterViewInit {
+export class Md2TooltipComponent implements AfterViewInit {
   /* tslint:disable */
   private classMap: any;
   private top: string = '-1000px';
@@ -75,7 +36,9 @@ export class TooltipContainerComponent implements AfterViewInit {
   private element: ElementRef;
   private cdr: ChangeDetectorRef;
 
-  public constructor(element: ElementRef, cdr: ChangeDetectorRef, options: TooltipOptions) {
+  @HostBinding('class.md2-show') show = false;
+
+  public constructor(element: ElementRef, cdr: ChangeDetectorRef, options: Md2TooltipOptions) {
     this.element = element;
     this.cdr = cdr;
     Object.assign(this, options);
@@ -94,8 +57,8 @@ export class TooltipContainerComponent implements AfterViewInit {
 
     this.cdr.detectChanges();
   }
-  public positionElements(hostEl: HTMLElement, targetEl: HTMLElement, positionStr: string): { top: number, left: number } {
-    let positionStrParts = positionStr.split('-');
+  public positionElements(hostEl: HTMLElement, targetEl: HTMLElement, direction: string): { top: number, left: number } {
+    let positionStrParts = direction.split('-');
     let pos0 = positionStrParts[0];
     let pos1 = positionStrParts[1] || 'center';
     let hostElPos = this.offset(hostEl);

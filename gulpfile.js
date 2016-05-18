@@ -13,7 +13,7 @@ gulp.task('clean', function (cb) {
 
 gulp.task('tslint', function () {
   return gulp.src("src/**/*.ts")
-      .pipe(tslint())
+      .pipe(tslint({ configuration: "./tslint.json" }))
       .pipe(tslint.report('prose', {
         emitError: false
       }));

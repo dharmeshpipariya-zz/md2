@@ -1,12 +1,11 @@
 import {Component, Optional, Inject, ViewEncapsulation} from '@angular/core';
 import {Toast} from './toast';
-//import {ToastOptions} from './toast.config';
 
 @Component({
   selector: 'md2-toast',
   template: `
     <div class="md2-toast-wrapper">
-      <div *ngFor="let toast of toasts" class="md2-toast" (click)="dismiss(toast)">
+      <div *ngFor="let toast of toasts" class="md2-toast" (click)="remove(toast.id)">
         <div class="md2-toast-message">{{toast.message}}</div>
       </div>
     </div>
@@ -22,42 +21,17 @@ export class Md2ToastComponent {
   toasts: Toast[] = [];
   maxShown = 5;
 
-  //constructor( @Optional() @Inject(ToastOptions) options) {
-  //  if (options) {
-  //    Object.assign(this, options);
-  //  }
-  //}
-
-  addToast(toast: Toast) {
+  add(toast: Toast) {
     this.toasts.push(toast);
     if (this.toasts.length > this.maxShown) {
       this.toasts.splice(0, (this.toasts.length - this.maxShown));
     }
-    //} else {
-    //  this.toasts.unshift(toast);
-    //  if (this.toasts.length > this.maxShown) {
-    //    this.toasts.splice(this.maxShown, (this.toasts.length - this.maxShown));
-    //  }
-    //}
-
   }
 
-  removeToast(toastId: number) {
-    this.toasts = this.toasts.filter((toast) => {
-      return toast.id !== toastId;
-    });
+  remove(toastId: number) {
+    this.toasts = this.toasts.filter((toast) => { return toast.id !== toastId; });
   }
 
-  dismiss(toast) { this.removeToast(toast.id); }
+  isToast(): boolean { return this.toasts.length > 0; }
 
-  anyToast(): boolean { return this.toasts.length > 0; }
-
-  //findToast(toastId: number): Toast {
-  //  for (let toast of this.toasts) {
-  //    if (toast.id === toastId) {
-  //      return toast;
-  //    }
-  //  }
-  //  return null;
-  //}
 }

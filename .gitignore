@@ -9,6 +9,7 @@ build
 src/**/*.js
 src/**/*.js.map
 src/**/*.d.ts
+!src/systemjs.config.js
 
 # type definition
 typings
