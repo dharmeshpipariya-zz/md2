@@ -63,6 +63,10 @@ body {
   border-bottom: 1px solid rgba(0, 0, 0, 0.12);
 }
 
+.side-nav .logo a, .side-nav .logo a:hover, .side-nav .logo a:focus, .side-nav .logo a:active, .side-nav .logo a:visited {
+  text-decoration: none;
+}
+
 .side-nav .logo img {
   max-height: 100px;
 }
@@ -86,13 +90,19 @@ body {
   display: block;
   color: rgba(0, 0, 0, 0.6);
   font-size: 16px;
-  padding: 8px 16px;
+  padding: 8px 16px 8px 10px;
   text-decoration: none;
+  border-left: 6px solid transparent;
 }
 
 .side-nav ul li a:hover, .side-nav ul li a:focus, .side-nav ul li a:active {
   text-decoration: none;
   background: rgba(0, 0, 0, 0.1);
+}
+
+.side-nav ul li.active a, .side-nav ul li.active a:hover, .side-nav ul li.active a:focus, .side-nav ul li.active a:active {
+  border-left-color: #ff6a00;
+  background: rgba(0, 0, 0, 0.15);
 }
 
 .content {

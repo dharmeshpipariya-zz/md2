@@ -23,6 +23,7 @@ Angular2 based Material design components are Accordion, Autocomplete, Collapse,
       defaultExtension: 'js',
       main: 'switch.js'
     },
+    ...
     ```
 
 3. More information regarding of using ***md2*** is located in
@@ -40,4 +41,5 @@ Angular2 based Material design components are Accordion, Autocomplete, Collapse,
 - [md2-select](https://github.com/DharmeshPipariya/md2/tree/master/src/components/select)
 - [md2-switch](https://github.com/DharmeshPipariya/md2/tree/master/src/components/switch)
 - [md2-tabs](https://github.com/DharmeshPipariya/md2/tree/master/src/components/tabs)
-- md2-tooltip(coming soon!)
+- [md2-toast](https://github.com/DharmeshPipariya/md2/tree/master/src/components/toast)
+- [md2-tooltip](https://github.com/DharmeshPipariya/md2/tree/master/src/components/tooltip)

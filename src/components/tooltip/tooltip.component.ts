@@ -6,43 +6,38 @@ import {Md2TooltipOptions} from './tooltip.options';
   selector: 'md2-tooltip',
   directives: [NgClass, NgStyle],
   template: `
-    <div class="tooltip" [ngStyle]="{top: top, left: left, display: display}">
-      <div class="tooltip-inner">{{content}}</div>
+    <div class="md2-tooltip" [class.md2-show]="show" [ngClass]="direction" [ngStyle]="{top: top, left: left}">
+      <div class="md2-tooltip-inner">{{content}}</div>
     </div>
   `,
   styles: [`
     .md2-tooltip { position: fixed; z-index: 1070; overflow: hidden; pointer-events: none; border-radius: 4px; font-weight: 500; font-style: normal; font-size: 10px; display: block; color: rgb(255,255,255); }
     .md2-tooltip .md2-tooltip-inner { position: relative; color: #fff; text-align: center; opacity: 0; min-height: 22px; max-width: 200px; background-color: rgba(0,0,0,0.8); border-radius: 4px; line-height: 1.5; padding: 4px 12px; -moz-transition: all .2s cubic-bezier(.25,.8,.25,1); -o-transition: all .2s cubic-bezier(.25,.8,.25,1); -webkit-transition: all .2s cubic-bezier(.25,.8,.25,1); transition: all .2s cubic-bezier(.25,.8,.25,1); -moz-transform-origin: center top; -ms-transform-origin: center top; -o-transform-origin: center top; -webkit-transform-origin: center top; transform-origin: center top; -moz-transform: scale(0); -ms-transform: scale(0); -o-transform: scale(0); -webkit-transform: scale(0); transform: scale(0); }
-    .md2-show .md2-tooltip-inner { opacity: 1; -moz-transform: scale(1); -ms-transform: scale(1); -o-transform: scale(1); -webkit-transform: scale(1); transform: scale(1); -moz-transform-origin: center top; -ms-transform-origin: center top; -o-transform-origin: center top; -webkit-transform-origin: center top; transform-origin: center top; }
+    .md2-tooltip.top .md2-tooltip-inner { -moz-transform-origin: center bottom; -ms-transform-origin: center bottom; -o-transform-origin: center bottom; -webkit-transform-origin: center bottom; transform-origin: center bottom; }
+    .md2-tooltip.right .md2-tooltip-inner { -moz-transform-origin: center left; -ms-transform-origin: center left; -o-transform-origin: center left; -webkit-transform-origin: center left; transform-origin: center left; }
+    .md2-tooltip.left .md2-tooltip-inner { -moz-transform-origin: center right; -ms-transform-origin: center right; -o-transform-origin: center right; -webkit-transform-origin: center right; transform-origin: center right; }
+    .md2-show .md2-tooltip-inner { opacity: 1; -moz-transform: scale(1); -ms-transform: scale(1); -o-transform: scale(1); -webkit-transform: scale(1); transform: scale(1); }
   `],
   host: {
-    'role': 'tooltip',
-    '[class.md2-tooltip]': 'true',
-    '[class.md2-tooltip-top]': 'false'
+    'role': 'tooltip'
   },
   encapsulation: ViewEncapsulation.None
 })
 export class Md2TooltipComponent implements AfterViewInit {
-  /* tslint:disable */
-  private classMap: any;
+  private show: boolean;
   private top: string = '-1000px';
   private left: string = '-1000px';
-  private display: string = 'block';
   private content: string;
   private direction: string;
   private hostEl: ElementRef;
-  /* tslint:enable */
-
   private element: ElementRef;
   private cdr: ChangeDetectorRef;
-
-  @HostBinding('class.md2-show') show = false;
 
   public constructor(element: ElementRef, cdr: ChangeDetectorRef, options: Md2TooltipOptions) {
     this.element = element;
     this.cdr = cdr;
     Object.assign(this, options);
-    this.classMap = { 'in': false, 'fade': false };
+    this.show = false;
   }
 
   public ngAfterViewInit(): void {
@@ -52,11 +47,10 @@ export class Md2TooltipComponent implements AfterViewInit {
       this.direction);
     this.top = p.top + 'px';
     this.left = p.left + 'px';
-    this.classMap.in = true;
-    this.classMap.fade = true;
-
+    this.show = true;
     this.cdr.detectChanges();
   }
+
   public positionElements(hostEl: HTMLElement, targetEl: HTMLElement, direction: string): { top: number, left: number } {
     let positionStrParts = direction.split('-');
     let pos0 = positionStrParts[0];
@@ -102,22 +96,22 @@ export class Md2TooltipComponent implements AfterViewInit {
           left: (hostElPos.left - targetElWidth)// > 0 ? (hostElPos.left - targetElWidth) : (hostElPos.width + hostElPos.left)
         };
         break;
-      case 'bottom':
-        targetElPos = {
-          top: shiftHeight[pos0](),
-          left: shiftWidth[pos1]()
-        };
-        break;
-      default:
+      case 'top':
         targetElPos = {
           top: hostElPos.top - targetElHeight,
           left: shiftWidth[pos1]()
         };
         break;
+      default:
+        targetElPos = {
+          top: shiftHeight[pos0](),
+          left: shiftWidth[pos1]()
+        };
+        break;
     }
-
     return targetElPos;
   }
+
   public offset(nativeEl: any): { width: number, height: number, top: number, left: number } {
     let boundingClientRect = nativeEl.getBoundingClientRect();
     return {
@@ -127,11 +121,8 @@ export class Md2TooltipComponent implements AfterViewInit {
       left: boundingClientRect.left + (this.window.pageXOffset || this.document.documentElement.scrollLeft)
     };
   }
-  private get window(): Window {
-    return window;
-  }
 
-  private get document(): Document {
-    return window.document;
-  }
+  private get window(): Window { return window; }
+
+  private get document(): Document { return window.document; }
 }

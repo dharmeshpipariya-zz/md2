@@ -1,4 +1,4 @@
-import {Directive, Input, HostListener, DynamicComponentLoader, ComponentRef, Provider, ReflectiveInjector, ViewContainerRef} from '@angular/core';
+import {Directive, Input, DynamicComponentLoader, ComponentRef, Provider, ReflectiveInjector, ViewContainerRef} from '@angular/core';
 import {Md2TooltipComponent} from './tooltip.component';
 import {Md2TooltipOptions} from './tooltip.options';
 
@@ -13,11 +13,12 @@ import {Md2TooltipOptions} from './tooltip.options';
 })
 
 export class Md2Tooltip {
+  private visible: boolean = false;
+  private timer: number;
 
   @Input('tooltip') content: string;
   @Input('tooltip-direction') direction: string = 'bottom';
-  @Input('tooltip-visible') visible: boolean = false;
-  @Input('tooltip-append-to-body') appendToBody: boolean;
+  @Input('tooltip-delay') delay: number = 0;
 
   public viewContainerRef: ViewContainerRef;
   public loader: DynamicComponentLoader;
@@ -43,15 +44,18 @@ export class Md2Tooltip {
     let binding = ReflectiveInjector.resolve([
       new Provider(Md2TooltipOptions, { useValue: options })
     ]);
-
-    this.tooltip = this.loader
-      .loadNextToLocation(Md2TooltipComponent, this.viewContainerRef, binding)
-      .then((componentRef: ComponentRef) => {
-        return componentRef;
-      });
+    clearTimeout(this.timer);
+    this.timer = setTimeout(() => {
+      this.tooltip = this.loader
+        .loadNextToLocation(Md2TooltipComponent, this.viewContainerRef, binding)
+        .then((componentRef: ComponentRef) => {
+          return componentRef;
+        });
+    }, this.delay);
   }
 
   public hide(event: Event, target): void {
+    clearTimeout(this.timer);
     if (!this.visible) {
       return;
     }

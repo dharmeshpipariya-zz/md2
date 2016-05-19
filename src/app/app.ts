@@ -1,5 +1,6 @@
 import {Component, OnInit} from "@angular/core";
 import {RouteConfig, RouterLink, ROUTER_DIRECTIVES} from "@angular/router-deprecated";
+import {Location} from "@angular/common";
 
 import { Home } from './home';
 import { Accordion } from './components/accordion/accordion';
@@ -35,7 +36,11 @@ import { Tooltip } from './components/tooltip/tooltip';
   { path: '/Tooltip', name: 'Tooltip', component: Tooltip }
 ])
 export class AppComponent implements OnInit {
+  constructor(private location: Location) { }
   ngOnInit() {
     console.log("Application component initialized ...");
+  }
+  isActive(path) {
+    return this.location.path().startsWith(path);
   }
 }

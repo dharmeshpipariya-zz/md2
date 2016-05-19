@@ -1,21 +1,22 @@
 <div class="side-nav col-sm-3 col-md-2">
   <div class="logo">
-    <img src="./content/img/logo.png">
-    <h4>Material Design 2</h4>
+    <a [routerLink]="['Home']">
+      <img src="./content/img/logo.png">
+      <h4>Material Design 2</h4>
+    </a>
   </div>
   <ul class="menu">
-    <li><a [routerLink]="['Home']">Home</a></li>
-    <li><a [routerLink]="['Accordion']">Accordion</a></li>
-    <li><a [routerLink]="['Autocomplete']">Autocomplete</a></li>
-    <li><a [routerLink]="['Collapse']">Collapse</a></li>
-    <li><a [routerLink]="['Dialog']">Dialog</a></li>
-    <li><a [routerLink]="['Menu']">Menu</a></li>
-    <li><a [routerLink]="['Multiselect']">Multiselect</a></li>
-    <li><a [routerLink]="['Select']">Select</a></li>
-    <li><a [routerLink]="['Switch']">Switch</a></li>
-    <li><a [routerLink]="['Tabs']">Tabs</a></li>
-    <li><a [routerLink]="['Toast']">Toast</a></li>
-    <li><a [routerLink]="['Tooltip']">Tooltip</a></li>
+    <li [class.active]="isActive('/Accordion')"><a [routerLink]="['Accordion']">Accordion</a></li>
+    <li [class.active]="isActive('/Autocomplete')"><a [routerLink]="['Autocomplete']">Autocomplete</a></li>
+    <li [class.active]="isActive('/Collapse')"><a [routerLink]="['Collapse']">Collapse</a></li>
+    <li [class.active]="isActive('/Dialog')"><a [routerLink]="['Dialog']">Dialog</a></li>
+    <li [class.active]="isActive('/Menu')"><a [routerLink]="['Menu']">Menu</a></li>
+    <li [class.active]="isActive('/Multiselect')"><a [routerLink]="['Multiselect']">Multiselect</a></li>
+    <li [class.active]="isActive('/Select')"><a [routerLink]="['Select']">Select</a></li>
+    <li [class.active]="isActive('/Switch')"><a [routerLink]="['Switch']">Switch</a></li>
+    <li [class.active]="isActive('/Tabs')"><a [routerLink]="['Tabs']">Tabs</a></li>
+    <li [class.active]="isActive('/Toast')"><a [routerLink]="['Toast']">Toast</a></li>
+    <li [class.active]="isActive('/Tooltip')"><a [routerLink]="['Tooltip']">Tooltip</a></li>
   </ul>
 </div>
 <div class="content col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2">
