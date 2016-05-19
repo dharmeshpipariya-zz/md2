@@ -6,7 +6,7 @@ import { Home } from './home';
 import { Accordion } from './components/accordion/accordion';
 import { Autocomplete } from './components/autocomplete/autocomplete';
 import { Collapse } from './components/collapse/collapse';
-import { Dialog } from './components/dialog/dialog';
+import { DialogComponent } from './components/dialog/dialog';
 import { Menu } from './components/menu/menu';
 import { Multiselect } from './components/multiselect/multiselect';
 import { Select } from './components/select/select';
@@ -18,7 +18,7 @@ import { Tooltip } from './components/tooltip/tooltip';
 @Component({
   selector: "md2-app",
   templateUrl: "./app/app.html",
-  directives: [Home, Accordion, Autocomplete, Collapse, Dialog, Menu, Multiselect, Select, Switch, Tabs, Toast, Tooltip, RouterLink, ROUTER_DIRECTIVES]
+  directives: [Home, Accordion, Autocomplete, Collapse, DialogComponent, Menu, Multiselect, Select, Switch, Tabs, Toast, Tooltip, RouterLink, ROUTER_DIRECTIVES]
 })
 
 @RouteConfig([
@@ -26,7 +26,7 @@ import { Tooltip } from './components/tooltip/tooltip';
   { path: '/Accordion', name: 'Accordion', component: Accordion },
   { path: '/Autocomplete', name: 'Autocomplete', component: Autocomplete },
   { path: '/Collapse', name: 'Collapse', component: Collapse },
-  { path: '/Dialog', name: 'Dialog', component: Dialog },
+  { path: '/Dialog', name: 'Dialog', component: DialogComponent },
   { path: '/Menu', name: 'Menu', component: Menu },
   { path: '/Multiselect', name: 'Multiselect', component: Multiselect },
   { path: '/Select', name: 'Select', component: Select },

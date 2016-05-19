@@ -64,6 +64,7 @@ body {
 }
 
 .side-nav .logo a, .side-nav .logo a:hover, .side-nav .logo a:focus, .side-nav .logo a:active, .side-nav .logo a:visited {
+  color: #106CC8;
   text-decoration: none;
 }
 

@@ -23,9 +23,6 @@ import {Component, Input, ElementRef, ViewEncapsulation} from "@angular/core";
     'role': 'menu',
     '[class.md2-menu]': 'true',
     '[class.open]': 'isVisible'
-    //'[tabindex]': '0',
-    //'(keydown)': 'onKeyEvent($event)',
-    //'(blur)': 'onBlurEvent($event)'
   },
   encapsulation: ViewEncapsulation.None
 })
@@ -54,15 +51,6 @@ export class Md2Menu {
         if (elem === context.element.nativeElement && elem.className && elem.className.indexOf('md2-menu-item') < 0) { return; }
         elem = elem.parentNode;
       } while (elem);
-
-      //if (e.target && e.target.className && e.target.className.indexOf('md2-menu-item') >= 0) {
-      //  return;
-      //}
-      //if (context.element.nativeElement.contains(e.srcElement)
-      //  && e.srcElement && e.srcElement.className &&
-      //  e.srcElement.className.indexOf('md2-menu') >= 0) {
-      //  return;
-      //}
       context.isVisible = false;
     };
   }
