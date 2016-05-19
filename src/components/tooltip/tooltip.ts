@@ -46,6 +46,7 @@ export class Md2Tooltip {
     ]);
     clearTimeout(this.timer);
     this.timer = setTimeout(() => {
+      this.timer = 0;
       this.tooltip = this.loader
         .loadNextToLocation(Md2TooltipComponent, this.viewContainerRef, binding)
         .then((componentRef: ComponentRef) => {

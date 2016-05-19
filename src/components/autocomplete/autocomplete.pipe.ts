@@ -1,9 +1,9 @@
-import {Pipe} from '@angular/core';
+import {Pipe, PipeTransform} from '@angular/core';
 
 @Pipe({
   name: 'hightlight'
 })
-export class HightlightPipe {
+export class HightlightPipe implements PipeTransform {
   transform(value: string, args: any[]) {
     if (args.length < 1) { return value; }
     let query = args[0];

@@ -11,7 +11,7 @@ gulp.task('clean', function (cb) {
   return del(['build', 'src/**/*.js', '!src/systemjs.config.js', 'src/**/*.js.map', 'src/**/*.d.ts', '*.js', '!gulpfile.js', '!gulp.config.js', '*.js.map', '*.d.ts'], cb);
 });
 
-gulp.task('tslint', function () {
+gulp.task('tslint', function (done) {
   return gulp.src("src/**/*.ts")
       .pipe(tslint({ configuration: "./tslint.json" }))
       .pipe(tslint.report('prose', {

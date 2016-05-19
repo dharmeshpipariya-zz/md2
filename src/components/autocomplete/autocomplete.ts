@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, Provider, ViewEncapsulation, forwardRef, ElementRef} from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/common';
-import {HightlightPipe} from './autocomplete-pipes';
+import {HightlightPipe} from './autocomplete.pipe';
 
 let nextId = 0;
 
@@ -156,7 +156,10 @@ export class Md2Autocomplete implements ControlValueAccessor {
     return index == -1 ? false : true;
   }
 
-  private isFocus(value: Item): boolean { return this.currentItem.text === value.text; }
+  private isFocus(value: Item): boolean {
+    if (this.currentItem) { return this.currentItem.text === value.text; }
+    return false;
+  }
 
   private onBlurEvent(e: any) { this.isMenuOpened = false; }
 

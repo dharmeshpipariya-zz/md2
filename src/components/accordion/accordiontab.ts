@@ -58,7 +58,7 @@ export class Md2AccordionTab {
     }
     else {
       if (!this.accordion.multiple) {
-        for (var i = 0; i < this.accordion.tabs.length; i++) {
+        for (let i = 0; i < this.accordion.tabs.length; i++) {
           this.accordion.tabs[i].active = false;
         }
       }
@@ -73,8 +73,8 @@ export class Md2AccordionTab {
 
   findTabIndex() {
     let index = -1;
-    for (var i = 0; i < this.accordion.tabs.length; i++) {
-      if (this.accordion.tabs[i] == this) {
+    for (let i = 0; i < this.accordion.tabs.length; i++) {
+      if (this.accordion.tabs[i] === this) {
         index = i;
         break;
       }

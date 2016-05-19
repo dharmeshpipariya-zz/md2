@@ -134,7 +134,10 @@ export class Md2Multiselect implements ControlValueAccessor {
     return index == -1 ? false : true;
   }
 
-  private isFocus(value: Item): boolean { return this.currentItem.text === value.text; }
+  private isFocus(value: Item): boolean {
+    if (this.currentItem) { return this.currentItem.text === value.text; }
+    return false;
+  }
 
   onTouched: () => any = () => { };
 
