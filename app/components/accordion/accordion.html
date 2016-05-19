@@ -1,0 +1,8 @@
+<h1 class="page-header">Accordion Component</h1>
+<div>
+  <md2-accordion [multiple]="multiple">
+    <md2-accordion-tab *ngFor="let tab of accordions" [header]="tab.title" [active]="tab.active" [disabled]="tab.disabled">
+      {{tab.content}}
+    </md2-accordion-tab>
+  </md2-accordion>
+</div>
