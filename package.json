@@ -1,7 +1,7 @@
 {
   "name": "md2",
   "version": "3.1.0",
-  "description": "Angular2 based Material design components are Accordion, Autocomplete, Collapse, Dialog, Menu, Multiselect, Select, Switch, Tabs and Tooltip.",
+  "description": "Angular2 based Material Design components, directives and services are Accordion, Autocomplete, Collapse, Colorpicker, Datepicker, Dialog(Modal), Menu, Multiselect, Select, Switch, Tabs, Toast and Tooltip.",
   "scripts": {
     "clean": "gulp clean",
     "compile": "gulp compile",

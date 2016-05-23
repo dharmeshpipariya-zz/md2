@@ -5,7 +5,7 @@ import {Md2Tab} from './tab';
   selector: 'md2-tabs',
   template: `
     <ul class="md2-tabs-wrapper">
-      <li *ngFor="let tab of tabs" [class]="tab.headerStyleClass" [class]="'md2-tab-item'" [class.active]="tab.active" [class.disabled]="tab.disabled" (click)="open($event,tab)">
+      <li *ngFor="let tab of tabs" [class]="tab.headerClass" [class]="'md2-tab-item'" [class.active]="tab.active" [class.disabled]="tab.disabled" (click)="open($event,tab)">
         <span>{{tab.header}}</span>
       </li>
     </ul>
@@ -26,14 +26,14 @@ import {Md2Tab} from './tab';
     .md2-tab-content { padding: 16px; display: block; position: relative; }
   `],
   host: {
-    '[class]': 'styleClass',
+    '[class]': 'mdClass',
     '[class.md2-tabs]': 'true'
   },
   encapsulation: ViewEncapsulation.None
 })
 export class Md2Tabs {
 
-  @Input() styleClass: string;
+  @Input('md-class') mdClass: string;
 
   @Output() change: EventEmitter<any> = new EventEmitter<any>();
 

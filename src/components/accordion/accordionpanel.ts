@@ -18,7 +18,7 @@ export class Md2Accordion {
 
   @Input() multiple: boolean;
 
-  @Input() mdClass: string;
+  @Input('md-class') mdClass: string;
 
   @Output() close: EventEmitter<any> = new EventEmitter<any>();
 

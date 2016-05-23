@@ -111,7 +111,7 @@ export class Md2Multiselect implements ControlValueAccessor {
   }
 
   private selectItemOnMatch(value: Item, e: Event = null) {
-    if (e) { e.preventDefault(); }
+    if (e) { e.preventDefault(); e.stopPropagation(); }
     if (this.list.length <= 0) { return; }
 
     let index = this.activeItem.findIndex(item => item.text == value.text);

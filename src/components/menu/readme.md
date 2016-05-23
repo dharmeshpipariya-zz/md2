@@ -59,7 +59,7 @@ export class ... {
 
 ### Properties
 
-  - `[menuLabel]` _- string - (Default: `null`)(Optional)_ -
+  - `[menu-label]` _- string - (Default: `null`)(Optional)_ -
     The heading or title of the menu
 
 ### Referenced From

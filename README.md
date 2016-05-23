@@ -1,6 +1,6 @@
 # md2
 
-Angular2 based Material design components are Accordion, Autocomplete, Collapse, Dialog, Menu, Multiselect, Select, Switch, Tabs and Tooltip.
+Angular2 based Material Design components, directives and services are Accordion, Autocomplete, Collapse, Colorpicker, Datepicker, Dialog(Modal), Menu, Multiselect, Select, Switch, Tabs, Toast and Tooltip.
 
 
 ## Quick start
@@ -27,7 +27,7 @@ Angular2 based Material design components are Accordion, Autocomplete, Collapse,
     ```
 
 3. More information regarding of using ***md2*** is located in
-  [demo(comming soon)](#) and [demo sources](https://github.com/DharmeshPipariya/md2/tree/master/src).
+  [demo](http://dharmeshpipariya.github.io/md2) and [demo sources](https://github.com/DharmeshPipariya/md2/tree/master/src).
 
 
 ## Components
@@ -35,6 +35,8 @@ Angular2 based Material design components are Accordion, Autocomplete, Collapse,
 - [md2-accordion](https://github.com/DharmeshPipariya/md2/tree/master/src/components/accordion)
 - [md2-autocomplete](https://github.com/DharmeshPipariya/md2/tree/master/src/components/autocomplete)
 - [md2-collapse](https://github.com/DharmeshPipariya/md2/tree/master/src/components/collapse)
+- md2-colorpicker(Comming soon!)
+- md2-datepicker(Comming soon!)
 - [md2-dialog](https://github.com/DharmeshPipariya/md2/tree/master/src/components/dialog)
 - [md2-menu](https://github.com/DharmeshPipariya/md2/tree/master/src/components/menu)
 - [md2-multiselect](https://github.com/DharmeshPipariya/md2/tree/master/src/components/multiselect)
