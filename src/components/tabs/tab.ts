@@ -16,5 +16,5 @@ export class Md2Tab {
 
   @Input() disabled: boolean;
 
-  @Input() headerStyleClass: string;
+  @Input('header-class') headerClass: string;
 }
