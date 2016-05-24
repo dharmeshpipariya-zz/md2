@@ -18,7 +18,7 @@ TS sample code
 
 ...
 
-import {Md2Collapse} from '../../../components/collapse/collapse';
+import {Md2Collapse} from 'md2/collapse';
 
 @Component({
     selector: "...",

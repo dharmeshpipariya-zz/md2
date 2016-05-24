@@ -23,7 +23,7 @@ TS sample code
 
 ...
 
-import {ACCORDION_DIRECTIVES} from '../../../components/accordion/accordion';
+import {ACCORDION_DIRECTIVES} from 'md2/accordion';
 
 @Component({
     selector: "...",

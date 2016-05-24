@@ -1,4 +1,4 @@
-import {Component,OnInit } from '@angular/core';
+import {Component, OnInit } from '@angular/core';
 import {Md2Colorpicker} from '../../../components/colorpicker/colorpicker';
 
 @Component({
@@ -7,7 +7,6 @@ import {Md2Colorpicker} from '../../../components/colorpicker/colorpicker';
   directives: [Md2Colorpicker]
 })
 export class Colorpicker {
-    private color: string = "#127bdc";
-    private color2: string = "#fff500";
-
+  private color: string = "#127bdc";
+  private color2: string = "#fff500";
 }

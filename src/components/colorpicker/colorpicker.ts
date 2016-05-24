@@ -10,10 +10,10 @@ import {ColorpickerService} from './colorpicker.service';
 
 export class Md2Colorpicker implements OnInit {
   @Input('colorpicker') colorpicker: string;
-  @Output('colorpickerChange') colorpickerChange = new EventEmitter<string>();
   @Input('position') cPosition: string = 'bottom';
   @Input('offset') offset: string = '0';
   @Input('format') format: string = 'hex';
+  @Output('change') change = new EventEmitter<string>();
   private colorpickerDialog: any;
   private created: boolean;
 
@@ -24,7 +24,7 @@ export class Md2Colorpicker implements OnInit {
   ngOnInit() {
     let hsva = this.service.stringToHsva(this.colorpicker);
     if (hsva !== null) {
-      this.colorpickerChange.emit(this.service.outputFormat(hsva, this.format));
+      this.change.emit(this.service.outputFormat(hsva, this.format));
     }
   }
 
@@ -43,7 +43,7 @@ export class Md2Colorpicker implements OnInit {
   }
 
   colorChanged(value: string) {
-    this.colorpickerChange.emit(value)
+    this.change.emit(value)
   }
 }
 
