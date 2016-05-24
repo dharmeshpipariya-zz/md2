@@ -50,7 +50,6 @@ body {
   height: 100%;
   background-color: #fff;
   z-index: 999;
-  overflow-x: visible;
   overflow-y: auto;
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
   -moz-transition: 0.3s ease-in-out;
@@ -125,6 +124,8 @@ body {
 .header .nav-toggle {
   position: relative;
   float: left;
+  display: none;
+  outline: none;
   padding: 16px;
   margin: 6px 0 0 -16px;
   background: transparent;
@@ -184,11 +185,18 @@ body {
     transform: translateX(0);
   }
   .content {
-    padding: 0 15px;
+    padding: 60px 15px 100px;
   }
   .header {
+    position: fixed;
+    top: 0;
+    width: 100%;
     margin: 0 -15px;
     padding: 0 15px;
+    z-index: 111;
+  }
+  .header .nav-toggle {
+    display: block;
   }
   .footer {
     padding: 15px;

@@ -48,10 +48,12 @@ let Md2Tooltip = class Md2Tooltip {
             return;
         }
         this.visible = false;
-        this.tooltip.then((componentRef) => {
-            componentRef.destroy();
-            return componentRef;
-        });
+        if (this.tooltip) {
+            this.tooltip.then((componentRef) => {
+                componentRef.destroy();
+                return componentRef;
+            });
+        }
     }
 };
 __decorate([
