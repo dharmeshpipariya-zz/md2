@@ -61,10 +61,12 @@ export class Md2Tooltip {
       return;
     }
     this.visible = false;
-    this.tooltip.then((componentRef: ComponentRef) => {
-      componentRef.destroy();
-      return componentRef;
-    });
+    if (this.tooltip) {
+      this.tooltip.then((componentRef: ComponentRef) => {
+        componentRef.destroy();
+        return componentRef;
+      });
+    }
   }
 }
 
