@@ -15,6 +15,7 @@ const home_1 = require('./home');
 const accordion_1 = require('./components/accordion/accordion');
 const autocomplete_1 = require('./components/autocomplete/autocomplete');
 const collapse_1 = require('./components/collapse/collapse');
+const colorpicker_1 = require('./components/colorpicker/colorpicker');
 const dialog_1 = require('./components/dialog/dialog');
 const menu_1 = require('./components/menu/menu');
 const multiselect_1 = require('./components/multiselect/multiselect');
@@ -38,13 +39,14 @@ AppComponent = __decorate([
     core_1.Component({
         selector: "md2-app",
         templateUrl: "./app/app.html",
-        directives: [home_1.Home, accordion_1.Accordion, autocomplete_1.Autocomplete, collapse_1.Collapse, dialog_1.DialogComponent, menu_1.Menu, multiselect_1.Multiselect, select_1.Select, switch_1.Switch, tabs_1.Tabs, toast_1.Toast, tooltip_1.Tooltip, router_deprecated_1.RouterLink, router_deprecated_1.ROUTER_DIRECTIVES]
+        directives: [home_1.Home, accordion_1.Accordion, autocomplete_1.Autocomplete, collapse_1.Collapse, colorpicker_1.Colorpicker, dialog_1.DialogComponent, menu_1.Menu, multiselect_1.Multiselect, select_1.Select, switch_1.Switch, tabs_1.Tabs, toast_1.Toast, tooltip_1.Tooltip, router_deprecated_1.RouterLink, router_deprecated_1.ROUTER_DIRECTIVES]
     }),
     router_deprecated_1.RouteConfig([
         { path: '/', name: 'Home', component: home_1.Home },
         { path: '/Accordion', name: 'Accordion', component: accordion_1.Accordion },
         { path: '/Autocomplete', name: 'Autocomplete', component: autocomplete_1.Autocomplete },
         { path: '/Collapse', name: 'Collapse', component: collapse_1.Collapse },
+        { path: '/Colorpicker', name: 'Colorpicker', component: colorpicker_1.Colorpicker },
         { path: '/Dialog', name: 'Dialog', component: dialog_1.DialogComponent },
         { path: '/Menu', name: 'Menu', component: menu_1.Menu },
         { path: '/Multiselect', name: 'Multiselect', component: multiselect_1.Multiselect },

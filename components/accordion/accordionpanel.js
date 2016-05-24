@@ -24,7 +24,7 @@ __decorate([
     __metadata('design:type', Boolean)
 ], Md2Accordion.prototype, "multiple", void 0);
 __decorate([
-    core_1.Input(), 
+    core_1.Input('md-class'), 
     __metadata('design:type', String)
 ], Md2Accordion.prototype, "mdClass", void 0);
 __decorate([

@@ -35,8 +35,8 @@ export class ... {
   - `header` (`?string='text'`) - To set title of a tab.
   - `active` (`?boolean='false'`) - To set as an active a tab.
   - `disabled` (`?boolean='false'`) - To set as an disabled a tab.
-  - `headerStyleClass` (`?string=''`) - To set class on title of tab.
-  - `styleClass` (`?string=''`) - To set class on tabset.
+  - `header-class` (`?string=''`) - To set class on title of tab.
+  - `md-class` (`?string=''`) - To set class on tabset.
 
 ### Events
 

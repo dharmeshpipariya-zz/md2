@@ -52,6 +52,7 @@ let Md2Multiselect = class Md2Multiselect {
     selectItemOnMatch(value, e = null) {
         if (e) {
             e.preventDefault();
+            e.stopPropagation();
         }
         if (this.list.length <= 0) {
             return;

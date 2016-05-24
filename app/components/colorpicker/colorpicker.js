@@ -9,35 +9,21 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 const core_1 = require('@angular/core');
-let Md2Tab = class Md2Tab {
+const colorpicker_1 = require('../../../components/colorpicker/colorpicker');
+let Colorpicker = class Colorpicker {
+    constructor() {
+        this.color = "#127bdc";
+        this.color2 = "#fff500";
+    }
 };
-__decorate([
-    core_1.Input(), 
-    __metadata('design:type', String)
-], Md2Tab.prototype, "header", void 0);
-__decorate([
-    core_1.Input(), 
-    __metadata('design:type', Boolean)
-], Md2Tab.prototype, "active", void 0);
-__decorate([
-    core_1.Input(), 
-    __metadata('design:type', Boolean)
-], Md2Tab.prototype, "disabled", void 0);
-__decorate([
-    core_1.Input('header-class'), 
-    __metadata('design:type', String)
-], Md2Tab.prototype, "headerClass", void 0);
-Md2Tab = __decorate([
+Colorpicker = __decorate([
     core_1.Component({
-        selector: 'md2-tab',
-        template: `
-    <div class="md2-tab-content" [style.display]="active ? 'block' : 'none'">
-      <ng-content></ng-content>
-    </div>
-  `
+        selector: 'colorPicker',
+        templateUrl: './app/components/colorpicker/colorpicker.html',
+        directives: [colorpicker_1.Md2Colorpicker]
     }), 
     __metadata('design:paramtypes', [])
-], Md2Tab);
-exports.Md2Tab = Md2Tab;
+], Colorpicker);
+exports.Colorpicker = Colorpicker;
 
-//# sourceMappingURL=tab.js.map
+//# sourceMappingURL=colorpicker.js.map

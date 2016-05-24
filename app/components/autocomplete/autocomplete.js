@@ -21,8 +21,7 @@ let Autocomplete = class Autocomplete {
             { name: 'London', value: '5' },
             { name: 'Seville', value: '6' }
         ];
-        this.item = [{ name: 'Dortmund', value: '3' }];
-        this.item1 = { name: 'Dortmund', value: '3' };
+        this.item = [];
     }
     change(value) {
         console.log('Changed data: ', value);

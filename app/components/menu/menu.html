@@ -1,21 +1,35 @@
-<h1 class="page-header">Menu Component</h1>
-<div>
-  <md2-menu [menu-label]="menuLabel">
-    <a class="md2-menu-item" href="#/Accordion">Accordion</a>
-    <a class="md2-menu-item" href="#/Autocomplete">Autocomplete</a>
-    <a class="md2-menu-item" href="#/Multiselect">Multiselect</a>
-    <a class="md2-menu-item" href="#/Select">Select</a>
-    <a class="md2-menu-item" href="#/Switch">Switch</a>
-  </md2-menu>
+<h1 class="page-header">Menu<small>(<a target="_blank" href="https://github.com/DharmeshPipariya/md2/tree/master/src/menu/menu">Md2Menu</a>)</small></h1>
+<section id="menu">
+  <div class="row">
+    <div class="col-sm-6">
+      <md2-menu [menu-label]="menuLabel">
+        <a class="md2-menu-item" href="#/Menu">Menu 1</a>
+        <a class="md2-menu-item" href="#/Menu">Menu 2</a>
+        <a class="md2-menu-item" href="#/Menu">Menu 3</a>
+        <a class="md2-menu-item" href="#/Menu">Menu 4</a>
+        <a class="md2-menu-item" href="#/Menu">Menu 5</a>
+      </md2-menu>
 
-  <md2-menu>
-    <menu-label>
-      <b>Bold</b> Header Menu
-    </menu-label>
-    <a class="md2-menu-item" href="#/Accordion">Accordion</a>
-    <a class="md2-menu-item" href="#/Autocomplete">Autocomplete</a>
-    <a class="md2-menu-item" href="#/Multiselect">Multiselect</a>
-    <a class="md2-menu-item" href="#/Select">Select</a>
-    <a class="md2-menu-item" href="#/Switch">Switch</a>
-  </md2-menu>
-</div>
+      <md2-menu>
+        <menu-label>
+          <b>Bold</b> Header Menu
+        </menu-label>
+        <a class="md2-menu-item" href="#/Menu">Menu 6</a>
+        <a class="md2-menu-item" href="#/Menu">Menu 7</a>
+        <a class="md2-menu-item" href="#/Menu">Menu 8</a>
+        <a class="md2-menu-item" href="#/Menu">Menu 9</a>
+        <a class="md2-menu-item" href="#/Menu">Menu 10</a>
+      </md2-menu>
+    </div>
+    <div class="col-sm-6">
+      <p>The <strong>menu component</strong> is to provide a dropdown menu toggling functionality.</p>
+      <h3>md2-menu settings</h3>
+      <ul>
+        <li>
+          <code>[menu-label]</code> <em>- string - (Default: <code>null</code>)(Optional)</em> -
+          The heading or title of the menu
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>

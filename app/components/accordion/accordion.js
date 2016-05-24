@@ -10,6 +10,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 const core_1 = require('@angular/core');
 const accordion_1 = require('../../../components/accordion/accordion');
+//import {CodePrettify} from '../../code.prettify';
 let Accordion = class Accordion {
     constructor() {
         this.accordions = [
@@ -24,7 +25,7 @@ Accordion = __decorate([
     core_1.Component({
         selector: 'accordion',
         templateUrl: './app/components/accordion/accordion.html',
-        directives: [accordion_1.ACCORDION_DIRECTIVES]
+        directives: [accordion_1.ACCORDION_DIRECTIVES] //, CodePrettify
     }), 
     __metadata('design:paramtypes', [])
 ], Accordion);

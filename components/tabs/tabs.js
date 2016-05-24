@@ -60,9 +60,9 @@ let Md2Tabs = class Md2Tabs {
     }
 };
 __decorate([
-    core_1.Input(), 
+    core_1.Input('md-class'), 
     __metadata('design:type', String)
-], Md2Tabs.prototype, "styleClass", void 0);
+], Md2Tabs.prototype, "mdClass", void 0);
 __decorate([
     core_1.Output(), 
     __metadata('design:type', core_1.EventEmitter)
@@ -72,7 +72,7 @@ Md2Tabs = __decorate([
         selector: 'md2-tabs',
         template: `
     <ul class="md2-tabs-wrapper">
-      <li *ngFor="let tab of tabs" [class]="tab.headerStyleClass" [class]="'md2-tab-item'" [class.active]="tab.active" [class.disabled]="tab.disabled" (click)="open($event,tab)">
+      <li *ngFor="let tab of tabs" [class]="tab.headerClass" [class]="'md2-tab-item'" [class.active]="tab.active" [class.disabled]="tab.disabled" (click)="open($event,tab)">
         <span>{{tab.header}}</span>
       </li>
     </ul>
@@ -93,7 +93,7 @@ Md2Tabs = __decorate([
     .md2-tab-content { padding: 16px; display: block; position: relative; }
   `],
         host: {
-            '[class]': 'styleClass',
+            '[class]': 'mdClass',
             '[class.md2-tabs]': 'true'
         },
         encapsulation: core_1.ViewEncapsulation.None

@@ -198,7 +198,7 @@ let Md2Autocomplete = class Md2Autocomplete {
             this.activeItem = [];
             this.activeItem.push({ text: this._item });
         }
-        if (this._item && typeof this._item === 'object') {
+        if (this._item && this._item.length && typeof this._item === 'object') {
             this.activeItem = [];
             if (Array.isArray(this._item)) {
                 this.activeItem.push({ text: this._item[0][this.itemText] });

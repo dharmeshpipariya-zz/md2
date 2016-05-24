@@ -7,11 +7,11 @@ Native Angular2 Material Tooltip directive
 Example:
  
  ```html
-<a href="#" tooltip-direction="left" tooltip="On the Left!">Left</a> <br />
-<a href="#" tooltip-direction="right" tooltip="On the Right!">Right</a> <br />
-<a href="#" tooltip-direction="bottom" tooltip="On the Bottom!">Bottom</a> <br />
-<a href="#" tooltip-direction="top" tooltip="On the Top!">Top</a> <br />
-<a href="#" tooltip-delay='1000' tooltip='appears with delay'>Delayed</a>
+<span tooltip-direction="left" tooltip="On the Left!">Left</span> <br />
+<span tooltip-direction="right" tooltip="On the Right!">Right</span> <br />
+<span tooltip-direction="bottom" tooltip="On the Bottom!">Bottom</span> <br />
+<span tooltip-direction="top" tooltip="On the Top!">Top</span> <br />
+<span tooltip-delay='1000' tooltip='appears with delay'>Delayed 1 Second</span>
  ```
  ```ts
 
@@ -33,6 +33,6 @@ export class ... {
 
 ### Properties
 
-  - `tooltip` (`string`) - text of tooltip
-  - `tooltip-direction` (`?string='bottom'`) - tooltip direction instruction, supported positions: 'top', 'bottom', 'left', 'right'
-  - `tooltip-delay` (`?numer=0`) - time in milliseconds before tooltip occurs
+  - `tooltip` (`string`) - text of tooltip.
+  - `tooltip-direction` (`?string='bottom'`) - tooltip direction instruction, supported positions: 'top', 'bottom', 'left', 'right'.
+  - `tooltip-delay` (`?numer=0`) - time in milliseconds before tooltip occurs.

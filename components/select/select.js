@@ -11,7 +11,6 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 const core_1 = require('@angular/core');
 const common_1 = require('@angular/common');
 let nextId = 0;
-const noop = () => { };
 const MD2_SELECT_CONTROL_VALUE_ACCESSOR = new core_1.Provider(common_1.NG_VALUE_ACCESSOR, {
     useExisting: core_1.forwardRef(() => Md2Select),
     multi: true
@@ -31,9 +30,7 @@ let Md2Select = class Md2Select {
         this.placeholder = '';
         this.itemText = 'text';
         this.change = new core_1.EventEmitter();
-        //Placeholders for the callbacks
-        this._onTouchedCallback = noop;
-        this._onChangeCallback = noop;
+        this.onTouched = () => { };
     }
     set items(value) {
         this._items = value;
@@ -45,7 +42,7 @@ let Md2Select = class Md2Select {
         this.list = this._items.map((item) => new Item(item, this.itemText));
         if (this.list.length > 0 && this.isOpenable) {
             if (this.activeItem.length > 0) {
-                this.currentItem = this.list.find((item) => item.text == this.activeItem[0].text);
+                this.currentItem = this.list.find((item) => item.text === this.activeItem[0].text);
             }
             this.isMenuOpened = true;
             setTimeout(() => { this.behavior.next(); }, 0);
@@ -159,21 +156,6 @@ let Md2Select = class Md2Select {
         }
         this.openMenu();
     }
-    //onTouched: () => any = () => { };
-    //Set touched on blur
-    onTouched() {
-        this._onTouchedCallback('');
-    }
-    //get accessor
-    get value() { return this._item; }
-    ;
-    //set accessor including call the onchange callback
-    set value(v) {
-        if (v !== this._item) {
-            this._item = v;
-            this._onChangeCallback(v);
-        }
-    }
     writeValue(value) {
         this._item = value;
         //this._item = value;
@@ -181,7 +163,7 @@ let Md2Select = class Md2Select {
             this.activeItem = [];
             this.activeItem.push({ text: this._item });
         }
-        if (this._item && typeof this._item === 'object') {
+        if (this._item && this._item.length && typeof this._item === 'object') {
             this.activeItem = [];
             if (Array.isArray(this._item)) {
                 this.activeItem.push({ text: this._item[0][this.itemText] });
@@ -191,14 +173,8 @@ let Md2Select = class Md2Select {
             }
         }
     }
-    //From ControlValueAccessor interface
-    registerOnChange(fn) {
-        this._onChangeCallback = fn;
-    }
-    //From ControlValueAccessor interface
-    registerOnTouched(fn) {
-        this._onTouchedCallback = fn;
-    }
+    registerOnChange(fn) { this.onTouched = fn; }
+    registerOnTouched(fn) { this.onTouched = fn; }
 };
 __decorate([
     core_1.Input(), 
