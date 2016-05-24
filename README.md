@@ -35,7 +35,7 @@ Angular2 based Material Design components, directives and services are Accordion
 - [md2-accordion](https://github.com/DharmeshPipariya/md2/tree/master/src/components/accordion)
 - [md2-autocomplete](https://github.com/DharmeshPipariya/md2/tree/master/src/components/autocomplete)
 - [md2-collapse](https://github.com/DharmeshPipariya/md2/tree/master/src/components/collapse)
-- md2-colorpicker(Comming soon!)
+- [md2-colorpicker](https://github.com/DharmeshPipariya/md2/tree/master/src/components/colorpicker)
 - md2-datepicker(Comming soon!)
 - [md2-dialog](https://github.com/DharmeshPipariya/md2/tree/master/src/components/dialog)
 - [md2-menu](https://github.com/DharmeshPipariya/md2/tree/master/src/components/menu)

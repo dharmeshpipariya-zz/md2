@@ -12,7 +12,14 @@
       <p>The <strong>colorpicker component</strong> is to color selecton functionality.</p>
       <h3>md2-colorpicker settings</h3>
       <ul>
-        <li><code>colorPicker</code> (<code>?string</code>) - It bind color value.</li>
+        <li><code>[(colorpicker)]</code> <em>- string - (Default: <code>null</code>)</em> To bind color value with colorpicker.</li>
+        <li><code>[position]</code> <em>- string - (Default: <code>bottom</code>)(Optional)</em> - position of colorpicker dialog, supported positions: 'right', 'left', 'top', 'bottom'.</li>
+        <li><code>[offset]</code> <em>- string - (Default: <code>0</code>)(Optional)</em> - offset of colorpicker dialog.</li>
+        <li><code>[format]</code> <em>- string - (Default: <code>hex</code>)(Optional)</em> - color format, supported formats: 'hex', 'rgba', 'hsla'.</li>
+      </ul>
+      <h3>Events</h3>
+      <ul>
+        <li><code>(change)</code> - it fires after select a new color; returns color value.</li>
       </ul>
     </div>
   </div>
