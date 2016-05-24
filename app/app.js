@@ -27,9 +27,13 @@ const tooltip_1 = require('./components/tooltip/tooltip');
 let AppComponent = class AppComponent {
     constructor(location) {
         this.location = location;
+        this.isSidenavOpened = false;
     }
     ngOnInit() {
         console.log("Application component initialized ...");
+    }
+    sidenavToggle() {
+        this.isSidenavOpened = !this.isSidenavOpened;
     }
     isActive(path) {
         return this.location.path().startsWith(path);

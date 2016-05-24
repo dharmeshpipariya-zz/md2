@@ -19,13 +19,13 @@ let Md2Colorpicker = class Md2Colorpicker {
         this.cPosition = 'bottom';
         this.offset = '0';
         this.format = 'hex';
-        this.change = new core_1.EventEmitter();
+        this.colorpickerChange = new core_1.EventEmitter();
         this.created = false;
     }
     ngOnInit() {
         let hsva = this.service.stringToHsva(this.colorpicker);
         if (hsva !== null) {
-            this.change.emit(this.service.outputFormat(hsva, this.format));
+            this.colorpickerChange.emit(this.service.outputFormat(hsva, this.format));
         }
     }
     onClick() {
@@ -43,7 +43,7 @@ let Md2Colorpicker = class Md2Colorpicker {
         }
     }
     colorChanged(value) {
-        this.change.emit(value);
+        this.colorpickerChange.emit(value);
     }
 };
 __decorate([
@@ -63,9 +63,9 @@ __decorate([
     __metadata('design:type', String)
 ], Md2Colorpicker.prototype, "format", void 0);
 __decorate([
-    core_1.Output('change'), 
+    core_1.Output('colorpickerChange'), 
     __metadata('design:type', Object)
-], Md2Colorpicker.prototype, "change", void 0);
+], Md2Colorpicker.prototype, "colorpickerChange", void 0);
 Md2Colorpicker = __decorate([
     core_1.Directive({
         selector: '[colorpicker]',

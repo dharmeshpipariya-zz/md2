@@ -11,25 +11,20 @@ Example:
 <div [(colorpicker)]="color"
      position="right"
      offset="0"
-     format="hex"
-     (change)="change($event)">
+     format="hex">
 </div>
  ```
  ```ts
 //TypeScript
-//Add ColorpickerService in your main.ts:
-import {ColorpickerService} from 'md2/colorpicker.service'
-bootstrap(AppComponent, [ColorpickerService]);
-
-
-//Add Md2Colorpicker Your Component:
 ...
 
 import {Md2Colorpicker} from 'md2/colorpicker';
+import {ColorpickerService} from 'md2/colorpicker.service';
 
 @Component({
-    selector: "...",
-    directives: [Md2Colorpicker]
+  selector: "...",
+  directives: [Md2Colorpicker],
+  providers: [ColorpickerService]
 })
 
 export class ... {
@@ -50,8 +45,3 @@ export class ... {
   - `[position]` _- string - (Default: `bottom`)(Optional)_ - position of colorpicker dialog, supported positions: 'right', 'left', 'top', 'bottom'.
   - `[offset]` _- string - (Default: `0`)(Optional)_ - offset of colorpicker dialog.
   - `[format]` _- string - (Default: `hex`)(Optional)_ - color format, supported formats: 'hex', 'rgba', 'hsla'.
-
-
-### Events
-
-  - `(change)` - it fires after select a new color; returns color value.

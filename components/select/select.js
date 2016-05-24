@@ -71,12 +71,12 @@ let Md2Select = class Md2Select {
             }
             else {
                 let itm = this._items.find((item) => item[this.itemText] == value.text);
-                for (let i in this._item) {
+                for (let i in itm) {
                     this._item[i] = itm[i];
                 }
             }
         }
-        this.doEvent('change', value);
+        this.doEvent('change', this._item);
         this.onBlurEvent(e);
     }
     isActive(value) {

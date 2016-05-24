@@ -10,17 +10,19 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 const core_1 = require('@angular/core');
 const colorpicker_1 = require('../../../components/colorpicker/colorpicker');
+const colorpicker_service_1 = require('../../../components/colorpicker/colorpicker.service');
 let Colorpicker = class Colorpicker {
     constructor() {
-        this.color = "#127bdc";
-        this.color2 = "#fff500";
+        this.color = "#123456";
+        this.color2 = "#654321";
     }
 };
 Colorpicker = __decorate([
     core_1.Component({
         selector: 'colorPicker',
         templateUrl: './app/components/colorpicker/colorpicker.html',
-        directives: [colorpicker_1.Md2Colorpicker]
+        directives: [colorpicker_1.Md2Colorpicker],
+        providers: [colorpicker_service_1.ColorpickerService]
     }), 
     __metadata('design:paramtypes', [])
 ], Colorpicker);

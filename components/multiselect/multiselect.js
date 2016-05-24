@@ -57,18 +57,19 @@ let Md2Multiselect = class Md2Multiselect {
         if (this.list.length <= 0) {
             return;
         }
-        let index = this.activeItem.findIndex(item => item.text == value.text);
+        let index = this.activeItem.findIndex(item => item.text === value.text);
+        let itm = this._items.find((item) => item[this.itemText] === value.text);
         if (index == -1) {
             //let ind = this.list.findIndex(item => item.text == value.text);
             //let ind1 = this.activeItem.findIndex(item => item.text == this.list[ind+1].text);
-            this._item.push(this._items.find((item) => item[this.itemText] == value.text));
+            this._item.push(itm);
             this.activeItem.push(value);
         }
         else {
             this.activeItem.splice(index, 1);
             this._item.splice(index, 1);
         }
-        this.doEvent('change', value);
+        this.doEvent('change', itm);
     }
     isActive(value) {
         let index = this.activeItem.findIndex(item => item.text == value.text);
