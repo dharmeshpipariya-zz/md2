@@ -19,7 +19,7 @@ import { Tooltip } from './components/tooltip/tooltip';
 @Component({
   selector: "md2-app",
   templateUrl: "./app/app.html",
-  directives: [Home, Accordion, Autocomplete, Collapse,Colorpicker, DialogComponent, Menu, Multiselect, Select, Switch, Tabs, Toast, Tooltip, RouterLink, ROUTER_DIRECTIVES]
+  directives: [Home, Accordion, Autocomplete, Collapse, Colorpicker, DialogComponent, Menu, Multiselect, Select, Switch, Tabs, Toast, Tooltip, RouterLink, ROUTER_DIRECTIVES]
 })
 
 @RouteConfig([
@@ -27,6 +27,7 @@ import { Tooltip } from './components/tooltip/tooltip';
   { path: '/Accordion', name: 'Accordion', component: Accordion },
   { path: '/Autocomplete', name: 'Autocomplete', component: Autocomplete },
   { path: '/Collapse', name: 'Collapse', component: Collapse },
+  { path: '/Colorpicker', name: 'Colorpicker', component: Colorpicker },
   { path: '/Dialog', name: 'Dialog', component: DialogComponent },
   { path: '/Menu', name: 'Menu', component: Menu },
   { path: '/Multiselect', name: 'Multiselect', component: Multiselect },
@@ -34,8 +35,7 @@ import { Tooltip } from './components/tooltip/tooltip';
   { path: '/Switch', name: 'Switch', component: Switch },
   { path: '/Tabs', name: 'Tabs', component: Tabs },
   { path: '/Toast', name: 'Toast', component: Toast },
-  { path: '/Tooltip', name: 'Tooltip', component: Tooltip },
-  { path: '/Colorpicker', name: 'Colorpicker', component: Colorpicker }
+  { path: '/Tooltip', name: 'Tooltip', component: Tooltip }
 ])
 export class AppComponent implements OnInit {
   constructor(private location: Location) { }

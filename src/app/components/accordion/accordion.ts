@@ -1,11 +1,12 @@
 import {Component} from '@angular/core';
 
 import {ACCORDION_DIRECTIVES} from '../../../components/accordion/accordion';
+//import {CodePrettify} from '../../code.prettify';
 
 @Component({
   selector: 'accordion',
   templateUrl: './app/components/accordion/accordion.html',
-  directives: [ACCORDION_DIRECTIVES]
+  directives: [ACCORDION_DIRECTIVES]//, CodePrettify
 })
 export class Accordion {
   public accordions: Array<any> = [
