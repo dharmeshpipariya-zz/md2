@@ -114,11 +114,12 @@ export class Md2Multiselect implements ControlValueAccessor {
     if (e) { e.preventDefault(); e.stopPropagation(); }
     if (this.list.length <= 0) { return; }
 
-    let index = this.activeItem.findIndex(item => item.text == value.text);
+    let index = this.activeItem.findIndex(item => item.text === value.text);
+    let itm = this._items.find((item: any) => item[this.itemText] === value.text);
     if (index == -1) {
       //let ind = this.list.findIndex(item => item.text == value.text);
       //let ind1 = this.activeItem.findIndex(item => item.text == this.list[ind+1].text);
-      this._item.push(this._items.find((item: any) => item[this.itemText] == value.text));
+      this._item.push(itm);
       this.activeItem.push(value);
       //this.activeItem = this.activeItem.sort((a, b) => { return this.list.findIndex(item=> item.text == a.text) - this.list.findIndex(item=> item.text == b.text); });
     } else {
@@ -126,7 +127,7 @@ export class Md2Multiselect implements ControlValueAccessor {
       this._item.splice(index, 1);
     }
 
-    this.doEvent('change', value);
+    this.doEvent('change', itm);
   }
 
   private isActive(value: Item): boolean {

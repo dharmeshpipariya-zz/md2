@@ -140,13 +140,13 @@ export class Md2Autocomplete implements ControlValueAccessor {
         this._item[0] = this._items.find((item: any) => item[this.itemText] == value.text);
       } else {
         let itm = this._items.find((item: any) => item[this.itemText] == value.text);
-        for (let i in this._item) {
+        for (let i in itm) {
           this._item[i] = itm[i];
         }
       }
     }
 
-    this.doEvent('change', value);
+    this.doEvent('change', this._item);
     this.onBlurEvent(e);
     this.element.nativeElement.querySelector('.md2-autocomplete-container input').focus();
   }
