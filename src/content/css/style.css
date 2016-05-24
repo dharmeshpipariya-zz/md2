@@ -50,6 +50,7 @@ body {
   height: 100%;
   background-color: #fff;
   z-index: 999;
+  overflow-x: visible;
   overflow-y: auto;
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
   -moz-transition: 0.3s ease-in-out;
@@ -121,6 +122,27 @@ body {
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
 }
 
+.header .nav-toggle {
+  position: relative;
+  float: left;
+  padding: 16px;
+  margin: 6px 0 0 -16px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+}
+
+.header .nav-toggle .bar {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background-color: rgba(255, 255, 255, 0.8);
+}
+
+.header .nav-toggle .bar + .bar {
+  margin-top: 4px;
+}
+
 .header h2 {
   margin: 0;
   padding: 15px 0;
@@ -137,12 +159,29 @@ body {
 }
 
 @media (max-width: 767px) {
+  .side-nav-backdrop {
+    display: block;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    background: rgba(0, 0, 0, 0.5);
+    width: 100%;
+    z-index: 998;
+  }
   .side-nav {
     -moz-transform: translateX(-100%);
     -ms-transform: translateX(-100%);
     -o-transform: translateX(-100%);
     -webkit-transform: translateX(-100%);
     transform: translateX(-100%);
+  }
+  .side-nav.open {
+    -moz-transform: translateX(0);
+    -ms-transform: translateX(0);
+    -o-transform: translateX(0);
+    -webkit-transform: translateX(0);
+    transform: translateX(0);
   }
   .content {
     padding: 0 15px;

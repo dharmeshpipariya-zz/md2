@@ -38,10 +38,18 @@ import { Tooltip } from './components/tooltip/tooltip';
   { path: '/Tooltip', name: 'Tooltip', component: Tooltip }
 ])
 export class AppComponent implements OnInit {
+  private isSidenavOpened: boolean = false;
+
   constructor(private location: Location) { }
+
   ngOnInit() {
     console.log("Application component initialized ...");
   }
+
+  sidenavToggle() {
+    this.isSidenavOpened = !this.isSidenavOpened;
+  }
+
   isActive(path) {
     return this.location.path().startsWith(path);
   }
