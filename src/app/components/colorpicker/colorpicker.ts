@@ -7,6 +7,6 @@ import {Md2Colorpicker} from '../../../components/colorpicker/colorpicker';
   directives: [Md2Colorpicker]
 })
 export class Colorpicker {
-  private color: string = "#127bdc";
-  private color2: string = "#fff500";
+  private color: string = "#123456";
+  private color2: string = "#654321";
 }

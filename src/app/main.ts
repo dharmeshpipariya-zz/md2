@@ -7,5 +7,6 @@ import {ColorpickerService} from '../../components/colorpicker/colorpicker.servi
 
 bootstrap(AppComponent, [
   ROUTER_PROVIDERS,
-  provide(LocationStrategy, { useClass: HashLocationStrategy }), ColorpickerService
+  provide(LocationStrategy, { useClass: HashLocationStrategy }),
+  ColorpickerService
 ]);
