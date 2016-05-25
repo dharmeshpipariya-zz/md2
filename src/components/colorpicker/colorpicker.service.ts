@@ -128,7 +128,7 @@ export class ColorpickerService {
       }
     ];
     colorString = colorString.toLowerCase();
-    let hsva: { h: number, s: number, v: number, a: number } | string = null;
+    let hsva: any = null;
     for (let key in stringParsers) {
       if (stringParsers.hasOwnProperty(key)) {
         let parser = stringParsers[key];

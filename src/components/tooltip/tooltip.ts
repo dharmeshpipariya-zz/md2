@@ -17,7 +17,7 @@ export class Md2Tooltip {
   public viewContainerRef: ViewContainerRef;
   public loader: DynamicComponentLoader;
 
-  private tooltip: Promise<ComponentRef>;
+  private tooltip: Promise<ComponentRef<any>>;
 
   public constructor(viewContainerRef: ViewContainerRef, loader: DynamicComponentLoader) {
     this.viewContainerRef = viewContainerRef;
@@ -45,7 +45,7 @@ export class Md2Tooltip {
       this.timer = 0;
       this.tooltip = this.loader
         .loadNextToLocation(Md2TooltipComponent, this.viewContainerRef, binding)
-        .then((componentRef: ComponentRef) => {
+        .then((componentRef: ComponentRef<any>) => {
           return componentRef;
         });
     }, this.delay);
@@ -60,7 +60,7 @@ export class Md2Tooltip {
     }
     this.visible = false;
     if (this.tooltip) {
-      this.tooltip.then((componentRef: ComponentRef) => {
+      this.tooltip.then((componentRef: ComponentRef<any>) => {
         componentRef.destroy();
         return componentRef;
       });

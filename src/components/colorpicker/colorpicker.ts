@@ -22,7 +22,7 @@ export class Md2Colorpicker implements OnInit {
   }
 
   ngOnInit() {
-    let hsva = this.service.stringToHsva(this.colorpicker);
+    let hsva: any = this.service.stringToHsva(this.colorpicker);
     if (hsva !== null) {
       this.colorpickerChange.emit(this.service.outputFormat(hsva, this.format));
     }
@@ -185,7 +185,7 @@ export class ColorpickerComponent implements OnInit {
   }
 
   ngOnInit() {
-    let hsva = this.service.stringToHsva(this.initialColor);
+    let hsva: any = this.service.stringToHsva(this.initialColor);
     if (hsva !== null) {
       this.hsva = hsva;
     } else {
@@ -237,7 +237,7 @@ export class ColorpickerComponent implements OnInit {
 
   setColorpickerDialogPosition() {
     var node = this.directiveElementRef.nativeElement, position = 'static';
-    let parentNode = null;
+    let parentNode: any = null;
     while (node !== null && node.tagName !== 'HTML') {
       position = window.getComputedStyle(node).getPropertyValue("position");
       if (position !== 'static' && parentNode === null) {
@@ -325,7 +325,7 @@ export class ColorpickerComponent implements OnInit {
     this.closeColorpicker();
   }
 
-  isDescendant(parent, child) {
+  isDescendant(parent: any, child: any) {
     var node = child.parentNode;
     while (node !== null) {
       if (node === parent) {
@@ -336,7 +336,7 @@ export class ColorpickerComponent implements OnInit {
     return false;
   }
 
-  createBox(element, offset) {
+  createBox(element: any, offset: any) {
     return {
       top: element.getBoundingClientRect().top + (offset ? window.pageYOffset : 0),
       left: element.getBoundingClientRect().left + (offset ? window.pageXOffset : 0),

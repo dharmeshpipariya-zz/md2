@@ -58,54 +58,42 @@ export class Md2TooltipComponent implements AfterViewInit {
     let hostElPos = this.offset(hostEl);
     let targetElWidth = targetEl.offsetWidth;
     let targetElHeight = targetEl.offsetHeight;
-    let shiftWidth = {
-      center: function (): number {
-        return hostElPos.left + hostElPos.width / 2 - targetElWidth / 2;
-      },
-      left: function (): number {
-        return hostElPos.left;
-      },
-      right: function (): number {
-        return hostElPos.left + hostElPos.width;
-      }
+    let shiftWidth: any = {
+      center: hostElPos.left + hostElPos.width / 2 - targetElWidth / 2,
+      left: hostElPos.left,
+      right: hostElPos.left + hostElPos.width
     };
 
-    let shiftHeight = {
-      center: function (): number {
-        return hostElPos.top + hostElPos.height / 2 - targetElHeight / 2;
-      },
-      top: function (): number {
-        return hostElPos.top;
-      },
-      bottom: function (): number {
-        return hostElPos.top + hostElPos.height;
-      }
+    let shiftHeight: any = {
+      center: hostElPos.top + hostElPos.height / 2 - targetElHeight / 2,
+      top: hostElPos.top,
+      bottom: hostElPos.top + hostElPos.height
     };
 
     let targetElPos: { top: number, left: number };
     switch (pos0) {
       case 'right':
         targetElPos = {
-          top: shiftHeight[pos1](),
-          left: shiftWidth[pos0]()
+          top: shiftHeight[pos1],
+          left: shiftWidth[pos0]
         };
         break;
       case 'left':
         targetElPos = {
-          top: shiftHeight[pos1](),
+          top: shiftHeight[pos1],
           left: (hostElPos.left - targetElWidth)// > 0 ? (hostElPos.left - targetElWidth) : (hostElPos.width + hostElPos.left)
         };
         break;
       case 'top':
         targetElPos = {
           top: hostElPos.top - targetElHeight,
-          left: shiftWidth[pos1]()
+          left: shiftWidth[pos1]
         };
         break;
       default:
         targetElPos = {
-          top: shiftHeight[pos0](),
-          left: shiftWidth[pos1]()
+          top: shiftHeight[pos0],
+          left: shiftWidth[pos1]
         };
         break;
     }
@@ -117,8 +105,8 @@ export class Md2TooltipComponent implements AfterViewInit {
     return {
       width: boundingClientRect.width || nativeEl.offsetWidth,
       height: boundingClientRect.height || nativeEl.offsetHeight,
-      top: boundingClientRect.top + (this.window.pageYOffset || this.document.documentElement.scrollTop),
-      left: boundingClientRect.left + (this.window.pageXOffset || this.document.documentElement.scrollLeft)
+      top: boundingClientRect.top + (this.window.pageYOffset || this.document.documentElement.scrollTop) - this.document.body.scrollTop,
+      left: boundingClientRect.left + (this.window.pageXOffset || this.document.documentElement.scrollLeft) - this.document.body.scrollLeft
     };
   }
 
