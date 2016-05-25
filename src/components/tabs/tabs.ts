@@ -51,7 +51,7 @@ export class Md2Tabs {
     });
   }
 
-  open(event, tab: Md2Tab) {
+  open(event: Event, tab: Md2Tab) {
     if (tab.disabled) {
       event.preventDefault();
       return;

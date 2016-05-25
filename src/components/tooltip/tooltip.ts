@@ -1,15 +1,9 @@
-import {Directive, Input, DynamicComponentLoader, ComponentRef, Provider, ReflectiveInjector, ViewContainerRef} from '@angular/core';
+import {Directive, Input, HostListener, DynamicComponentLoader, ComponentRef, Provider, ReflectiveInjector, ViewContainerRef} from '@angular/core';
 import {Md2TooltipComponent} from './tooltip.component';
 import {Md2TooltipOptions} from './tooltip.options';
 
 @Directive({
-  selector: '[tooltip]',
-  host: {
-    '(focusin)': 'show($event, $target)',
-    '(mouseenter)': 'show($event, $target)',
-    '(focusout)': 'hide($event, $target)',
-    '(mouseleave)': 'hide($event, $target)'
-  },
+  selector: '[tooltip]'
 })
 
 export class Md2Tooltip {
@@ -30,7 +24,9 @@ export class Md2Tooltip {
     this.loader = loader;
   }
 
-  public show(event: Event, target): void {
+  @HostListener('focusin', ['$event'])
+  @HostListener('mouseenter', ['$event'])
+  public show(event: Event): void {
     if (this.visible) {
       return;
     }
@@ -55,7 +51,9 @@ export class Md2Tooltip {
     }, this.delay);
   }
 
-  public hide(event: Event, target): void {
+  @HostListener('focusout', ['$event'])
+  @HostListener('mouseleave', ['$event'])
+  public hide(event: Event): void {
     clearTimeout(this.timer);
     if (!this.visible) {
       return;

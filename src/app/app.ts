@@ -50,7 +50,7 @@ export class AppComponent implements OnInit {
     this.isSidenavOpened = !this.isSidenavOpened;
   }
 
-  isActive(path) {
+  isActive(path: string) {
     return this.location.path().startsWith(path);
   }
 }

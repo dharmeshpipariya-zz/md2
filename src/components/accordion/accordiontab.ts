@@ -44,7 +44,7 @@ export class Md2AccordionTab {
     this.accordion.addTab(this);
   }
 
-  toggle(event) {
+  toggle(event: Event) {
     if (this.disabled) {
       event.preventDefault();
       return;

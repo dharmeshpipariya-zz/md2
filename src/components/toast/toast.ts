@@ -12,7 +12,7 @@ export class Md2Toast {
   constructor(private loader: DynamicComponentLoader, private appRef: ApplicationRef) { }
 
   show(toastObj: string | { message: string, hideDelay: number }) {
-    let toast;
+    let toast: Toast;
     if (typeof toastObj === 'string') {
       toast = new Toast(toastObj);
     } else if (typeof toastObj === 'object') {

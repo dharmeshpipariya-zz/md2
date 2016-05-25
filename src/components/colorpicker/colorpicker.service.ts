@@ -6,33 +6,32 @@ export class ColorpickerService {
   constructor() { }
 
   hsla2hsva(hsla: Hsla) {
-    var h = Math.min(hsla.h, 1), s = Math.min(hsla.s, 1), l = Math.min(hsla.l, 1), a = Math.min(hsla.a, 1);
+    let h: number = Math.min(hsla.h, 1), s = Math.min(hsla.s, 1), l = Math.min(hsla.l, 1), a = Math.min(hsla.a, 1);
     if (l === 0) {
       return { h: h, s: 0, v: 0, a: a };
     } else {
-      var v = l + s * (1 - Math.abs(2 * l - 1)) / 2;
+      let v: number = l + s * (1 - Math.abs(2 * l - 1)) / 2;
       return { h: h, s: 2 * (v - l) / v, v: v, a: a };
     }
   }
 
   hsva2hsla(hsva: Hsva) {
-    var h = hsva.h, s = hsva.s, v = hsva.v, a = hsva.a;
+    let h = hsva.h, s = hsva.s, v = hsva.v, a = hsva.a;
     if (v === 0) {
       return new Hsla(h, 0, 0, a)
     } else if (s === 0 && v === 1) {
       return new Hsla(h, 1, 1, a)
     } else {
-      var l = v * (2 - s) / 2;
+      let l: number = v * (2 - s) / 2;
       return new Hsla(h, v * s / (1 - Math.abs(2 * l - 1)), l, a)
     }
   }
 
   rgbaToHsva(rgba: Rgba) {
-    var r = Math.min(rgba.r, 1), g = Math.min(rgba.g, 1), b = Math.min(rgba.b, 1), a = Math.min(rgba.a, 1);
-    var max = Math.max(r, g, b), min = Math.min(r, g, b);
-    var h, s, v = max;
-
-    var d = max - min;
+    let r: number = Math.min(rgba.r, 1), g = Math.min(rgba.g, 1), b = Math.min(rgba.b, 1), a = Math.min(rgba.a, 1);
+    let max: number = Math.max(r, g, b), min = Math.min(r, g, b);
+    let h: number, s: number, v: number = max;
+    let d: number = max - min;
     s = max === 0 ? 0 : d / max;
 
     if (max === min) {
@@ -56,14 +55,14 @@ export class ColorpickerService {
   }
 
   hsvaToRgba(hsva: Hsva) {
-    var h = hsva.h, s = hsva.s, v = hsva.v, a = hsva.a;
-    var r, g, b;
+    let h: number = hsva.h, s: number = hsva.s, v: number = hsva.v, a: number = hsva.a;
+    let r: number, g: number, b: number;
 
-    var i = Math.floor(h * 6);
-    var f = h * 6 - i;
-    var p = v * (1 - s);
-    var q = v * (1 - f * s);
-    var t = v * (1 - (1 - f) * s);
+    let i: number = Math.floor(h * 6);
+    let f: number = h * 6 - i;
+    let p: number = v * (1 - s);
+    let q: number = v * (1 - f * s);
+    let t: number = v * (1 - (1 - f) * s);
 
     switch (i % 6) {
       case 0:
@@ -89,11 +88,11 @@ export class ColorpickerService {
     return new Rgba(r, g, b, a)
   }
 
-  stringToHsva(colorString) {
-    var stringParsers = [
+  stringToHsva(colorString: string) {
+    let stringParsers = [
       {
         re: /(rgb)a?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*%?,\s*(\d{1,3})\s*%?(?:,\s*(\d+(?:\.\d+)?)\s*)?\)/,
-        parse: function (execResult) {
+        parse: function (execResult: Array<string>) {
           return new Rgba(parseInt(execResult[2]) / 255,
             parseInt(execResult[3]) / 255,
             parseInt(execResult[4]) / 255,
@@ -102,7 +101,7 @@ export class ColorpickerService {
       },
       {
         re: /(hsl)a?\(\s*(\d{1,3})\s*,\s*(\d{1,3})%\s*,\s*(\d{1,3})%\s*(?:,\s*(\d+(?:\.\d+)?)\s*)?\)/,
-        parse: function (execResult) {
+        parse: function (execResult: Array<string>) {
           return new Hsla(parseInt(execResult[2]) / 360,
             parseInt(execResult[3]) / 100,
             parseInt(execResult[4]) / 100,
@@ -111,7 +110,7 @@ export class ColorpickerService {
       },
       {
         re: /#([a-fA-F0-9]{2})([a-fA-F0-9]{2})([a-fA-F0-9]{2})$/,
-        parse: function (execResult) {
+        parse: function (execResult: Array<string>) {
           return new Rgba(parseInt(execResult[1], 16) / 255,
             parseInt(execResult[2], 16) / 255,
             parseInt(execResult[3], 16) / 255,
@@ -120,7 +119,7 @@ export class ColorpickerService {
       },
       {
         re: /#([a-fA-F0-9])([a-fA-F0-9])([a-fA-F0-9])$/,
-        parse: function (execResult) {
+        parse: function (execResult: Array<string>) {
           return new Rgba(parseInt(execResult[1] + execResult[1], 16) / 255,
             parseInt(execResult[2] + execResult[2], 16) / 255,
             parseInt(execResult[3] + execResult[3], 16) / 255,
@@ -129,11 +128,11 @@ export class ColorpickerService {
       }
     ];
     colorString = colorString.toLowerCase();
-    var hsva = null;
-    for (var key in stringParsers) {
+    let hsva: { h: number, s: number, v: number, a: number } | string = null;
+    for (let key in stringParsers) {
       if (stringParsers.hasOwnProperty(key)) {
-        var parser = stringParsers[key];
-        var match = parser.re.exec(colorString), color = match && parser.parse(match);
+        let parser = stringParsers[key];
+        let match: Array<string> = parser.re.exec(colorString), color = match && parser.parse(match);
         if (color) {
           if (color instanceof Rgba) {
             hsva = this.rgbaToHsva(color);
