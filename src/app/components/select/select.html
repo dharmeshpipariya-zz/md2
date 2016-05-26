@@ -9,6 +9,15 @@
                   (change)="change($event)"
                   placeholder="No city selected">
       </md2-select>
+      <hr />
+      <pre>{{item | json}}</pre>
+      <md2-select [items]="items"
+                  item-text="name"
+                  [(ngModel)]="item"
+                  [disabled]="disabled"
+                  (change)="change($event)"
+                  placeholder="No city selected">
+      </md2-select>
     </div>
     <div class="col-sm-6">
       <p>The <strong>select component</strong> is to provide a select functionality.</p>

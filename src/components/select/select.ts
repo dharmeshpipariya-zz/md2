@@ -91,6 +91,26 @@ export class Md2Select implements ControlValueAccessor {
     this.behavior = new GenericBehavior(this);
   }
 
+  get value() {
+    return this._item;
+  }
+  set value(value: any) {
+    this._item = value;
+    if (value && typeof value === 'string') {
+      this.activeItem = [];
+      this.activeItem.push({ text: value });
+    }
+    if (value && value.length && typeof value === 'object') {
+      this.activeItem = [];
+      if (Array.isArray(value)) {
+        this.activeItem.push({ text: value[0][this.itemText] });
+      } else {
+        this.activeItem.push({ text: value[this.itemText] });
+      }
+    }
+    //this.change.emit(value);
+  }
+
   private openMenu() {
     this.list = this._items.map((item: any) => new Item(item, this.itemText));
     if (this.list.length > 0 && this.isOpenable) {
@@ -217,20 +237,7 @@ export class Md2Select implements ControlValueAccessor {
   onTouched: () => any = () => { };
 
   writeValue(value: any) {
-    this._item = value;
-    //this._item = value;
-    if (this._item && typeof this._item === 'string') {
-      this.activeItem = [];
-      this.activeItem.push({ text: this._item });
-    }
-    if (this._item && this._item.length && typeof this._item === 'object') {
-      this.activeItem = [];
-      if (Array.isArray(this._item)) {
-        this.activeItem.push({ text: this._item[0][this.itemText] });
-      } else {
-        this.activeItem.push({ text: this._item[this.itemText] });
-      }
-    }
+    this.value = value;
   }
 
   registerOnChange(fn: any) { this.onTouched = fn; }
