@@ -1,12 +1,11 @@
 import {Component, OnInit } from '@angular/core';
-import {Md2Colorpicker} from '../../../components/colorpicker/colorpicker';
-import {ColorpickerService} from '../../../components/colorpicker/colorpicker.service';
+import {Md2Colorpicker, Md2ColorpickerService} from '../../../components/colorpicker/colorpicker';
 
 @Component({
   selector: 'colorPicker',
   templateUrl: './app/components/colorpicker/colorpicker.html',
   directives: [Md2Colorpicker],
-  providers: [ColorpickerService]
+  providers: [Md2ColorpickerService]
 })
 export class Colorpicker {
   private color: string = "#123456";

@@ -1,5 +1,5 @@
 import {Component, DynamicComponentLoader, Directive, Input, Output, ViewContainerRef, ElementRef, EventEmitter, OnInit} from '@angular/core';
-import {ColorpickerService} from './colorpicker.service';
+import {Md2ColorpickerService} from './colorpicker.service';
 
 @Directive({
   selector: '[colorpicker]',
@@ -17,7 +17,7 @@ export class Md2Colorpicker implements OnInit {
   private colorpickerDialog: any;
   private created: boolean;
 
-  constructor(private dcl: DynamicComponentLoader, private vcRef: ViewContainerRef, private el: ElementRef, private service: ColorpickerService) {
+  constructor(private dcl: DynamicComponentLoader, private vcRef: ViewContainerRef, private el: ElementRef, private service: Md2ColorpickerService) {
     this.created = false;
   }
 
@@ -169,7 +169,7 @@ export class ColorpickerComponent implements OnInit {
   private format: number;
   private alphaColor: string;
 
-  constructor(private el: ElementRef, private service: ColorpickerService) { }
+  constructor(private el: ElementRef, private service: Md2ColorpickerService) { }
 
   setColorpickerDialog(instance: any, elementRef: ElementRef, color: any, cPosition: string, offset: string, cFormat: string) {
     this.directiveInstance = instance;
@@ -361,3 +361,5 @@ export class SliderPosition {
 export class SliderDimension {
   constructor(public h: number, public s: number, public v: number, public a: number) { }
 }
+
+export {Md2ColorpickerService} from './colorpicker.service';

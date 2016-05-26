@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {Rgba, Hsla, Hsva} from './colorpicker';
 
 @Injectable()
-export class ColorpickerService {
+export class Md2ColorpickerService {
   constructor() { }
 
   hsla2hsva(hsla: Hsla) {
