@@ -18,13 +18,12 @@ Example:
 //TypeScript
 ...
 
-import {Md2Colorpicker} from 'md2/colorpicker';
-import {ColorpickerService} from 'md2/colorpicker.service';
+import {Md2Colorpicker,Md2ColorpickerService} from 'md2/colorpicker';
 
 @Component({
   selector: "...",
   directives: [Md2Colorpicker],
-  providers: [ColorpickerService]
+  providers: [Md2ColorpickerService]
 })
 
 export class ... {

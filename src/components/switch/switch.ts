@@ -77,7 +77,7 @@ export class Md2Switch implements ControlValueAccessor {
   onTouched: () => any = () => { };
 
   private _checked: boolean = false;
-
+  private _isInitialized: boolean = false;
   private _changeSubscription: { unsubscribe: () => any } = null;
 
   @Input() get checked() {
@@ -86,7 +86,13 @@ export class Md2Switch implements ControlValueAccessor {
 
   set checked(checked: boolean) {
     this._checked = checked;
-    this.change.emit(this._checked);
+    if (this._isInitialized) {
+      this.change.emit(this._checked);
+    }
+  }
+
+  ngAfterContentInit() {
+    this._isInitialized = true;
   }
 
   get labelId() { return this.id + '-label'; }
