@@ -4,6 +4,7 @@ import {Md2ColorpickerService} from './colorpicker.service';
 @Directive({
   selector: '[colorpicker]',
   host: {
+    '(input)': 'changeInput($event)',
     '(click)': 'onClick()'
   }
 })
@@ -14,6 +15,7 @@ export class Md2Colorpicker implements OnInit {
   @Input('offset') offset: string = '0';
   @Input('format') format: string = 'hex';
   @Output('colorpickerChange') colorpickerChange = new EventEmitter<string>();
+  @Output() change = new EventEmitter<string>();
   private colorpickerDialog: any;
   private created: boolean;
 
@@ -25,6 +27,7 @@ export class Md2Colorpicker implements OnInit {
     let hsva: any = this.service.stringToHsva(this.colorpicker);
     if (hsva !== null) {
       this.colorpickerChange.emit(this.service.outputFormat(hsva, this.format));
+      this.change.emit(this.service.outputFormat(hsva, this.format));
     }
   }
 
@@ -43,7 +46,15 @@ export class Md2Colorpicker implements OnInit {
   }
 
   colorChanged(value: string) {
-    this.colorpickerChange.emit(value)
+    this.colorpickerChange.emit(value);
+    this.change.emit(value);
+  }
+
+  changeInput(event: any) {
+    let value = event.target.value;
+    this.colorpickerDialog.setColorFromString(value)
+    this.colorpickerChange.emit(value);
+    this.change.emit(value);
   }
 }
 
@@ -54,7 +65,6 @@ export class Md2Colorpicker implements OnInit {
     '(touchstart)': 'start($event)'
   }
 })
-
 export class ColorpickerSliderDirective {
   @Input('colorpicker-slider') slider: string;
   @Input('point-x') pointX: number;
@@ -106,7 +116,6 @@ export class ColorpickerSliderDirective {
   getX(event: any) {
     return (event.pageX !== undefined ? event.pageX : event.touches[0].pageX) - this.el.nativeElement.getBoundingClientRect().left - window.pageXOffset;
   }
-
   getY(event: any) {
     return (event.pageY !== undefined ? event.pageY : event.touches[0].pageY) - this.el.nativeElement.getBoundingClientRect().top - window.pageYOffset;
   }
@@ -145,13 +154,14 @@ export class ColorpickerSliderDirective {
   `],
   directives: [ColorpickerSliderDirective]
 })
-
 export class ColorpickerComponent implements OnInit {
   private hsva: Hsva;
   private outputColor: string;
+  private alphaColor: string;
   private hueSliderColor: string;
   private slider: SliderPosition;
   private sliderDim: SliderDimension;
+  private cFormat: string;
   private show: boolean;
   private top: number;
   private left: number;
@@ -159,15 +169,15 @@ export class ColorpickerComponent implements OnInit {
   private directiveInstance: any;
   private initialColor: string;
   private directiveElementRef: ElementRef;
+
   private mouseDown: any;
   private resize: any;
+
   private cPosition: string;
   private offset: number;
-  private cFormat: string;
+  private format: number;
   private actualHeight: number = 240;
   private actualWidth: number = 220;
-  private format: number;
-  private alphaColor: string;
 
   constructor(private el: ElementRef, private service: Md2ColorpickerService) { }
 
@@ -275,14 +285,49 @@ export class ColorpickerComponent implements OnInit {
     }
   }
 
+  setSaturation(val: { v: number, rg: number }) {
+    let hsla = this.service.hsva2hsla(this.hsva);
+    hsla.s = val.v / val.rg;
+    this.hsva = this.service.hsla2hsva(hsla);
+    this.update();
+  }
+
+  setLightness(val: { v: number, rg: number }) {
+    let hsla = this.service.hsva2hsla(this.hsva);
+    hsla.l = val.v / val.rg;
+    this.hsva = this.service.hsla2hsva(hsla);
+    this.update();
+  }
+
   setHue(val: { v: number, rg: number }) {
     this.hsva.h = val.v / val.rg;
     this.update();
   }
+
   setAlpha(val: { v: number, rg: number }) {
     this.hsva.a = val.v / val.rg;
     this.update();
   }
+
+  setR(val: { v: number, rg: number }) {
+    let rgba = this.service.hsvaToRgba(this.hsva);
+    rgba.r = val.v / val.rg;
+    this.hsva = this.service.rgbaToHsva(rgba);
+    this.update();
+  }
+  setG(val: { v: number, rg: number }) {
+    let rgba = this.service.hsvaToRgba(this.hsva);
+    rgba.g = val.v / val.rg;
+    this.hsva = this.service.rgbaToHsva(rgba);
+    this.update();
+  }
+  setB(val: { v: number, rg: number }) {
+    let rgba = this.service.hsvaToRgba(this.hsva);
+    rgba.b = val.v / val.rg;
+    this.hsva = this.service.rgbaToHsva(rgba);
+    this.update();
+  }
+
   setSaturationAndBrightness(val: { s: number, v: number, pointX: number, pointY: number }) {
     this.hsva.s = val.s / val.pointX;
     this.hsva.v = val.v / val.pointY;
@@ -296,6 +341,7 @@ export class ColorpickerComponent implements OnInit {
     }
     this.update();
   }
+
   formatPolicy() {
     this.format = (this.format + 1) % 3;
     if (this.format === 0 && this.hsva.a < 1) {
@@ -303,15 +349,19 @@ export class ColorpickerComponent implements OnInit {
     }
     return this.format;
   }
+
   update() {
     let hsla = this.service.hsva2hsla(this.hsva);
     let rgba = this.service.denormalizeRGBA(this.service.hsvaToRgba(this.hsva));
     let hueRgba = this.service.denormalizeRGBA(this.service.hsvaToRgba(new Hsva(this.hsva.h, 1, 1, 1)));
+
     this.alphaColor = 'rgb(' + rgba.r + ',' + rgba.g + ',' + rgba.b + ')';
     this.hueSliderColor = 'rgb(' + hueRgba.r + ',' + hueRgba.g + ',' + hueRgba.b + ')';
+
     if (this.format === 0 && this.hsva.a < 1) {
       this.format++;
     }
+
     this.outputColor = this.service.outputFormat(this.hsva, this.cFormat);
 
     this.slider = new SliderPosition((this.hsva.h) * this.sliderDim.h - 8, this.hsva.s * this.sliderDim.s - 8,
