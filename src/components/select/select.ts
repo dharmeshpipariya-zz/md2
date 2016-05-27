@@ -1,6 +1,8 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, Provider, ViewEncapsulation, forwardRef, ElementRef} from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/common';
 
+const noop = () => { };
+
 let nextId = 0;
 
 const MD2_SELECT_CONTROL_VALUE_ACCESSOR = new Provider(
@@ -14,8 +16,8 @@ const MD2_SELECT_CONTROL_VALUE_ACCESSOR = new Provider(
   template: `
     <div class="md2-select-layout">
       <div class="md2-select-container">
-        <span *ngIf="activeItem.length <= 0" class="md2-select-placeholder">{{placeholder}}</span>
-        <span *ngIf="activeItem.length > 0" class="md2-select-value">{{activeItem[0].text}}</span>
+        <span *ngIf="selectedValue.length <= 0" class="md2-select-placeholder">{{placeholder}}</span>
+        <span *ngIf="selectedValue.length > 0" class="md2-select-value">{{selectedValue}}</span>
         <i class="md2-select-icon"></i>
       </div>
       <ul *ngIf="isMenuOpened && list && list.length > 0" class="md2-select-menu">
@@ -60,14 +62,6 @@ const MD2_SELECT_CONTROL_VALUE_ACCESSOR = new Provider(
 })
 
 export class Md2Select implements ControlValueAccessor {
-  public list: Array<Item> = [];
-  public activeItem: Array<Item> = [];
-  public currentItem: Item;
-  private isMenuOpened: boolean = false;
-  private isOpenable: boolean = true;
-  private behavior: IListsBehavior;
-  private _items: Array<any> = [];
-  private _item: any = '';
 
   @Input() id: string = 'md2-select-' + (++nextId);
 
@@ -85,37 +79,53 @@ export class Md2Select implements ControlValueAccessor {
 
   @Output() change: EventEmitter<any> = new EventEmitter<any>();
 
+  public list: Array<Item> = [];
+  public selectedValue: string = '';
+  public currentItem: Item;
+  private isMenuOpened: boolean = false;
+  private isOpenable: boolean = true;
+  private behavior: IListsBehavior;
+  private _items: Array<any> = [];
+  private _value: any = '';
+  private _isInitialized: boolean = false;
+
   constructor(public element: ElementRef) { }
 
   ngOnInit() {
     this.behavior = new GenericBehavior(this);
   }
 
+  ngAfterContentInit() {
+    this._isInitialized = true;
+  }
+
   get value() {
-    return this._item;
+    return this._value;
   }
   set value(value: any) {
-    this._item = value;
+    this._value = value;
     if (value && typeof value === 'string') {
-      this.activeItem = [];
-      this.activeItem.push({ text: value });
+      this.selectedValue = value;
     }
     if (value && value.length && typeof value === 'object') {
-      this.activeItem = [];
       if (Array.isArray(value)) {
-        this.activeItem.push({ text: value[0][this.itemText] });
+        this.selectedValue = value[0][this.itemText];
       } else {
-        this.activeItem.push({ text: value[this.itemText] });
+        this.selectedValue = value[this.itemText];
       }
     }
-    //this.change.emit(value);
+
+    if (this._isInitialized) {
+      //this.change.emit(this._value);
+      this._onChangeCallback(this._value);
+    }
   }
 
   private openMenu() {
     this.list = this._items.map((item: any) => new Item(item, this.itemText));
     if (this.list.length > 0 && this.isOpenable) {
-      if (this.activeItem.length > 0) {
-        this.currentItem = this.list.find((item: any) => item.text === this.activeItem[0].text);
+      if (this.selectedValue.length > 0) {
+        this.currentItem = this.list.find((item: any) => item.text === this.selectedValue);
       }
       this.isMenuOpened = true;
       setTimeout(() => { this.behavior.next(); }, 0);
@@ -123,38 +133,41 @@ export class Md2Select implements ControlValueAccessor {
     this.isOpenable = true;
   }
 
-  public doEvent(type: string, value: any) {
-    if ((<any>this)[type] && value) {
-      (<any>this)[type].next(value);
-    }
-  }
+  //public doEvent(type: string, value: any) {
+  //  if ((<any>this)[type] && value) {
+  //    (<any>this)[type].next(value);
+  //  }
+  //}
 
   private selectItemOnMatch(value: Item, e: Event = null) {
     if (e) { e.preventDefault(); }
     if (this.list.length <= 0) { return; }
 
-    this.activeItem[0] = value;
-    if (typeof this._item === 'string') {
-      this._item = '1' + this.activeItem[0].text;
+    this.selectedValue = value.text;
+    if (typeof this._value === 'string') {
+      this._value = this.selectedValue;
     }
-    if (typeof this._item === 'object') {
-      if (Array.isArray(this._item)) {
-        this._item[0] = this._items.find((item: any) => item[this.itemText] == value.text);
+    if (typeof this._value === 'object') {
+      if (Array.isArray(this._value)) {
+        this._value[0] = this._items.find((item: any) => item[this.itemText] == value.text);
       } else {
         let itm = this._items.find((item: any) => item[this.itemText] == value.text);
         for (let i in itm) {
-          this._item[i] = itm[i];
+          this._value[i] = itm[i];
         }
       }
     }
-
-    this.doEvent('change', this._item);
+    //this.value = this._value;
+    //this.doEvent('change', this._value);
+    if (this._isInitialized) {
+      //this.change.emit(this._value);
+      this._onChangeCallback(this._value);
+    }
     this.onBlurEvent(e);
   }
 
   private isActive(value: Item): boolean {
-    let index = this.activeItem.findIndex(item => item.text == value.text);
-    return index == -1 ? false : true;
+    return this.selectedValue === value.text ? true : false;
   }
 
   private isFocus(value: Item): boolean {
@@ -234,15 +247,30 @@ export class Md2Select implements ControlValueAccessor {
     this.openMenu();
   }
 
+  private _onChangeCallback: (_: any) => void = noop;
+
   onTouched: () => any = () => { };
+
+  private _changeSubscription: { unsubscribe: () => any } = null;
 
   writeValue(value: any) {
     this.value = value;
   }
 
-  registerOnChange(fn: any) { this.onTouched = fn; }
+  //registerOnChange(fn: any) {
+  //  if (this._changeSubscription) {
+  //    this._changeSubscription.unsubscribe();
+  //  }
+  //  this._changeSubscription = <{ unsubscribe: () => any }>this.change.subscribe(fn);
+  //}
 
-  registerOnTouched(fn: any) { this.onTouched = fn; }
+  registerOnChange(fn: any) {
+    this._onChangeCallback = fn;
+  }
+
+  registerOnTouched(fn: any) {
+    this.onTouched = fn;
+  }
 }
 
 export class Item {

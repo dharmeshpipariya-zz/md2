@@ -39,12 +39,14 @@ const MD2_AUTOCOMPLETE_CONTROL_VALUE_ACCESSOR = new Provider(
     .md2-autocomplete-container .md2-autocomplete-value .md2-autocomplete-icon-clear::before { -webkit-transform: rotate(45deg); -moz-transform: rotate(45deg); -ms-transform: rotate(45deg); -o-transform: rotate(45deg); transform: rotate(45deg); }
     .md2-autocomplete-container .md2-autocomplete-value .md2-autocomplete-icon-clear::after { -webkit-transform: rotate(-45deg); -moz-transform: rotate(-45deg); -ms-transform: rotate(-45deg); -o-transform: rotate(-45deg); transform: rotate(-45deg); }
     .md2-autocomplete-container .md2-autocomplete-suggestions { position: absolute; left: 0; top: 100%; display: block; z-index: 10; padding: 0; -ms-flex-direction: column; -webkit-flex-direction: column; flex-direction: column; width: 100%; margin: 0; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14), 0 2px 1px -1px rgba(0, 0, 0, 0.12); max-height: 256px; min-height: 48px; overflow-y: auto; -moz-transform: scale(1); -ms-transform: scale(1); -o-transform: scale(1); -webkit-transform: scale(1); transform: scale(1); background: #fff; }
-    .md2-autocomplete-container .md2-autocomplete-suggestions .md2-item { cursor: pointer; position: relative; display: block; align-items: center; width: auto; -moz-transition: background 0.15s linear; -o-transition: background 0.15s linear; -webkit-transition: background 0.15s linear; transition: background 0.15s linear; padding: 0 16px; height: 48px; line-height: 48px; }
+    .md2-autocomplete-container .md2-autocomplete-suggestions .md2-item { cursor: pointer; position: relative; display: block; align-items: center; color: #212121; width: auto; -moz-transition: background 0.15s linear; -o-transition: background 0.15s linear; -webkit-transition: background 0.15s linear; transition: background 0.15s linear; padding: 0 16px; height: 48px; line-height: 48px; }
     .md2-autocomplete-container .md2-autocomplete-suggestions .md2-item:hover, .md2-autocomplete-container .md2-autocomplete-suggestions .md2-item.active, .md2-autocomplete-container .md2-autocomplete-suggestions .md2-item.focus { background: #eeeeee; }
     .md2-autocomplete-container .md2-autocomplete-suggestions .md2-item .md2-text { width: auto; white-space: nowrap; overflow: hidden; -ms-text-overflow: ellipsis; -o-text-overflow: ellipsis; text-overflow: ellipsis; font-size: 16px; }
-    .highlight{color: #757575;}
+    .md2-autocomplete-container .md2-autocomplete-suggestions .highlight{color: #757575;}
   `],
-  providers: [MD2_AUTOCOMPLETE_CONTROL_VALUE_ACCESSOR]
+  providers: [MD2_AUTOCOMPLETE_CONTROL_VALUE_ACCESSOR],
+  encapsulation: ViewEncapsulation.None,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class Md2Autocomplete implements ControlValueAccessor {
   public list: Array<Item> = [];
@@ -107,6 +109,11 @@ export class Md2Autocomplete implements ControlValueAccessor {
         return;
       }
 
+      //let elem = e.target;
+      //do {
+      //  if (elem === context.element.nativeElement && elem.className && elem.className.indexOf('md2-autocomplete') < 0) { return; }
+      //  elem = elem.parentNode;
+      //} while (elem);
       context.isMenuOpened = false;
     };
   }
