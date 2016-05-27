@@ -90,7 +90,7 @@ export class Md2Select implements ControlValueAccessor {
     this._items = value;
   }
 
-  get value(): any { return this._value; };
+  get value(): any { return this._value; }
   @Input() set value(value: any) {
     if (value !== this._value) {
       this._value = value;
