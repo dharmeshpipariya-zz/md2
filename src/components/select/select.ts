@@ -1,22 +1,21 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, Provider, ViewEncapsulation, forwardRef, ElementRef} from '@angular/core';
+import { Component, EventEmitter, Input, Output, HostListener, Provider, ViewEncapsulation, forwardRef, ElementRef } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/common';
 
 const noop = () => { };
 
 let nextId = 0;
 
-const MD2_SELECT_CONTROL_VALUE_ACCESSOR = new Provider(
-  NG_VALUE_ACCESSOR, {
-    useExisting: forwardRef(() => Md2Select),
-    multi: true
-  });
+const MD2_SELECT_CONTROL_VALUE_ACCESSOR = new Provider(NG_VALUE_ACCESSOR, {
+  useExisting: forwardRef(() => Md2Select),
+  multi: true
+});
 
 @Component({
   selector: 'md2-select',
   template: `
     <div class="md2-select-layout">
       <div class="md2-select-container">
-        <span *ngIf="selectedValue.length <= 0" class="md2-select-placeholder">{{placeholder}}</span>
+        <span *ngIf="selectedValue.length < 1" class="md2-select-placeholder">{{placeholder}}</span>
         <span *ngIf="selectedValue.length > 0" class="md2-select-value">{{selectedValue}}</span>
         <i class="md2-select-icon"></i>
       </div>
@@ -51,43 +50,13 @@ const MD2_SELECT_CONTROL_VALUE_ACCESSOR = new Provider(
     '[class.md2-select]': 'true',
     '[class.md2-select-disabled]': 'disabled',
     '[tabindex]': 'disabled ? -1 : tabindex',
-    '[attr.aria-disabled]': 'disabled',
-    '(click)': 'onClickEvent($event)',
-    '(keydown)': 'onKeyEvent($event)',
-    '(blur)': 'onBlurEvent($event)'
+    '[attr.aria-disabled]': 'disabled'
   },
   providers: [MD2_SELECT_CONTROL_VALUE_ACCESSOR],
-  encapsulation: ViewEncapsulation.None,
-  changeDetection: ChangeDetectionStrategy.OnPush
+  encapsulation: ViewEncapsulation.None
 })
 
 export class Md2Select implements ControlValueAccessor {
-
-  @Input() id: string = 'md2-select-' + (++nextId);
-
-  @Input() disabled: boolean = false;
-
-  @Input() tabindex: number = 0;
-
-  @Input() placeholder: string = '';
-
-  @Input('item-text') itemText: string = 'text';
-
-  @Input() set items(value: Array<any>) {
-    this._items = value;
-  }
-
-  @Output() change: EventEmitter<any> = new EventEmitter<any>();
-
-  public list: Array<Item> = [];
-  public selectedValue: string = '';
-  public currentItem: Item;
-  private isMenuOpened: boolean = false;
-  private isOpenable: boolean = true;
-  private behavior: IListsBehavior;
-  private _items: Array<any> = [];
-  private _value: any = '';
-  private _isInitialized: boolean = false;
 
   constructor(public element: ElementRef) { }
 
@@ -95,30 +64,137 @@ export class Md2Select implements ControlValueAccessor {
     this.behavior = new GenericBehavior(this);
   }
 
-  ngAfterContentInit() {
-    this._isInitialized = true;
+  @Output() change: EventEmitter<any> = new EventEmitter<any>();
+
+  private _value: any = '';
+  private _onTouchedCallback: () => void = noop;
+  private _onChangeCallback: (_: any) => void = noop;
+
+  private isOpenable: boolean = true;
+  private selectedValue: string = '';
+  private isMenuOpened: boolean = false;
+  private behavior: IListsBehavior;
+  private _items: Array<any> = [];
+
+  public list: Array<Item> = [];
+  public currentItem: Item;
+
+  @Input() id: string = 'md2-select-' + (++nextId);
+  @Input() disabled: boolean = false;
+  @Input() tabindex: number = 0;
+  @Input() placeholder: string = '';
+  @Input('item-text') itemText: string = 'text';
+
+  @Input() set items(value: Array<any>) {
+    this._items = value;
   }
 
-  get value() {
+  get value(): any {
     return this._value;
   }
-  set value(value: any) {
-    this._value = value;
-    if (value && typeof value === 'string') {
-      this.selectedValue = value;
-    }
-    if (value && value.length && typeof value === 'object') {
-      if (Array.isArray(value)) {
-        this.selectedValue = value[0][this.itemText];
-      } else {
-        this.selectedValue = value[this.itemText];
+  @Input() set value(value: any) {
+    this.setValue(value);
+  }
+
+  public setValue(value: any) {
+    if (value !== this._value) {
+      this._value = value;
+      this.selectedValue = '';
+      if (value && typeof value === 'string') {
+        this.selectedValue = value;
       }
+      if (value && typeof value === 'object') {
+        if (value.length && Array.isArray(value)) {
+          this.selectedValue = value[0][this.itemText];
+        } else {
+          this.selectedValue = value[this.itemText];
+        }
+      }
+      this._onChangeCallback(value);
+      this.change.emit(this._value);
+    }
+  }
+
+  @HostListener('click', ['$event'])
+  public onClick(e: any) {
+    if (this.disabled) {
+      e.stopPropagation();
+      e.preventDefault();
+      return;
+    }
+    this.list = this._items.map((item: any) => new Item(item, this.itemText));
+    if (this.list.length > 0 && this.isOpenable) {
+      if (this.selectedValue.length > 0) {
+        this.currentItem = this.list.find((item: any) => item.text === this.selectedValue);
+      }
+      this.isMenuOpened = true;
+    }
+    this.isOpenable = true;
+  }
+
+  @HostListener('keydown', ['$event'])
+  public onKeyDown(e: any) {
+    // check enabled
+    if (this.disabled === true) { return; }
+
+    // Tab Key
+    if (e.keyCode === 9) {
+      if (this.isMenuOpened) {
+        this.onBlur();
+        e.preventDefault();
+      }
+      return;
     }
 
-    if (this._isInitialized) {
-      //this.change.emit(this._value);
-      this._onChangeCallback(this._value);
+    // Escape Key
+    if (e.keyCode === 27) {
+      this.onBlur();
+      e.stopPropagation();
+      e.preventDefault();
+      return;
     }
+
+    // Up Arrow
+    if (e.keyCode === 38) {
+      this.behavior.prev();
+      if (!this.isMenuOpened) {
+        this.onClick(e);
+      }
+      e.stopPropagation();
+      e.preventDefault();
+      return;
+    }
+
+    // Down Arrow
+    if (e.keyCode === 40) {
+      this.behavior.next();
+      if (!this.isMenuOpened) {
+        this.onClick(e);
+      }
+      e.stopPropagation();
+      e.preventDefault();
+      return;
+    }
+
+    // Enter / Space
+    if (e.keyCode === 13 || e.keyCode === 32) {
+      if (this.isMenuOpened) {
+        this.selectItemOnMatch(this.currentItem, e);
+      } else {
+        this.onClick(e);
+      }
+      e.preventDefault();
+      return;
+    }
+  }
+
+  @HostListener('blur')
+  public onBlur() {
+    this.isMenuOpened = false;
+    this.isOpenable = false;
+    setTimeout(() => {
+      this.isOpenable = true;
+    }, 200);
   }
 
   private openMenu() {
@@ -133,12 +209,6 @@ export class Md2Select implements ControlValueAccessor {
     this.isOpenable = true;
   }
 
-  //public doEvent(type: string, value: any) {
-  //  if ((<any>this)[type] && value) {
-  //    (<any>this)[type].next(value);
-  //  }
-  //}
-
   private selectItemOnMatch(value: Item, e: Event = null) {
     if (e) { e.preventDefault(); }
     if (this.list.length <= 0) { return; }
@@ -149,21 +219,19 @@ export class Md2Select implements ControlValueAccessor {
     }
     if (typeof this._value === 'object') {
       if (Array.isArray(this._value)) {
-        this._value[0] = this._items.find((item: any) => item[this.itemText] == value.text);
+        this._value = new Array<any>();
+        this._value.push(this._items.find((item: any) => item[this.itemText] == value.text));
       } else {
+        this._value = new Object();
         let itm = this._items.find((item: any) => item[this.itemText] == value.text);
         for (let i in itm) {
           this._value[i] = itm[i];
         }
       }
     }
-    //this.value = this._value;
-    //this.doEvent('change', this._value);
-    if (this._isInitialized) {
-      //this.change.emit(this._value);
-      this._onChangeCallback(this._value);
-    }
-    this.onBlurEvent(e);
+    this._onChangeCallback(this._value);
+    this.change.emit(this._value);
+    this.onBlur();
   }
 
   private isActive(value: Item): boolean {
@@ -175,102 +243,12 @@ export class Md2Select implements ControlValueAccessor {
     return false;
   }
 
-  onBlurEvent(e: Event) {
-    this.isMenuOpened = false;
-    this.isOpenable = false;
-    setTimeout(() => {
-      this.isOpenable = true;
-    }, 200);
-  }
+  writeValue(value: any) { this.setValue(value); }
 
-  onKeyEvent(e: any) {
-    // check enabled
-    if (this.disabled === true) { return; }
+  registerOnChange(fn: any) { this._onChangeCallback = fn; }
 
-    // Tab Key
-    if (e.keyCode === 9) {
-      if (this.isMenuOpened) {
-        this.onBlurEvent(e);
-        e.preventDefault();
-      }
-      return;
-    }
+  registerOnTouched(fn: any) { this._onTouchedCallback = fn; }
 
-    // Escape Key
-    if (e.keyCode === 27) {
-      this.onBlurEvent(e);
-      e.stopPropagation();
-      e.preventDefault();
-      return;
-    }
-
-    // Up Arrow
-    if (e.keyCode === 38) {
-      this.behavior.prev();
-      if (!this.isMenuOpened) {
-        this.onClickEvent(e);
-      }
-      e.stopPropagation();
-      e.preventDefault();
-      return;
-    }
-
-    // Down Arrow
-    if (e.keyCode === 40) {
-      this.behavior.next();
-      if (!this.isMenuOpened) {
-        this.onClickEvent(e);
-      }
-      e.stopPropagation();
-      e.preventDefault();
-      return;
-    }
-
-    // Enter / Space
-    if (e.keyCode === 13 || e.keyCode === 32) {
-      if (this.isMenuOpened) {
-        this.selectItemOnMatch(this.currentItem, e);
-      } else {
-        this.onClickEvent(e);
-      }
-      e.preventDefault();
-      return;
-    }
-  }
-
-  onClickEvent(e: Event) {
-    if (this.disabled) {
-      e.stopPropagation();
-      e.preventDefault();
-      return;
-    }
-    this.openMenu();
-  }
-
-  private _onChangeCallback: (_: any) => void = noop;
-
-  onTouched: () => any = () => { };
-
-  private _changeSubscription: { unsubscribe: () => any } = null;
-
-  writeValue(value: any) {
-    this.value = value;
-  }
-
-  //registerOnChange(fn: any) {
-  //  if (this._changeSubscription) {
-  //    this._changeSubscription.unsubscribe();
-  //  }
-  //  this._changeSubscription = <{ unsubscribe: () => any }>this.change.subscribe(fn);
-  //}
-
-  registerOnChange(fn: any) {
-    this._onChangeCallback = fn;
-  }
-
-  registerOnTouched(fn: any) {
-    this.onTouched = fn;
-  }
 }
 
 export class Item {
