@@ -10,13 +10,12 @@ const MD2_SELECT_CONTROL_VALUE_ACCESSOR = new Provider(NG_VALUE_ACCESSOR, {
   multi: true
 });
 
-
 @Component({
   selector: 'md2-select',
   template: `
     <div class="md2-select-layout">
       <div class="md2-select-container">
-        <span *ngIf="selectedValue.length <= 0" class="md2-select-placeholder">{{placeholder}}</span>
+        <span *ngIf="selectedValue.length < 1" class="md2-select-placeholder">{{placeholder}}</span>
         <span *ngIf="selectedValue.length > 0" class="md2-select-value">{{selectedValue}}</span>
         <i class="md2-select-icon"></i>
       </div>
@@ -90,21 +89,29 @@ export class Md2Select implements ControlValueAccessor {
     this._items = value;
   }
 
-  get value(): any { return this._value; }
+  get value(): any {
+    return this._value;
+  }
   @Input() set value(value: any) {
+    this.setValue(value);
+  }
+
+  public setValue(value: any) {
     if (value !== this._value) {
       this._value = value;
+      this.selectedValue = '';
       if (value && typeof value === 'string') {
         this.selectedValue = value;
       }
-      if (value && value.length && typeof value === 'object') {
-        if (Array.isArray(value)) {
+      if (value && typeof value === 'object') {
+        if (value.length && Array.isArray(value)) {
           this.selectedValue = value[0][this.itemText];
         } else {
           this.selectedValue = value[this.itemText];
         }
       }
       this._onChangeCallback(value);
+      this.change.emit(this._value);
     }
   }
 
@@ -121,7 +128,6 @@ export class Md2Select implements ControlValueAccessor {
         this.currentItem = this.list.find((item: any) => item.text === this.selectedValue);
       }
       this.isMenuOpened = true;
-      //setTimeout(() => { this.behavior.next(); }, 0);
     }
     this.isOpenable = true;
   }
@@ -191,7 +197,6 @@ export class Md2Select implements ControlValueAccessor {
     }, 200);
   }
 
-  //========================================================================================================================
   private openMenu() {
     this.list = this._items.map((item: any) => new Item(item, this.itemText));
     if (this.list.length > 0 && this.isOpenable) {
@@ -204,12 +209,6 @@ export class Md2Select implements ControlValueAccessor {
     this.isOpenable = true;
   }
 
-  public doEvent(type: string, value: any) {
-    if ((<any>this)[type] && value) {
-      (<any>this)[type].next(value);
-    }
-  }
-
   private selectItemOnMatch(value: Item, e: Event = null) {
     if (e) { e.preventDefault(); }
     if (this.list.length <= 0) { return; }
@@ -220,18 +219,18 @@ export class Md2Select implements ControlValueAccessor {
     }
     if (typeof this._value === 'object') {
       if (Array.isArray(this._value)) {
-        this._value[0] = this._items.find((item: any) => item[this.itemText] == value.text);
+        this._value = new Array<any>();
+        this._value.push(this._items.find((item: any) => item[this.itemText] == value.text));
       } else {
+        this._value = new Object();
         let itm = this._items.find((item: any) => item[this.itemText] == value.text);
         for (let i in itm) {
           this._value[i] = itm[i];
         }
       }
     }
-    //this.value = this._value;
-    this.doEvent('change', this._value);
-
-    //this.change.emit(this._value);
+    this._onChangeCallback(this._value);
+    this.change.emit(this._value);
     this.onBlur();
   }
 
@@ -244,22 +243,13 @@ export class Md2Select implements ControlValueAccessor {
     return false;
   }
 
-
-
-
-  writeValue(value: any) { this._value = value; }
+  writeValue(value: any) { this.setValue(value); }
 
   registerOnChange(fn: any) { this._onChangeCallback = fn; }
 
   registerOnTouched(fn: any) { this._onTouchedCallback = fn; }
 
 }
-
-
-
-
-
-
 
 export class Item {
   public text: string;
