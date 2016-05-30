@@ -10,21 +10,21 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 const core_1 = require('@angular/core');
 const colorpicker_1 = require('./colorpicker');
-let ColorpickerService = class ColorpickerService {
+let Md2ColorpickerService = class Md2ColorpickerService {
     constructor() {
     }
     hsla2hsva(hsla) {
-        var h = Math.min(hsla.h, 1), s = Math.min(hsla.s, 1), l = Math.min(hsla.l, 1), a = Math.min(hsla.a, 1);
+        let h = Math.min(hsla.h, 1), s = Math.min(hsla.s, 1), l = Math.min(hsla.l, 1), a = Math.min(hsla.a, 1);
         if (l === 0) {
             return { h: h, s: 0, v: 0, a: a };
         }
         else {
-            var v = l + s * (1 - Math.abs(2 * l - 1)) / 2;
+            let v = l + s * (1 - Math.abs(2 * l - 1)) / 2;
             return { h: h, s: 2 * (v - l) / v, v: v, a: a };
         }
     }
     hsva2hsla(hsva) {
-        var h = hsva.h, s = hsva.s, v = hsva.v, a = hsva.a;
+        let h = hsva.h, s = hsva.s, v = hsva.v, a = hsva.a;
         if (v === 0) {
             return new colorpicker_1.Hsla(h, 0, 0, a);
         }
@@ -32,15 +32,15 @@ let ColorpickerService = class ColorpickerService {
             return new colorpicker_1.Hsla(h, 1, 1, a);
         }
         else {
-            var l = v * (2 - s) / 2;
+            let l = v * (2 - s) / 2;
             return new colorpicker_1.Hsla(h, v * s / (1 - Math.abs(2 * l - 1)), l, a);
         }
     }
     rgbaToHsva(rgba) {
-        var r = Math.min(rgba.r, 1), g = Math.min(rgba.g, 1), b = Math.min(rgba.b, 1), a = Math.min(rgba.a, 1);
-        var max = Math.max(r, g, b), min = Math.min(r, g, b);
-        var h, s, v = max;
-        var d = max - min;
+        let r = Math.min(rgba.r, 1), g = Math.min(rgba.g, 1), b = Math.min(rgba.b, 1), a = Math.min(rgba.a, 1);
+        let max = Math.max(r, g, b), min = Math.min(r, g, b);
+        let h, s, v = max;
+        let d = max - min;
         s = max === 0 ? 0 : d / max;
         if (max === min) {
             h = 0;
@@ -62,13 +62,13 @@ let ColorpickerService = class ColorpickerService {
         return new colorpicker_1.Hsva(h, s, v, a);
     }
     hsvaToRgba(hsva) {
-        var h = hsva.h, s = hsva.s, v = hsva.v, a = hsva.a;
-        var r, g, b;
-        var i = Math.floor(h * 6);
-        var f = h * 6 - i;
-        var p = v * (1 - s);
-        var q = v * (1 - f * s);
-        var t = v * (1 - (1 - f) * s);
+        let h = hsva.h, s = hsva.s, v = hsva.v, a = hsva.a;
+        let r, g, b;
+        let i = Math.floor(h * 6);
+        let f = h * 6 - i;
+        let p = v * (1 - s);
+        let q = v * (1 - f * s);
+        let t = v * (1 - (1 - f) * s);
         switch (i % 6) {
             case 0:
                 r = v, g = t, b = p;
@@ -92,7 +92,7 @@ let ColorpickerService = class ColorpickerService {
         return new colorpicker_1.Rgba(r, g, b, a);
     }
     stringToHsva(colorString) {
-        var stringParsers = [
+        let stringParsers = [
             {
                 re: /(rgb)a?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*%?,\s*(\d{1,3})\s*%?(?:,\s*(\d+(?:\.\d+)?)\s*)?\)/,
                 parse: function (execResult) {
@@ -119,11 +119,11 @@ let ColorpickerService = class ColorpickerService {
             }
         ];
         colorString = colorString.toLowerCase();
-        var hsva = null;
-        for (var key in stringParsers) {
+        let hsva = null;
+        for (let key in stringParsers) {
             if (stringParsers.hasOwnProperty(key)) {
-                var parser = stringParsers[key];
-                var match = parser.re.exec(colorString), color = match && parser.parse(match);
+                let parser = stringParsers[key];
+                let match = parser.re.exec(colorString), color = match && parser.parse(match);
                 if (color) {
                     if (color instanceof colorpicker_1.Rgba) {
                         hsva = this.rgbaToHsva(color);
@@ -174,10 +174,10 @@ let ColorpickerService = class ColorpickerService {
         return new colorpicker_1.Rgba(Math.round(rgba.r * 255), Math.round(rgba.g * 255), Math.round(rgba.b * 255), rgba.a);
     }
 };
-ColorpickerService = __decorate([
+Md2ColorpickerService = __decorate([
     core_1.Injectable(), 
     __metadata('design:paramtypes', [])
-], ColorpickerService);
-exports.ColorpickerService = ColorpickerService;
+], Md2ColorpickerService);
+exports.Md2ColorpickerService = Md2ColorpickerService;
 
 //# sourceMappingURL=colorpicker.service.js.map

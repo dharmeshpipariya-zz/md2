@@ -16,7 +16,7 @@ Example:
 
 ...
 
-import {Md2Tabs} from 'md2/tabs';
+import {TABS_DIRECTIVES} from 'md2/tabs';
 
 @Component({
     selector: "...",

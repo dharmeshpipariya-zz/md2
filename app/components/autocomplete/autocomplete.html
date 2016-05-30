@@ -9,6 +9,15 @@
                         (change)="change($event)"
                         placeholder="No city selected">
       </md2-autocomplete>
+      <hr />
+      <pre>{{item | json}}</pre>
+      <md2-autocomplete [items]="items"
+                        item-text="name"
+                        [(ngModel)]="item"
+                        [disabled]="disabled"
+                        (change)="change($event)"
+                        placeholder="No city selected">
+      </md2-autocomplete>
     </div>
     <div class="col-sm-6">
       <p>The <strong>autocomplete component</strong> is to provide a searching and selecting functionality.</p>

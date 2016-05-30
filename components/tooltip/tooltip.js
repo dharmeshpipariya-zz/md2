@@ -19,7 +19,7 @@ let Md2Tooltip = class Md2Tooltip {
         this.viewContainerRef = viewContainerRef;
         this.loader = loader;
     }
-    show(event, target) {
+    show(event) {
         if (this.visible) {
             return;
         }
@@ -42,7 +42,7 @@ let Md2Tooltip = class Md2Tooltip {
             });
         }, this.delay);
     }
-    hide(event, target) {
+    hide(event) {
         clearTimeout(this.timer);
         if (!this.visible) {
             return;
@@ -68,15 +68,23 @@ __decorate([
     core_1.Input('tooltip-delay'), 
     __metadata('design:type', Number)
 ], Md2Tooltip.prototype, "delay", void 0);
+__decorate([
+    core_1.HostListener('focusin', ['$event']),
+    core_1.HostListener('mouseenter', ['$event']), 
+    __metadata('design:type', Function), 
+    __metadata('design:paramtypes', [Event]), 
+    __metadata('design:returntype', void 0)
+], Md2Tooltip.prototype, "show", null);
+__decorate([
+    core_1.HostListener('focusout', ['$event']),
+    core_1.HostListener('mouseleave', ['$event']), 
+    __metadata('design:type', Function), 
+    __metadata('design:paramtypes', [Event]), 
+    __metadata('design:returntype', void 0)
+], Md2Tooltip.prototype, "hide", null);
 Md2Tooltip = __decorate([
     core_1.Directive({
-        selector: '[tooltip]',
-        host: {
-            '(focusin)': 'show($event, $target)',
-            '(mouseenter)': 'show($event, $target)',
-            '(focusout)': 'hide($event, $target)',
-            '(mouseleave)': 'hide($event, $target)'
-        },
+        selector: '[tooltip]'
     }), 
     __metadata('design:paramtypes', [core_1.ViewContainerRef, core_1.DynamicComponentLoader])
 ], Md2Tooltip);

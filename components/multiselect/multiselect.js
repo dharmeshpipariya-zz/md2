@@ -10,6 +10,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 const core_1 = require('@angular/core');
 const common_1 = require('@angular/common');
+const noop = () => { };
 let nextId = 0;
 const MD2_MULTISELECT_CONTROL_VALUE_ACCESSOR = new core_1.Provider(common_1.NG_VALUE_ACCESSOR, {
     useExisting: core_1.forwardRef(() => Md2Multiselect),
@@ -18,71 +19,58 @@ const MD2_MULTISELECT_CONTROL_VALUE_ACCESSOR = new core_1.Provider(common_1.NG_V
 let Md2Multiselect = class Md2Multiselect {
     constructor(element) {
         this.element = element;
-        this.list = [];
-        this.activeItem = [];
+        this.change = new core_1.EventEmitter();
+        this._value = '';
+        this._onTouchedCallback = noop;
+        this._onChangeCallback = noop;
+        this.selectedValue = [];
         this.isMenuOpened = false;
         this._items = [];
-        this._item = '';
+        this.list = [];
         this.id = 'md2-multiselect-' + (++nextId);
         this.disabled = false;
         this.tabindex = 0;
         this.placeholder = '';
         this.itemText = 'text';
-        this.change = new core_1.EventEmitter();
-        this.onTouched = () => { };
-    }
-    set items(value) {
-        this._items = value;
     }
     ngOnInit() {
         this.behavior = new GenericBehavior(this);
     }
-    openMenu() {
+    set items(value) {
+        this._items = value;
+    }
+    get value() {
+        return this._value;
+    }
+    set value(value) {
+        this.setValue(value);
+    }
+    setValue(value) {
+        if (value !== this._value) {
+            this._value = value;
+            this.selectedValue = [];
+            if (value && value.length && typeof value === 'object' && Array.isArray(value)) {
+                for (let i = 0; i < value.length; i++) {
+                    this.selectedValue.push({ text: value[i][this.itemText] });
+                }
+            }
+            this._onChangeCallback(value);
+            this.change.emit(this._value);
+        }
+    }
+    onClick(e) {
+        if (this.disabled) {
+            e.stopPropagation();
+            e.preventDefault();
+            return;
+        }
         this.list = this._items.map((item) => new Item(item, this.itemText));
         if (this.list.length > 0) {
             this.isMenuOpened = true;
             this.behavior.first();
         }
     }
-    doEvent(type, value) {
-        if (this[type] && value) {
-            this[type].next(value);
-        }
-    }
-    selectItemOnMatch(value, e = null) {
-        if (e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-        if (this.list.length <= 0) {
-            return;
-        }
-        let index = this.activeItem.findIndex(item => item.text === value.text);
-        let itm = this._items.find((item) => item[this.itemText] === value.text);
-        if (index == -1) {
-            //let ind = this.list.findIndex(item => item.text == value.text);
-            //let ind1 = this.activeItem.findIndex(item => item.text == this.list[ind+1].text);
-            this._item.push(itm);
-            this.activeItem.push(value);
-        }
-        else {
-            this.activeItem.splice(index, 1);
-            this._item.splice(index, 1);
-        }
-        this.doEvent('change', itm);
-    }
-    isActive(value) {
-        let index = this.activeItem.findIndex(item => item.text == value.text);
-        return index == -1 ? false : true;
-    }
-    isFocus(value) {
-        if (this.currentItem) {
-            return this.currentItem.text === value.text;
-        }
-        return false;
-    }
-    onBlurEvent(e) { this.isMenuOpened = false; }
-    onKeyEvent(e) {
+    onKeyDown(e) {
         // check enabled
         if (this.disabled === true) {
             return;
@@ -90,14 +78,14 @@ let Md2Multiselect = class Md2Multiselect {
         // Tab Key
         if (e.keyCode === 9) {
             if (this.isMenuOpened) {
-                this.onBlurEvent(e);
+                this.onBlur();
                 e.preventDefault();
             }
             return;
         }
         // Escape Key
         if (e.keyCode === 27) {
-            this.onBlurEvent(e);
+            this.onBlur();
             e.stopPropagation();
             e.preventDefault();
             return;
@@ -106,7 +94,7 @@ let Md2Multiselect = class Md2Multiselect {
         if (e.keyCode === 38) {
             this.behavior.prev();
             if (!this.isMenuOpened) {
-                this.onClickEvent(e);
+                this.onClick(e);
             }
             e.stopPropagation();
             e.preventDefault();
@@ -116,7 +104,7 @@ let Md2Multiselect = class Md2Multiselect {
         if (e.keyCode === 40) {
             this.behavior.next();
             if (!this.isMenuOpened) {
-                this.onClickEvent(e);
+                this.onClick(e);
             }
             e.stopPropagation();
             e.preventDefault();
@@ -128,38 +116,54 @@ let Md2Multiselect = class Md2Multiselect {
                 this.selectItemOnMatch(this.currentItem, e);
             }
             else {
-                this.onClickEvent(e);
+                this.onClick(e);
             }
             e.preventDefault();
             return;
         }
     }
-    onClickEvent(e) {
-        if (this.disabled) {
+    onBlur() { this.isMenuOpened = false; }
+    selectItemOnMatch(value, e = null) {
+        if (e) {
+            e.preventDefault();
             e.stopPropagation();
-            e.preventDefault();
+        }
+        if (this.list.length <= 0) {
             return;
         }
-        this.openMenu();
-    }
-    writeValue(value) {
-        this._item = value;
-        if (this._item && typeof this._item === 'string') {
-            this.activeItem = [];
-            for (let i = 0; i < this._item.length; i++) {
-                this.activeItem.push({ text: this._item[i] });
-            }
+        let index = this.selectedValue.findIndex(item => item.text === value.text);
+        if (index == -1) {
+            this.selectedValue.push(value);
+            this.selectedValue = this.selectedValue.sort((a, b) => { return this.list.findIndex(item => item.text == a.text) - this.list.findIndex(item => item.text == b.text); });
         }
-        if (this._item && typeof this._item === 'object') {
-            this.activeItem = [];
-            for (let i = 0; i < this._item.length; i++) {
-                this.activeItem.push({ text: this._item[i][this.itemText] });
-            }
+        else {
+            this.selectedValue.splice(index, 1);
         }
+        this._value = new Array();
+        for (let i = 0; i < this.selectedValue.length; i++) {
+            this._value.push(this._items.find((item) => item[this.itemText] === this.selectedValue[i].text));
+        }
+        this._onChangeCallback(this._value);
+        this.change.emit(this._value);
     }
-    registerOnChange(fn) { this.onTouched = fn; }
-    registerOnTouched(fn) { this.onTouched = fn; }
+    isActive(value) {
+        let index = this.selectedValue.findIndex(item => item.text === value.text);
+        return index == -1 ? false : true;
+    }
+    isFocus(value) {
+        if (this.currentItem) {
+            return this.currentItem.text === value.text;
+        }
+        return false;
+    }
+    writeValue(value) { this.setValue(value); }
+    registerOnChange(fn) { this._onChangeCallback = fn; }
+    registerOnTouched(fn) { this._onTouchedCallback = fn; }
 };
+__decorate([
+    core_1.Output(), 
+    __metadata('design:type', core_1.EventEmitter)
+], Md2Multiselect.prototype, "change", void 0);
 __decorate([
     core_1.Input(), 
     __metadata('design:type', String)
@@ -186,19 +190,37 @@ __decorate([
     __metadata('design:paramtypes', [Array])
 ], Md2Multiselect.prototype, "items", null);
 __decorate([
-    core_1.Output(), 
-    __metadata('design:type', core_1.EventEmitter)
-], Md2Multiselect.prototype, "change", void 0);
+    core_1.Input(), 
+    __metadata('design:type', Object)
+], Md2Multiselect.prototype, "value", null);
+__decorate([
+    core_1.HostListener('click', ['$event']), 
+    __metadata('design:type', Function), 
+    __metadata('design:paramtypes', [Object]), 
+    __metadata('design:returntype', void 0)
+], Md2Multiselect.prototype, "onClick", null);
+__decorate([
+    core_1.HostListener('keydown', ['$event']), 
+    __metadata('design:type', Function), 
+    __metadata('design:paramtypes', [Object]), 
+    __metadata('design:returntype', void 0)
+], Md2Multiselect.prototype, "onKeyDown", null);
+__decorate([
+    core_1.HostListener('blur'), 
+    __metadata('design:type', Function), 
+    __metadata('design:paramtypes', []), 
+    __metadata('design:returntype', void 0)
+], Md2Multiselect.prototype, "onBlur", null);
 Md2Multiselect = __decorate([
     core_1.Component({
         selector: 'md2-multiselect',
         template: `
     <div class="md2-multiselect-layout">
       <div class="md2-multiselect-container">
-        <span *ngIf="activeItem.length <= 0" class="md2-multiselect-placeholder">{{placeholder}}</span>
+        <span *ngIf="selectedValue.length < 1" class="md2-multiselect-placeholder">{{placeholder}}</span>
         <span class="md2-multiselect-value">
-          <span *ngFor="let a of activeItem; let last = last" class="md2-multiselect-value-item">
-            <span class="md2-multiselect-text">{{a.text}}</span><span *ngIf="!last">,&nbsp;</span>
+          <span *ngFor="let v of selectedValue; let last = last" class="md2-multiselect-value-item">
+            <span class="md2-multiselect-text">{{v.text}}</span><span *ngIf="!last">,&nbsp;</span>
           </span>
         </span>
         <i class="md2-multiselect-icon"></i>
@@ -236,14 +258,10 @@ Md2Multiselect = __decorate([
             '[class.md2-multiselect]': 'true',
             '[class.md2-multiselect-disabled]': 'disabled',
             '[tabindex]': 'disabled ? -1 : tabindex',
-            '[attr.aria-disabled]': 'disabled',
-            '(click)': 'onClickEvent($event)',
-            '(keydown)': 'onKeyEvent($event)',
-            '(blur)': 'onBlurEvent($event)'
+            '[attr.aria-disabled]': 'disabled'
         },
         providers: [MD2_MULTISELECT_CONTROL_VALUE_ACCESSOR],
-        encapsulation: core_1.ViewEncapsulation.None,
-        changeDetection: core_1.ChangeDetectionStrategy.OnPush
+        encapsulation: core_1.ViewEncapsulation.None
     }), 
     __metadata('design:paramtypes', [core_1.ElementRef])
 ], Md2Multiselect);
@@ -272,7 +290,7 @@ class Behavior {
         return ai;
     }
     ensureHighlightVisible(listMap = null) {
-        let container = this.actor.element.nativeElement.querySelector('.md2-multiselect-menu');
+        let container = this.actor.element.nativeElement.querySelector('.md2-select-menu');
         if (!container) {
             return;
         }

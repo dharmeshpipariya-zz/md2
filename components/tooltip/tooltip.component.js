@@ -35,51 +35,39 @@ let Md2TooltipComponent = class Md2TooltipComponent {
         let targetElWidth = targetEl.offsetWidth;
         let targetElHeight = targetEl.offsetHeight;
         let shiftWidth = {
-            center: function () {
-                return hostElPos.left + hostElPos.width / 2 - targetElWidth / 2;
-            },
-            left: function () {
-                return hostElPos.left;
-            },
-            right: function () {
-                return hostElPos.left + hostElPos.width;
-            }
+            center: hostElPos.left + hostElPos.width / 2 - targetElWidth / 2,
+            left: hostElPos.left,
+            right: hostElPos.left + hostElPos.width
         };
         let shiftHeight = {
-            center: function () {
-                return hostElPos.top + hostElPos.height / 2 - targetElHeight / 2;
-            },
-            top: function () {
-                return hostElPos.top;
-            },
-            bottom: function () {
-                return hostElPos.top + hostElPos.height;
-            }
+            center: hostElPos.top + hostElPos.height / 2 - targetElHeight / 2,
+            top: hostElPos.top,
+            bottom: hostElPos.top + hostElPos.height
         };
         let targetElPos;
         switch (pos0) {
             case 'right':
                 targetElPos = {
-                    top: shiftHeight[pos1](),
-                    left: shiftWidth[pos0]()
+                    top: shiftHeight[pos1],
+                    left: shiftWidth[pos0]
                 };
                 break;
             case 'left':
                 targetElPos = {
-                    top: shiftHeight[pos1](),
+                    top: shiftHeight[pos1],
                     left: (hostElPos.left - targetElWidth) // > 0 ? (hostElPos.left - targetElWidth) : (hostElPos.width + hostElPos.left)
                 };
                 break;
             case 'top':
                 targetElPos = {
                     top: hostElPos.top - targetElHeight,
-                    left: shiftWidth[pos1]()
+                    left: shiftWidth[pos1]
                 };
                 break;
             default:
                 targetElPos = {
-                    top: shiftHeight[pos0](),
-                    left: shiftWidth[pos1]()
+                    top: shiftHeight[pos0],
+                    left: shiftWidth[pos1]
                 };
                 break;
         }
@@ -90,8 +78,8 @@ let Md2TooltipComponent = class Md2TooltipComponent {
         return {
             width: boundingClientRect.width || nativeEl.offsetWidth,
             height: boundingClientRect.height || nativeEl.offsetHeight,
-            top: boundingClientRect.top + (this.window.pageYOffset || this.document.documentElement.scrollTop),
-            left: boundingClientRect.left + (this.window.pageXOffset || this.document.documentElement.scrollLeft)
+            top: boundingClientRect.top + (this.window.pageYOffset || this.document.documentElement.scrollTop) - this.document.body.scrollTop,
+            left: boundingClientRect.left + (this.window.pageXOffset || this.document.documentElement.scrollLeft) - this.document.body.scrollLeft
         };
     }
     get window() { return window; }

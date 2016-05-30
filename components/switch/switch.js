@@ -24,6 +24,7 @@ let Md2Switch = class Md2Switch {
         this.change = new core_1.EventEmitter();
         this.onTouched = () => { };
         this._checked = false;
+        this._isInitialized = false;
         this._changeSubscription = null;
     }
     get checked() {
@@ -31,7 +32,12 @@ let Md2Switch = class Md2Switch {
     }
     set checked(checked) {
         this._checked = checked;
-        this.change.emit(this._checked);
+        if (this._isInitialized) {
+            this.change.emit(this._checked);
+        }
+    }
+    ngAfterContentInit() {
+        this._isInitialized = true;
     }
     get labelId() { return this.id + '-label'; }
     getAriaChecked() { return this.checked ? 'true' : 'false'; }

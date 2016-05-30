@@ -24,7 +24,9 @@ let Select = class Select {
         this.items1 = ['Amsterdam', 'Birmingham', 'Dortmund', 'Gothenburg', 'London', 'Seville'];
         this.item2 = 'Gothenburg';
         this.item = [{ name: 'Dortmund', value: '3' }];
-        this.item1 = { name: 'Dortmund', value: '3' }; //JSON.parse(JSON.stringify(this.items[0]));
+        //private item: any = { name: 'Dortmund', value: '3' };
+        //private item: string = 'Dortmund';
+        this.item1 = { name: 'Dortmund', value: '3' };
     }
     change(value) {
         console.log('Changed data: ', value);

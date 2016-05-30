@@ -3,7 +3,7 @@
   <div class="row">
     <div class="col-sm-6">
       <h4>Bind on Input Textbox</h4>
-      <input [(colorpicker)]="color" [style.background]="color" [value]="color" />
+      <input [(colorpicker)]="color" [style.background]="color" [value]="color" (change)="change($event)" />
       <br /><br />
       <h4>Bind on Div</h4>
       <div [(colorpicker)]="color2" [style.background]="color2" [style.color]="color2" position="right" style="width:35px;height:35px"></div>

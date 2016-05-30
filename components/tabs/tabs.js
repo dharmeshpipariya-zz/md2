@@ -81,7 +81,7 @@ Md2Tabs = __decorate([
     </div>
   `,
         styles: [`
-    .md2-tabs { background: #f6f6f6; border: 1px solid #e1e1e1; display: block; margin: 0; border-radius: 2px; overflow: hidden; position: relative; }
+    .md2-tabs { border: 1px solid #e1e1e1; display: block; margin: 0; border-radius: 2px; overflow: hidden; position: relative; }
     .md2-tabs-wrapper { position: relative; background: white; border-width: 0 0 1px; border-style: solid; border-color: rgba(0,0,0,0.12); display: block; margin: 0; padding: 0; list-style: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
     .md2-tabs-wrapper:after { content: ''; display: table; clear: both; }
     .md2-tab-item { position: relative; color: rgba(0,0,0,0.54); font-size: 14px; text-align: center; line-height: 24px; padding: 12px 24px; -moz-transition: background-color .35s cubic-bezier(.35,0,.25,1); -o-transition: background-color .35s cubic-bezier(.35,0,.25,1); -webkit-transition: background-color .35s cubic-bezier(.35,0,.25,1); transition: background-color .35s cubic-bezier(.35,0,.25,1); cursor: pointer; white-space: nowrap; text-transform: uppercase; float: left; font-weight: 500; -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box; overflow: hidden; -ms-text-overflow: ellipsis; -o-text-overflow: ellipsis; text-overflow: ellipsis; }

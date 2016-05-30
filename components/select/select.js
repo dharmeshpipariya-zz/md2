@@ -10,6 +10,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 const core_1 = require('@angular/core');
 const common_1 = require('@angular/common');
+const noop = () => { };
 let nextId = 0;
 const MD2_SELECT_CONTROL_VALUE_ACCESSOR = new core_1.Provider(common_1.NG_VALUE_ACCESSOR, {
     useExisting: core_1.forwardRef(() => Md2Select),
@@ -18,85 +19,68 @@ const MD2_SELECT_CONTROL_VALUE_ACCESSOR = new core_1.Provider(common_1.NG_VALUE_
 let Md2Select = class Md2Select {
     constructor(element) {
         this.element = element;
-        this.list = [];
-        this.activeItem = [];
-        this.isMenuOpened = false;
+        this.change = new core_1.EventEmitter();
+        this._value = '';
+        this._onTouchedCallback = noop;
+        this._onChangeCallback = noop;
         this.isOpenable = true;
+        this.selectedValue = '';
+        this.isMenuOpened = false;
         this._items = [];
-        this._item = '';
+        this.list = [];
         this.id = 'md2-select-' + (++nextId);
         this.disabled = false;
         this.tabindex = 0;
         this.placeholder = '';
         this.itemText = 'text';
-        this.change = new core_1.EventEmitter();
-        this.onTouched = () => { };
-    }
-    set items(value) {
-        this._items = value;
     }
     ngOnInit() {
         this.behavior = new GenericBehavior(this);
     }
-    openMenu() {
+    set items(value) {
+        this._items = value;
+    }
+    get value() {
+        return this._value;
+    }
+    set value(value) {
+        this.setValue(value);
+    }
+    setValue(value) {
+        if (value !== this._value) {
+            this._value = value;
+            this.selectedValue = '';
+            if (value && typeof value === 'string') {
+                this.selectedValue = value;
+            }
+            if (value && typeof value === 'object') {
+                if (value.length && Array.isArray(value)) {
+                    this.selectedValue = value[0][this.itemText];
+                }
+                else {
+                    this.selectedValue = value[this.itemText];
+                }
+            }
+            this._onChangeCallback(value);
+            this.change.emit(this._value);
+        }
+    }
+    onClick(e) {
+        if (this.disabled) {
+            e.stopPropagation();
+            e.preventDefault();
+            return;
+        }
         this.list = this._items.map((item) => new Item(item, this.itemText));
         if (this.list.length > 0 && this.isOpenable) {
-            if (this.activeItem.length > 0) {
-                this.currentItem = this.list.find((item) => item.text === this.activeItem[0].text);
+            if (this.selectedValue.length > 0) {
+                this.currentItem = this.list.find((item) => item.text === this.selectedValue);
             }
             this.isMenuOpened = true;
-            setTimeout(() => { this.behavior.next(); }, 0);
         }
         this.isOpenable = true;
     }
-    doEvent(type, value) {
-        if (this[type] && value) {
-            this[type].next(value);
-        }
-    }
-    selectItemOnMatch(value, e = null) {
-        if (e) {
-            e.preventDefault();
-        }
-        if (this.list.length <= 0) {
-            return;
-        }
-        this.activeItem[0] = value;
-        if (typeof this._item === 'string') {
-            this._item = '1' + this.activeItem[0].text;
-        }
-        if (typeof this._item === 'object') {
-            if (Array.isArray(this._item)) {
-                this._item[0] = this._items.find((item) => item[this.itemText] == value.text);
-            }
-            else {
-                let itm = this._items.find((item) => item[this.itemText] == value.text);
-                for (let i in itm) {
-                    this._item[i] = itm[i];
-                }
-            }
-        }
-        this.doEvent('change', this._item);
-        this.onBlurEvent(e);
-    }
-    isActive(value) {
-        let index = this.activeItem.findIndex(item => item.text == value.text);
-        return index == -1 ? false : true;
-    }
-    isFocus(value) {
-        if (this.currentItem) {
-            return this.currentItem.text === value.text;
-        }
-        return false;
-    }
-    onBlurEvent(e) {
-        this.isMenuOpened = false;
-        this.isOpenable = false;
-        setTimeout(() => {
-            this.isOpenable = true;
-        }, 200);
-    }
-    onKeyEvent(e) {
+    onKeyDown(e) {
         // check enabled
         if (this.disabled === true) {
             return;
@@ -104,14 +88,14 @@ let Md2Select = class Md2Select {
         // Tab Key
         if (e.keyCode === 9) {
             if (this.isMenuOpened) {
-                this.onBlurEvent(e);
+                this.onBlur();
                 e.preventDefault();
             }
             return;
         }
         // Escape Key
         if (e.keyCode === 27) {
-            this.onBlurEvent(e);
+            this.onBlur();
             e.stopPropagation();
             e.preventDefault();
             return;
@@ -120,7 +104,7 @@ let Md2Select = class Md2Select {
         if (e.keyCode === 38) {
             this.behavior.prev();
             if (!this.isMenuOpened) {
-                this.onClickEvent(e);
+                this.onClick(e);
             }
             e.stopPropagation();
             e.preventDefault();
@@ -130,7 +114,7 @@ let Md2Select = class Md2Select {
         if (e.keyCode === 40) {
             this.behavior.next();
             if (!this.isMenuOpened) {
-                this.onClickEvent(e);
+                this.onClick(e);
             }
             e.stopPropagation();
             e.preventDefault();
@@ -142,40 +126,75 @@ let Md2Select = class Md2Select {
                 this.selectItemOnMatch(this.currentItem, e);
             }
             else {
-                this.onClickEvent(e);
+                this.onClick(e);
             }
             e.preventDefault();
             return;
         }
     }
-    onClickEvent(e) {
-        if (this.disabled) {
-            e.stopPropagation();
+    onBlur() {
+        this.isMenuOpened = false;
+        this.isOpenable = false;
+        setTimeout(() => {
+            this.isOpenable = true;
+        }, 200);
+    }
+    openMenu() {
+        this.list = this._items.map((item) => new Item(item, this.itemText));
+        if (this.list.length > 0 && this.isOpenable) {
+            if (this.selectedValue.length > 0) {
+                this.currentItem = this.list.find((item) => item.text === this.selectedValue);
+            }
+            this.isMenuOpened = true;
+            setTimeout(() => { this.behavior.next(); }, 0);
+        }
+        this.isOpenable = true;
+    }
+    selectItemOnMatch(value, e = null) {
+        if (e) {
             e.preventDefault();
+        }
+        if (this.list.length <= 0) {
             return;
         }
-        this.openMenu();
-    }
-    writeValue(value) {
-        this._item = value;
-        //this._item = value;
-        if (this._item && typeof this._item === 'string') {
-            this.activeItem = [];
-            this.activeItem.push({ text: this._item });
+        this.selectedValue = value.text;
+        if (typeof this._value === 'string') {
+            this._value = this.selectedValue;
         }
-        if (this._item && this._item.length && typeof this._item === 'object') {
-            this.activeItem = [];
-            if (Array.isArray(this._item)) {
-                this.activeItem.push({ text: this._item[0][this.itemText] });
+        if (typeof this._value === 'object') {
+            if (Array.isArray(this._value)) {
+                this._value = new Array();
+                this._value.push(this._items.find((item) => item[this.itemText] == value.text));
             }
             else {
-                this.activeItem.push({ text: this._item[this.itemText] });
+                this._value = new Object();
+                let itm = this._items.find((item) => item[this.itemText] == value.text);
+                for (let i in itm) {
+                    this._value[i] = itm[i];
+                }
             }
         }
+        this._onChangeCallback(this._value);
+        this.change.emit(this._value);
+        this.onBlur();
     }
-    registerOnChange(fn) { this.onTouched = fn; }
-    registerOnTouched(fn) { this.onTouched = fn; }
+    isActive(value) {
+        return this.selectedValue === value.text ? true : false;
+    }
+    isFocus(value) {
+        if (this.currentItem) {
+            return this.currentItem.text === value.text;
+        }
+        return false;
+    }
+    writeValue(value) { this.setValue(value); }
+    registerOnChange(fn) { this._onChangeCallback = fn; }
+    registerOnTouched(fn) { this._onTouchedCallback = fn; }
 };
+__decorate([
+    core_1.Output(), 
+    __metadata('design:type', core_1.EventEmitter)
+], Md2Select.prototype, "change", void 0);
 __decorate([
     core_1.Input(), 
     __metadata('design:type', String)
@@ -202,17 +221,35 @@ __decorate([
     __metadata('design:paramtypes', [Array])
 ], Md2Select.prototype, "items", null);
 __decorate([
-    core_1.Output(), 
-    __metadata('design:type', core_1.EventEmitter)
-], Md2Select.prototype, "change", void 0);
+    core_1.Input(), 
+    __metadata('design:type', Object)
+], Md2Select.prototype, "value", null);
+__decorate([
+    core_1.HostListener('click', ['$event']), 
+    __metadata('design:type', Function), 
+    __metadata('design:paramtypes', [Object]), 
+    __metadata('design:returntype', void 0)
+], Md2Select.prototype, "onClick", null);
+__decorate([
+    core_1.HostListener('keydown', ['$event']), 
+    __metadata('design:type', Function), 
+    __metadata('design:paramtypes', [Object]), 
+    __metadata('design:returntype', void 0)
+], Md2Select.prototype, "onKeyDown", null);
+__decorate([
+    core_1.HostListener('blur'), 
+    __metadata('design:type', Function), 
+    __metadata('design:paramtypes', []), 
+    __metadata('design:returntype', void 0)
+], Md2Select.prototype, "onBlur", null);
 Md2Select = __decorate([
     core_1.Component({
         selector: 'md2-select',
         template: `
     <div class="md2-select-layout">
       <div class="md2-select-container">
-        <span *ngIf="activeItem.length <= 0" class="md2-select-placeholder">{{placeholder}}</span>
-        <span *ngIf="activeItem.length > 0" class="md2-select-value">{{activeItem[0].text}}</span>
+        <span *ngIf="selectedValue.length < 1" class="md2-select-placeholder">{{placeholder}}</span>
+        <span *ngIf="selectedValue.length > 0" class="md2-select-value">{{selectedValue}}</span>
         <i class="md2-select-icon"></i>
       </div>
       <ul *ngIf="isMenuOpened && list && list.length > 0" class="md2-select-menu">
@@ -233,6 +270,7 @@ Md2Select = __decorate([
     .md2-select .md2-select-container > span:not(.md2-select-icon) { max-width: 100%; -ms-flex: 1 1 auto; -webkit-flex: 1 1 auto; flex: 1 1 auto; -ms-text-overflow: ellipsis; -o-text-overflow: ellipsis; text-overflow: ellipsis; overflow: hidden; }
     .md2-select .md2-select-container .md2-select-icon { display: block; -webkit-align-items: flex-end; -ms-flex-align: end; align-items: flex-end; text-align: end; width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 6px solid rgba(0, 0, 0, 0.60); margin: 0 4px; }
     .md2-select .md2-select-container .md2-select-placeholder { color: rgba(0, 0, 0, 0.38); }
+    .md2-select .md2-select-container .md2-select-value { white-space: nowrap; }
     .md2-select .md2-select-menu { position: absolute; left: 0; top: 0; display: block; z-index: 10; -ms-flex-direction: column; -webkit-flex-direction: column; flex-direction: column; width: 100%; margin: 0; padding: 8px 0; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14), 0 2px 1px -1px rgba(0, 0, 0, 0.12); max-height: 256px; min-height: 48px; overflow-y: auto; -moz-transform: scale(1); -ms-transform: scale(1); -o-transform: scale(1); -webkit-transform: scale(1); transform: scale(1); background: #fff; }
     .md2-select .md2-select-menu .md2-option { cursor: pointer; position: relative; display: block; align-items: center; width: auto; -moz-transition: background 0.15s linear; -o-transition: background 0.15s linear; -webkit-transition: background 0.15s linear; transition: background 0.15s linear; padding: 0 16px; height: 48px; line-height: 48px; }
     .md2-select .md2-select-menu .md2-option.active { color: #106cc8; }
@@ -245,14 +283,10 @@ Md2Select = __decorate([
             '[class.md2-select]': 'true',
             '[class.md2-select-disabled]': 'disabled',
             '[tabindex]': 'disabled ? -1 : tabindex',
-            '[attr.aria-disabled]': 'disabled',
-            '(click)': 'onClickEvent($event)',
-            '(keydown)': 'onKeyEvent($event)',
-            '(blur)': 'onBlurEvent($event)'
+            '[attr.aria-disabled]': 'disabled'
         },
         providers: [MD2_SELECT_CONTROL_VALUE_ACCESSOR],
-        encapsulation: core_1.ViewEncapsulation.None,
-        changeDetection: core_1.ChangeDetectionStrategy.OnPush
+        encapsulation: core_1.ViewEncapsulation.None
     }), 
     __metadata('design:paramtypes', [core_1.ElementRef])
 ], Md2Select);

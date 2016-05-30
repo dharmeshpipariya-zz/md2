@@ -19,7 +19,7 @@ let Tabs = class Tabs {
         ];
     }
     change(tab) {
-        console.log('Changed Tab' + tab);
+        console.log('Tab Changed');
     }
     ;
 };
