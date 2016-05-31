@@ -2,22 +2,15 @@
 <section id="select">
   <div class="row">
     <div class="col-sm-6">
-      <md2-select [items]="items"
-                  item-text="name"
-                  [(ngModel)]="item"
-                  [disabled]="disabled"
-                  (change)="change($event)"
-                  placeholder="No city selected">
-      </md2-select>
+      <select [(ngModel)]="item" (change)="change($event)">
+        <option [value]="i.value" *ngFor="let i of items">{{i.name}}</option>
+      </select>
       <hr />
       <pre>{{item | json}}</pre>
-      <md2-select [items]="items"
-                  item-text="name"
-                  [(ngModel)]="item"
-                  [disabled]="disabled"
-                  (change)="change($event)"
-                  placeholder="No city selected">
-      </md2-select>
+      <hr />
+      <md-select [(ngModel)]="item">
+        <md-option [value]="i.value" *ngFor="let i of items">{{i.name}}</md-option>
+      </md-select>
     </div>
     <div class="col-sm-6">
       <p>The <strong>select component</strong> is to provide a select functionality.</p>
