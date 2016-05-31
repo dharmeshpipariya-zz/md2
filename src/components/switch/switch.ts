@@ -1,13 +1,12 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, Provider, ViewEncapsulation, forwardRef} from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, Provider, ViewEncapsulation, forwardRef, AfterContentInit } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/common';
 
 let nextId = 0;
 
-const MD2_SWITCH_CONTROL_VALUE_ACCESSOR = new Provider(
-  NG_VALUE_ACCESSOR, {
-    useExisting: forwardRef(() => Md2Switch),
-    multi: true
-  });
+const MD2_SWITCH_CONTROL_VALUE_ACCESSOR = new Provider(NG_VALUE_ACCESSOR, {
+  useExisting: forwardRef(() => Md2Switch),
+  multi: true
+});
 
 @Component({
   selector: 'md2-switch',
@@ -62,7 +61,7 @@ const MD2_SWITCH_CONTROL_VALUE_ACCESSOR = new Provider(
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 
-export class Md2Switch implements ControlValueAccessor {
+export class Md2Switch implements AfterContentInit, ControlValueAccessor {
 
   @Input('aria-label') ariaLabel: string = '';
 
@@ -80,14 +79,13 @@ export class Md2Switch implements ControlValueAccessor {
   private _isInitialized: boolean = false;
   private _changeSubscription: { unsubscribe: () => any } = null;
 
-  @Input() get checked() {
-    return this._checked;
-  }
-
+  @Input() get checked() { return this._checked; }
   set checked(checked: boolean) {
-    this._checked = checked;
-    if (this._isInitialized) {
-      this.change.emit(this._checked);
+    if (checked != this._checked) {
+      this._checked = checked;
+      if (this._isInitialized) {
+        this.change.emit(this._checked);
+      }
     }
   }
 

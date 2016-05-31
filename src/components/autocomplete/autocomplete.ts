@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, HostListener, Provider, ViewEncapsulation, forwardRef, ElementRef } from '@angular/core';
+import { Component, EventEmitter, Input, Output, HostListener, Provider, ViewEncapsulation, forwardRef, ElementRef, AfterContentInit } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/common';
 import {HightlightPipe} from './autocomplete.pipe';
 
@@ -49,7 +49,7 @@ const MD2_AUTOCOMPLETE_CONTROL_VALUE_ACCESSOR = new Provider(NG_VALUE_ACCESSOR, 
   encapsulation: ViewEncapsulation.None
 })
 
-export class Md2Autocomplete implements ControlValueAccessor {
+export class Md2Autocomplete implements AfterContentInit, ControlValueAccessor {
 
   constructor(public element: ElementRef) { }
 
@@ -64,10 +64,15 @@ export class Md2Autocomplete implements ControlValueAccessor {
     this.offSideClickHandler = null;
   }
 
+  ngAfterContentInit() {
+    this._isInitialized = true;
+  }
+
   @Output() change: EventEmitter<any> = new EventEmitter<any>();
   @Output() cleared: EventEmitter<any> = new EventEmitter<any>();
 
   private _value: any = '';
+  private _isInitialized: boolean = false;
   private _onTouchedCallback: () => void = noop;
   private _onChangeCallback: (_: any) => void = noop;
 
@@ -115,8 +120,10 @@ export class Md2Autocomplete implements ControlValueAccessor {
       }
       if (!this.selectedValue) { this.selectedValue = ''; }
       this.inputValue = this.selectedValue;
-      this._onChangeCallback(value);
-      this.change.emit(this._value);
+      if (this._isInitialized) {
+        this._onChangeCallback(value);
+        this.change.emit(this._value);
+      }
     }
   }
 

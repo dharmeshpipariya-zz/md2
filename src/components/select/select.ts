@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, HostListener, Provider, ViewEncapsulation, forwardRef, ElementRef } from '@angular/core';
+import { Component, EventEmitter, Input, Output, HostListener, Provider, ViewEncapsulation, forwardRef, ElementRef, AfterContentInit } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/common';
 
 const noop = () => { };
@@ -56,7 +56,7 @@ const MD2_SELECT_CONTROL_VALUE_ACCESSOR = new Provider(NG_VALUE_ACCESSOR, {
   encapsulation: ViewEncapsulation.None
 })
 
-export class Md2Select implements ControlValueAccessor {
+export class Md2Select implements AfterContentInit, ControlValueAccessor {
 
   constructor(public element: ElementRef) { }
 
@@ -64,9 +64,14 @@ export class Md2Select implements ControlValueAccessor {
     this.behavior = new GenericBehavior(this);
   }
 
+  ngAfterContentInit() {
+    this._isInitialized = true;
+  }
+
   @Output() change: EventEmitter<any> = new EventEmitter<any>();
 
   private _value: any = '';
+  private _isInitialized: boolean = false;
   private _onTouchedCallback: () => void = noop;
   private _onChangeCallback: (_: any) => void = noop;
 
@@ -110,8 +115,10 @@ export class Md2Select implements ControlValueAccessor {
           this.selectedValue = value[this.itemText];
         }
       }
-      this._onChangeCallback(value);
-      this.change.emit(this._value);
+      if (this._isInitialized) {
+        this._onChangeCallback(value);
+        this.change.emit(this._value);
+      }
     }
   }
 
