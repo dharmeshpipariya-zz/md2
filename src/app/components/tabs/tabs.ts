@@ -14,6 +14,12 @@ export class Tabs {
     { title: 'Dynamic Title 3', content: 'Dynamic content 3', removable: true }
   ];
 
+  constructor() {
+    setTimeout(() => {
+      this.tabs.push({ title: 'Dynamic Title 4', content: 'Dynamic content 4', removable: true });
+    }, 5000);
+  }
+
   public change(tab: Event) {
     console.log('Tab Changed');
   };

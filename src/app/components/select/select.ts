@@ -1,11 +1,10 @@
 import {Component} from '@angular/core';
-import {SELECT_DIRECTIVES, Md2SelectDispatcher} from '../../../components/select/select';
+import {SELECT_DIRECTIVES} from '../../../components/select/select';
 
 @Component({
   selector: 'selectcomp',
   templateUrl: './app/components/select/select.html',
-  directives: [SELECT_DIRECTIVES],
-  providers: [Md2SelectDispatcher]
+  directives: [SELECT_DIRECTIVES]
 })
 export class Select {
   private disabled: boolean = false;
@@ -22,8 +21,8 @@ export class Select {
   private items1: Array<string> = ['Amsterdam', 'Birmingham', 'Dortmund', 'Gothenburg', 'London', 'Seville'];
   private item2: string = 'Gothenburg';
   //private item: Array<any> = [{ name: 'Dortmund', value: '3' }];
-  private item: any = { name: 'Dortmund', value: '3' };
-  //private item: string = 'Dortmund';
+  //private item: any = { name: 'Dortmund', value: '3' };
+  private item: string = '3';
   private item1: any = { name: 'Dortmund', value: '3' };
   private change(value: any) {
     console.log('Changed data: ', value);
