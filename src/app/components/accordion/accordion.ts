@@ -14,5 +14,11 @@ export class Accordion {
     { title: 'Dynamic Title 2', content: 'Dynamic content 2', disabled: true },
     { title: 'Dynamic Title 3', content: 'Dynamic content 3', active: true }
   ];
+
+  constructor() {
+    setTimeout(() => {
+      this.accordions.push({ title: 'Dynamic Title 4', content: 'Dynamic content 4', active: true });
+    }, 5000);
+  }
   multiple: boolean = false;
 }

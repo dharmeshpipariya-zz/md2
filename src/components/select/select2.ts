@@ -1,18 +1,66 @@
-import {AfterContentInit, Component, ContentChildren, EventEmitter, HostBinding, Input, OnInit, Optional, Output, Provider, QueryList, ViewEncapsulation, forwardRef} from '@angular/core';
+import {AfterContentInit, Component, ContentChildren, EventEmitter, HostBinding, Input, OnInit, Optional, Output, Provider, Query, QueryList, ViewEncapsulation, forwardRef, ElementRef } from '@angular/core';
 import {NG_VALUE_ACCESSOR, ControlValueAccessor} from '@angular/common';
-import {Md2SelectDispatcher} from './select_dispatcher';
 
-const MD2_SELECT_CONTROL_VALUE_ACCESSOR = new Provider(
-  NG_VALUE_ACCESSOR, {
-    useExisting: forwardRef(() => Md2Select),
-    multi: true
-  });
+const MD2_SELECT_CONTROL_VALUE_ACCESSOR = new Provider(NG_VALUE_ACCESSOR, {
+  useExisting: forwardRef(() => Md2Select),
+  multi: true
+});
 
 var _uniqueIdCounter = 0;
 
-export class Md2OptionChange {
-  source: Md2Option;
-  value: any;
+@Component({
+  selector: 'md2-option',
+  template: '<div class="md2-option-text"><ng-content></ng-content></div>',
+  styles: [`
+    md2-option { cursor: pointer; position: relative; display: block; align-items: center; width: auto; -moz-transition: background 0.15s linear; -o-transition: background 0.15s linear; -webkit-transition: background 0.15s linear; transition: background 0.15s linear; padding: 0 16px; height: 48px; line-height: 48px; }
+    md2-option.md2-option-selected { color: #106cc8; }
+    md2-option:hover, md2-option.md2-option-focused { background: #eeeeee; }
+    md2-option.md2-option-disabled, md2-option.md2-option-disabled:hover { color: rgba(189,189,189,0.87); cursor: default; background: transparent; }
+    md2-option .md2-option-text { width: auto; white-space: nowrap; overflow: hidden; -ms-text-overflow: ellipsis; -o-text-overflow: ellipsis; text-overflow: ellipsis; font-size: 16px; }
+  `],
+  host: {
+    'role': 'select-option',
+    '(click)': 'onClick($event)'
+  },
+  encapsulation: ViewEncapsulation.None
+})
+
+export class Md2Option {
+
+  @HostBinding('class.md2-option-focused') private _isFocused: boolean;
+
+  private _selected: boolean = false;
+  private _value: any = null;
+
+  @HostBinding('class.md2-option-selected') @Input() get selected(): boolean { return this._selected; }
+  set selected(selected: boolean) {
+    this._selected = selected;
+  }
+
+  @Input() get value(): any { return this._value; }
+  set value(value: any) {
+    if (this._value != value) {
+      this._value = value;
+    }
+  }
+
+  @HostBinding('class.md2-option-disabled')
+  @Input() disabled: boolean = false;
+
+  onClick(event: Event) {
+    if (this.disabled) {
+      event.preventDefault();
+      event.stopPropagation();
+      return;
+    }
+
+    //this.selected = true;
+  }
+
+  onInputFocus() { this._isFocused = true; }
+
+  onInputBlur() { this._isFocused = false; }
+
 }
 
 @Component({
@@ -23,9 +71,14 @@ export class Md2OptionChange {
       <span *ngIf="selectedValue.length > 0" class="md2-select-value" [innerHtml]="selectedValue"></span>
       <i class="md2-select-icon"></i>
     </div>
-    <div class="md2-select-menu">
+    <ul class="md2-select-menu">
+      <li *ngFor="let option of options" [class]="option.headerClass" [class]="'md2-option-item'" [class.selected]="option.selected" [class.disabled]="option.disabled" (click)="open($event,option)">
+        <span>{{option.value}}</span>
+      </li>
+    </ul>
+    <!--<div class="md2-select-menu">
       <ng-content></ng-content>    
-    </div>
+    </div>-->
   `,
   styles: [`
     md2-select { position: relative; display: block; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
@@ -49,97 +102,94 @@ export class Md2OptionChange {
   providers: [MD2_SELECT_CONTROL_VALUE_ACCESSOR],
   encapsulation: ViewEncapsulation.None
 })
+
 export class Md2Select implements AfterContentInit, ControlValueAccessor {
 
+  selectedValue = '';
   private _value: any = null;
-  private _name: string = 'md2-select-' + _uniqueIdCounter++;
-  private _disabled: boolean = false;
-  private _selected: Md2Option = null;
-  private _isInitialized: boolean = false;
 
-  private selectedValue: string = '';
+  @Output() change: EventEmitter<any> = new EventEmitter<any>();
 
-  private _controlValueAccessorChangeFn: (value: any) => void = (value) => { };
-  onTouched: () => any = () => { };
-
-  @Output() change: EventEmitter<Md2OptionChange> = new EventEmitter<Md2OptionChange>();
-
-  @ContentChildren(forwardRef(() => Md2Option))
-  private _options: QueryList<Md2Option> = null;
-
-  @Input() get name(): string { return this._name; }
-  set name(value: string) {
-    this._name = value;
-    this._updateOptions();
-  }
-
+  @Input() id: string = 'md2-select-' + _uniqueIdCounter++;
   @Input() tabindex: number = 0;
 
 
+
+
   @HostBinding('class.md2-select-disabled')
-  @Input() get disabled(): boolean { return this._disabled; }
-  set disabled(value) {
-    this._disabled = (value != null && value !== false) ? true : null;
-  }
+  @Input() disabled: boolean = false;
 
   @Input() get value(): any { return this._value; }
-  set value(newValue: any) {
-    if (this._value != newValue) {
-      this._value = newValue;
-      this._updateSelecteOptionValue();
-      if (this._isInitialized) {
-        this._emitChangeEvent();
-      }
+  set value(value: any) {
+    if (this._value != value) {
+      this._value = value;
     }
   }
 
-  @Input() get selected() { return this._selected; }
-  set selected(selected: Md2Option) {
-    this._selected = selected;
-    this.value = selected ? selected.value : null;
-    if (selected && !selected.selected) {
-      selected.selected = true;
-      this.selectedValue = document.getElementById(selected.id).innerHTML;
-    }
-  }
+  //@Input() get selected() { return this._selected; }
+  //set selected(selected: Md2Option) {
+  //  this._selected = selected;
+  //  this.value = selected ? selected.value : null;
+  //  if (selected && !selected.selected) {
+  //    selected.selected = true;
+  //    this.selectedValue = document.getElementById(selected.id).innerHTML;
+  //  }
+  //}
 
   ngAfterContentInit() {
-    this._isInitialized = true;
+    //this._isInitialized = true;
   }
 
-  touch() {
-    if (this.onTouched) {
-      this.onTouched();
-    }
-  }
+  initialized: boolean;
 
-  private _updateOptions(): void {
-    (this._options || []).forEach(option => {
-      option.name = this.name;
+  options: Md2Option[];
+
+  constructor(private el: ElementRef, @Query(Md2Option) options: QueryList<Md2Option>) {
+    options.changes.subscribe(_ => {
+      this.options = options.toArray();
+      let activeTab: Md2Option = this.findActiveTab();
+      if (!activeTab && this.options.length) {
+        this.options[0].selected = true;
+      }
     });
   }
 
-  private _updateSelecteOptionValue(): void {
-    let isAlreadySelected = this._selected != null && this._selected.value == this._value;
-
-    if (this._options != null && !isAlreadySelected) {
-      let matchingOption = this._options.filter(option => option.value == this._value)[0];
-
-      if (matchingOption) {
-        this.selected = matchingOption;
-      } else if (this.value == null) {
-        this.selected = null;
-        this._options.forEach(option => { option.selected = false; });
-      }
+  open(event: Event, option: Md2Option) {
+    if (option.disabled) {
+      event.preventDefault();
+      return;
     }
+
+    if (!option.selected) {
+      let activeTab: Md2Option = this.findActiveTab();
+      if (activeTab) {
+        activeTab.selected = false
+      }
+      option.selected = true;
+      this.selectedValue = option.value;
+      this.change.emit({ originalEvent: event, index: this.findTabIndex(option) });
+    }
+    event.preventDefault();
   }
 
-  private _emitChangeEvent(): void {
-    let event = new Md2OptionChange();
-    event.source = this._selected;
-    event.value = this._value;
-    this._controlValueAccessorChangeFn(event.value);
-    this.change.emit(event);
+  findActiveTab() {
+    for (let i = 0; i < this.options.length; i++) {
+      if (this.options[i].selected) {
+        return this.options[i];
+      }
+    }
+    return null;
+  }
+
+  findTabIndex(option: Md2Option) {
+    let index = -1;
+    for (let i = 0; i < this.options.length; i++) {
+      if (this.options[i] == option) {
+        index = i;
+        break;
+      }
+    }
+    return index;
   }
 
   writeValue(value: any) {
@@ -147,141 +197,12 @@ export class Md2Select implements AfterContentInit, ControlValueAccessor {
   }
 
   registerOnChange(fn: (value: any) => void) {
-    this._controlValueAccessorChangeFn = fn;
+    //this._controlValueAccessorChangeFn = fn;
   }
 
   registerOnTouched(fn: any) {
-    this.onTouched = fn;
+    //this.onTouched = fn;
   }
 }
 
-
-@Component({
-  selector: 'md2-option',
-  template: '<div class="md2-option-text"><ng-content></ng-content></div>',
-  styles: [`
-    md2-option { cursor: pointer; position: relative; display: block; align-items: center; width: auto; -moz-transition: background 0.15s linear; -o-transition: background 0.15s linear; -webkit-transition: background 0.15s linear; transition: background 0.15s linear; padding: 0 16px; height: 48px; line-height: 48px; }
-    md2-option.md2-option-selected { color: #106cc8; }
-    md2-option:hover, md2-option.md2-option-focused { background: #eeeeee; }
-    md2-option.md2-option-disabled, md2-option.md2-option-disabled:hover { color: rgba(189,189,189,0.87); cursor: default; background: transparent; }
-    md2-option .md2-option-text { width: auto; white-space: nowrap; overflow: hidden; -ms-text-overflow: ellipsis; -o-text-overflow: ellipsis; text-overflow: ellipsis; font-size: 16px; }
-  `],
-  host: {
-    'role': 'select-option',
-    '(click)': 'onClick($event)'
-  },
-  encapsulation: ViewEncapsulation.None
-})
-export class Md2Option implements OnInit {
-  @HostBinding('class.md2-option-focused') private _isFocused: boolean;
-
-  private _selected: boolean = false;
-
-  @HostBinding('id') @Input() id: string = `md2-option-${_uniqueIdCounter++}`;
-
-  @Input() name: string;
-
-  private _disabled: boolean;
-  private _value: any = null;
-
-  select: Md2Select;
-
-  @Output() change: EventEmitter<Md2OptionChange> = new EventEmitter<Md2OptionChange>();
-
-  constructor( @Optional() select: Md2Select, public selectDispatcher: Md2SelectDispatcher) {
-    this.select = select;
-    selectDispatcher.listen((id: string, name: string) => {
-      if (id != this.id && name == this.name) {
-        this.selected = false;
-      }
-    });
-  }
-
-  @HostBinding('class.md2-option-selected') @Input() get selected(): boolean { return this._selected; }
-  set selected(newSelectedState: boolean) {
-    if (newSelectedState) {
-      this.selectDispatcher.notify(this.id, this.name);
-    }
-
-    if (newSelectedState != this._selected) {
-      this._emitChangeEvent();
-    }
-
-    this._selected = newSelectedState;
-
-    if (newSelectedState && this.select && this.select.value != this.value) {
-      this.select.selected = this;
-    }
-  }
-
-  @Input() get value(): any { return this._value; }
-  set value(value: any) {
-    if (this._value != value) {
-      if (this.select != null && this.selected) {
-        this.select.value = value;
-      }
-      this._value = value;
-    }
-  }
-
-  @HostBinding('class.md2-option-disabled')
-  @Input() get disabled(): boolean {
-    return this._disabled || (this.select != null && this.select.disabled);
-  }
-
-  set disabled(value: boolean) {
-    this._disabled = (value != null && value !== false) ? true : null;
-  }
-
-  ngOnInit() {
-    if (this.select) {
-      this.selected = this.select.value === this._value;
-      this.name = this.select.name;
-    }
-  }
-
-  private _emitChangeEvent(): void {
-    let event = new Md2OptionChange();
-    event.source = this;
-    event.value = this._value;
-    this.change.emit(event);
-  }
-
-  onClick(event: Event) {
-    if (this.disabled) {
-      event.preventDefault();
-      event.stopPropagation();
-      return;
-    }
-
-    if (this.select != null) {
-      this.select.selected = this;
-      this.select.touch();
-    } else {
-      this.selected = true;
-    }
-  }
-
-  onInputFocus() {
-    this._isFocused = true;
-  }
-
-  onInputBlur() {
-    this._isFocused = false;
-    if (this.select) {
-      this.select.touch();
-    }
-  }
-
-  onInputChange(event: Event) {
-    event.stopPropagation();
-
-    this.selected = true;
-    if (this.select) {
-      this.select.touch();
-    }
-  }
-}
-
-export {Md2SelectDispatcher} from './select_dispatcher';
 export const SELECT_DIRECTIVES = [Md2Select, Md2Option];
