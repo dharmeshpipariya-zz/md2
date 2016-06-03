@@ -417,7 +417,7 @@ class Menu {
       }
       option = options._results[index];
       if (option.disabled) option = undefined;
-    } while (!option);// && index < optionsArray.length - 1 && index > 0
+    } while (!option);
     if (option) { option.focused = true; }
     this.updateScroll();
   }

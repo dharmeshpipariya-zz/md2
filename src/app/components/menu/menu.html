@@ -2,24 +2,55 @@
 <section id="menu">
   <div class="row">
     <div class="col-sm-6">
-      <md2-menu [menu-label]="menuLabel">
-        <a class="md2-menu-item" href="#/Menu">Menu 1</a>
-        <a class="md2-menu-item" href="#/Menu">Menu 2</a>
-        <a class="md2-menu-item" href="#/Menu">Menu 3</a>
-        <a class="md2-menu-item" href="#/Menu">Menu 4</a>
-        <a class="md2-menu-item" href="#/Menu">Menu 5</a>
-      </md2-menu>
-
-      <md2-menu>
-        <menu-label>
-          <b>Bold</b> Header Menu
-        </menu-label>
-        <a class="md2-menu-item" href="#/Menu">Menu 6</a>
-        <a class="md2-menu-item" href="#/Menu">Menu 7</a>
-        <a class="md2-menu-item" href="#/Menu">Menu 8</a>
-        <a class="md2-menu-item" href="#/Menu">Menu 9</a>
-        <a class="md2-menu-item" href="#/Menu">Menu 10</a>
-      </md2-menu>
+      <div>
+        Default direction<br />
+        <md2-menu [menu-label]="menuLabel">
+          <a class="md2-menu-item" href="#/Menu">Menu 1</a>
+          <a class="md2-menu-item" href="#/Menu">Menu 2</a>
+          <a class="md2-menu-item" href="#/Menu">Menu 3</a>
+          <a class="md2-menu-item" href="#/Menu">Menu 4</a>
+          <a class="md2-menu-item" href="#/Menu">Menu 5</a>
+        </md2-menu>
+      </div>
+      <div>
+        Right direction<br />
+        <md2-menu direction="right">
+          <menu-label>
+            <b>Bold</b> Header Menu
+          </menu-label>
+          <a class="md2-menu-item" href="#/Menu">Menu 6</a>
+          <a class="md2-menu-item" href="#/Menu">Menu 7</a>
+          <a class="md2-menu-item" href="#/Menu">Menu 8</a>
+          <a class="md2-menu-item" href="#/Menu">Menu 9</a>
+          <a class="md2-menu-item" href="#/Menu">Menu 10</a>
+        </md2-menu>
+      </div>
+      <div>
+        Top direction<br />
+        <md2-menu direction="top">
+          <menu-label>
+            <b>Bold</b> Header Menu
+          </menu-label>
+          <a class="md2-menu-item" href="#/Menu">Menu 6</a>
+          <a class="md2-menu-item" href="#/Menu">Menu 7</a>
+          <a class="md2-menu-item" href="#/Menu">Menu 8</a>
+          <a class="md2-menu-item" href="#/Menu">Menu 9</a>
+          <a class="md2-menu-item" href="#/Menu">Menu 10</a>
+        </md2-menu>
+      </div>
+      <div>
+        Top Right direction<br />
+        <md2-menu direction="top right">
+          <menu-label>
+            <b>Bold</b> Header Menu
+          </menu-label>
+          <a class="md2-menu-item" href="#/Menu">Menu 6</a>
+          <a class="md2-menu-item" href="#/Menu">Menu 7</a>
+          <a class="md2-menu-item" href="#/Menu">Menu 8</a>
+          <a class="md2-menu-item" href="#/Menu">Menu 9</a>
+          <a class="md2-menu-item" href="#/Menu">Menu 10</a>
+        </md2-menu>
+      </div>
     </div>
     <div class="col-sm-6">
       <p>The <strong>menu component</strong> is to provide a dropdown menu toggling functionality.</p>
