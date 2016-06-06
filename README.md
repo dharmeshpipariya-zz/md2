@@ -13,10 +13,10 @@ Angular2 based Material Design components, directives and services are Accordion
 system.config.js
 ```js
 {
-	'map': {
+	map: {
 		'md2': 'node_modules/md2'
 	},
-	'packages': {
+	packages: {
 	  'md2/select': {
       format: 'cjs',
       defaultExtension: 'js',
@@ -38,6 +38,7 @@ system.config.js
     }
 	}
 }
+```
 
 3. More information regarding of using ***md2*** is located in
   [demo](http://dharmeshpipariya.github.io/md2) and [demo sources](https://github.com/DharmeshPipariya/md2/tree/master/src).
