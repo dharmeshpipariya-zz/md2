@@ -10,21 +10,34 @@ Angular2 based Material Design components, directives and services are Accordion
   `npm install md2 --save`
 
 2. Set `md2` in your project
-    packages should look like:
-    ```js
-    // The md2 package dependency.
-    'md2/select': {
+system.config.js
+```js
+{
+	'map': {
+		'md2': 'node_modules/md2'
+	},
+	'packages': {
+		'md2/select': {
       format: 'cjs',
       defaultExtension: 'js',
       main: 'select.js'
     },
-    'md2/switch': {
+	  'md2/switch': {
       format: 'cjs',
       defaultExtension: 'js',
       main: 'switch.js'
     },
-    ...
-    ```
+	  //...
+	   
+	  //--- or ---
+	   
+	  'md2/all': {
+      format: 'cjs',
+      defaultExtension: 'js',
+      main: 'all.js'
+    }
+	}
+}
 
 3. More information regarding of using ***md2*** is located in
   [demo](http://dharmeshpipariya.github.io/md2) and [demo sources](https://github.com/DharmeshPipariya/md2/tree/master/src).
