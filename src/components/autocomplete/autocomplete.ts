@@ -83,9 +83,9 @@ export class Md2Autocomplete implements AfterContentInit, ControlValueAccessor {
   private offSideClickHandler: any;
   private inputValue: string = '';
 
-  public list: Array<Item> = [];
-  public tempList: Array<Item> = [];
-  public currentItem: Item;
+  public list: Array<ListItem> = [];
+  public tempList: Array<ListItem> = [];
+  public currentItem: ListItem;
 
   @Input() id: string = 'md2-autocomplete-' + (++nextId);
   @Input() disabled: boolean = false;
@@ -133,7 +133,7 @@ export class Md2Autocomplete implements AfterContentInit, ControlValueAccessor {
       e.preventDefault();
       return;
     }
-    this.tempList = this.list = this._items.map((item: any) => new Item(item, this.itemText));
+    this.tempList = this.list = this._items.map((item: any) => new ListItem(item, this.itemText));
     if (this.selectedValue.length > 0) {
       this.currentItem = this.list.find((item: any) => item.text === this.selectedValue);
     }
@@ -208,7 +208,7 @@ export class Md2Autocomplete implements AfterContentInit, ControlValueAccessor {
   private onBlur() { this.isMenuOpened = false; }
 
   private openMenu() {
-    this.list = this._items.map((item: any) => new Item(item, this.itemText));
+    this.list = this._items.map((item: any) => new ListItem(item, this.itemText));
     if (this.selectedValue.length > 0) {
       this.currentItem = this.list.find((item: any) => item.text === this.selectedValue);
     }
@@ -216,7 +216,7 @@ export class Md2Autocomplete implements AfterContentInit, ControlValueAccessor {
     setTimeout(() => { this.behavior.next(); }, 0);
   }
 
-  private selectItemOnMatch(value: Item, e: Event = null) {
+  private selectItemOnMatch(value: ListItem, e: Event = null) {
     if (e) { e.preventDefault(); }
     if (this.list.length <= 0) { return; }
 
@@ -253,7 +253,7 @@ export class Md2Autocomplete implements AfterContentInit, ControlValueAccessor {
     };
   }
 
-  private clear(item: Item) {
+  private clear(item: ListItem) {
     if (this.disabled) { return; }
     this.selectedValue = this.inputValue = '';
     if (typeof this._value === 'string') {
@@ -275,11 +275,11 @@ export class Md2Autocomplete implements AfterContentInit, ControlValueAccessor {
     this.cleared.emit(item);
   }
 
-  private isActive(value: Item): boolean {
+  private isActive(value: ListItem): boolean {
     return this.selectedValue === value.text ? true : false;
   }
 
-  private isFocus(value: Item): boolean {
+  private isFocus(value: ListItem): boolean {
     if (this.currentItem) { return this.currentItem.text === value.text; }
     return false;
   }
@@ -291,7 +291,7 @@ export class Md2Autocomplete implements AfterContentInit, ControlValueAccessor {
   registerOnTouched(fn: any) { this._onTouchedCallback = fn; }
 }
 
-export class Item {
+export class ListItem {
   public text: string;
 
   constructor(source: any, itemText: string) {
