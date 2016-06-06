@@ -17,7 +17,7 @@ system.config.js
 		'md2': 'node_modules/md2'
 	},
 	'packages': {
-		'md2/select': {
+	  'md2/select': {
       format: 'cjs',
       defaultExtension: 'js',
       main: 'select.js'
