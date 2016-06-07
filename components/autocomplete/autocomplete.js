@@ -23,6 +23,7 @@ let Md2Autocomplete = class Md2Autocomplete {
         this.change = new core_1.EventEmitter();
         this.cleared = new core_1.EventEmitter();
         this._value = '';
+        this._isInitialized = false;
         this._onTouchedCallback = noop;
         this._onChangeCallback = noop;
         this.selectedValue = '';
@@ -45,6 +46,9 @@ let Md2Autocomplete = class Md2Autocomplete {
     ngOnDestroy() {
         document.removeEventListener('click', this.offSideClickHandler);
         this.offSideClickHandler = null;
+    }
+    ngAfterContentInit() {
+        this._isInitialized = true;
     }
     set items(value) {
         this._items = value;
@@ -74,8 +78,10 @@ let Md2Autocomplete = class Md2Autocomplete {
                 this.selectedValue = '';
             }
             this.inputValue = this.selectedValue;
-            this._onChangeCallback(value);
-            this.change.emit(this._value);
+            if (this._isInitialized) {
+                this._onChangeCallback(value);
+                this.change.emit(this._value);
+            }
         }
     }
     onClick(e) {
@@ -84,7 +90,7 @@ let Md2Autocomplete = class Md2Autocomplete {
             e.preventDefault();
             return;
         }
-        this.tempList = this.list = this._items.map((item) => new Item(item, this.itemText));
+        this.tempList = this.list = this._items.map((item) => new ListItem(item, this.itemText));
         if (this.selectedValue.length > 0) {
             this.currentItem = this.list.find((item) => item.text === this.selectedValue);
         }
@@ -155,7 +161,7 @@ let Md2Autocomplete = class Md2Autocomplete {
     }
     onBlur() { this.isMenuOpened = false; }
     openMenu() {
-        this.list = this._items.map((item) => new Item(item, this.itemText));
+        this.list = this._items.map((item) => new ListItem(item, this.itemText));
         if (this.selectedValue.length > 0) {
             this.currentItem = this.list.find((item) => item.text === this.selectedValue);
         }
@@ -315,7 +321,7 @@ Md2Autocomplete = __decorate([
     __metadata('design:paramtypes', [core_1.ElementRef])
 ], Md2Autocomplete);
 exports.Md2Autocomplete = Md2Autocomplete;
-class Item {
+class ListItem {
     constructor(source, itemText) {
         if (typeof source === 'string') {
             this.text = source;
@@ -325,7 +331,7 @@ class Item {
         }
     }
 }
-exports.Item = Item;
+exports.ListItem = ListItem;
 class Behavior {
     constructor(actor) {
         this.actor = actor;

@@ -17,6 +17,9 @@ let Tabs = class Tabs {
             { title: 'Dynamic Title 2', content: 'Dynamic content 2', disabled: true },
             { title: 'Dynamic Title 3', content: 'Dynamic content 3', removable: true }
         ];
+        setTimeout(() => {
+            this.tabs.push({ title: 'Dynamic Title 4', content: 'Dynamic content 4', removable: true });
+        }, 5000);
     }
     change(tab) {
         console.log('Tab Changed');

@@ -11,15 +11,12 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 const core_1 = require('@angular/core');
 const menu_1 = require('../../../components/menu/menu');
 let Menu = class Menu {
-    constructor() {
-        this.menuLabel = "<b>test</b> Menu Label";
-    }
 };
 Menu = __decorate([
     core_1.Component({
         selector: 'menu',
         templateUrl: './app/components/menu/menu.html',
-        directives: [menu_1.Md2Menu]
+        directives: [menu_1.MENU_DIRECTIVES]
     }), 
     __metadata('design:paramtypes', [])
 ], Menu);

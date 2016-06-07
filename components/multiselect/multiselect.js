@@ -21,6 +21,7 @@ let Md2Multiselect = class Md2Multiselect {
         this.element = element;
         this.change = new core_1.EventEmitter();
         this._value = '';
+        this._isInitialized = false;
         this._onTouchedCallback = noop;
         this._onChangeCallback = noop;
         this.selectedValue = [];
@@ -35,6 +36,9 @@ let Md2Multiselect = class Md2Multiselect {
     }
     ngOnInit() {
         this.behavior = new GenericBehavior(this);
+    }
+    ngAfterContentInit() {
+        this._isInitialized = true;
     }
     set items(value) {
         this._items = value;
@@ -54,8 +58,10 @@ let Md2Multiselect = class Md2Multiselect {
                     this.selectedValue.push({ text: value[i][this.itemText] });
                 }
             }
-            this._onChangeCallback(value);
-            this.change.emit(this._value);
+            if (this._isInitialized) {
+                this._onChangeCallback(value);
+                this.change.emit(this._value);
+            }
         }
     }
     onClick(e) {

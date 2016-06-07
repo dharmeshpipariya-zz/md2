@@ -10,23 +10,18 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 const core_1 = require('@angular/core');
 let HightlightPipe = class HightlightPipe {
-    transform(value, args) {
-        if (args.length < 1) {
+    transform(value, query) {
+        if (query.length < 1) {
             return value;
         }
-        let query = args[0];
-        return query ?
-            value.replace(new RegExp(this.escapeRegexp(query), 'gi'), '<span class="highlight">$&</span>') :
-            value;
+        return query ? value.replace(new RegExp(this.escapeRegexp(query), 'gi'), '<span class="highlight">$&</span>') : value;
     }
     escapeRegexp(queryToEscape) {
         return queryToEscape.replace(/([.?*+^$[\]\\(){}|-])/g, '\\$1');
     }
 };
 HightlightPipe = __decorate([
-    core_1.Pipe({
-        name: 'hightlight'
-    }), 
+    core_1.Pipe({ name: 'hightlight' }), 
     __metadata('design:paramtypes', [])
 ], HightlightPipe);
 exports.HightlightPipe = HightlightPipe;

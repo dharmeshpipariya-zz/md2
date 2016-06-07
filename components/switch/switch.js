@@ -27,13 +27,13 @@ let Md2Switch = class Md2Switch {
         this._isInitialized = false;
         this._changeSubscription = null;
     }
-    get checked() {
-        return this._checked;
-    }
+    get checked() { return this._checked; }
     set checked(checked) {
-        this._checked = checked;
-        if (this._isInitialized) {
-            this.change.emit(this._checked);
+        if (checked != this._checked) {
+            this._checked = checked;
+            if (this._isInitialized) {
+                this.change.emit(this._checked);
+            }
         }
     }
     ngAfterContentInit() {
