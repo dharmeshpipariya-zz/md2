@@ -20,7 +20,7 @@ export class Select {
       this.items.push({ name: 'Stu', value: '13', disabled: false });
       this.items.push({ name: 'Vwx', value: '14', disabled: false });
       this.items.push({ name: 'Xyz', value: '15', disabled: false });
-      this.item = '10';
+      //this.item = '10';
     }, 5000);
   }
 
@@ -39,7 +39,7 @@ export class Select {
   private item2: string = 'Gothenburg';
   //private item: Array<any> = [{ name: 'Dortmund', value: '3' }];
   //private item: any = { name: 'Dortmund', value: '3' };
-  private item: string = '6';
+  private item: string = '';
   private item1: any = { name: 'Dortmund', value: '3' };
   private change(value: any) {
     console.log('Changed data: ', value);

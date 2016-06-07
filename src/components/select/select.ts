@@ -84,7 +84,7 @@ export class Md2Select implements AfterContentInit, AfterContentChecked, Control
   @Output() change: EventEmitter<Md2OptionChange> = new EventEmitter<Md2OptionChange>();
 
   @ContentChildren(forwardRef(() => Md2Option))
-  private _options: QueryList<Md2Option> = null;
+  public _options: QueryList<Md2Option> = null;
 
   @Input() get name(): string { return this._name; }
   set name(value: string) {
@@ -130,8 +130,6 @@ export class Md2Select implements AfterContentInit, AfterContentChecked, Control
 
   ngAfterContentInit() {
     this._isInitialized = true;
-    //let opt = this._options.filter(o => o.selected)[0];
-    //this.selected = opt;
   }
 
   ngAfterContentChecked() {
@@ -369,7 +367,7 @@ class Menu {
   constructor(public list: Md2Select) { }
 
   private getActiveIndex(): number {
-    return this.list._options._results.findIndex(o => o.focused);
+    return this.list._options.toArray().findIndex(o => o.focused);
   }
 
   public updateScroll() {
@@ -397,7 +395,7 @@ class Menu {
   }
 
   public focusOption(direction: string): void {
-    let options = this.list._options;
+    let options = this.list._options.toArray();
     let index = this.getActiveIndex();
     options.forEach(o => {
       if (o.focused) { o.focused = false; }
@@ -415,8 +413,8 @@ class Menu {
       } else if ((direction === 'prev' && index < 1) || direction === 'last') {
         index = options.length - 1;
       }
-      option = options._results[index];
-      if (option.disabled) option = undefined;
+      option = options[index];
+      if (option.disabled) { option = undefined; }
     } while (!option);
     if (option) { option.focused = true; }
     this.updateScroll();
