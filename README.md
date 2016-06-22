@@ -3,6 +3,9 @@
 Angular2 based Material Design components, directives and services are Accordion, Autocomplete, Collapse, Colorpicker, Datepicker, Dialog(Modal), Menu, Multiselect, Select, Switch, Tabs, Tags(Chips), Toast and Tooltip.
 
 
+[![Build Status](https://travis-ci.org/DharmeshPipariya/md2.svg?branch=master)](https://travis-ci.org/DharmeshPipariya/md2)
+
+
 ## Quick start
 
 1. A recommended way to install ***md2*** is through [npm](https://www.npmjs.com/package/md2) package manager using the following command:
