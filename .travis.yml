@@ -6,16 +6,17 @@ node_js:
 branches:
   only:
   - master
-	- /^deploy-.*$/
+  - /^deploy-.*$/
 
 before_script:
   - npm install -g gulp
+  - npm install -g typescript
 
 script:
-	- gulp clean
-	- gulp build
-	- gulp clean
-	- c:\Users\dharmesh\AppData\Roaming\npm\tsc
+  - gulp clean
+  - gulp build
+  - gulp clean
+  - tsc
 
 install:
   - npm install
