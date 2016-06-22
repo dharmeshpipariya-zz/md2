@@ -1,0 +1,21 @@
+language: node_js
+
+node_js:
+  - '5.6.0'
+
+branches:
+  only:
+  - master
+	- /^deploy-.*$/
+
+before_script:
+  - npm install -g gulp
+
+script:
+	- gulp clean
+	- gulp build
+	- gulp clean
+	- c:\Users\dharmesh\AppData\Roaming\npm\tsc
+
+install:
+  - npm install

@@ -24,6 +24,7 @@ export class Md2Colorpicker implements OnInit {
   }
 
   ngOnInit() {
+    if (!this.colorpicker) { this.colorpicker = '#fff'; }
     let hsva: any = this.service.stringToHsva(this.colorpicker);
     if (hsva !== null) {
       this.colorpickerChange.emit(this.service.outputFormat(hsva, this.format));
@@ -227,7 +228,7 @@ export class ColorpickerComponent implements OnInit {
 
   onMouseDown(event: any) {
     if (!this.isDescendant(this.el.nativeElement, event.target)
-      && event.target != this.directiveElementRef.nativeElement) {
+      && event.target !== this.directiveElementRef.nativeElement) {
       this.closeColorpicker();
     }
 

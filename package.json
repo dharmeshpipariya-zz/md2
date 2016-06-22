@@ -1,7 +1,7 @@
 {
   "name": "md2",
-  "version": "3.1.6",
-  "description": "Angular2 based Material Design components, directives and services are Accordion, Autocomplete, Collapse, Colorpicker, Datepicker, Dialog(Modal), Menu, Multiselect, Select, Switch, Tabs, Toast and Tooltip.",
+  "version": "0.0.1",
+  "description": "Angular2 based Material Design components, directives and services are Accordion, Autocomplete, Collapse, Colorpicker, Datepicker, Dialog(Modal), Menu, Multiselect, Select, Switch, Tabs, Tags(Chips), Toast and Tooltip.",
   "scripts": {
     "clean": "gulp clean",
     "compile": "gulp compile",
@@ -27,6 +27,8 @@
     "select",
     "switch",
     "tabs",
+    "tags",
+    "chips",
     "toast",
     "tooltip"
   ],
@@ -40,7 +42,7 @@
     "url": "https://github.com/DharmeshPipariya/md2/issues"
   },
   "homepage": "https://github.com/DharmeshPipariya/md2#readme",
-  "dependencies": {},
+  "dependencies": { },
   "devDependencies": {
     "@angular/common": "2.0.0-rc.1",
     "@angular/compiler": "2.0.0-rc.1",
@@ -57,6 +59,7 @@
     "es6-shim": "^0.35.0",
     "gulp": "^3.9.1",
     "gulp-sourcemaps": "^1.6.0",
+    "systemjs-builder": "0.15.23",
     "gulp-tslint": "^4.3.3",
     "gulp-typescript": "^2.12.0",
     "lite-server": "^2.2.0",
