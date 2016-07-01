@@ -8,10 +8,11 @@ Example:
  
  ```html
 <md2-multiselect [items]="items"
-            [item-text]="'name'"
-            [(ngModel)]="item"
-            (change)="selected($event)"
-            placeholder="Placeholder Text">
+                 item-text="name"
+                 item-value="value"
+                 [(ngModel)]="item"
+                 (change)="selected($event)"
+                 placeholder="Placeholder Text">
 </md2-multiselect>
  ```
  ```ts
@@ -39,7 +40,7 @@ export class ... {
             { name: 'Seville', value: '6' }
         ];
 
-    private item: Array<any> = [{ name: 'Dortmund', value: '3' }];
+    private item: Array<string> = ['3', '4'];
 
     private selected(value: any) {
         console.log('Selected value is: ', value);
@@ -62,11 +63,8 @@ export class ... {
   - `placeholder` (`?string=''`) - Placeholder text to display when the element has no focus and selected items.
   - `disabled` (`?boolean=false`) - When `true`, it specifies that the component should be disabled.
   - `item-text` (`?string='text'`) - When items array is different with object properties then map 'text' property with the array.
+  - `item-value` (`?string=''`) - Map items array with object to return 'value' and update 'ngModel' object with the value property, if `item-value` is `null` then it return 'value' as whole object of selected items from list.
 
 ### Events
 
   - `change` - it fires after a new option selected; returns object with `value` and `text` properties that describes a new option.
-
-
-### Referenced From
-ng2-select (see the repository [https://github.com/valor-software/ng2-select](https://github.com/valor-software/ng2-select) for the angular2 based select component)

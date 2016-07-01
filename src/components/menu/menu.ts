@@ -1,18 +1,22 @@
-import { ContentChild, Directive, ElementRef, Host, HostListener, OnDestroy } from "@angular/core";
+import { ContentChild, Directive, ElementRef, Host, HostListener, OnDestroy } from '@angular/core';
 
-@Directive({ selector: "[md2-menu-not-closable]" })
+@Directive({ selector: '[md2-menu-not-closable]' })
 export class Md2MenuNotClosable {
 
   constructor(private elementRef: ElementRef) { }
 
-  contains(element: HTMLElement) {
+  /**
+   * contains
+   * @param element
+   */
+  public contains(element: HTMLElement) {
     let thisElement: HTMLElement = this.elementRef.nativeElement;
     return thisElement.contains(element);
   }
 }
 
 @Directive({
-  selector: "[md2-menu]",
+  selector: '[md2-menu]',
   host: {
     'role': 'menu',
     '[class.md2-menu]': 'true',
@@ -27,38 +31,47 @@ export class Md2Menu {
 
   constructor(private elementRef: ElementRef) { }
 
-  open() { this.isVisible = true; }
+  /**
+   * open menu
+   */
+  public open() { this.isVisible = true; }
 
-  close() { this.isVisible = false; }
+  /**
+   * close menu
+   */
+  public close() { this.isVisible = false; }
 
+  /**
+   * check closeble
+   * @param element
+   */
   isInClosableZone(element: HTMLElement) {
-    if (!this.notClosable)
-      return false;
-
+    if (!this.notClosable) { return false; }
     return this.notClosable.contains(element);
   }
 
 }
 
-@Directive({ selector: "[md2-menu-open]" })
+@Directive({ selector: '[md2-menu-open]' })
 export class Md2MenuOpen implements OnDestroy {
 
   private close = (event: MouseEvent) => {
     if (!this.menu.isInClosableZone(<HTMLElement>event.target) && event.target !== this.elementRef.nativeElement) {
       this.menu.close();
-      document.removeEventListener("click", this.close);
+      document.removeEventListener('click', this.close);
     }
   };
 
-  constructor( @Host() public menu: Md2Menu, private elementRef: ElementRef) { }
+  constructor( @Host() private menu: Md2Menu, private elementRef: ElementRef) { }
 
-  @HostListener('click') open() {
+  @HostListener('click')
+  private open() {
     this.menu.open();
-    document.addEventListener("click", this.close, true);
+    document.addEventListener('click', this.close, true);
   }
 
   ngOnDestroy() {
-    document.removeEventListener("click", this.close);
+    document.removeEventListener('click', this.close);
   }
 
 }

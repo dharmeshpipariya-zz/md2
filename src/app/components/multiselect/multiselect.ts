@@ -17,10 +17,8 @@ export class Multiselect {
     { name: 'Gothenburg', value: '4' },
     { name: 'London', value: '5' },
     { name: 'Seville', value: '6' }
-    //'Amsterdam', 'Birmingham', 'Dortmund', 'Gothenburg', 'London', 'Seville'
   ];
   private item: Array<any> = [{ name: 'Birmingham', value: '2' }, { name: 'Dortmund', value: '3' }];
-  //private item: Array<any> = ['Birmingham', 'Dortmund'];
   private change(value: any) {
     console.log('Changed data: ', value);
   }

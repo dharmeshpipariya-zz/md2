@@ -1,10 +1,25 @@
-import { Component, EventEmitter, Input, Output, HostListener, Provider, ViewEncapsulation, forwardRef, ElementRef, AfterContentInit } from '@angular/core';
+import { AfterContentInit, Component, ElementRef, EventEmitter, forwardRef, HostListener, Input, Output, Provider, ViewEncapsulation } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/common';
-import {HightlightPipe} from '../autocomplete/autocomplete.pipe';
+import { HightlightPipe } from '../autocomplete/autocomplete.pipe';
 
 const noop = () => { };
 
 let nextId = 0;
+
+class Tag {
+  public text: string;
+  public value: string;
+
+  constructor(source: any, textKey: string, valueKey: string) {
+    if (typeof source === 'string') {
+      this.text = this.value = source;
+    }
+    if (typeof source === 'object') {
+      this.text = source[textKey];
+      this.value = valueKey ? source[valueKey] : source;
+    }
+  }
+}
 
 const MD2_TAGS_CONTROL_VALUE_ACCESSOR = new Provider(NG_VALUE_ACCESSOR, {
   useExisting: forwardRef(() => Md2Tags),
@@ -72,7 +87,7 @@ const MD2_TAGS_CONTROL_VALUE_ACCESSOR = new Provider(NG_VALUE_ACCESSOR, {
 
 export class Md2Tags implements AfterContentInit, ControlValueAccessor {
 
-  constructor(public element: ElementRef) { }
+  constructor(private element: ElementRef) { }
 
   ngAfterContentInit() {
     this._isInitialized = true;
@@ -113,12 +128,19 @@ export class Md2Tags implements AfterContentInit, ControlValueAccessor {
     this.setValue(value);
   }
 
-  public setValue(value: any) {
+  /**
+   * setup value
+   * @param value
+   */
+  private setValue(value: any) {
     if (value !== this._value) {
       this._value = value;
       this.items = [];
       if (value && value.length && typeof value === 'object' && Array.isArray(value)) {
-        this.items = this.value.map((tag: any) => new Tag(tag, this.textKey, this.valueKey));
+        for (let i = 0; i < value.length; i++) {
+          let selItm = this._tags.find(t => this.equals(this.valueKey ? t[this.valueKey] : t, value[i]));
+          if (selItm) { this.items.push(new Tag(selItm, this.textKey, this.valueKey)); }
+        }
       }
       if (this._isInitialized) {
         this._onChangeCallback(value);
@@ -127,10 +149,37 @@ export class Md2Tags implements AfterContentInit, ControlValueAccessor {
     }
   }
 
+  /**
+   * compare two vars or objects
+   * @param o1
+   * @param o2
+   */
+  private equals(o1, o2) {
+    if (o1 === o2) return true;
+    if (o1 === null || o2 === null) return false;
+    if (o1 !== o1 && o2 !== o2) return true;
+    let t1 = typeof o1, t2 = typeof o2, length, key, keySet;
+    if (t1 === t2 && t1 === 'object') {
+      keySet = Object.create(null);
+      for (key in o1) {
+        if (!this.equals(o1[key], o2[key])) return false;
+        keySet[key] = true;
+      }
+      for (key in o2) {
+        if (!(key in keySet) && key.charAt(0) !== '$' && o2[key]) return false;
+      }
+      return true;
+    }
+    return false;
+  }
+
   get isMenuVisible(): boolean {
     return ((this.inputFocused || this.noBlur) && this.tagBuffer && this.list && this.list.length) ? true : false;
   }
 
+  /**
+   * update scroll of tags suggestion menu
+   */
   private updateScroll() {
     if (this.focusedTag < 0) return;
     let menuContainer = this.element.nativeElement.querySelector('.md2-tags-menu');
@@ -152,6 +201,10 @@ export class Md2Tags implements AfterContentInit, ControlValueAccessor {
     }
   }
 
+  /**
+   * input key listener
+   * @param event
+   */
   private inputKeydown(event: KeyboardEvent) {
     //Backspace
     if (event.keyCode === 8 && !this.tagBuffer) {
@@ -163,6 +216,8 @@ export class Md2Tags implements AfterContentInit, ControlValueAccessor {
       }
       return;
     }
+    //Del Key
+    if (event.keyCode === 46 && !this.tagBuffer) { return; }
     // Left / Right Arrow
     if ((event.keyCode === 37 || event.keyCode === 39) && !this.tagBuffer) { return; }
     // Down Arrow
@@ -257,6 +312,11 @@ export class Md2Tags implements AfterContentInit, ControlValueAccessor {
       (index === len) ? index - 1 : index;
   }
 
+  /**
+   * add tag
+   * @param event
+   * @param index
+   */
   private addTag(event, index) {
     event.preventDefault();
     event.stopPropagation();
@@ -270,11 +330,18 @@ export class Md2Tags implements AfterContentInit, ControlValueAccessor {
     this.onFocus();
   }
 
+  /**
+   * remove tag
+   * @param index
+   */
   private removeTag(index: number) {
     this.items.splice(index, 1);
     this.updateValue();
   }
 
+  /**
+   * update value
+   */
   private updateValue() {
     this._value = new Array<any>();
     for (let i = 0; i < this.items.length; i++) {
@@ -321,6 +388,10 @@ export class Md2Tags implements AfterContentInit, ControlValueAccessor {
 
   private listLeave() { this.noBlur = false; }
 
+  /**
+   * update suggestion menu with filter
+   * @param query
+   */
   private filterMatches(query: RegExp) {
     let tempList = this._tags.map((tag: any) => new Tag(tag, this.textKey, this.valueKey));
     this.list = tempList.filter((t: Tag) => (query.test(t.text) && !this.items.find((i: Tag) => t.text === i.text)));
@@ -336,19 +407,4 @@ export class Md2Tags implements AfterContentInit, ControlValueAccessor {
   registerOnChange(fn: any) { this._onChangeCallback = fn; }
 
   registerOnTouched(fn: any) { this._onTouchedCallback = fn; }
-}
-
-export class Tag {
-  public text: string;
-  public value: string;
-
-  constructor(source: any, textKey: string, valueKey: string) {
-    if (typeof source === 'string') {
-      this.text = this.value = source;
-    }
-    if (typeof source === 'object') {
-      this.text = source[textKey];
-      this.value = valueKey ? source[valueKey] : source;
-    }
-  }
 }

@@ -1,6 +1,6 @@
-import {Injectable, ComponentRef, DynamicComponentLoader, ApplicationRef, Inject, Optional, provide, ReflectiveInjector, ViewContainerRef} from '@angular/core';
-import {ViewContainerRef_} from '@angular/core/src/linker/view_container_ref';
-import {Md2ToastComponent} from './toast.component';
+import { Injectable, ComponentRef, DynamicComponentLoader, ApplicationRef, Inject, ReflectiveInjector, ViewContainerRef } from '@angular/core';
+import { ViewContainerRef_ } from '@angular/core/src/linker/view_container_ref';
+import { Md2ToastComponent } from './toast.component';
 
 @Injectable()
 export class Md2Toast {
@@ -11,6 +11,10 @@ export class Md2Toast {
 
   constructor(private loader: DynamicComponentLoader, private appRef: ApplicationRef) { }
 
+  /**
+   * show toast
+   * @param toastObj
+   */
   show(toastObj: string | { message: string, hideDelay: number }) {
     let toast;
     if (typeof toastObj === 'string') {
@@ -33,18 +37,30 @@ export class Md2Toast {
     }
   }
 
+  /**
+   * toast timeout
+   * @param toastId
+   */
   startTimeout(toastId: number) {
     setTimeout(() => {
       this.clear(toastId);
     }, this.hideDelay);
   }
 
+  /**
+   * setup toast
+   * @param toast
+   */
   setupToast(toast: Toast) {
     toast.id = ++this.index;
     this.container.instance.add(toast);
     this.startTimeout(toast.id);
   }
 
+  /**
+   * clear all toast
+   * @param toastId
+   */
   clear(toastId: number) {
     if (this.container) {
       let instance = this.container.instance;
@@ -53,6 +69,9 @@ export class Md2Toast {
     }
   }
 
+  /**
+   * hide toast
+   */
   hide() {
     this.container.destroy();
     this.container = null;

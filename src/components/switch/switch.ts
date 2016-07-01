@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, Provider, ViewEncapsulation, forwardRef, AfterContentInit } from '@angular/core';
+import { AfterContentInit, ChangeDetectionStrategy, Component, EventEmitter, forwardRef, Input, Output, Provider, ViewEncapsulation } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/common';
 
 let nextId = 0;
@@ -95,8 +95,14 @@ export class Md2Switch implements AfterContentInit, ControlValueAccessor {
 
   get labelId() { return this.id + '-label'; }
 
+  /**
+   * get checked status
+   */
   getAriaChecked() { return this.checked ? 'true' : 'false'; }
 
+  /**
+   * toggle switch
+   */
   toggle() { this.checked = !this.checked; }
 
   onInteractionEvent(event: Event) {
@@ -107,9 +113,7 @@ export class Md2Switch implements AfterContentInit, ControlValueAccessor {
     this.toggle();
   }
 
-  writeValue(value: any) {
-    this.checked = !!value;
-  }
+  writeValue(value: any) { this.checked = !!value; }
 
   registerOnChange(fn: any) {
     if (this._changeSubscription) {
@@ -118,8 +122,6 @@ export class Md2Switch implements AfterContentInit, ControlValueAccessor {
     this._changeSubscription = <{ unsubscribe: () => any }>this.change.subscribe(fn);
   }
 
-  registerOnTouched(fn: any) {
-    this.onTouched = fn;
-  }
+  registerOnTouched(fn: any) { this.onTouched = fn; }
 
 }
