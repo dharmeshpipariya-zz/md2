@@ -9,10 +9,12 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 const core_1 = require('@angular/core');
+const view_container_ref_1 = require('@angular/core/src/linker/view_container_ref');
 const tooltip_component_1 = require('./tooltip.component');
 const tooltip_options_1 = require('./tooltip.options');
 let Md2Tooltip = class Md2Tooltip {
-    constructor(viewContainerRef, loader) {
+    constructor(viewContainerRef, loader, appRef) {
+        this.appRef = appRef;
         this.visible = false;
         this.direction = 'bottom';
         this.delay = 0;
@@ -35,8 +37,9 @@ let Md2Tooltip = class Md2Tooltip {
         clearTimeout(this.timer);
         this.timer = setTimeout(() => {
             this.timer = 0;
+            let appElement = new view_container_ref_1.ViewContainerRef_(this.appRef['_rootComponents'][0]._hostElement);
             this.tooltip = this.loader
-                .loadNextToLocation(tooltip_component_1.Md2TooltipComponent, this.viewContainerRef, binding)
+                .loadNextToLocation(tooltip_component_1.Md2TooltipComponent, appElement, binding)
                 .then((componentRef) => {
                 return componentRef;
             });
@@ -86,7 +89,7 @@ Md2Tooltip = __decorate([
     core_1.Directive({
         selector: '[tooltip]'
     }), 
-    __metadata('design:paramtypes', [core_1.ViewContainerRef, core_1.DynamicComponentLoader])
+    __metadata('design:paramtypes', [core_1.ViewContainerRef, core_1.DynamicComponentLoader, core_1.ApplicationRef])
 ], Md2Tooltip);
 exports.Md2Tooltip = Md2Tooltip;
 exports.TOOLTIP_DIRECTIVES = [Md2Tooltip, tooltip_component_1.Md2TooltipComponent];

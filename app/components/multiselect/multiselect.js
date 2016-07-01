@@ -23,7 +23,6 @@ let Multiselect = class Multiselect {
         ];
         this.item = [{ name: 'Birmingham', value: '2' }, { name: 'Dortmund', value: '3' }];
     }
-    //private item: Array<any> = ['Birmingham', 'Dortmund'];
     change(value) {
         console.log('Changed data: ', value);
     }

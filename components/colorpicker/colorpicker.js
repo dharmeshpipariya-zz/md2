@@ -24,12 +24,18 @@ let Md2Colorpicker = class Md2Colorpicker {
         this.created = false;
     }
     ngOnInit() {
+        if (!this.colorpicker) {
+            this.colorpicker = '#000';
+        }
         let hsva = this.service.stringToHsva(this.colorpicker);
         if (hsva !== null) {
             this.colorpickerChange.emit(this.service.outputFormat(hsva, this.format));
             this.change.emit(this.service.outputFormat(hsva, this.format));
         }
     }
+    /**
+     * click of input,open color picker
+     */
     onClick() {
         if (!this.created) {
             this.created = true;
@@ -44,10 +50,18 @@ let Md2Colorpicker = class Md2Colorpicker {
             this.colorpickerDialog.openColorpicker();
         }
     }
+    /**
+     * change color
+     * @param value
+     */
     colorChanged(value) {
         this.colorpickerChange.emit(value);
         this.change.emit(value);
     }
+    /**
+     * input event listner
+     * @param event
+     */
     changeInput(event) {
         let value = event.target.value;
         this.colorpickerDialog.setColorFromString(value);
@@ -97,6 +111,10 @@ let ColorpickerSliderDirective = class ColorpickerSliderDirective {
         this.listenerMove = (event) => { this.move(event); };
         this.listenerStop = () => { this.stop(); };
     }
+    /**
+     * set cursor position
+     * @param event
+     */
     setCursor(event) {
         let height = this.el.nativeElement.offsetHeight;
         let width = this.el.nativeElement.offsetWidth;
@@ -112,10 +130,18 @@ let ColorpickerSliderDirective = class ColorpickerSliderDirective {
             this.change.emit({ v: x / width, rg: this.pointX });
         }
     }
+    /**
+     * input event listner
+     * @param event
+     */
     move(event) {
         event.preventDefault();
         this.setCursor(event);
     }
+    /**
+     * input event listner
+     * @param event
+     */
     start(event) {
         this.setCursor(event);
         document.addEventListener('mousemove', this.listenerMove);
@@ -123,15 +149,26 @@ let ColorpickerSliderDirective = class ColorpickerSliderDirective {
         document.addEventListener('mouseup', this.listenerStop);
         document.addEventListener('touchend', this.listenerStop);
     }
+    /**
+     * stop mouse event
+     */
     stop() {
         document.removeEventListener('mousemove', this.listenerMove);
         document.removeEventListener('touchmove', this.listenerMove);
         document.removeEventListener('mouseup', this.listenerStop);
         document.removeEventListener('touchend', this.listenerStop);
     }
+    /**
+     * get x
+     * @param event
+     */
     getX(event) {
         return (event.pageX !== undefined ? event.pageX : event.touches[0].pageX) - this.el.nativeElement.getBoundingClientRect().left - window.pageXOffset;
     }
+    /**
+     * get y
+     * @param event
+     */
     getY(event) {
         return (event.pageY !== undefined ? event.pageY : event.touches[0].pageY) - this.el.nativeElement.getBoundingClientRect().top - window.pageYOffset;
     }
@@ -178,6 +215,10 @@ let ColorpickerComponent = class ColorpickerComponent {
         this.offset = parseInt(offset);
         this.cFormat = cFormat;
     }
+    /**
+    * set initial color
+    * @param color
+    */
     setInitialColor(color) {
         this.initialColor = color;
     }
@@ -205,6 +246,9 @@ let ColorpickerComponent = class ColorpickerComponent {
         this.update();
         this.openColorpicker();
     }
+    /**
+     * open color picker popup
+     */
     openColorpicker() {
         if (!this.show) {
             this.setColorpickerDialogPosition();
@@ -213,12 +257,19 @@ let ColorpickerComponent = class ColorpickerComponent {
             window.addEventListener('resize', this.resize);
         }
     }
+    /**
+    * mouse down event
+    * @param event
+    */
     onMouseDown(event) {
         if (!this.isDescendant(this.el.nativeElement, event.target)
-            && event.target != this.directiveElementRef.nativeElement) {
+            && event.target !== this.directiveElementRef.nativeElement) {
             this.closeColorpicker();
         }
     }
+    /**
+     * close color picker
+     */
     closeColorpicker() {
         this.show = false;
         document.removeEventListener('mouseup', this.mouseDown);
@@ -229,6 +280,9 @@ let ColorpickerComponent = class ColorpickerComponent {
             this.setColorpickerDialogPosition();
         }
     }
+    /**
+     * set position of color picker
+     */
     setColorpickerDialogPosition() {
         var node = this.directiveElementRef.nativeElement, position = 'static';
         let parentNode = null;
@@ -274,6 +328,11 @@ let ColorpickerComponent = class ColorpickerComponent {
             this.left += this.offset / 100 * boxDirective.width;
         }
     }
+    /**
+    * set saturation,lightness,hue,alpha,RGB value
+    * @param val
+    * @param rg
+    */
     setSaturation(val) {
         let hsla = this.service.hsva2hsla(this.hsva);
         hsla.s = val.v / val.rg;
@@ -317,6 +376,10 @@ let ColorpickerComponent = class ColorpickerComponent {
         this.hsva.v = val.v / val.pointY;
         this.update();
     }
+    /**
+     * set color
+     * @param value
+     */
     setColorFromString(value) {
         let hsva = this.service.stringToHsva(value);
         if (hsva !== null) {
@@ -331,6 +394,9 @@ let ColorpickerComponent = class ColorpickerComponent {
         }
         return this.format;
     }
+    /**
+     * update color
+     */
     update() {
         let hsla = this.service.hsva2hsla(this.hsva);
         let rgba = this.service.denormalizeRGBA(this.service.hsvaToRgba(this.hsva));
@@ -344,6 +410,9 @@ let ColorpickerComponent = class ColorpickerComponent {
         this.slider = new SliderPosition((this.hsva.h) * this.sliderDim.h - 8, this.hsva.s * this.sliderDim.s - 8, (1 - this.hsva.v) * this.sliderDim.v - 8, this.hsva.a * this.sliderDim.a - 8);
         this.directiveInstance.colorChanged(this.outputColor);
     }
+    /**
+     * deselect recent color and close popup
+     */
     cancelColor() {
         this.setColorFromString(this.initialColor);
         this.closeColorpicker();
@@ -358,6 +427,11 @@ let ColorpickerComponent = class ColorpickerComponent {
         }
         return false;
     }
+    /**
+     * create color box
+     * @param element
+     * @param offset
+     */
     createBox(element, offset) {
         return {
             top: element.getBoundingClientRect().top + (offset ? window.pageYOffset : 0),

@@ -12,6 +12,7 @@ const multiselect_1 = require('../multiselect/multiselect');
 const select_1 = require('../select/select');
 const switch_1 = require('../switch/switch');
 const tabs_1 = require('../tabs/tabs');
+const tags_1 = require('../tags/tags');
 const toast_1 = require('../toast/toast');
 const tooltip_1 = require('../tooltip/tooltip');
 __export(require('../accordion/accordion'));
@@ -24,8 +25,9 @@ __export(require('../multiselect/multiselect'));
 __export(require('../select/select'));
 __export(require('../switch/switch'));
 __export(require('../tabs/tabs'));
+__export(require('../tags/tags'));
 __export(require('../toast/toast'));
 __export(require('../tooltip/tooltip'));
-exports.MD2_ALL_DIRECTIVES = [accordion_1.ACCORDION_DIRECTIVES, autocomplete_1.Md2Autocomplete, collapse_1.Md2Collapse, colorpicker_1.Md2Colorpicker, colorpicker_1.Md2ColorpickerService, dialog_1.Md2Dialog, menu_1.MENU_DIRECTIVES, multiselect_1.Md2Multiselect, select_1.SELECT_DIRECTIVES, switch_1.Md2Switch, tabs_1.TABS_DIRECTIVES, toast_1.Md2Toast, tooltip_1.TOOLTIP_DIRECTIVES];
+exports.MD2_ALL_DIRECTIVES = [accordion_1.ACCORDION_DIRECTIVES, autocomplete_1.Md2Autocomplete, collapse_1.Md2Collapse, colorpicker_1.Md2Colorpicker, colorpicker_1.Md2ColorpickerService, dialog_1.Md2Dialog, menu_1.MENU_DIRECTIVES, multiselect_1.Md2Multiselect, select_1.SELECT_DIRECTIVES, switch_1.Md2Switch, tabs_1.TABS_DIRECTIVES, tags_1.Md2Tags, toast_1.Md2Toast, tooltip_1.TOOLTIP_DIRECTIVES];
 
 //# sourceMappingURL=all.js.map

@@ -15,6 +15,10 @@ let Md2AccordionTab = class Md2AccordionTab {
         this.accordion = accordion;
         this.accordion.addTab(this);
     }
+    /**
+     * Toggle the accordion
+     * @param event
+     */
     toggle(event) {
         if (this.disabled) {
             event.preventDefault();
@@ -36,6 +40,9 @@ let Md2AccordionTab = class Md2AccordionTab {
         }
         event.preventDefault();
     }
+    /**
+     * Find index of specific tab of accordion
+     */
     findTabIndex() {
         let index = -1;
         for (let i = 0; i < this.accordion.tabs.length; i++) {
@@ -47,6 +54,10 @@ let Md2AccordionTab = class Md2AccordionTab {
         return index;
     }
 };
+__decorate([
+    core_1.Input('class'), 
+    __metadata('design:type', String)
+], Md2AccordionTab.prototype, "md2Class", void 0);
 __decorate([
     core_1.Input(), 
     __metadata('design:type', String)
@@ -85,6 +96,7 @@ Md2AccordionTab = __decorate([
   `],
         host: {
             'role': 'accordion-tab',
+            '[ngClass]': 'md2Class',
             '[class.md2-accordion-tab]': 'true',
             '[class.md2-accordion-tab-active]': 'active',
             '[class.md2-accordion-tab-disabled]': 'disabled'

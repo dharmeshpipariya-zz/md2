@@ -21,7 +21,6 @@ let Autocomplete = class Autocomplete {
             { name: 'London', value: '5' },
             { name: 'Seville', value: '6' }
         ];
-        this.item = [];
     }
     change(value) {
         console.log('Changed data: ', value);

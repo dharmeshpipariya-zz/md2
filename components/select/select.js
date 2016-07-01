@@ -45,13 +45,15 @@ let Md2Select = class Md2Select {
         this._selected = null;
         this._isInitialized = false;
         this.isOpenable = true;
-        this.isMenuOpened = false;
+        this.isMenuVisible = false;
         this.selectedValue = '';
+        this.focusIndex = 0;
         this._controlValueAccessorChangeFn = (value) => { };
         this.onTouched = () => { };
         this.change = new core_1.EventEmitter();
         this._options = null;
         this.tabindex = 0;
+        this.placeholder = '';
     }
     get name() { return this._name; }
     set name(value) {
@@ -60,13 +62,13 @@ let Md2Select = class Md2Select {
     }
     get disabled() { return this._disabled; }
     set disabled(value) {
-        this._disabled = (value != null && value !== false) ? true : null;
+        this._disabled = (value !== null && value !== false) ? true : null;
     }
     get value() { return this._value; }
     set value(newValue) {
-        if (this._value != newValue) {
+        if (this._value !== newValue) {
             this._value = newValue;
-            this._updateSelecteOptionValue();
+            this._updateSelectedOptionValue();
             if (this._isInitialized) {
                 this._emitChangeEvent();
             }
@@ -80,20 +82,103 @@ let Md2Select = class Md2Select {
             if (!selected.selected) {
                 selected.selected = true;
             }
-            this.selectedValue = document.getElementById(selected.id).innerHTML;
+            this.selectedValue = selected.content;
         }
-    }
-    ngOnInit() {
-        this.menu = new ListsMenu(this);
     }
     ngAfterContentInit() {
         this._isInitialized = true;
     }
     ngAfterContentChecked() {
-        let opt = this._options.filter(o => o.value === this.value)[0];
+        let opt = this._options.filter(o => this.equals(o.value, this.value))[0];
         if (opt) {
-            this.selectedValue = document.getElementById(opt.id).innerHTML;
+            this.selectedValue = opt.content;
         }
+    }
+    /**
+     * Compare two vars or objects
+     * @param o1
+     * @param o2
+     */
+    equals(o1, o2) {
+        if (o1 === o2)
+            return true;
+        if (o1 === null || o2 === null)
+            return false;
+        if (o1 !== o1 && o2 !== o2)
+            return true;
+        let t1 = typeof o1, t2 = typeof o2, length, key, keySet;
+        if (t1 === t2 && t1 === 'object') {
+            keySet = Object.create(null);
+            for (key in o1) {
+                if (!this.equals(o1[key], o2[key]))
+                    return false;
+                keySet[key] = true;
+            }
+            for (key in o2) {
+                if (!(key in keySet) && key.charAt(0) !== '$' && o2[key])
+                    return false;
+            }
+            return true;
+        }
+        return false;
+    }
+    /**
+     * To update scroll to position of focused option
+     */
+    updateScroll() {
+        if (this.focusIndex < 0)
+            return;
+        let menuContainer = this.element.nativeElement.querySelector('.md2-select-menu');
+        if (!menuContainer)
+            return;
+        let choices = menuContainer.querySelectorAll('md2-option');
+        if (choices.length < 1)
+            return;
+        let highlighted = choices[this.focusIndex];
+        if (!highlighted)
+            return;
+        let top = highlighted.offsetTop + highlighted.clientHeight - menuContainer.scrollTop;
+        let height = menuContainer.offsetHeight;
+        if (top > height) {
+            menuContainer.scrollTop += top - height;
+        }
+        else if (top < highlighted.clientHeight) {
+            menuContainer.scrollTop -= highlighted.clientHeight - top;
+        }
+    }
+    /**
+     * get index of focused option
+     */
+    getFocusIndex() { return this._options.toArray().findIndex(o => o.focused); }
+    /**
+     * update focused option
+     * @param inc
+     */
+    updateFocus(inc) {
+        let options = this._options.toArray();
+        let index = this.focusIndex;
+        options.forEach(o => { if (o.focused) {
+            o.focused = false;
+        } });
+        let option;
+        do {
+            index += inc;
+            if (index < 0) {
+                index = options.length - 1;
+            }
+            else if (index > options.length - 1) {
+                index = 0;
+            }
+            option = options[index];
+            this.focusIndex = index;
+            if (option.disabled) {
+                option = undefined;
+            }
+        } while (!option);
+        if (option) {
+            option.focused = true;
+        }
+        this.updateScroll();
     }
     onClick(e) {
         if (this.disabled) {
@@ -102,28 +187,29 @@ let Md2Select = class Md2Select {
             return;
         }
         if (this.isOpenable) {
-            if (!this.isMenuOpened) {
+            if (!this.isMenuVisible) {
                 this._options.forEach(o => {
                     o.focused = false;
                     if (o.selected) {
                         o.focused = true;
                     }
                 });
-                this.isMenuOpened = true;
+                this.focusIndex = this.getFocusIndex();
+                this.isMenuVisible = true;
                 setTimeout(() => {
-                    this.menu.updateScroll();
-                }, 100);
+                    this.updateScroll();
+                }, 0);
             }
         }
         this.isOpenable = true;
     }
     onKeyDown(e) {
-        if (this.disabled === true) {
+        if (this.disabled) {
             return;
         }
         // Tab Key
         if (e.keyCode === 9) {
-            if (this.isMenuOpened) {
+            if (this.isMenuVisible) {
                 this.onBlur();
                 e.preventDefault();
             }
@@ -138,8 +224,8 @@ let Md2Select = class Md2Select {
         }
         // Up Arrow
         if (e.keyCode === 38) {
-            if (this.isMenuOpened) {
-                this.menu.prev();
+            if (this.isMenuVisible) {
+                this.updateFocus(-1);
             }
             else {
                 this.onClick(e);
@@ -150,8 +236,8 @@ let Md2Select = class Md2Select {
         }
         // Down Arrow
         if (e.keyCode === 40) {
-            if (this.isMenuOpened) {
-                this.menu.next();
+            if (this.isMenuVisible) {
+                this.updateFocus(1);
             }
             else {
                 this.onClick(e);
@@ -162,9 +248,8 @@ let Md2Select = class Md2Select {
         }
         // Enter / Space
         if (e.keyCode === 13 || e.keyCode === 32) {
-            if (this.isMenuOpened) {
-                let opt = this._options.filter(o => o.focused)[0];
-                opt.onClick(e);
+            if (this.isMenuVisible) {
+                this._options.toArray()[this.focusIndex].onClick(e);
             }
             else {
                 this.onClick(e);
@@ -174,7 +259,7 @@ let Md2Select = class Md2Select {
         }
     }
     onBlur() {
-        this.isMenuOpened = false;
+        this.isMenuVisible = false;
         this.isOpenable = false;
         setTimeout(() => {
             this.isOpenable = true;
@@ -190,14 +275,14 @@ let Md2Select = class Md2Select {
             option.name = this.name;
         });
     }
-    _updateSelecteOptionValue() {
-        let isAlreadySelected = this._selected != null && this._selected.value == this._value;
-        if (this._options != null && !isAlreadySelected) {
-            let matchingOption = this._options.filter(option => option.value == this._value)[0];
+    _updateSelectedOptionValue() {
+        let isAlreadySelected = this._selected !== null && this._selected.value === this._value;
+        if (this._options !== null && !isAlreadySelected) {
+            let matchingOption = this._options.filter(option => option.value === this._value)[0];
             if (matchingOption) {
                 this.selected = matchingOption;
             }
-            else if (this.value == null) {
+            else if (this.value === null) {
                 this.selected = null;
                 this._options.forEach(option => { option.selected = false; });
             }
@@ -230,6 +315,10 @@ __decorate([
     core_1.Input(), 
     __metadata('design:type', Number)
 ], Md2Select.prototype, "tabindex", void 0);
+__decorate([
+    core_1.Input(), 
+    __metadata('design:type', String)
+], Md2Select.prototype, "placeholder", void 0);
 __decorate([
     core_1.HostBinding('class.md2-select-disabled'),
     core_1.Input(), 
@@ -266,16 +355,16 @@ Md2Select = __decorate([
         selector: 'md2-select',
         template: `
     <div class="md2-select-container">
-      <span *ngIf="selectedValue.length < 1" class="md2-select-placeholder">Placeholder</span>
+      <span *ngIf="selectedValue.length < 1" class="md2-select-placeholder">{{placeholder}}</span>
       <span *ngIf="selectedValue.length > 0" class="md2-select-value" [innerHtml]="selectedValue"></span>
-      <i class="md2-select-icon"></i>
+      <em class="md2-select-icon"></em>
     </div>
-    <div class="md2-select-menu" [class.open]="isMenuOpened">
+    <div class="md2-select-menu" [class.open]="isMenuVisible">
       <ng-content></ng-content>    
     </div>
   `,
         styles: [`
-    md2-select { position: relative; display: block; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
+    md2-select { position: relative; display: block; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; -moz-backface-visibility: hidden; -webkit-backface-visibility: hidden; backface-visibility: hidden; }
     md2-select:focus { outline: none; }
     md2-select .md2-select-container { display: flex; width: 100%; align-items: center; padding: 2px 0 1px; border-bottom: 1px solid rgba(0, 0, 0, 0.38); position: relative; -moz-box-sizing: content-box; -webkit-box-sizing: content-box; box-sizing: content-box; min-width: 64px; min-height: 26px; flex-grow: 1; cursor: pointer; }
     md2-select:focus .md2-select-container { padding-bottom: 0; border-bottom: 2px solid #106cc8; }
@@ -290,7 +379,6 @@ Md2Select = __decorate([
   `],
         host: {
             'role': 'select',
-            '[id]': 'id',
             '[tabindex]': 'disabled ? -1 : tabindex',
             '[attr.aria-disabled]': 'disabled'
         },
@@ -301,33 +389,34 @@ Md2Select = __decorate([
 ], Md2Select);
 exports.Md2Select = Md2Select;
 let Md2Option = class Md2Option {
-    constructor(select, selectDispatcher) {
+    constructor(select, selectDispatcher, element) {
         this.selectDispatcher = selectDispatcher;
+        this.element = element;
         this.focused = false;
         this._selected = false;
         this.id = `md2-option-${_uniqueIdCounter++}`;
         this._value = null;
-        this.change = new core_1.EventEmitter();
+        this.content = null;
         this.select = select;
         selectDispatcher.listen((id, name) => {
-            if (id != this.id && name == this.name) {
+            if (id !== this.id && name === this.name) {
                 this.selected = false;
             }
         });
     }
     get selected() { return this._selected; }
-    set selected(newSelectedState) {
-        if (newSelectedState) {
+    set selected(selected) {
+        if (selected) {
             this.selectDispatcher.notify(this.id, this.name);
         }
-        this._selected = newSelectedState;
-        if (newSelectedState && this.select.value != this.value) {
+        this._selected = selected;
+        if (selected && this.select.value !== this.value) {
             this.select.selected = this;
         }
     }
     get value() { return this._value; }
     set value(value) {
-        if (this._value != value) {
+        if (this._value !== value) {
             if (this.selected) {
                 this.select.value = value;
             }
@@ -337,13 +426,20 @@ let Md2Option = class Md2Option {
     get disabled() {
         return this._disabled || (this.select.disabled);
     }
-    set disabled(value) {
-        this._disabled = (value != null && value !== false) ? true : null;
+    set disabled(disabled) {
+        this._disabled = disabled;
     }
     ngOnInit() {
         this.selected = this.select.value === this._value;
         this.name = this.select.name;
     }
+    ngAfterViewInit() {
+        this.content = this.element.nativeElement.innerHTML;
+    }
+    /**
+     * on click to select option
+     * @param event
+     */
     onClick(event) {
         if (this.disabled) {
             event.preventDefault();
@@ -364,10 +460,6 @@ __decorate([
     core_1.Input(), 
     __metadata('design:type', String)
 ], Md2Option.prototype, "id", void 0);
-__decorate([
-    core_1.Output(), 
-    __metadata('design:type', core_1.EventEmitter)
-], Md2Option.prototype, "change", void 0);
 __decorate([
     core_1.HostBinding('class.md2-option-selected'),
     core_1.Input(), 
@@ -394,92 +486,14 @@ Md2Option = __decorate([
     md2-option .md2-option-text { width: auto; white-space: nowrap; overflow: hidden; -ms-text-overflow: ellipsis; -o-text-overflow: ellipsis; text-overflow: ellipsis; font-size: 16px; }
   `],
         host: {
-            'role': 'select-option',
+            'role': 'option',
             '(click)': 'onClick($event)'
         },
         encapsulation: core_1.ViewEncapsulation.None
     }), 
-    __metadata('design:paramtypes', [Md2Select, Md2SelectDispatcher])
+    __metadata('design:paramtypes', [Md2Select, Md2SelectDispatcher, core_1.ElementRef])
 ], Md2Option);
 exports.Md2Option = Md2Option;
-class Menu {
-    constructor(list) {
-        this.list = list;
-    }
-    getActiveIndex() {
-        return this.list._options.toArray().findIndex(o => o.focused);
-    }
-    updateScroll() {
-        let container = this.list.element.nativeElement.querySelector('.md2-select-menu');
-        if (!container) {
-            return;
-        }
-        let options = container.querySelectorAll('md2-option');
-        if (options.length < 1) {
-            return;
-        }
-        let index = this.getActiveIndex();
-        if (index < 0) {
-            return;
-        }
-        let selected = options[index];
-        if (!selected) {
-            return;
-        }
-        let posY = selected.offsetTop + selected.clientHeight - container.scrollTop;
-        let height = container.offsetHeight;
-        if (posY > height) {
-            container.scrollTop += posY - height;
-        }
-        else if (posY < selected.clientHeight) {
-            container.scrollTop -= selected.clientHeight - posY;
-        }
-    }
-    focusOption(direction) {
-        let options = this.list._options.toArray();
-        let index = this.getActiveIndex();
-        options.forEach(o => {
-            if (o.focused) {
-                o.focused = false;
-            }
-        });
-        let option;
-        do {
-            if (index === -1 || direction === 'first') {
-                index = 0;
-            }
-            else if (direction === 'next' && index < options.length - 1) {
-                index++;
-            }
-            else if (direction === 'next' && index > options.length - 2) {
-                index = 0;
-            }
-            else if (direction === 'prev' && index > 0) {
-                index--;
-            }
-            else if ((direction === 'prev' && index < 1) || direction === 'last') {
-                index = options.length - 1;
-            }
-            option = options[index];
-            if (option.disabled) {
-                option = undefined;
-            }
-        } while (!option);
-        if (option) {
-            option.focused = true;
-        }
-        this.updateScroll();
-    }
-}
-class ListsMenu extends Menu {
-    constructor(list) {
-        super(list);
-        this.list = list;
-    }
-    prev() { super.focusOption('prev'); }
-    next() { super.focusOption('next'); }
-    updateScroll() { super.updateScroll(); }
-}
 exports.SELECT_DIRECTIVES = [Md2Select, Md2Option];
 
 //# sourceMappingURL=select.js.map

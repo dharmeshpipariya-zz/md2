@@ -18,6 +18,10 @@ let Md2Toast = class Md2Toast {
         this.hideDelay = 3000;
         this.index = 0;
     }
+    /**
+     * show toast
+     * @param toastObj
+     */
     show(toastObj) {
         let toast;
         if (typeof toastObj === 'string') {
@@ -41,16 +45,28 @@ let Md2Toast = class Md2Toast {
             }
         }
     }
+    /**
+     * toast timeout
+     * @param toastId
+     */
     startTimeout(toastId) {
         setTimeout(() => {
             this.clear(toastId);
         }, this.hideDelay);
     }
+    /**
+     * setup toast
+     * @param toast
+     */
     setupToast(toast) {
         toast.id = ++this.index;
         this.container.instance.add(toast);
         this.startTimeout(toast.id);
     }
+    /**
+     * clear all toast
+     * @param toastId
+     */
     clear(toastId) {
         if (this.container) {
             let instance = this.container.instance;
@@ -60,6 +76,9 @@ let Md2Toast = class Md2Toast {
             }
         }
     }
+    /**
+     * hide toast
+     */
     hide() {
         this.container.destroy();
         this.container = null;

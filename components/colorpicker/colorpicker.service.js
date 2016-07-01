@@ -13,6 +13,10 @@ const colorpicker_1 = require('./colorpicker');
 let Md2ColorpickerService = class Md2ColorpickerService {
     constructor() {
     }
+    /**
+     * hsla to hsva
+     * @param hsla
+     */
     hsla2hsva(hsla) {
         let h = Math.min(hsla.h, 1), s = Math.min(hsla.s, 1), l = Math.min(hsla.l, 1), a = Math.min(hsla.a, 1);
         if (l === 0) {
@@ -23,6 +27,10 @@ let Md2ColorpickerService = class Md2ColorpickerService {
             return { h: h, s: 2 * (v - l) / v, v: v, a: a };
         }
     }
+    /**
+    * hsva to hsla
+    * @param hsva
+    */
     hsva2hsla(hsva) {
         let h = hsva.h, s = hsva.s, v = hsva.v, a = hsva.a;
         if (v === 0) {
@@ -36,6 +44,10 @@ let Md2ColorpickerService = class Md2ColorpickerService {
             return new colorpicker_1.Hsla(h, v * s / (1 - Math.abs(2 * l - 1)), l, a);
         }
     }
+    /**
+     * rgba to hsva
+     * @param rgba
+     */
     rgbaToHsva(rgba) {
         let r = Math.min(rgba.r, 1), g = Math.min(rgba.g, 1), b = Math.min(rgba.b, 1), a = Math.min(rgba.a, 1);
         let max = Math.max(r, g, b), min = Math.min(r, g, b);
@@ -61,6 +73,10 @@ let Md2ColorpickerService = class Md2ColorpickerService {
         }
         return new colorpicker_1.Hsva(h, s, v, a);
     }
+    /**
+     * hsva to rgba
+     * @param hsva
+     */
     hsvaToRgba(hsva) {
         let h = hsva.h, s = hsva.s, v = hsva.v, a = hsva.a;
         let r, g, b;
@@ -91,6 +107,10 @@ let Md2ColorpickerService = class Md2ColorpickerService {
         }
         return new colorpicker_1.Rgba(r, g, b, a);
     }
+    /**
+     * string to hsva
+     * @param colorString
+     */
     stringToHsva(colorString) {
         let stringParsers = [
             {
@@ -137,6 +157,11 @@ let Md2ColorpickerService = class Md2ColorpickerService {
         }
         return hsva;
     }
+    /**
+     * output formate of color
+     * @param hsva
+     * @param outputFormat
+     */
     outputFormat(hsva, outputFormat) {
         if (hsva.a < 1) {
             switch (outputFormat) {

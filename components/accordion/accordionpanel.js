@@ -15,6 +15,10 @@ let Md2Accordion = class Md2Accordion {
         this.open = new core_1.EventEmitter();
         this.tabs = [];
     }
+    /**
+     * Add or append tab in accordion
+     * @param tab
+     */
     addTab(tab) {
         this.tabs.push(tab);
     }
@@ -24,9 +28,9 @@ __decorate([
     __metadata('design:type', Boolean)
 ], Md2Accordion.prototype, "multiple", void 0);
 __decorate([
-    core_1.Input('md-class'), 
+    core_1.Input('class'), 
     __metadata('design:type', String)
-], Md2Accordion.prototype, "mdClass", void 0);
+], Md2Accordion.prototype, "md2Class", void 0);
 __decorate([
     core_1.Output(), 
     __metadata('design:type', core_1.EventEmitter)
@@ -40,7 +44,7 @@ Md2Accordion = __decorate([
         selector: 'md2-accordion',
         template: `<ng-content></ng-content>`,
         host: {
-            '[class]': 'mdClass',
+            '[ngClass]': 'md2Class',
             '[class.md2-accordion]': 'true'
         },
         styles: [`

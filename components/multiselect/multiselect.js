@@ -10,6 +10,17 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 const core_1 = require('@angular/core');
 const common_1 = require('@angular/common');
+class Option {
+    constructor(source, textKey, valueKey) {
+        if (typeof source === 'string') {
+            this.text = this.value = source;
+        }
+        if (typeof source === 'object') {
+            this.text = source[textKey];
+            this.value = valueKey ? source[valueKey] : source;
+        }
+    }
+}
 const noop = () => { };
 let nextId = 0;
 const MD2_MULTISELECT_CONTROL_VALUE_ACCESSOR = new core_1.Provider(common_1.NG_VALUE_ACCESSOR, {
@@ -24,24 +35,24 @@ let Md2Multiselect = class Md2Multiselect {
         this._isInitialized = false;
         this._onTouchedCallback = noop;
         this._onChangeCallback = noop;
-        this.selectedValue = [];
-        this.isMenuOpened = false;
-        this._items = [];
+        this._options = [];
         this.list = [];
+        this.items = [];
+        this.focusedOption = 0;
+        this.isFocused = false;
         this.id = 'md2-multiselect-' + (++nextId);
         this.disabled = false;
         this.tabindex = 0;
         this.placeholder = '';
-        this.itemText = 'text';
+        this.textKey = 'text';
+        this.valueKey = null;
     }
-    ngOnInit() {
-        this.behavior = new GenericBehavior(this);
-    }
+    /** TODO: internal */
     ngAfterContentInit() {
         this._isInitialized = true;
     }
-    set items(value) {
-        this._items = value;
+    set options(value) {
+        this._options = value;
     }
     get value() {
         return this._value;
@@ -49,13 +60,20 @@ let Md2Multiselect = class Md2Multiselect {
     set value(value) {
         this.setValue(value);
     }
+    /**
+     * set value
+     * @param value
+     */
     setValue(value) {
         if (value !== this._value) {
             this._value = value;
-            this.selectedValue = [];
+            this.items = [];
             if (value && value.length && typeof value === 'object' && Array.isArray(value)) {
                 for (let i = 0; i < value.length; i++) {
-                    this.selectedValue.push({ text: value[i][this.itemText] });
+                    let selItm = this._options.find(itm => this.equals(this.valueKey ? itm[this.valueKey] : itm, value[i]));
+                    if (selItm) {
+                        this.items.push(new Option(selItm, this.textKey, this.valueKey));
+                    }
                 }
             }
             if (this._isInitialized) {
@@ -64,106 +82,188 @@ let Md2Multiselect = class Md2Multiselect {
             }
         }
     }
-    onClick(e) {
-        if (this.disabled) {
-            e.stopPropagation();
-            e.preventDefault();
-            return;
+    /**
+     * Compare two vars or objects
+     * @param o1
+     * @param o2
+     */
+    equals(o1, o2) {
+        if (o1 === o2)
+            return true;
+        if (o1 === null || o2 === null)
+            return false;
+        if (o1 !== o1 && o2 !== o2)
+            return true;
+        let t1 = typeof o1, t2 = typeof o2, length, key, keySet;
+        if (t1 === t2 && t1 === 'object') {
+            keySet = Object.create(null);
+            for (key in o1) {
+                if (!this.equals(o1[key], o2[key]))
+                    return false;
+                keySet[key] = true;
+            }
+            for (key in o2) {
+                if (!(key in keySet) && key.charAt(0) !== '$' && o2[key])
+                    return false;
+            }
+            return true;
         }
-        this.list = this._items.map((item) => new Item(item, this.itemText));
-        if (this.list.length > 0) {
-            this.isMenuOpened = true;
-            this.behavior.first();
+        return false;
+    }
+    get isMenuVisible() {
+        return (this.isFocused && this.list && this.list.length) ? true : false;
+    }
+    /**
+     * to update scroll of options
+     */
+    updateScroll() {
+        if (this.focusedOption < 0)
+            return;
+        let menuContainer = this.element.nativeElement.querySelector('.md2-multiselect-menu');
+        if (!menuContainer)
+            return;
+        let choices = menuContainer.querySelectorAll('.md2-option');
+        if (choices.length < 1)
+            return;
+        let highlighted = choices[this.focusedOption];
+        if (!highlighted)
+            return;
+        let top = highlighted.offsetTop + highlighted.clientHeight - menuContainer.scrollTop;
+        let height = menuContainer.offsetHeight;
+        if (top > height) {
+            menuContainer.scrollTop += top - height;
+        }
+        else if (top < highlighted.clientHeight) {
+            menuContainer.scrollTop -= highlighted.clientHeight - top;
         }
     }
-    onKeyDown(e) {
+    onClick(event) {
+        if (this.disabled) {
+            event.stopPropagation();
+            event.preventDefault();
+            return;
+        }
+        this.updateOptions();
+    }
+    onKeyDown(event) {
         // check enabled
-        if (this.disabled === true) {
+        if (this.disabled) {
             return;
         }
         // Tab Key
-        if (e.keyCode === 9) {
-            if (this.isMenuOpened) {
+        if (event.keyCode === 9) {
+            if (this.isMenuVisible) {
                 this.onBlur();
-                e.preventDefault();
+                event.preventDefault();
             }
             return;
         }
         // Escape Key
-        if (e.keyCode === 27) {
+        if (event.keyCode === 27) {
             this.onBlur();
-            e.stopPropagation();
-            e.preventDefault();
-            return;
-        }
-        // Up Arrow
-        if (e.keyCode === 38) {
-            this.behavior.prev();
-            if (!this.isMenuOpened) {
-                this.onClick(e);
-            }
-            e.stopPropagation();
-            e.preventDefault();
+            event.stopPropagation();
+            event.preventDefault();
             return;
         }
         // Down Arrow
-        if (e.keyCode === 40) {
-            this.behavior.next();
-            if (!this.isMenuOpened) {
-                this.onClick(e);
+        if (event.keyCode === 40) {
+            if (this.isMenuVisible) {
+                this.focusedOption = (this.focusedOption === this.list.length - 1) ? 0 : Math.min(this.focusedOption + 1, this.list.length - 1);
+                this.updateScroll();
             }
-            e.stopPropagation();
-            e.preventDefault();
+            else {
+                this.updateOptions();
+            }
+            event.stopPropagation();
+            event.preventDefault();
+            return;
+        }
+        // Up Arrow
+        if (event.keyCode === 38) {
+            if (this.isMenuVisible) {
+                this.focusedOption = (this.focusedOption === 0) ? this.list.length - 1 : Math.max(0, this.focusedOption - 1);
+                this.updateScroll();
+            }
+            else {
+                this.updateOptions();
+            }
+            event.stopPropagation();
+            event.preventDefault();
             return;
         }
         // Enter / Space
-        if (e.keyCode === 13 || e.keyCode === 32) {
-            if (this.isMenuOpened) {
-                this.selectItemOnMatch(this.currentItem, e);
+        if (event.keyCode === 13 || event.keyCode === 32) {
+            if (this.isMenuVisible) {
+                this.toggleOption(event, this.focusedOption);
             }
             else {
-                this.onClick(e);
+                this.updateOptions();
             }
-            e.preventDefault();
+            event.preventDefault();
             return;
         }
     }
-    onBlur() { this.isMenuOpened = false; }
-    selectItemOnMatch(value, e = null) {
-        if (e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-        if (this.list.length <= 0) {
-            return;
-        }
-        let index = this.selectedValue.findIndex(item => item.text === value.text);
-        if (index == -1) {
-            this.selectedValue.push(value);
-            this.selectedValue = this.selectedValue.sort((a, b) => { return this.list.findIndex(item => item.text == a.text) - this.list.findIndex(item => item.text == b.text); });
+    /**
+     * on focus current component
+     */
+    onFocus() {
+        this.isFocused = true;
+        this.focusedOption = 0;
+    }
+    onBlur() { this.isFocused = false; }
+    /**
+     * to check current option is active or not
+     * @param index
+     */
+    isActive(index) {
+        return this.items.map(i => i.text).indexOf(this.list[index].text) < 0 ? false : true;
+    }
+    /**
+     * to toggle option to select/deselect option
+     * @param event
+     * @param index
+     */
+    toggleOption(event, index) {
+        event.preventDefault();
+        event.stopPropagation();
+        let ind = this.items.map(i => i.text).indexOf(this.list[index].text);
+        if (ind < 0) {
+            this.items.push(this.list[index]);
+            this.items = this.items.sort((a, b) => { return this.list.findIndex(i => i.text === a.text) - this.list.findIndex(i => i.text === b.text); });
         }
         else {
-            this.selectedValue.splice(index, 1);
+            this.items.splice(ind, 1);
         }
         this._value = new Array();
-        for (let i = 0; i < this.selectedValue.length; i++) {
-            this._value.push(this._items.find((item) => item[this.itemText] === this.selectedValue[i].text));
+        for (let i = 0; i < this.items.length; i++) {
+            this._value.push(this.items[i].value);
         }
         this._onChangeCallback(this._value);
         this.change.emit(this._value);
     }
-    isActive(value) {
-        let index = this.selectedValue.findIndex(item => item.text === value.text);
-        return index == -1 ? false : true;
-    }
-    isFocus(value) {
-        if (this.currentItem) {
-            return this.currentItem.text === value.text;
+    /**
+     * update options
+     */
+    updateOptions() {
+        this.list = this._options.map((item) => new Option(item, this.textKey, this.valueKey));
+        if (this.list.length > 0) {
+            this.onFocus();
         }
-        return false;
     }
+    /**
+     * Implemented as part of ControlValueAccessor.
+     * TODO: internal
+     */
     writeValue(value) { this.setValue(value); }
+    /**
+     * Implemented as part of ControlValueAccessor.
+     * TODO: internal
+     */
     registerOnChange(fn) { this._onChangeCallback = fn; }
+    /**
+     * Implemented as part of ControlValueAccessor.
+     * TODO: internal
+     */
     registerOnTouched(fn) { this._onTouchedCallback = fn; }
 };
 __decorate([
@@ -189,12 +289,16 @@ __decorate([
 __decorate([
     core_1.Input('item-text'), 
     __metadata('design:type', String)
-], Md2Multiselect.prototype, "itemText", void 0);
+], Md2Multiselect.prototype, "textKey", void 0);
 __decorate([
-    core_1.Input(), 
+    core_1.Input('item-value'), 
+    __metadata('design:type', String)
+], Md2Multiselect.prototype, "valueKey", void 0);
+__decorate([
+    core_1.Input('items'), 
     __metadata('design:type', Array), 
     __metadata('design:paramtypes', [Array])
-], Md2Multiselect.prototype, "items", null);
+], Md2Multiselect.prototype, "options", null);
 __decorate([
     core_1.Input(), 
     __metadata('design:type', Object)
@@ -202,13 +306,13 @@ __decorate([
 __decorate([
     core_1.HostListener('click', ['$event']), 
     __metadata('design:type', Function), 
-    __metadata('design:paramtypes', [Object]), 
+    __metadata('design:paramtypes', [MouseEvent]), 
     __metadata('design:returntype', void 0)
 ], Md2Multiselect.prototype, "onClick", null);
 __decorate([
     core_1.HostListener('keydown', ['$event']), 
     __metadata('design:type', Function), 
-    __metadata('design:paramtypes', [Object]), 
+    __metadata('design:paramtypes', [KeyboardEvent]), 
     __metadata('design:returntype', void 0)
 ], Md2Multiselect.prototype, "onKeyDown", null);
 __decorate([
@@ -221,45 +325,42 @@ Md2Multiselect = __decorate([
     core_1.Component({
         selector: 'md2-multiselect',
         template: `
-    <div class="md2-multiselect-layout">
-      <div class="md2-multiselect-container">
-        <span *ngIf="selectedValue.length < 1" class="md2-multiselect-placeholder">{{placeholder}}</span>
-        <span class="md2-multiselect-value">
-          <span *ngFor="let v of selectedValue; let last = last" class="md2-multiselect-value-item">
-            <span class="md2-multiselect-text">{{v.text}}</span><span *ngIf="!last">,&nbsp;</span>
-          </span>
-        </span>
-        <i class="md2-multiselect-icon"></i>
+    <div class="md2-multiselect-container">
+      <span *ngIf="items.length < 1" class="md2-multiselect-placeholder">{{placeholder}}</span>
+      <div class="md2-multiselect-value">
+        <div *ngFor="let v of items; let last = last" class="md2-multiselect-value-item">
+          <span class="md2-multiselect-text">{{v.text}}</span><span *ngIf="!last">,&nbsp;</span>
+        </div>
       </div>
-      <ul *ngIf="isMenuOpened && list && list.length > 0" class="md2-multiselect-menu">
-        <li class="md2-option" *ngFor="let l of list" [class.active]="isActive(l)" [class.focus]="isFocus(l)" (click)="selectItemOnMatch(l, $event)">
-          <div class="md2-option-icon"></div>
-          <div class="md2-option-text" [innerHtml]="l.text"></div>
-        </li>
-      </ul>
+      <em class="md2-multiselect-icon"></em>
     </div>
+    <ul *ngIf="isMenuVisible" class="md2-multiselect-menu">
+      <li class="md2-option" *ngFor="let l of list; let i = index;" [class.active]="isActive(i)" [class.focus]="focusedOption === i" (click)="toggleOption($event, i)">
+        <div class="md2-option-icon"></div>
+        <div class="md2-option-text" [innerHtml]="l.text"></div>
+      </li>
+    </ul>
   `,
         styles: [`
-    .md2-multiselect { -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
+    .md2-multiselect { position: relative; display: block; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
     .md2-multiselect:focus { outline: none; }
-    .md2-multiselect .md2-multiselect-layout { position: relative; display: block; }
-    .md2-multiselect .md2-multiselect-container { display: flex; width: 100%; align-items: center; padding: 2px 0 1px; border-bottom: 1px solid rgba(0, 0, 0, 0.38); position: relative; -moz-box-sizing: content-box; -webkit-box-sizing: content-box; box-sizing: content-box; min-width: 64px; min-height: 26px; flex-grow: 1; cursor: pointer; }
+    .md2-multiselect .md2-multiselect-container { position: relative; display: block; width: 100%; padding: 2px 20px 1px 0; border-bottom: 1px solid rgba(0, 0, 0, 0.38); -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box; min-width: 64px; min-height: 26px; max-height: 90px; overflow-y: auto; cursor: pointer; }
     .md2-multiselect:focus .md2-multiselect-container { padding-bottom: 0; border-bottom: 2px solid #106cc8; }
     .md2-multiselect.md2-multiselect-disabled .md2-multiselect-container { color: rgba(0,0,0,0.38); }
     .md2-multiselect.md2-multiselect-disabled:focus .md2-multiselect-container { padding-bottom: 1px; border-bottom: 1px solid rgba(0, 0, 0, 0.38); }
-    .md2-multiselect .md2-multiselect-container > span:not(.md2-multiselect-icon) { max-width: 100%; -ms-flex: 1 1 auto; -webkit-flex: 1 1 auto; flex: 1 1 auto; -ms-text-overflow: ellipsis; -o-text-overflow: ellipsis; text-overflow: ellipsis; overflow: hidden; }
-    .md2-multiselect .md2-multiselect-container .md2-multiselect-icon { display: block; -webkit-align-items: flex-end; -ms-flex-align: end; align-items: flex-end; text-align: end; width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 6px solid rgba(0, 0, 0, 0.60); margin: 0 4px; }
+    .md2-multiselect .md2-multiselect-container > span:not(.md2-multiselect-icon) { display: block; max-width: 100%; -ms-text-overflow: ellipsis; -o-text-overflow: ellipsis; text-overflow: ellipsis; overflow: hidden; }
+    .md2-multiselect .md2-multiselect-container .md2-multiselect-icon { position: absolute; top: 50%; right: 0; display: block; width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 6px solid rgba(0, 0, 0, 0.60); margin: -3px 4px 0; }
     .md2-multiselect .md2-multiselect-container .md2-multiselect-placeholder { color: rgba(0, 0, 0, 0.38); }
-    .md2-multiselect .md2-multiselect-menu { position: absolute; left: 0; top: 0; display: block; z-index: 10; -ms-flex-direction: column; -webkit-flex-direction: column; flex-direction: column; width: 100%; margin: 0; padding: 8px 0; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14), 0 2px 1px -1px rgba(0, 0, 0, 0.12); max-height: 256px; min-height: 48px; overflow-y: auto; -moz-transform: scale(1); -ms-transform: scale(1); -o-transform: scale(1); -webkit-transform: scale(1); transform: scale(1); background: #fff; }
-    .md2-multiselect .md2-multiselect-menu .md2-option { cursor: pointer; position: relative; display: block; align-items: center; width: auto; -moz-transition: background 0.15s linear; -o-transition: background 0.15s linear; -webkit-transition: background 0.15s linear; transition: background 0.15s linear; padding: 0 16px 0 40px; height: 48px; line-height: 48px; }
+    .md2-multiselect .md2-multiselect-menu { position: absolute; left: 0; top: 0; display: block; z-index: 10; width: 100%; margin: 0; padding: 8px 0; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14), 0 2px 1px -1px rgba(0, 0, 0, 0.12); max-height: 256px; min-height: 48px; overflow-y: auto; -moz-transform: scale(1); -ms-transform: scale(1); -o-transform: scale(1); -webkit-transform: scale(1); transform: scale(1); background: #fff; }
+    .md2-multiselect .md2-multiselect-menu .md2-option { position: relative; display: block; cursor: pointer; width: auto; -moz-transition: background 0.15s linear; -o-transition: background 0.15s linear; -webkit-transition: background 0.15s linear; transition: background 0.15s linear; padding: 0 16px 0 40px; height: 48px; line-height: 48px; }
     .md2-multiselect .md2-multiselect-menu .md2-option.active { color: #106cc8; }
     .md2-multiselect .md2-multiselect-menu .md2-option:hover, .md2-multiselect .md2-multiselect-menu .md2-option.focus { background: #eeeeee; }
     .md2-multiselect .md2-multiselect-menu .md2-option .md2-option-text { width: auto; white-space: nowrap; overflow: hidden; -ms-text-overflow: ellipsis; -o-text-overflow: ellipsis; text-overflow: ellipsis; font-size: 16px; }
-    .md2-multiselect .md2-option .md2-option-icon { position: absolute; top: 14px; left: 12px; width: 16px; height: 16px; border: 2px solid rgba(0,0,0,0.54); border-radius: 2px; box-sizing: border-box; transition: 240ms; }
+    .md2-multiselect .md2-option .md2-option-icon { position: absolute; top: 14px; left: 12px; width: 16px; height: 16px; border: 2px solid rgba(0,0,0,0.54); border-radius: 2px; -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box; -moz-transition: 240ms; -o-transition: 240ms; -webkit-transition: 240ms; transition: 240ms; }
     .md2-multiselect .md2-option.active .md2-option-icon { -moz-transform: rotate(-45deg); -ms-transform: rotate(-45deg); -o-transform: rotate(-45deg); -webkit-transform: rotate(-45deg); transform: rotate(-45deg); height: 8px; top: 17px; border-color: #106cc8; border-top-style: none; border-right-style: none; }
   `],
         host: {
-            'role': 'multiselect',
+            'role': 'select',
             '[id]': 'id',
             '[class.md2-multiselect]': 'true',
             '[class.md2-multiselect-disabled]': 'disabled',
@@ -272,75 +373,5 @@ Md2Multiselect = __decorate([
     __metadata('design:paramtypes', [core_1.ElementRef])
 ], Md2Multiselect);
 exports.Md2Multiselect = Md2Multiselect;
-class Item {
-    constructor(source, itemText) {
-        if (typeof source === 'string') {
-            this.text = source;
-        }
-        if (typeof source === 'object') {
-            this.text = source[itemText];
-        }
-    }
-}
-exports.Item = Item;
-class Behavior {
-    constructor(actor) {
-        this.actor = actor;
-        this.listMap = new Map();
-    }
-    getActiveIndex(listMap = null) {
-        let ai = this.actor.list.indexOf(this.actor.currentItem);
-        if (ai < 0 && listMap !== null) {
-            ai = listMap.get(this.actor.currentItem.text);
-        }
-        return ai;
-    }
-    ensureHighlightVisible(listMap = null) {
-        let container = this.actor.element.nativeElement.querySelector('.md2-select-menu');
-        if (!container) {
-            return;
-        }
-        let choices = container.querySelectorAll('.md2-option');
-        if (choices.length < 1) {
-            return;
-        }
-        let activeIndex = this.getActiveIndex(listMap);
-        if (activeIndex < 0) {
-            return;
-        }
-        let highlighted = choices[activeIndex];
-        if (!highlighted) {
-            return;
-        }
-        let posY = highlighted.offsetTop + highlighted.clientHeight - container.scrollTop;
-        let height = container.offsetHeight;
-        if (posY > height) {
-            container.scrollTop += posY - height;
-        }
-        else if (posY < highlighted.clientHeight) {
-            container.scrollTop -= highlighted.clientHeight - posY;
-        }
-    }
-}
-class GenericBehavior extends Behavior {
-    constructor(actor) {
-        super(actor);
-        this.actor = actor;
-    }
-    first() {
-        this.actor.currentItem = this.actor.list[0];
-        super.ensureHighlightVisible();
-    }
-    prev() {
-        let index = this.actor.list.indexOf(this.actor.currentItem);
-        this.actor.currentItem = this.actor.list[index - 1 < 0 ? this.actor.list.length - 1 : index - 1];
-        super.ensureHighlightVisible();
-    }
-    next() {
-        let index = this.actor.list.indexOf(this.actor.currentItem);
-        this.actor.currentItem = this.actor.list[index + 1 > this.actor.list.length - 1 ? 0 : index + 1];
-        super.ensureHighlightVisible();
-    }
-}
 
 //# sourceMappingURL=multiselect.js.map

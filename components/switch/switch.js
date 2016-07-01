@@ -29,7 +29,7 @@ let Md2Switch = class Md2Switch {
     }
     get checked() { return this._checked; }
     set checked(checked) {
-        if (checked != this._checked) {
+        if (checked !== this._checked) {
             this._checked = checked;
             if (this._isInitialized) {
                 this.change.emit(this._checked);
@@ -40,7 +40,13 @@ let Md2Switch = class Md2Switch {
         this._isInitialized = true;
     }
     get labelId() { return this.id + '-label'; }
+    /**
+     * get checked status
+     */
     getAriaChecked() { return this.checked ? 'true' : 'false'; }
+    /**
+     * toggle switch
+     */
     toggle() { this.checked = !this.checked; }
     onInteractionEvent(event) {
         if (this.disabled) {
@@ -49,18 +55,14 @@ let Md2Switch = class Md2Switch {
         }
         this.toggle();
     }
-    writeValue(value) {
-        this.checked = !!value;
-    }
+    writeValue(value) { this.checked = !!value; }
     registerOnChange(fn) {
         if (this._changeSubscription) {
             this._changeSubscription.unsubscribe();
         }
         this._changeSubscription = this.change.subscribe(fn);
     }
-    registerOnTouched(fn) {
-        this.onTouched = fn;
-    }
+    registerOnTouched(fn) { this.onTouched = fn; }
 };
 __decorate([
     core_1.Input('aria-label'), 

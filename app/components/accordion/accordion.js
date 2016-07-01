@@ -10,7 +10,6 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 const core_1 = require('@angular/core');
 const accordion_1 = require('../../../components/accordion/accordion');
-//import {CodePrettify} from '../../code.prettify';
 let Accordion = class Accordion {
     constructor() {
         this.accordions = [
@@ -19,16 +18,13 @@ let Accordion = class Accordion {
             { title: 'Dynamic Title 3', content: 'Dynamic content 3', active: true }
         ];
         this.multiple = false;
-        setTimeout(() => {
-            this.accordions.push({ title: 'Dynamic Title 4', content: 'Dynamic content 4', active: true });
-        }, 5000);
     }
 };
 Accordion = __decorate([
     core_1.Component({
         selector: 'accordion',
         templateUrl: './app/components/accordion/accordion.html',
-        directives: [accordion_1.ACCORDION_DIRECTIVES] //, CodePrettify
+        directives: [accordion_1.ACCORDION_DIRECTIVES]
     }), 
     __metadata('design:paramtypes', [])
 ], Accordion);

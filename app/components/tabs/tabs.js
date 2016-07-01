@@ -15,12 +15,14 @@ let Tabs = class Tabs {
         this.tabs = [
             { title: 'Dynamic Title 1', content: 'Dynamic content 1' },
             { title: 'Dynamic Title 2', content: 'Dynamic content 2', disabled: true },
-            { title: 'Dynamic Title 3', content: 'Dynamic content 3', removable: true }
+            { title: 'Dynamic Title 3', content: 'Dynamic content 3' }
         ];
-        setTimeout(() => {
-            this.tabs.push({ title: 'Dynamic Title 4', content: 'Dynamic content 4', removable: true });
-        }, 5000);
     }
+    //constructor() {
+    //  setTimeout(() => {
+    //    this.tabs.push({ title: 'Dynamic Title 4', content: 'Dynamic content 4', disabled: true });
+    //  }, 5000);
+    //}
     change(tab) {
         console.log('Tab Changed');
     }

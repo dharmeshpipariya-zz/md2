@@ -14,13 +14,14 @@ let Md2Collapse = class Md2Collapse {
         this.isExpanded = true;
         this.isCollapsing = false;
     }
-    get collapse() {
-        return this.isExpanded;
-    }
+    get collapse() { return this.isExpanded; }
     set collapse(value) {
         this.isExpanded = value;
         this.toggle();
     }
+    /**
+     * toggle collapse
+     */
     toggle() {
         if (this.isExpanded) {
             this.hide();
@@ -29,6 +30,9 @@ let Md2Collapse = class Md2Collapse {
             this.show();
         }
     }
+    /**
+     * hide collapse
+     */
     hide() {
         this.isCollapsing = true;
         this.isExpanded = false;
@@ -36,6 +40,9 @@ let Md2Collapse = class Md2Collapse {
             this.isCollapsing = false;
         }, 4);
     }
+    /**
+     * show collapse
+     */
     show() {
         this.isCollapsing = true;
         this.isExpanded = true;
@@ -59,87 +66,5 @@ Md2Collapse = __decorate([
     __metadata('design:paramtypes', [])
 ], Md2Collapse);
 exports.Md2Collapse = Md2Collapse;
-//import {Directive, OnChanges, ElementRef, Input} from '@angular/core';
-//import {AnimationBuilder} from '@angular/src/animate/animation_builder';
-//import {CssAnimationBuilder} from '@angular/src/animate/css_animation_builder';
-//@Directive({
-//  selector: '[collapse]',
-//  host: {
-//    '[attr.aria-expanded]': '!collapse',
-//    '[attr.aria-hidden]': 'collapse'
-//  }
-//})
-//export class Md2Collapse implements OnChanges {
-//  @Input() duration: number = 500;
-//  @Input() collapse: boolean;
-//  private _animation: CssAnimationBuilder;
-//  constructor(animationBuilder: AnimationBuilder, private _element: ElementRef) {
-//    this._animation = animationBuilder.css();
-//  }
-//  ngOnChanges(changes) {
-//    if (changes.collapse) {
-//      if (this.collapse) {
-//        this.hide()
-//      } else {
-//        this.show();
-//      }
-//    }
-//  }
-//  hide(): void {
-//    this._baseSequence
-//      .setFromStyles({
-//        height: this._element.nativeElement.scrollHeight + 'px',
-//        overflow: 'hidden'
-//      })
-//      .setToStyles({
-//        height: '0',
-//        paddingTop: '0',
-//        paddingBottom: '0'
-//      });
-//    let a = this._animation.start(this._element.nativeElement);
-//    a.onComplete(() => {
-//      a.removeClasses(['in']); // rapid change will leave in
-//      a.addClasses(['collapse']);
-//    });
-//  }
-//  show(): void {
-//    this._animation
-//      .setDuration(0)
-//      .addClass('in')
-//      .setFromStyles({
-//        overflow: 'hidden'
-//      })
-//      .setToStyles({
-//        paddingTop: '',
-//        paddingBottom: ''
-//      })
-//      .start(this._element.nativeElement)
-//      .onComplete(() => {
-//        let a = this._baseSequence
-//          .setFromStyles({
-//            height: '0'
-//          })
-//          .setToStyles({
-//            height: this._element.nativeElement.scrollHeight + 'px'
-//          })
-//          .start(this._element.nativeElement);
-//        a.onComplete(() => a.addClasses(['collapse', 'in']));
-//      });
-//  }
-//  private get _elementHeight(): number {
-//    let el = this._element.nativeElement;
-//    var height = el.offsetHeight;
-//    var style = getComputedStyle(el);
-//    height += parseInt(style.marginTop) + parseInt(style.marginBottom);
-//    return height;
-//  }
-//  private get _baseSequence(): CssAnimationBuilder {
-//    return this._animation
-//      .setDuration(this.duration)
-//      .removeClass('collapse')
-//      .removeClass('in')
-//      .addAnimationClass('collapsing')
-//  }
-//} 
 
 //# sourceMappingURL=collapse.js.map

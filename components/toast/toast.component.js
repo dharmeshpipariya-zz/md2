@@ -14,15 +14,26 @@ let Md2ToastComponent = class Md2ToastComponent {
         this.toasts = [];
         this.maxShown = 5;
     }
+    /**
+     * add toast
+     * @param toast
+     */
     add(toast) {
         this.toasts.push(toast);
         if (this.toasts.length > this.maxShown) {
             this.toasts.splice(0, (this.toasts.length - this.maxShown));
         }
     }
+    /**
+     * temove toast
+     * @param toastId
+     */
     remove(toastId) {
         this.toasts = this.toasts.filter((toast) => { return toast.id !== toastId; });
     }
+    /**
+     * check toast
+     */
     isToast() { return this.toasts.length > 0; }
 };
 Md2ToastComponent = __decorate([

@@ -16,6 +16,10 @@ let HightlightPipe = class HightlightPipe {
         }
         return query ? value.replace(new RegExp(this.escapeRegexp(query), 'gi'), '<span class="highlight">$&</span>') : value;
     }
+    /**
+     * filter pipe
+     * @param queryToEscape
+     */
     escapeRegexp(queryToEscape) {
         return queryToEscape.replace(/([.?*+^$[\]\\(){}|-])/g, '\\$1');
     }

@@ -17,6 +17,10 @@ let Md2Dialog = class Md2Dialog {
         this.dialogHeader = '';
         this._el = el.nativeElement;
     }
+    /**
+     * click listener
+     * @param e
+     */
     clickElement(e) {
         if (this.closeOnUnfocus) {
             if (e.srcElement.className === 'md2-dialog open') {
@@ -24,15 +28,28 @@ let Md2Dialog = class Md2Dialog {
             }
         }
     }
+    /**
+     * get element
+     */
     getElement() {
         return this._el;
     }
+    /**
+     * show dialog
+     */
     show() {
         return this.toggle(true);
     }
+    /**
+     * hide dialog
+     */
     hide() {
         return this.toggle(false);
     }
+    /**
+     * toggle dialog
+     * @param isVisible
+     */
     toggle(isVisible) {
         var body = document.body;
         if (isVisible === undefined) {
