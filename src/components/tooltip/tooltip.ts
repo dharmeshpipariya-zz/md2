@@ -3,66 +3,66 @@ import { ViewContainerRef_ } from '@angular/core/src/linker/view_container_ref';
 import { Md2TooltipComponent } from './tooltip.component';
 import { Md2TooltipOptions } from './tooltip.options';
 
-@Directive({
+@Directive( {
   selector: '[tooltip]'
 })
 
 export class Md2Tooltip {
   private visible: boolean = false;
-  private timer: number;
+  private timer: NodeJS.Timer;
 
-  @Input('tooltip') content: string;
-  @Input('tooltip-direction') direction: string = 'bottom';
-  @Input('tooltip-delay') delay: number = 0;
+  @Input( 'tooltip' ) content: string;
+  @Input( 'tooltip-direction' ) direction: string = 'bottom';
+  @Input( 'tooltip-delay' ) delay: number = 0;
 
   private viewContainerRef: ViewContainerRef;
   private loader: DynamicComponentLoader;
 
   private tooltip: Promise<ComponentRef<any>>;
 
-  constructor(viewContainerRef: ViewContainerRef, loader: DynamicComponentLoader, private appRef: ApplicationRef) {
+  constructor( viewContainerRef: ViewContainerRef, loader: DynamicComponentLoader, private appRef: ApplicationRef ) {
     this.viewContainerRef = viewContainerRef;
     this.loader = loader;
   }
 
-  @HostListener('focusin', ['$event'])
-  @HostListener('mouseenter', ['$event'])
-  public show(event: Event): void {
-    if (this.visible) {
+  @HostListener( 'focusin', ['$event'] )
+  @HostListener( 'mouseenter', ['$event'] )
+  public show( event: Event ): void {
+    if ( this.visible ) {
       return;
     }
     this.visible = true;
-    let options = new Md2TooltipOptions({
+    let options = new Md2TooltipOptions( {
       content: this.content,
       direction: this.direction,
       hostEl: this.viewContainerRef.element
     });
 
-    let binding = ReflectiveInjector.resolve([
-      new Provider(Md2TooltipOptions, { useValue: options })
-    ]);
-    clearTimeout(this.timer);
+    let binding = ReflectiveInjector.resolve( [
+      new Provider( Md2TooltipOptions, { useValue: options })
+    ] );
+    clearTimeout( this.timer );
     this.timer = setTimeout(() => {
-      this.timer = 0;
-      let appElement: ViewContainerRef = new ViewContainerRef_(this.appRef['_rootComponents'][0]._hostElement);
+      this.timer = null;
+      let appElement: ViewContainerRef = new ViewContainerRef_( this.appRef['_rootComponents'][0]._hostElement );
       this.tooltip = this.loader
-        .loadNextToLocation(Md2TooltipComponent, appElement, binding)
-        .then((componentRef: ComponentRef<any>) => {
+        .loadNextToLocation( Md2TooltipComponent, appElement, binding )
+        .then(( componentRef: ComponentRef<any> ) => {
           return componentRef;
         });
-    }, this.delay);
+    }, this.delay );
   }
 
-  @HostListener('focusout', ['$event'])
-  @HostListener('mouseleave', ['$event'])
-  public hide(event: Event): void {
-    clearTimeout(this.timer);
-    if (!this.visible) {
+  @HostListener( 'focusout', ['$event'] )
+  @HostListener( 'mouseleave', ['$event'] )
+  public hide( event: Event ): void {
+    clearTimeout( this.timer );
+    if ( !this.visible ) {
       return;
     }
     this.visible = false;
-    if (this.tooltip) {
-      this.tooltip.then((componentRef: ComponentRef<any>) => {
+    if ( this.tooltip ) {
+      this.tooltip.then(( componentRef: ComponentRef<any> ) => {
         componentRef.destroy();
         return componentRef;
       });
