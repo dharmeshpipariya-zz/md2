@@ -1,6 +1,6 @@
 {
   "name": "md2",
-  "version": "0.0.1",
+  "version": "0.0.1-es5",
   "description": "Angular2 based Material Design components, directives and services are Accordion, Autocomplete, Collapse, Colorpicker, Datepicker, Dialog(Modal), Menu, Multiselect, Select, Switch, Tabs, Tags(Chips), Toast and Tooltip.",
   "scripts": {
     "start": "tsc && concurrently \"npm run tsc:w\" \"npm run watch\" \"npm run lite\" ",
