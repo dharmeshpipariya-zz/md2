@@ -1,35 +1,8 @@
-<header class="header">
-  <h2>MD2 Components</h2>
-</header>
-<aside class="sidenav"></aside>
-<section>
-  <div></div>
-  <footer class="footer">
-    <div>
-      <a class="previous" [routerLink]="['Home']">
-        <em class="icon">arrow_back</em>
-        <span>
-          <span>Previous</span>
-          <span>Home</span>
-        </span>
-      </a>
-      <a class="next" [routerLink]="['Home']">
-        <em class="icon">arrow_next</em>
-        <span>
-          <span>Next</span>
-          <span>Home</span>
-        </span>
-      </a>
-    </div>
-  </footer>
-</section>
-
-
-<div class="side-nav col-sm-3 col-md-2" [class.open]="isSidenavOpened" (click)="sidenavToggle()">
+<aside class="sidenav" [class.open]="isSidenavOpened" (click)="sidenavToggle()">
   <div class="logo">
     <a [routerLink]="['Home']">
       <img src="./content/img/logo.png">
-      <h4>Material Design 2</h4>
+      <h3>Material Design 2</h3>
     </a>
   </div>
   <ul class="menu">
@@ -47,20 +20,33 @@
     <li [class.active]="isActive('/Toast')"><a [routerLink]="['Toast']">Toast</a></li>
     <li [class.active]="isActive('/Tooltip')"><a [routerLink]="['Tooltip']">Tooltip</a></li>
   </ul>
-</div>
+</aside>
 <div class="side-nav-backdrop sm-visible" *ngIf="isSidenavOpened" (click)="sidenavToggle()"></div>
-<div class="content col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2">
+<section class="md2-layout content">
   <header class="header">
     <button type="button" (click)="sidenavToggle()" class="nav-toggle"><span class="bar"></span><span class="bar"></span><span class="bar"></span></button>
-    <h2>Material Design 2</h2>
+    <h3>Material Design 2</h3>
   </header>
   <router-outlet></router-outlet>
   <footer class="footer">
     <span><a href="https://github.com/DharmeshPipariya/md2">Md2</a> is maintained by <a href="https://github.com/DharmeshPipariya">Dharmesh Pipariya</a>.</span>
   </footer>
-</div>
-
-<style>
-  .header { display: block; width: 100%; height: 64px; max-height: 64px; padding: 0 16px; margin: 0; color: #fff; font-size: 20px; font-weight: 400; background: #1976d2; }
-  .sidenav { position: fixed; top: 0; bottom: 0; left: 0; display: block; width: 280px; height: 100%; background: #fafafa; z-index: 1; box-shadow: 0 0 5px #ccc; }
-</style>
+  <!--<footer class="footer">
+    <div>
+      <a class="previous" [routerLink]="['Home']">
+        <em class="icon">arrow_back</em>
+        <span>
+          <span>Previous</span>
+          <span>Home</span>
+        </span>
+      </a>
+      <a class="next" [routerLink]="['Home']">
+        <em class="icon">arrow_next</em>
+        <span>
+          <span>Next</span>
+          <span>Home</span>
+        </span>
+      </a>
+    </div>
+  </footer>-->
+</section>
