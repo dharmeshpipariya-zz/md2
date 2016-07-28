@@ -5,6 +5,7 @@ Angular2 based Material Design components, directives and services are Accordion
 
 [![Build Status](https://travis-ci.org/DharmeshPipariya/md2.svg?branch=master)](https://travis-ci.org/DharmeshPipariya/md2)
 
+### We have moved our Repository on [https://github.com/promact/md2](https://github.com/promact/md2) please refer it for latest implementation.
 
 ## Quick start
 
