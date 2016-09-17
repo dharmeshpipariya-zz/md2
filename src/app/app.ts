@@ -1,6 +1,6 @@
-import {Component, OnInit} from "@angular/core";
-import {RouteConfig, RouterLink, ROUTER_DIRECTIVES} from "@angular/router-deprecated";
-import {Location} from "@angular/common";
+import {Component, OnInit} from '@angular/core';
+import {RouterLink, ROUTER_DIRECTIVES} from '@angular/router';
+import {Location} from '@angular/common';
 
 import { Home } from './home';
 import { Accordion } from './components/accordion/accordion';
@@ -18,43 +18,35 @@ import { Tags } from './components/tags/tags';
 import { Toast } from './components/toast/toast';
 import { Tooltip } from './components/tooltip/tooltip';
 
-@Component( {
-  selector: "md2-app",
-  templateUrl: "./app/app.html",
+@Component({
+  selector: 'md2-app',
+  templateUrl: './app/app.html',
   directives: [Home, Accordion, Autocomplete, Collapse, Colorpicker, Datepicker, DialogComponent, Menu, Multiselect, Select, Switch, Tabs, Tags, Toast, Tooltip, RouterLink, ROUTER_DIRECTIVES]
 })
 
-@RouteConfig( [
-  { path: '/', name: 'Home', component: Home },
-  { path: '/Accordion', name: 'Accordion', component: Accordion },
-  { path: '/Autocomplete', name: 'Autocomplete', component: Autocomplete },
-  { path: '/Collapse', name: 'Collapse', component: Collapse },
-  { path: '/Colorpicker', name: 'Colorpicker', component: Colorpicker },
-  { path: '/Datepicker', name: 'Datepicker', component: Datepicker },
-  { path: '/Dialog', name: 'Dialog', component: DialogComponent },
-  { path: '/Menu', name: 'Menu', component: Menu },
-  { path: '/Multiselect', name: 'Multiselect', component: Multiselect },
-  { path: '/Select', name: 'Select', component: Select },
-  { path: '/Switch', name: 'Switch', component: Switch },
-  { path: '/Tabs', name: 'Tabs', component: Tabs },
-  { path: '/Tags', name: 'Tags', component: Tags },
-  { path: '/Toast', name: 'Toast', component: Toast },
-  { path: '/Tooltip', name: 'Tooltip', component: Tooltip }
-] )
 export class AppComponent implements OnInit {
   private isSidenavOpened: boolean = false;
 
-  constructor( private location: Location ) { }
+  constructor(private location: Location) { }
 
   ngOnInit() {
-    console.log( "Application component initialized ..." );
+    console.log('Application component initialized ...');
   }
 
   sidenavToggle() {
     this.isSidenavOpened = !this.isSidenavOpened;
   }
 
-  isActive( path: string ) {
-    return this.location.path().startsWith( path );
+  sidenav(state: boolean) {
+    this.isSidenavOpened = state;
+    if (this.isSidenavOpened && this.window.innerWidth > 767) {
+      this.isSidenavOpened = false;
+    }
   }
+
+  isActive(path: string) {
+    return this.location.path().startsWith(path);
+  }
+
+  private get window(): Window { return window; }
 }

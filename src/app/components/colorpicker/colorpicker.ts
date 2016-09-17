@@ -8,9 +8,9 @@ import {Md2Colorpicker, Md2ColorpickerService} from '../../../components/colorpi
   providers: [Md2ColorpickerService]
 })
 export class Colorpicker {
-  private color: string = "#123456";
-  private color2: string = "#654321";
-   private change(value: any) {
+  private color: string = '#123456';
+  private color2: string = '#654321';
+  private change(value: any) {
     console.log('Changed color: ', value);
   }
 }
