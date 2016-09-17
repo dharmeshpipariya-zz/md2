@@ -9,7 +9,7 @@ import { Md2TooltipOptions } from './tooltip.options';
 
 export class Md2Tooltip {
   private visible: boolean = false;
-  private timer: number;
+  private timer: any;
 
   @Input('tooltip') content: string;
   @Input('tooltip-direction') direction: string = 'bottom';
@@ -25,6 +25,10 @@ export class Md2Tooltip {
     this.loader = loader;
   }
 
+  /**
+   * show tooltip while mouse enter or focus of element
+   * @param event
+   */
   @HostListener('focusin', ['$event'])
   @HostListener('mouseenter', ['$event'])
   public show(event: Event): void {
@@ -53,6 +57,10 @@ export class Md2Tooltip {
     }, this.delay);
   }
 
+  /**
+   * hide tooltip while mouse our/leave or blur of element
+   * @param event
+   */
   @HostListener('focusout', ['$event'])
   @HostListener('mouseleave', ['$event'])
   public hide(event: Event): void {

@@ -1,12 +1,24 @@
-import { AfterContentInit, ChangeDetectionStrategy, Component, EventEmitter, forwardRef, Input, Output, Provider, ViewEncapsulation } from '@angular/core';
-import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/common';
+import {
+  AfterContentInit,
+  ChangeDetectionStrategy,
+  Component,
+  EventEmitter,
+  forwardRef,
+  Input,
+  Output,
+  Provider,
+  ViewEncapsulation } from '@angular/core';
+import {
+  NG_VALUE_ACCESSOR,
+  ControlValueAccessor } from '@angular/forms';
 
 let nextId = 0;
 
-const MD2_SWITCH_CONTROL_VALUE_ACCESSOR = new Provider(NG_VALUE_ACCESSOR, {
+export const MD2_SWITCH_CONTROL_VALUE_ACCESSOR: any = {
+  provide: NG_VALUE_ACCESSOR,
   useExisting: forwardRef(() => Md2Switch),
   multi: true
-});
+};
 
 @Component({
   selector: 'md2-switch',
@@ -97,6 +109,7 @@ export class Md2Switch implements AfterContentInit, ControlValueAccessor {
 
   /**
    * get checked status
+   * @return boolean value if swith is active or not
    */
   getAriaChecked() { return this.checked ? 'true' : 'false'; }
 

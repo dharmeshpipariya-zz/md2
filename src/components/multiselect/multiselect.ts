@@ -1,5 +1,15 @@
-import { AfterContentInit, Component, ElementRef, EventEmitter, forwardRef, HostListener, Input, Output, Provider, ViewEncapsulation } from '@angular/core';
-import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/common';
+import {
+  AfterContentInit,
+  Component,
+  ElementRef,
+  EventEmitter,
+  forwardRef,
+  HostListener,
+  Input,
+  Output,
+  Provider,
+  ViewEncapsulation } from '@angular/core';
+import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 
 class Option {
   public text: string;
@@ -20,10 +30,11 @@ const noop = () => { };
 
 let nextId = 0;
 
-const MD2_MULTISELECT_CONTROL_VALUE_ACCESSOR = new Provider(NG_VALUE_ACCESSOR, {
+export const MD2_MULTISELECT_CONTROL_VALUE_ACCESSOR: any = {
+  provide: NG_VALUE_ACCESSOR,
   useExisting: forwardRef(() => Md2Multiselect),
   multi: true
-});
+};
 
 @Component({
   selector: 'md2-multiselect',
@@ -124,7 +135,7 @@ export class Md2Multiselect implements AfterContentInit, ControlValueAccessor {
       this.items = [];
       if (value && value.length && typeof value === 'object' && Array.isArray(value)) {
         for (let i = 0; i < value.length; i++) {
-          let selItm = this._options.find(itm=> this.equals(this.valueKey ? itm[this.valueKey] : itm, value[i]));
+          let selItm = this._options.find(itm => this.equals(this.valueKey ? itm[this.valueKey] : itm, value[i]));
           if (selItm) { this.items.push(new Option(selItm, this.textKey, this.valueKey)); }
         }
       }
@@ -137,22 +148,23 @@ export class Md2Multiselect implements AfterContentInit, ControlValueAccessor {
 
   /**
    * Compare two vars or objects
-   * @param o1
-   * @param o2
+   * @param o1 compare first object
+   * @param o2 compare second object
+   * @return boolean comparation result
    */
-  private equals(o1, o2) {
-    if (o1 === o2) return true;
-    if (o1 === null || o2 === null) return false;
-    if (o1 !== o1 && o2 !== o2) return true;
+  private equals(o1: any, o2: any) {
+    if (o1 === o2) { return true; }
+    if (o1 === null || o2 === null) { return false; }
+    if (o1 !== o1 && o2 !== o2) { return true; }
     let t1 = typeof o1, t2 = typeof o2, length, key, keySet;
     if (t1 === t2 && t1 === 'object') {
       keySet = Object.create(null);
       for (key in o1) {
-        if (!this.equals(o1[key], o2[key])) return false;
+        if (!this.equals(o1[key], o2[key])) { return false; }
         keySet[key] = true;
       }
       for (key in o2) {
-        if (!(key in keySet) && key.charAt(0) !== '$' && o2[key]) return false;
+        if (!(key in keySet) && key.charAt(0) !== '$' && o2[key]) { return false; }
       }
       return true;
     }
@@ -167,15 +179,15 @@ export class Md2Multiselect implements AfterContentInit, ControlValueAccessor {
    * to update scroll of options
    */
   private updateScroll() {
-    if (this.focusedOption < 0) return;
+    if (this.focusedOption < 0) { return; }
     let menuContainer = this.element.nativeElement.querySelector('.md2-multiselect-menu');
-    if (!menuContainer) return;
+    if (!menuContainer) { return; }
 
     let choices = menuContainer.querySelectorAll('.md2-option');
-    if (choices.length < 1) return;
+    if (choices.length < 1) { return; }
 
     let highlighted: any = choices[this.focusedOption];
-    if (!highlighted) return;
+    if (!highlighted) { return; }
 
     let top: number = highlighted.offsetTop + highlighted.clientHeight - menuContainer.scrollTop;
     let height: number = menuContainer.offsetHeight;
@@ -271,6 +283,7 @@ export class Md2Multiselect implements AfterContentInit, ControlValueAccessor {
   /**
    * to check current option is active or not
    * @param index
+   * @return boolean the item is active or not
    */
   private isActive(index: number): boolean {
     return this.items.map(i => i.text).indexOf(this.list[index].text) < 0 ? false : true;

@@ -2,14 +2,16 @@
 
 var gulp = require('gulp');
 var sysBuilder = require('systemjs-builder');
+var uglify = require('gulp-uglify');
 var del = require('del');
 var tslint = require('gulp-tslint');
 var tsc = require('gulp-typescript');
 var sourcemaps = require('gulp-sourcemaps');
+var ghPages = require('gulp-gh-pages');
 var tsProject = tsc.createProject('tsconfig.json');
 
 gulp.task('clean', function (cb) {
-  return del(['build', 'src/**/*.js', '!src/systemjs.config.js', 'src/**/*.js.map', 'src/**/*.d.ts', '*.js', '!gulpfile.js', '!gulp.config.js', '*.js.map', '*.d.ts'], cb);
+  return del(['build', 'src/**/*.js', '!src/system.config.js', 'src/**/*.js.map', 'src/**/*.d.ts', '!src/typings.d.ts', '*.js', '!gulpfile.js', '!gulp.config.js', '*.js.map', '*.d.ts'], cb);
 });
 
 gulp.task('tslint', function (done) {
@@ -37,7 +39,7 @@ gulp.task('resources', function () {
 
 gulp.task('libs', function () {
   return gulp.src([
-          'es6-shim/es6-shim.min.js',
+          'core-js/client/shim.min.js',
           'systemjs/dist/system-polyfills.js',
           'systemjs/dist/system.src.js',
           'reflect-metadata/Reflect.js',
@@ -62,23 +64,30 @@ gulp.task('build', ['compile', 'resources', 'libs'], function () {
   console.log('Building the project ...');
 });
 
-gulp.task('prod', ['build'], function () {
-  var builder = new sysBuilder('./build', './build/systemjs.config.js');
+gulp.task('bundle:demo', ['build'], function (done) {
+  var builder = new sysBuilder('./build', './build/system.config.js');
 
-  builder.buildStatic('app', './build/bundle.js', {
-    runtime: false
-  })
+  return builder.buildStatic('app', './build/bundle.min.js', { runtime: false })
     .then(function () {
-      console.log('Production is ready ...');
+      return del(['build/**/*.js', '!build/lib/**/*.js', '!build/bundle.min.js']);
+      done();
+    }).catch(function (err) {
+      console.error('systemjs-builder Bundling failed');
     });
 });
 
-gulp.task('publish', function () {
-  var tsResult = gulp.src('src/**/*.ts')
-      .pipe(sourcemaps.init())
-      .pipe(tsc(tsProject));
+gulp.task('bundle:demo:min', ['bundle:demo'], function () {
+  return gulp
+    .src('build/bundle.min.js')
+    .pipe(uglify())
+    .pipe(gulp.dest('build'));
+});
 
-  return tsResult.js
-      .pipe(sourcemaps.write('.'))
-      .pipe(gulp.dest('test'));
+gulp.task('production', ['bundle:demo:min'], function () {
+  console.log('Demo Production is ready...');
+});
+
+gulp.task('publish', ['production'], function () {
+  return gulp.src("./build/**/*")
+		 .pipe(ghPages());
 });
