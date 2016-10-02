@@ -1,0 +1,23 @@
+<div class="demo-tags">
+  <h1>Tags Demo</h1>
+  <hr />
+  <h4>Basic Tags</h4>
+  <div>
+    <md2-tags [md2-tags]="tags"
+              md2-tag-text="name"
+              [(ngModel)]="tag"
+              (change)="change($event)"
+              placeholder="Add new Tag">
+    </md2-tags>
+  </div>
+  <h4>Disabled Tags</h4>
+  <div>
+    <md2-tags [md2-tags]="tags"
+              md2-tag-text="name"
+              [(ngModel)]="tag"
+              (change)="change($event)"
+              disabled
+              placeholder="Add new Tag">
+    </md2-tags>
+  </div>
+</div>
