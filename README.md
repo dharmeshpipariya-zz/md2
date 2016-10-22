@@ -20,8 +20,8 @@ Angular2 based Material Design components, directives and services are Accordion
   },
   packages: {
     'md2': {
-      main: 'all.js',
-      defaultExtension: 'js'
+	  format: 'cjs',
+      main: 'md2.umd.js'
     }
   }
 }
@@ -30,7 +30,7 @@ Angular2 based Material Design components, directives and services are Accordion
 // app.module.ts
 // =============
 
-import { Md2Module }  from 'md2/all';
+import { Md2Module }  from 'md2';
 @NgModule({
   imports: [
     ...,
@@ -43,7 +43,7 @@ export class AppModule { }
 ```
 
 3. More information regarding of using ***md2*** is located in
-  [demo](http://dharmeshpipariya.github.io/md2) and [demo sources](https://github.com/dharmeshpipariya/md2/tree/master/src/demo-app).
+  [demo](http://dharmeshpipariya.github.io/md2/) and [demo sources](https://github.com/dharmeshpipariya/md2/tree/master/src/demo-app).
 
 
 ### Components:
@@ -52,6 +52,7 @@ export class AppModule { }
 - [md2-autocomplete](https://github.com/dharmeshpipariya/md2/tree/master/src/lib/autocomplete)
 - [md2-collapse](https://github.com/dharmeshpipariya/md2/tree/master/src/lib/collapse)
 - [md2-colorpicker](https://github.com/dharmeshpipariya/md2/tree/master/src/lib/colorpicker)
+- [md2-data-table](https://github.com/dharmeshpipariya/md2/tree/master/src/lib/data-table)
 - [md2-datepicker](https://github.com/dharmeshpipariya/md2/tree/master/src/lib/datepicker)
 - [md2-dialog](https://github.com/dharmeshpipariya/md2/tree/master/src/lib/dialog)
 - [md2-menu](https://github.com/dharmeshpipariya/md2/tree/master/src/lib/menu)

@@ -9,11 +9,12 @@ import {
   NgModule,
   ModuleWithProviders
 } from '@angular/core';
-import {CommonModule} from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { Md2ToastComponent } from './toast.component';
 
 export class Toast {
   id: number;
+  isVisible: boolean;
   constructor(public message: string) { }
 }
 
@@ -92,9 +93,10 @@ export class Md2Toast {
     if (this.container) {
       let instance = this.container.instance;
       instance.remove(toastId);
-      if (!instance.hasToast()) {
-        this.dispose();
-      }
+      setTimeout(() => {
+        if (!instance.hasToast()) { this.dispose(); }
+      }, 250);
+
     }
   }
 
@@ -105,9 +107,10 @@ export class Md2Toast {
     if (this.container) {
       let instance = this.container.instance;
       instance.removeAll();
-      if (!instance.hasToast()) {
-        this.dispose();
-      }
+      setTimeout(() => {
+        if (!instance.hasToast()) { this.dispose(); }
+      }, 250);
+
     }
   }
 
@@ -125,8 +128,8 @@ export const MD2_TOAST_DIRECTIVES: any[] = [Md2ToastComponent];
 
 @NgModule({
   imports: [CommonModule],
-  declarations: MD2_TOAST_DIRECTIVES,
   exports: MD2_TOAST_DIRECTIVES,
+  declarations: MD2_TOAST_DIRECTIVES,
   providers: [Md2Toast],
   entryComponents: MD2_TOAST_DIRECTIVES
 })

@@ -1,4 +1,5 @@
 import {
+  AfterContentInit,
   Component,
   ElementRef,
   EventEmitter,
@@ -17,8 +18,11 @@ import {
   FormsModule,
 } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-//import { HightlightPipe } from '../autocomplete/autocomplete.pipe';
-import { Md2AutocompleteModule } from 'md2/autocomplete/autocomplete';
+import {
+  coerceBooleanProperty,
+  KeyCodes
+} from '../core/core';
+import { Md2AutocompleteModule } from '../autocomplete/autocomplete';
 
 const noop = () => { };
 
@@ -60,7 +64,7 @@ export const MD2_TAGS_CONTROL_VALUE_ACCESSOR: any = {
         <input [(ngModel)]="tagBuffer" type="text" tabs="false" autocomplete="off" tabindex="-1" [disabled]="disabled" class="md2-tags-input" [placeholder]="placeholder" (focus)="onInputFocus()" (blur)="onInputBlur()" (keydown)="inputKeydown($event)" (change)="$event.stopPropagation()" />
         <ul *ngIf="isMenuVisible" class="md2-tags-menu" (mouseenter)="listEnter()" (mouseleave)="listLeave()">
           <li class="md2-option" *ngFor="let l of list; let i = index;" [class.focused]="focusedTag === i" (click)="addTag($event, i)">
-            <span class="md2-option-text" [innerHtml]="l.text | hightlight:tagBuffer"></span>
+            <span class="md2-option-text" [innerHtml]="l.text | highlight:tagBuffer"></span>
           </li>
         </ul>
       </span>
@@ -100,14 +104,17 @@ export const MD2_TAGS_CONTROL_VALUE_ACCESSOR: any = {
   encapsulation: ViewEncapsulation.None
 })
 
-export class Md2Tags implements ControlValueAccessor {
+export class Md2Tags implements AfterContentInit, ControlValueAccessor {
 
   constructor(private element: ElementRef) { }
+
+  ngAfterContentInit() { this._isInitialized = true; }
 
   @Output() change: EventEmitter<any> = new EventEmitter<any>();
 
   private _value: any = '';
   private _disabled: boolean = false;
+  private _isInitialized: boolean = false;
   private _onTouchedCallback: () => void = noop;
   private _onChangeCallback: (_: any) => void = noop;
 
@@ -122,25 +129,21 @@ export class Md2Tags implements ControlValueAccessor {
   private noBlur: boolean = true;
 
   @Input() id: string = 'md2-tags-' + (++nextId);
-  @Input() get disabled(): boolean { return this._disabled; }
-  set disabled(value) {
-    this._disabled = (value !== null && value !== false) ? true : null;
-  }
   @Input() tabindex: number = 0;
   @Input() placeholder: string = '';
   @Input('md2-tag-text') textKey: string = 'text';
   @Input('md2-tag-value') valueKey: string = null;
 
-  @Input('md2-tags') set tags(value: Array<any>) {
-    this._tags = value;
-  }
+  @Input()
+  get disabled(): boolean { return this._disabled; }
+  set disabled(value) { this._disabled = coerceBooleanProperty(value); }
 
-  get value(): any {
-    return this._value;
-  }
-  @Input() set value(value: any) {
-    this.setValue(value);
-  }
+  @Input('md2-tags')
+  set tags(value: Array<any>) { this._tags = value; }
+
+  @Input()
+  get value(): any { return this._value; }
+  set value(value: any) { this.setValue(value); }
 
   /**
    * setup value
@@ -156,8 +159,10 @@ export class Md2Tags implements ControlValueAccessor {
           if (selItm) { this.items.push(new Tag(selItm, this.textKey, this.valueKey)); }
         }
       }
-      this._onChangeCallback(value);
-      this.change.emit(this._value);
+      if (this._isInitialized) {
+        this._onChangeCallback(value);
+        this.change.emit(this._value);
+      }
     }
   }
 
@@ -276,34 +281,32 @@ export class Md2Tags implements ControlValueAccessor {
 
   @HostListener('keydown', ['$event'])
   private onKeydown(event: KeyboardEvent) {
-    if (this.tagBuffer || this.disabled) { return; }
+    if (this.disabled || this.tagBuffer) { return; }
+    switch (event.keyCode) {
+      case KeyCodes.BACKSPACE:
+      case KeyCodes.DELETE:
+        if (this.selectedTag < 0) { return; }
+        event.preventDefault();
+        this.removeAndSelectAdjacentTag(this.selectedTag);
+        break;
 
-    // Backspace / Del Key
-    if (event.keyCode === 8 || event.keyCode === 46) {
-      if (this.selectedTag < 0) { return; }
-      event.preventDefault();
-      this.removeAndSelectAdjacentTag(this.selectedTag);
-    }
+      case KeyCodes.TAB:
+      case KeyCodes.ESCAPE:
+        if (this.selectedTag < 0) { return; }
+        event.preventDefault();
+        this.onFocus();
+        break;
 
-    // Left Arrow
-    if (event.keyCode === 37) {
-      event.preventDefault();
-      if (this.selectedTag < 0) { this.selectedTag = this.items.length; }
-      if (this.items.length) { this.selectAndFocusTagSafe(this.selectedTag - 1); }
-    }
-
-    // Right Arrow
-    if (event.keyCode === 39) {
-      event.preventDefault();
-      if (this.selectedTag >= this.items.length) { this.selectedTag = -1; }
-      this.selectAndFocusTagSafe(this.selectedTag + 1);
-    }
-
-    // Escape / Tab Key
-    if (event.keyCode === 27 || event.keyCode === 9) {
-      if (this.selectedTag < 0) { return; }
-      event.preventDefault();
-      this.onFocus();
+      case KeyCodes.LEFT_ARROW:
+        event.preventDefault();
+        if (this.selectedTag < 0) { this.selectedTag = this.items.length; }
+        if (this.items.length) { this.selectAndFocusTagSafe(this.selectedTag - 1); }
+        break;
+      case KeyCodes.RIGHT_ARROW:
+        event.preventDefault();
+        if (this.selectedTag >= this.items.length) { this.selectedTag = -1; }
+        this.selectAndFocusTagSafe(this.selectedTag + 1);
+        break;
     }
   }
 
@@ -416,7 +419,16 @@ export class Md2Tags implements ControlValueAccessor {
   }
 
   writeValue(value: any) {
-    this.setValue(value);
+    if (value !== this._value) {
+      this._value = value;
+      this.items = [];
+      if (value && value.length && typeof value === 'object' && Array.isArray(value)) {
+        for (let i = 0; i < value.length; i++) {
+          let selItm = this._tags.find((t: any) => this.equals(this.valueKey ? t[this.valueKey] : t, value[i]));
+          if (selItm) { this.items.push(new Tag(selItm, this.textKey, this.valueKey)); }
+        }
+      }
+    }
   }
 
   registerOnChange(fn: any) { this._onChangeCallback = fn; }
@@ -427,9 +439,9 @@ export class Md2Tags implements ControlValueAccessor {
 export const MD2_TAGS_DIRECTIVES = [Md2Tags];
 
 @NgModule({
-  declarations: MD2_TAGS_DIRECTIVES,
   imports: [CommonModule, FormsModule, Md2AutocompleteModule],
   exports: MD2_TAGS_DIRECTIVES,
+  declarations: MD2_TAGS_DIRECTIVES,
 })
 export class Md2TagsModule {
   static forRoot(): ModuleWithProviders {
