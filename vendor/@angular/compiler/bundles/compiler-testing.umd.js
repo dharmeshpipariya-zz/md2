@@ -1,5 +1,5 @@
 /**
- * @license Angular v2.0.1
+ * @license Angular v2.1.1
  * (c) 2010-2016 Google, Inc. https://angular.io/
  * License: MIT
  */
@@ -10,10 +10,12 @@
 }(this, function (exports,_angular_core,_angular_compiler,_angular_core_testing) { 'use strict';
 
     var MockSchemaRegistry = (function () {
-        function MockSchemaRegistry(existingProperties, attrPropMapping, existingElements) {
+        function MockSchemaRegistry(existingProperties, attrPropMapping, existingElements, invalidProperties, invalidAttributes) {
             this.existingProperties = existingProperties;
             this.attrPropMapping = attrPropMapping;
             this.existingElements = existingElements;
+            this.invalidProperties = invalidProperties;
+            this.invalidAttributes = invalidAttributes;
         }
         MockSchemaRegistry.prototype.hasProperty = function (tagName, property, schemas) {
             var value = this.existingProperties[property];
@@ -28,6 +30,25 @@
         };
         MockSchemaRegistry.prototype.getMappedPropName = function (attrName) { return this.attrPropMapping[attrName] || attrName; };
         MockSchemaRegistry.prototype.getDefaultComponentElementName = function () { return 'ng-component'; };
+        MockSchemaRegistry.prototype.validateProperty = function (name) {
+            if (this.invalidProperties.indexOf(name) > -1) {
+                return { error: true, msg: "Binding to property '" + name + "' is disallowed for security reasons" };
+            }
+            else {
+                return { error: false };
+            }
+        };
+        MockSchemaRegistry.prototype.validateAttribute = function (name) {
+            if (this.invalidAttributes.indexOf(name) > -1) {
+                return {
+                    error: true,
+                    msg: "Binding to attribute '" + name + "' is disallowed for security reasons"
+                };
+            }
+            else {
+                return { error: false };
+            }
+        };
         return MockSchemaRegistry;
     }());
 
@@ -49,49 +70,8 @@
         }
         var res = token.toString();
         var newLineIndex = res.indexOf('\n');
-        return (newLineIndex === -1) ? res : res.substring(0, newLineIndex);
+        return newLineIndex === -1 ? res : res.substring(0, newLineIndex);
     }
-    var NumberWrapper = (function () {
-        function NumberWrapper() {
-        }
-        NumberWrapper.toFixed = function (n, fractionDigits) { return n.toFixed(fractionDigits); };
-        NumberWrapper.equal = function (a, b) { return a === b; };
-        NumberWrapper.parseIntAutoRadix = function (text) {
-            var result = parseInt(text);
-            if (isNaN(result)) {
-                throw new Error('Invalid integer literal when parsing ' + text);
-            }
-            return result;
-        };
-        NumberWrapper.parseInt = function (text, radix) {
-            if (radix == 10) {
-                if (/^(\-|\+)?[0-9]+$/.test(text)) {
-                    return parseInt(text, radix);
-                }
-            }
-            else if (radix == 16) {
-                if (/^(\-|\+)?[0-9ABCDEFabcdef]+$/.test(text)) {
-                    return parseInt(text, radix);
-                }
-            }
-            else {
-                var result = parseInt(text, radix);
-                if (!isNaN(result)) {
-                    return result;
-                }
-            }
-            throw new Error('Invalid integer literal when parsing ' + text + ' in base ' + radix);
-        };
-        Object.defineProperty(NumberWrapper, "NaN", {
-            get: function () { return NaN; },
-            enumerable: true,
-            configurable: true
-        });
-        NumberWrapper.isNumeric = function (value) { return !isNaN(value - parseFloat(value)); };
-        NumberWrapper.isNaN = function (value) { return isNaN(value); };
-        NumberWrapper.isInteger = function (value) { return Number.isInteger(value); };
-        return NumberWrapper;
-    }());
 
     var __extends = (this && this.__extends) || function (d, b) {
         for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -133,13 +113,13 @@
             var viewProviderOverrides = this._viewProviderOverrides.get(type);
             var providers = metadata.providers;
             if (isPresent(providerOverrides)) {
-                var originalViewProviders = isPresent(metadata.providers) ? metadata.providers : [];
+                var originalViewProviders = metadata.providers || [];
                 providers = originalViewProviders.concat(providerOverrides);
             }
             if (metadata instanceof _angular_core.Component) {
                 var viewProviders = metadata.viewProviders;
                 if (isPresent(viewProviderOverrides)) {
-                    var originalViewProviders = isPresent(metadata.viewProviders) ? metadata.viewProviders : [];
+                    var originalViewProviders = metadata.viewProviders || [];
                     viewProviders = originalViewProviders.concat(viewProviderOverrides);
                 }
                 var view = this._views.get(type);

@@ -1,5 +1,5 @@
 /**
- * @license Angular v2.0.1
+ * @license Angular v2.1.1
  * (c) 2010-2016 Google, Inc. https://angular.io/
  * License: MIT
  */
@@ -15,124 +15,6 @@
     function isBlank(obj) {
         return obj === undefined || obj === null;
     }
-    function isString(obj) {
-        return typeof obj === 'string';
-    }
-    function isStringMap(obj) {
-        return typeof obj === 'object' && obj !== null;
-    }
-    function isArray(obj) {
-        return Array.isArray(obj);
-    }
-    var StringWrapper = (function () {
-        function StringWrapper() {
-        }
-        StringWrapper.fromCharCode = function (code) { return String.fromCharCode(code); };
-        StringWrapper.charCodeAt = function (s, index) { return s.charCodeAt(index); };
-        StringWrapper.split = function (s, regExp) { return s.split(regExp); };
-        StringWrapper.equals = function (s, s2) { return s === s2; };
-        StringWrapper.stripLeft = function (s, charVal) {
-            if (s && s.length) {
-                var pos = 0;
-                for (var i = 0; i < s.length; i++) {
-                    if (s[i] != charVal)
-                        break;
-                    pos++;
-                }
-                s = s.substring(pos);
-            }
-            return s;
-        };
-        StringWrapper.stripRight = function (s, charVal) {
-            if (s && s.length) {
-                var pos = s.length;
-                for (var i = s.length - 1; i >= 0; i--) {
-                    if (s[i] != charVal)
-                        break;
-                    pos--;
-                }
-                s = s.substring(0, pos);
-            }
-            return s;
-        };
-        StringWrapper.replace = function (s, from, replace) {
-            return s.replace(from, replace);
-        };
-        StringWrapper.replaceAll = function (s, from, replace) {
-            return s.replace(from, replace);
-        };
-        StringWrapper.slice = function (s, from, to) {
-            if (from === void 0) { from = 0; }
-            if (to === void 0) { to = null; }
-            return s.slice(from, to === null ? undefined : to);
-        };
-        StringWrapper.replaceAllMapped = function (s, from, cb) {
-            return s.replace(from, function () {
-                var matches = [];
-                for (var _i = 0; _i < arguments.length; _i++) {
-                    matches[_i - 0] = arguments[_i];
-                }
-                // Remove offset & string from the result array
-                matches.splice(-2, 2);
-                // The callback receives match, p1, ..., pn
-                return cb(matches);
-            });
-        };
-        StringWrapper.contains = function (s, substr) { return s.indexOf(substr) != -1; };
-        StringWrapper.compare = function (a, b) {
-            if (a < b) {
-                return -1;
-            }
-            else if (a > b) {
-                return 1;
-            }
-            else {
-                return 0;
-            }
-        };
-        return StringWrapper;
-    }());
-    var NumberWrapper = (function () {
-        function NumberWrapper() {
-        }
-        NumberWrapper.toFixed = function (n, fractionDigits) { return n.toFixed(fractionDigits); };
-        NumberWrapper.equal = function (a, b) { return a === b; };
-        NumberWrapper.parseIntAutoRadix = function (text) {
-            var result = parseInt(text);
-            if (isNaN(result)) {
-                throw new Error('Invalid integer literal when parsing ' + text);
-            }
-            return result;
-        };
-        NumberWrapper.parseInt = function (text, radix) {
-            if (radix == 10) {
-                if (/^(\-|\+)?[0-9]+$/.test(text)) {
-                    return parseInt(text, radix);
-                }
-            }
-            else if (radix == 16) {
-                if (/^(\-|\+)?[0-9ABCDEFabcdef]+$/.test(text)) {
-                    return parseInt(text, radix);
-                }
-            }
-            else {
-                var result = parseInt(text, radix);
-                if (!isNaN(result)) {
-                    return result;
-                }
-            }
-            throw new Error('Invalid integer literal when parsing ' + text + ' in base ' + radix);
-        };
-        Object.defineProperty(NumberWrapper, "NaN", {
-            get: function () { return NaN; },
-            enumerable: true,
-            configurable: true
-        });
-        NumberWrapper.isNumeric = function (value) { return !isNaN(value - parseFloat(value)); };
-        NumberWrapper.isNaN = function (value) { return isNaN(value); };
-        NumberWrapper.isInteger = function (value) { return Number.isInteger(value); };
-        return NumberWrapper;
-    }());
     // JS has NaN !== NaN
     function looseIdentical(a, b) {
         return a === b || typeof a === 'number' && typeof b === 'number' && isNaN(a) && isNaN(b);
@@ -145,9 +27,6 @@
     }
     function isPrimitive(obj) {
         return !isJsObject(obj);
-    }
-    function hasConstructor(value, type) {
-        return value.constructor === type;
     }
 
     /**
@@ -292,41 +171,6 @@
         return ControlContainer;
     }(AbstractControlDirective));
 
-    // Safari and Internet Explorer do not support the iterable parameter to the
-    // Map constructor.  We work around that by manually adding the items.
-    var createMapFromPairs = (function () {
-        try {
-            if (new Map([[1, 2]]).size === 1) {
-                return function createMapFromPairs(pairs) { return new Map(pairs); };
-            }
-        }
-        catch (e) {
-        }
-        return function createMapAndPopulateFromPairs(pairs) {
-            var map = new Map();
-            for (var i = 0; i < pairs.length; i++) {
-                var pair = pairs[i];
-                map.set(pair[0], pair[1]);
-            }
-            return map;
-        };
-    })();
-    var _clearValues = (function () {
-        if ((new Map()).keys().next) {
-            return function _clearValues(m) {
-                var keyIterator = m.keys();
-                var k;
-                while (!((k = keyIterator.next()).done)) {
-                    m.set(k.value, null);
-                }
-            };
-        }
-        else {
-            return function _clearValuesWithForeEach(m) {
-                m.forEach(function (v, k) { m.set(k, null); });
-            };
-        }
-    })();
     // Safari doesn't implement MapIterator.next(), which is used is Traceur's polyfill of Array.from
     // TODO(mlaval): remove the work around once we have a working polyfill of Array.from
     var _arrayFromMap = (function () {
@@ -358,13 +202,6 @@
             }
             return result;
         };
-        MapWrapper.toStringMap = function (m) {
-            var r = {};
-            m.forEach(function (v, k) { return r[k] = v; });
-            return r;
-        };
-        MapWrapper.createFromPairs = function (pairs) { return createMapFromPairs(pairs); };
-        MapWrapper.iterable = function (m) { return m; };
         MapWrapper.keys = function (m) { return _arrayFromMap(m, false); };
         MapWrapper.values = function (m) { return _arrayFromMap(m, true); };
         return MapWrapper;
@@ -375,26 +212,6 @@
     var StringMapWrapper = (function () {
         function StringMapWrapper() {
         }
-        StringMapWrapper.get = function (map, key) {
-            return map.hasOwnProperty(key) ? map[key] : undefined;
-        };
-        StringMapWrapper.set = function (map, key, value) { map[key] = value; };
-        StringMapWrapper.keys = function (map) { return Object.keys(map); };
-        StringMapWrapper.values = function (map) {
-            return Object.keys(map).map(function (k) { return map[k]; });
-        };
-        StringMapWrapper.isEmpty = function (map) {
-            for (var prop in map) {
-                return false;
-            }
-            return true;
-        };
-        StringMapWrapper.forEach = function (map, callback) {
-            for (var _i = 0, _a = Object.keys(map); _i < _a.length; _i++) {
-                var k = _a[_i];
-                callback(map[k], k);
-            }
-        };
         StringMapWrapper.merge = function (m1, m2) {
             var m = {};
             for (var _i = 0, _a = Object.keys(m1); _i < _a.length; _i++) {
@@ -543,7 +360,7 @@
         if (isPresent(source)) {
             for (var i = 0; i < source.length; i++) {
                 var item = source[i];
-                if (isArray(item)) {
+                if (Array.isArray(item)) {
                     _flattenArray(item, target);
                 }
                 else {
@@ -556,6 +373,9 @@
 
     var isPromise = _angular_core.__core_private__.isPromise;
 
+    function isEmptyInputValue(value) {
+        return value == null || typeof value === 'string' && value.length === 0;
+    }
     /**
      * Providers for validators to be used for {@link FormControl}s in a form.
      *
@@ -599,20 +419,19 @@
          * Validator that requires controls to have a non-empty value.
          */
         Validators.required = function (control) {
-            return isBlank(control.value) || (isString(control.value) && control.value == '') ?
-                { 'required': true } :
-                null;
+            return isEmptyInputValue(control.value) ? { 'required': true } : null;
         };
         /**
          * Validator that requires controls to have a value of a minimum length.
          */
         Validators.minLength = function (minLength) {
             return function (control) {
-                if (isPresent(Validators.required(control)))
-                    return null;
-                var v = control.value;
-                return v.length < minLength ?
-                    { 'minlength': { 'requiredLength': minLength, 'actualLength': v.length } } :
+                if (isEmptyInputValue(control.value)) {
+                    return null; // don't validate empty values to allow optional controls
+                }
+                var length = typeof control.value === 'string' ? control.value.length : 0;
+                return length < minLength ?
+                    { 'minlength': { 'requiredLength': minLength, 'actualLength': length } } :
                     null;
             };
         };
@@ -621,11 +440,9 @@
          */
         Validators.maxLength = function (maxLength) {
             return function (control) {
-                if (isPresent(Validators.required(control)))
-                    return null;
-                var v = control.value;
-                return v.length > maxLength ?
-                    { 'maxlength': { 'requiredLength': maxLength, 'actualLength': v.length } } :
+                var length = typeof control.value === 'string' ? control.value.length : 0;
+                return length > maxLength ?
+                    { 'maxlength': { 'requiredLength': maxLength, 'actualLength': length } } :
                     null;
             };
         };
@@ -634,12 +451,14 @@
          */
         Validators.pattern = function (pattern) {
             return function (control) {
-                if (isPresent(Validators.required(control)))
-                    return null;
+                if (isEmptyInputValue(control.value)) {
+                    return null; // don't validate empty values to allow optional controls
+                }
                 var regex = new RegExp("^" + pattern + "$");
-                var v = control.value;
-                return regex.test(v) ? null :
-                    { 'pattern': { 'requiredPattern': "^" + pattern + "$", 'actualValue': v } };
+                var value = control.value;
+                return regex.test(value) ?
+                    null :
+                    { 'pattern': { 'requiredPattern': "^" + pattern + "$", 'actualValue': value } };
             };
         };
         /**
@@ -651,7 +470,7 @@
          * of the individual error maps.
          */
         Validators.compose = function (validators) {
-            if (isBlank(validators))
+            if (!validators)
                 return null;
             var presentValidators = validators.filter(isPresent);
             if (presentValidators.length == 0)
@@ -661,7 +480,7 @@
             };
         };
         Validators.composeAsync = function (validators) {
-            if (isBlank(validators))
+            if (!validators)
                 return null;
             var presentValidators = validators.filter(isPresent);
             if (presentValidators.length == 0)
@@ -686,7 +505,7 @@
         var res = arrayOfErrors.reduce(function (res, errors) {
             return isPresent(errors) ? StringMapWrapper.merge(res, errors) : res;
         }, {});
-        return StringMapWrapper.isEmpty(res) ? null : res;
+        return Object.keys(res).length === 0 ? null : res;
     }
 
     /**
@@ -1065,7 +884,7 @@
             return "" + value;
         if (!isPrimitive(value))
             value = 'Object';
-        return StringWrapper.slice(id + ": " + value, 0, 50);
+        return (id + ": " + value).slice(0, 50);
     }
     function _extractId(valueString) {
         return valueString.split(':')[0];
@@ -1236,11 +1055,11 @@
     function _buildValueString$1(id, value) {
         if (isBlank(id))
             return "" + value;
-        if (isString(value))
+        if (typeof value === 'string')
             value = "'" + value + "'";
         if (!isPrimitive(value))
             value = 'Object';
-        return StringWrapper.slice(id + ": " + value, 0, 50);
+        return (id + ": " + value).slice(0, 50);
     }
     function _extractId$1(valueString) {
         return valueString.split(':')[0];
@@ -1410,14 +1229,12 @@
     }());
 
     function controlPath(name, parent) {
-        var p = ListWrapper.clone(parent.path);
-        p.push(name);
-        return p;
+        return parent.path.concat([name]);
     }
     function setUpControl(control, dir) {
-        if (isBlank(control))
+        if (!control)
             _throwError(dir, 'Cannot find control with');
-        if (isBlank(dir.valueAccessor))
+        if (!dir.valueAccessor)
             _throwError(dir, 'No value accessor for form control with');
         control.validator = Validators.compose([control.validator, dir.validator]);
         control.asyncValidator = Validators.composeAsync([control.asyncValidator, dir.asyncValidator]);
@@ -1495,40 +1312,43 @@
             return true;
         return !looseIdentical(viewModel, change.currentValue);
     }
+    var BUILTIN_ACCESSORS = [
+        CheckboxControlValueAccessor,
+        NumberValueAccessor,
+        SelectControlValueAccessor,
+        SelectMultipleControlValueAccessor,
+        RadioControlValueAccessor,
+    ];
     function isBuiltInAccessor(valueAccessor) {
-        return (hasConstructor(valueAccessor, CheckboxControlValueAccessor) ||
-            hasConstructor(valueAccessor, NumberValueAccessor) ||
-            hasConstructor(valueAccessor, SelectControlValueAccessor) ||
-            hasConstructor(valueAccessor, SelectMultipleControlValueAccessor) ||
-            hasConstructor(valueAccessor, RadioControlValueAccessor));
+        return BUILTIN_ACCESSORS.some(function (a) { return valueAccessor.constructor === a; });
     }
     // TODO: vsavkin remove it once https://github.com/angular/angular/issues/3011 is implemented
     function selectValueAccessor(dir, valueAccessors) {
-        if (isBlank(valueAccessors))
+        if (!valueAccessors)
             return null;
         var defaultAccessor;
         var builtinAccessor;
         var customAccessor;
         valueAccessors.forEach(function (v) {
-            if (hasConstructor(v, DefaultValueAccessor)) {
+            if (v.constructor === DefaultValueAccessor) {
                 defaultAccessor = v;
             }
             else if (isBuiltInAccessor(v)) {
-                if (isPresent(builtinAccessor))
+                if (builtinAccessor)
                     _throwError(dir, 'More than one built-in value accessor matches form control with');
                 builtinAccessor = v;
             }
             else {
-                if (isPresent(customAccessor))
+                if (customAccessor)
                     _throwError(dir, 'More than one custom value accessor matches form control with');
                 customAccessor = v;
             }
         });
-        if (isPresent(customAccessor))
+        if (customAccessor)
             return customAccessor;
-        if (isPresent(builtinAccessor))
+        if (builtinAccessor)
             return builtinAccessor;
-        if (isPresent(defaultAccessor))
+        if (defaultAccessor)
             return defaultAccessor;
         _throwError(dir, 'No valid value accessor for form control with');
         return null;
@@ -1792,9 +1612,9 @@
             var errorFn = function (err) { return null; };
             var completeFn = function () { return null; };
             if (generatorOrNext && typeof generatorOrNext === 'object') {
-                schedulerFn = this.__isAsync ? function (value /** TODO #9100 */) {
+                schedulerFn = this.__isAsync ? function (value) {
                     setTimeout(function () { return generatorOrNext.next(value); });
-                } : function (value /** TODO #9100 */) { generatorOrNext.next(value); };
+                } : function (value) { generatorOrNext.next(value); };
                 if (generatorOrNext.error) {
                     errorFn = this.__isAsync ? function (err) { setTimeout(function () { return generatorOrNext.error(err); }); } :
                         function (err) { generatorOrNext.error(err); };
@@ -1805,9 +1625,8 @@
                 }
             }
             else {
-                schedulerFn = this.__isAsync ? function (value /** TODO #9100 */) {
-                    setTimeout(function () { return generatorOrNext(value); });
-                } : function (value /** TODO #9100 */) { generatorOrNext(value); };
+                schedulerFn = this.__isAsync ? function (value) { setTimeout(function () { return generatorOrNext(value); }); } :
+                    function (value) { generatorOrNext(value); };
                 if (error) {
                     errorFn =
                         this.__isAsync ? function (err) { setTimeout(function () { return error(err); }); } : function (err) { error(err); };
@@ -1858,19 +1677,16 @@
         if (!(path instanceof Array)) {
             path = path.split(delimiter);
         }
-        if (path instanceof Array && ListWrapper.isEmpty(path))
+        if (path instanceof Array && (path.length === 0))
             return null;
         return path.reduce(function (v, name) {
             if (v instanceof FormGroup) {
-                return isPresent(v.controls[name]) ? v.controls[name] : null;
+                return v.controls[name] || null;
             }
-            else if (v instanceof FormArray) {
-                var index = name;
-                return isPresent(v.at(index)) ? v.at(index) : null;
+            if (v instanceof FormArray) {
+                return v.at(name) || null;
             }
-            else {
-                return null;
-            }
+            return null;
         }, control);
     }
     function toObservable(r) {
@@ -2289,9 +2105,9 @@
          */
         AbstractControl.prototype.getError = function (errorCode, path) {
             if (path === void 0) { path = null; }
-            var control = isPresent(path) && !ListWrapper.isEmpty(path) ? this.get(path) : this;
+            var control = isPresent(path) && (path.length > 0) ? this.get(path) : this;
             if (isPresent(control) && isPresent(control._errors)) {
-                return StringMapWrapper.get(control._errors, errorCode);
+                return control._errors[errorCode];
             }
             else {
                 return null;
@@ -2349,7 +2165,7 @@
         };
         /** @internal */
         AbstractControl.prototype._anyControlsHaveStatus = function (status) {
-            return this._anyControls(function (control) { return control.status == status; });
+            return this._anyControls(function (control) { return control.status === status; });
         };
         /** @internal */
         AbstractControl.prototype._anyControlsDirty = function () {
@@ -2377,8 +2193,8 @@
         };
         /** @internal */
         AbstractControl.prototype._isBoxedValue = function (formState) {
-            return isStringMap(formState) && Object.keys(formState).length === 2 && 'value' in formState &&
-                'disabled' in formState;
+            return typeof formState === 'object' && formState !== null &&
+                Object.keys(formState).length === 2 && 'value' in formState && 'disabled' in formState;
         };
         /** @internal */
         AbstractControl.prototype._registerOnCollectionChange = function (fn) { this._onCollectionChange = fn; };
@@ -2402,6 +2218,8 @@
      *
      * You can also initialize the control with a form state object on instantiation,
      * which includes both the value and whether or not the control is disabled.
+     * You can't use the value key without the disabled key; both are required
+     * to use this way of initialization.
      *
      * ```ts
      * const ctrl = new FormControl({value: 'n/a', disabled: true});
@@ -2701,9 +2519,9 @@
             var _this = this;
             var onlySelf = (_a === void 0 ? {} : _a).onlySelf;
             this._checkAllValuesPresent(value);
-            StringMapWrapper.forEach(value, function (newValue, name) {
+            Object.keys(value).forEach(function (name) {
                 _this._throwIfControlMissing(name);
-                _this.controls[name].setValue(newValue, { onlySelf: true });
+                _this.controls[name].setValue(value[name], { onlySelf: true });
             });
             this.updateValueAndValidity({ onlySelf: onlySelf });
         };
@@ -2731,9 +2549,9 @@
         FormGroup.prototype.patchValue = function (value, _a) {
             var _this = this;
             var onlySelf = (_a === void 0 ? {} : _a).onlySelf;
-            StringMapWrapper.forEach(value, function (newValue, name) {
+            Object.keys(value).forEach(function (name) {
                 if (_this.controls[name]) {
-                    _this.controls[name].patchValue(newValue, { onlySelf: true });
+                    _this.controls[name].patchValue(value[name], { onlySelf: true });
                 }
             });
             this.updateValueAndValidity({ onlySelf: onlySelf });
@@ -2803,7 +2621,8 @@
         };
         /** @internal */
         FormGroup.prototype._forEachChild = function (cb) {
-            StringMapWrapper.forEach(this.controls, cb);
+            var _this = this;
+            Object.keys(this.controls).forEach(function (k) { return cb(_this.controls[k], k); });
         };
         /** @internal */
         FormGroup.prototype._setUpControls = function () {
@@ -2932,7 +2751,7 @@
          * Insert a new {@link AbstractControl} at the given `index` in the array.
          */
         FormArray.prototype.insert = function (index, control) {
-            ListWrapper.insert(this.controls, index, control);
+            this.controls.splice(index, 0, control);
             this._registerControl(control);
             this.updateValueAndValidity();
             this._onCollectionChange();
@@ -2943,7 +2762,7 @@
         FormArray.prototype.removeAt = function (index) {
             if (this.controls[index])
                 this.controls[index]._registerOnCollectionChange(function () { });
-            ListWrapper.removeAt(this.controls, index);
+            this.controls.splice(index, 1);
             this.updateValueAndValidity();
             this._onCollectionChange();
         };
@@ -2953,9 +2772,9 @@
         FormArray.prototype.setControl = function (index, control) {
             if (this.controls[index])
                 this.controls[index]._registerOnCollectionChange(function () { });
-            ListWrapper.removeAt(this.controls, index);
+            this.controls.splice(index, 1);
             if (control) {
-                ListWrapper.insert(this.controls, index, control);
+                this.controls.splice(index, 0, control);
                 this._registerControl(control);
             }
             this.updateValueAndValidity();
@@ -3167,7 +2986,8 @@
      * sub-groups within the form.
      *
      * You can listen to the directive's `ngSubmit` event to be notified when the user has
-     * triggered a form submission.
+     * triggered a form submission. The `ngSubmit` event will be emitted with the original form
+     * submission event.
      *
      * {@example forms/ts/simpleForm/simple_form_example.ts region='Component'}
      *
@@ -3258,9 +3078,9 @@
             });
         };
         NgForm.prototype.setValue = function (value) { this.control.setValue(value); };
-        NgForm.prototype.onSubmit = function () {
+        NgForm.prototype.onSubmit = function ($event) {
             this._submitted = true;
-            this.ngSubmit.emit(null);
+            this.ngSubmit.emit($event);
             return false;
         };
         NgForm.prototype.onReset = function () { this.resetForm(); };
@@ -3278,7 +3098,7 @@
             { type: _angular_core.Directive, args: [{
                         selector: 'form:not([ngNoForm]):not([formGroup]),ngForm,[ngForm]',
                         providers: [formDirectiveProvider],
-                        host: { '(submit)': 'onSubmit()', '(reset)': 'onReset()' },
+                        host: { '(submit)': 'onSubmit($event)', '(reset)': 'onReset()' },
                         outputs: ['ngSubmit'],
                         exportAs: 'ngForm'
                     },] },
@@ -3795,6 +3615,10 @@
      * its {@link AbstractControl.statusChanges} event to be notified when the validation status is
      * re-calculated.
      *
+     * Furthermore, you can listen to the directive's `ngSubmit` event to be notified when the user has
+     * triggered a form submission. The `ngSubmit` event will be emitted with the original form
+     * submission event.
+     *
      * ### Example
      *
      * In this example, we create form controls for first name and last name.
@@ -3873,9 +3697,9 @@
             var ctrl = this.form.get(dir.path);
             ctrl.setValue(value);
         };
-        FormGroupDirective.prototype.onSubmit = function () {
+        FormGroupDirective.prototype.onSubmit = function ($event) {
             this._submitted = true;
-            this.ngSubmit.emit(null);
+            this.ngSubmit.emit($event);
             return false;
         };
         FormGroupDirective.prototype.onReset = function () { this.resetForm(); };
@@ -3912,7 +3736,7 @@
             this.form.asyncValidator = Validators.composeAsync([this.form.asyncValidator, async]);
         };
         FormGroupDirective.prototype._checkFormPresent = function () {
-            if (isBlank(this.form)) {
+            if (!this.form) {
                 ReactiveErrors.missingFormException();
             }
         };
@@ -3920,7 +3744,7 @@
             { type: _angular_core.Directive, args: [{
                         selector: '[formGroup]',
                         providers: [formDirectiveProvider$1],
-                        host: { '(submit)': 'onSubmit()', '(reset)': 'onReset()' },
+                        host: { '(submit)': 'onSubmit($event)', '(reset)': 'onReset()' },
                         exportAs: 'ngForm'
                     },] },
         ];
@@ -4534,8 +4358,8 @@
         FormBuilder.prototype.group = function (controlsConfig, extra) {
             if (extra === void 0) { extra = null; }
             var controls = this._reduceControls(controlsConfig);
-            var validator = isPresent(extra) ? StringMapWrapper.get(extra, 'validator') : null;
-            var asyncValidator = isPresent(extra) ? StringMapWrapper.get(extra, 'asyncValidator') : null;
+            var validator = isPresent(extra) ? extra['validator'] : null;
+            var asyncValidator = isPresent(extra) ? extra['asyncValidator'] : null;
             return new FormGroup(controls, validator, asyncValidator);
         };
         /**
@@ -4566,8 +4390,8 @@
         FormBuilder.prototype._reduceControls = function (controlsConfig) {
             var _this = this;
             var controls = {};
-            StringMapWrapper.forEach(controlsConfig, function (controlConfig, controlName) {
-                controls[controlName] = _this._createControl(controlConfig);
+            Object.keys(controlsConfig).forEach(function (controlName) {
+                controls[controlName] = _this._createControl(controlsConfig[controlName]);
             });
             return controls;
         };
@@ -4577,7 +4401,7 @@
                 controlConfig instanceof FormArray) {
                 return controlConfig;
             }
-            else if (isArray(controlConfig)) {
+            else if (Array.isArray(controlConfig)) {
                 var value = controlConfig[0];
                 var validator = controlConfig.length > 1 ? controlConfig[1] : null;
                 var asyncValidator = controlConfig.length > 2 ? controlConfig[2] : null;

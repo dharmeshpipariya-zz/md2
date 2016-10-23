@@ -1,5 +1,5 @@
 /**
- * @license Angular v2.0.1
+ * @license Angular v2.1.1
  * (c) 2010-2016 Google, Inc. https://angular.io/
  * License: MIT
  */
@@ -16,208 +16,6 @@
    * Use of this source code is governed by an MIT-style license that can be
    * found in the LICENSE file at https://angular.io/license
    */
-  var globalScope;
-  if (typeof window === 'undefined') {
-      if (typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope) {
-          // TODO: Replace any with WorkerGlobalScope from lib.webworker.d.ts #3492
-          globalScope = self;
-      }
-      else {
-          globalScope = global;
-      }
-  }
-  else {
-      globalScope = window;
-  }
-  // Need to declare a new variable for global here since TypeScript
-  // exports the original value of the symbol.
-  var global$1 = globalScope;
-  // TODO: remove calls to assert in production environment
-  // Note: Can't just export this and import in in other files
-  // as `assert` is a reserved keyword in Dart
-  global$1.assert = function assert(condition) {
-      // TODO: to be fixed properly via #2830, noop for now
-  };
-  function isPresent(obj) {
-      return obj !== undefined && obj !== null;
-  }
-  function isBlank(obj) {
-      return obj === undefined || obj === null;
-  }
-  function isString(obj) {
-      return typeof obj === 'string';
-  }
-  function isStringMap(obj) {
-      return typeof obj === 'object' && obj !== null;
-  }
-  var STRING_MAP_PROTO = Object.getPrototypeOf({});
-  function isStrictStringMap(obj) {
-      return isStringMap(obj) && Object.getPrototypeOf(obj) === STRING_MAP_PROTO;
-  }
-  function isArray(obj) {
-      return Array.isArray(obj);
-  }
-  function stringify(token) {
-      if (typeof token === 'string') {
-          return token;
-      }
-      if (token === undefined || token === null) {
-          return '' + token;
-      }
-      if (token.overriddenName) {
-          return token.overriddenName;
-      }
-      if (token.name) {
-          return token.name;
-      }
-      var res = token.toString();
-      var newLineIndex = res.indexOf('\n');
-      return (newLineIndex === -1) ? res : res.substring(0, newLineIndex);
-  }
-  var StringWrapper = (function () {
-      function StringWrapper() {
-      }
-      StringWrapper.fromCharCode = function (code) { return String.fromCharCode(code); };
-      StringWrapper.charCodeAt = function (s, index) { return s.charCodeAt(index); };
-      StringWrapper.split = function (s, regExp) { return s.split(regExp); };
-      StringWrapper.equals = function (s, s2) { return s === s2; };
-      StringWrapper.stripLeft = function (s, charVal) {
-          if (s && s.length) {
-              var pos = 0;
-              for (var i = 0; i < s.length; i++) {
-                  if (s[i] != charVal)
-                      break;
-                  pos++;
-              }
-              s = s.substring(pos);
-          }
-          return s;
-      };
-      StringWrapper.stripRight = function (s, charVal) {
-          if (s && s.length) {
-              var pos = s.length;
-              for (var i = s.length - 1; i >= 0; i--) {
-                  if (s[i] != charVal)
-                      break;
-                  pos--;
-              }
-              s = s.substring(0, pos);
-          }
-          return s;
-      };
-      StringWrapper.replace = function (s, from, replace) {
-          return s.replace(from, replace);
-      };
-      StringWrapper.replaceAll = function (s, from, replace) {
-          return s.replace(from, replace);
-      };
-      StringWrapper.slice = function (s, from, to) {
-          if (from === void 0) { from = 0; }
-          if (to === void 0) { to = null; }
-          return s.slice(from, to === null ? undefined : to);
-      };
-      StringWrapper.replaceAllMapped = function (s, from, cb) {
-          return s.replace(from, function () {
-              var matches = [];
-              for (var _i = 0; _i < arguments.length; _i++) {
-                  matches[_i - 0] = arguments[_i];
-              }
-              // Remove offset & string from the result array
-              matches.splice(-2, 2);
-              // The callback receives match, p1, ..., pn
-              return cb(matches);
-          });
-      };
-      StringWrapper.contains = function (s, substr) { return s.indexOf(substr) != -1; };
-      StringWrapper.compare = function (a, b) {
-          if (a < b) {
-              return -1;
-          }
-          else if (a > b) {
-              return 1;
-          }
-          else {
-              return 0;
-          }
-      };
-      return StringWrapper;
-  }());
-  var StringJoiner = (function () {
-      function StringJoiner(parts) {
-          if (parts === void 0) { parts = []; }
-          this.parts = parts;
-      }
-      StringJoiner.prototype.add = function (part) { this.parts.push(part); };
-      StringJoiner.prototype.toString = function () { return this.parts.join(''); };
-      return StringJoiner;
-  }());
-  var NumberWrapper = (function () {
-      function NumberWrapper() {
-      }
-      NumberWrapper.toFixed = function (n, fractionDigits) { return n.toFixed(fractionDigits); };
-      NumberWrapper.equal = function (a, b) { return a === b; };
-      NumberWrapper.parseIntAutoRadix = function (text) {
-          var result = parseInt(text);
-          if (isNaN(result)) {
-              throw new Error('Invalid integer literal when parsing ' + text);
-          }
-          return result;
-      };
-      NumberWrapper.parseInt = function (text, radix) {
-          if (radix == 10) {
-              if (/^(\-|\+)?[0-9]+$/.test(text)) {
-                  return parseInt(text, radix);
-              }
-          }
-          else if (radix == 16) {
-              if (/^(\-|\+)?[0-9ABCDEFabcdef]+$/.test(text)) {
-                  return parseInt(text, radix);
-              }
-          }
-          else {
-              var result = parseInt(text, radix);
-              if (!isNaN(result)) {
-                  return result;
-              }
-          }
-          throw new Error('Invalid integer literal when parsing ' + text + ' in base ' + radix);
-      };
-      Object.defineProperty(NumberWrapper, "NaN", {
-          get: function () { return NaN; },
-          enumerable: true,
-          configurable: true
-      });
-      NumberWrapper.isNumeric = function (value) { return !isNaN(value - parseFloat(value)); };
-      NumberWrapper.isNaN = function (value) { return isNaN(value); };
-      NumberWrapper.isInteger = function (value) { return Number.isInteger(value); };
-      return NumberWrapper;
-  }());
-  function normalizeBlank(obj) {
-      return isBlank(obj) ? null : obj;
-  }
-  function normalizeBool(obj) {
-      return isBlank(obj) ? false : obj;
-  }
-  function isJsObject(o) {
-      return o !== null && (typeof o === 'function' || typeof o === 'object');
-  }
-  function evalExpression(sourceUrl, expr, declarations, vars) {
-      var fnBody = declarations + "\nreturn " + expr + "\n//# sourceURL=" + sourceUrl;
-      var fnArgNames = [];
-      var fnArgValues = [];
-      for (var argName in vars) {
-          fnArgNames.push(argName);
-          fnArgValues.push(vars[argName]);
-      }
-      return new (Function.bind.apply(Function, [void 0].concat(fnArgNames.concat(fnBody))))().apply(void 0, fnArgValues);
-  }
-  function isPrimitive(obj) {
-      return !isJsObject(obj);
-  }
-  function escapeRegExp(s) {
-      return s.replace(/([.*+?^=!:${}()|[\]\/\\])/g, '\\$1');
-  }
-
   /**
    * A segment of text within the template.
    */
@@ -257,7 +55,8 @@
       return AttrAst;
   }());
   /**
-   * A binding for an element property (e.g. `[property]="expression"`).
+   * A binding for an element property (e.g. `[property]="expression"`) or an animation trigger (e.g.
+   * `[@trigger]="stateExp"`)
    */
   var BoundElementPropertyAst = (function () {
       function BoundElementPropertyAst(name, type, securityContext, value, unit, sourceSpan) {
@@ -271,15 +70,22 @@
       BoundElementPropertyAst.prototype.visit = function (visitor, context) {
           return visitor.visitElementProperty(this, context);
       };
+      Object.defineProperty(BoundElementPropertyAst.prototype, "isAnimation", {
+          get: function () { return this.type === exports.PropertyBindingType.Animation; },
+          enumerable: true,
+          configurable: true
+      });
       return BoundElementPropertyAst;
   }());
   /**
-   * A binding for an element event (e.g. `(event)="handler()"`).
+   * A binding for an element event (e.g. `(event)="handler()"`) or an animation trigger event (e.g.
+   * `(@trigger.phase)="callback($event)"`).
    */
   var BoundEventAst = (function () {
-      function BoundEventAst(name, target, handler, sourceSpan) {
+      function BoundEventAst(name, target, phase, handler, sourceSpan) {
           this.name = name;
           this.target = target;
+          this.phase = phase;
           this.handler = handler;
           this.sourceSpan = sourceSpan;
       }
@@ -288,13 +94,18 @@
       };
       Object.defineProperty(BoundEventAst.prototype, "fullName", {
           get: function () {
-              if (isPresent(this.target)) {
+              if (this.target) {
                   return this.target + ":" + this.name;
               }
               else {
                   return this.name;
               }
           },
+          enumerable: true,
+          configurable: true
+      });
+      Object.defineProperty(BoundEventAst.prototype, "isAnimation", {
+          get: function () { return !!this.phase; },
           enumerable: true,
           configurable: true
       });
@@ -332,7 +143,7 @@
    * An element declaration in a template.
    */
   var ElementAst = (function () {
-      function ElementAst(name, attrs, inputs, outputs, references, directives, providers, hasViewContainer, children, ngContentIndex, sourceSpan) {
+      function ElementAst(name, attrs, inputs, outputs, references, directives, providers, hasViewContainer, children, ngContentIndex, sourceSpan, endSourceSpan) {
           this.name = name;
           this.attrs = attrs;
           this.inputs = inputs;
@@ -344,6 +155,7 @@
           this.children = children;
           this.ngContentIndex = ngContentIndex;
           this.sourceSpan = sourceSpan;
+          this.endSourceSpan = endSourceSpan;
       }
       ElementAst.prototype.visit = function (visitor, context) {
           return visitor.visitElement(this, context);
@@ -475,50 +287,93 @@
   function templateVisitAll(visitor, asts, context) {
       if (context === void 0) { context = null; }
       var result = [];
+      var visit = visitor.visit ?
+          function (ast) { return visitor.visit(ast, context) || ast.visit(visitor, context); } :
+          function (ast) { return ast.visit(visitor, context); };
       asts.forEach(function (ast) {
-          var astResult = ast.visit(visitor, context);
-          if (isPresent(astResult)) {
+          var astResult = visit(ast);
+          if (astResult) {
               result.push(astResult);
           }
       });
       return result;
   }
 
-  // Safari and Internet Explorer do not support the iterable parameter to the
-  // Map constructor.  We work around that by manually adding the items.
-  var createMapFromPairs = (function () {
-      try {
-          if (new Map([[1, 2]]).size === 1) {
-              return function createMapFromPairs(pairs) { return new Map(pairs); };
-          }
+  function isPresent(obj) {
+      return obj !== undefined && obj !== null;
+  }
+  function isBlank(obj) {
+      return obj === undefined || obj === null;
+  }
+  var STRING_MAP_PROTO = Object.getPrototypeOf({});
+  function isStrictStringMap(obj) {
+      return typeof obj === 'object' && obj !== null && Object.getPrototypeOf(obj) === STRING_MAP_PROTO;
+  }
+  function stringify(token) {
+      if (typeof token === 'string') {
+          return token;
       }
-      catch (e) {
+      if (token === undefined || token === null) {
+          return '' + token;
       }
-      return function createMapAndPopulateFromPairs(pairs) {
-          var map = new Map();
-          for (var i = 0; i < pairs.length; i++) {
-              var pair = pairs[i];
-              map.set(pair[0], pair[1]);
+      if (token.overriddenName) {
+          return token.overriddenName;
+      }
+      if (token.name) {
+          return token.name;
+      }
+      var res = token.toString();
+      var newLineIndex = res.indexOf('\n');
+      return newLineIndex === -1 ? res : res.substring(0, newLineIndex);
+  }
+  var NumberWrapper = (function () {
+      function NumberWrapper() {
+      }
+      NumberWrapper.parseIntAutoRadix = function (text) {
+          var result = parseInt(text);
+          if (isNaN(result)) {
+              throw new Error('Invalid integer literal when parsing ' + text);
           }
-          return map;
+          return result;
       };
-  })();
-  var _clearValues = (function () {
-      if ((new Map()).keys().next) {
-          return function _clearValues(m) {
-              var keyIterator = m.keys();
-              var k;
-              while (!((k = keyIterator.next()).done)) {
-                  m.set(k.value, null);
+      NumberWrapper.parseInt = function (text, radix) {
+          if (radix == 10) {
+              if (/^(\-|\+)?[0-9]+$/.test(text)) {
+                  return parseInt(text, radix);
               }
-          };
-      }
-      else {
-          return function _clearValuesWithForeEach(m) {
-              m.forEach(function (v, k) { m.set(k, null); });
-          };
-      }
-  })();
+          }
+          else if (radix == 16) {
+              if (/^(\-|\+)?[0-9ABCDEFabcdef]+$/.test(text)) {
+                  return parseInt(text, radix);
+              }
+          }
+          else {
+              var result = parseInt(text, radix);
+              if (!isNaN(result)) {
+                  return result;
+              }
+          }
+          throw new Error('Invalid integer literal when parsing ' + text + ' in base ' + radix);
+      };
+      NumberWrapper.isNumeric = function (value) { return !isNaN(value - parseFloat(value)); };
+      return NumberWrapper;
+  }());
+  function normalizeBlank(obj) {
+      return isBlank(obj) ? null : obj;
+  }
+  function normalizeBool(obj) {
+      return isBlank(obj) ? false : obj;
+  }
+  function isJsObject(o) {
+      return o !== null && (typeof o === 'function' || typeof o === 'object');
+  }
+  function isPrimitive(obj) {
+      return !isJsObject(obj);
+  }
+  function escapeRegExp(s) {
+      return s.replace(/([.*+?^=!:${}()|[\]\/\\])/g, '\\$1');
+  }
+
   // Safari doesn't implement MapIterator.next(), which is used is Traceur's polyfill of Array.from
   // TODO(mlaval): remove the work around once we have a working polyfill of Array.from
   var _arrayFromMap = (function () {
@@ -550,13 +405,6 @@
           }
           return result;
       };
-      MapWrapper.toStringMap = function (m) {
-          var r = {};
-          m.forEach(function (v, k) { return r[k] = v; });
-          return r;
-      };
-      MapWrapper.createFromPairs = function (pairs) { return createMapFromPairs(pairs); };
-      MapWrapper.iterable = function (m) { return m; };
       MapWrapper.keys = function (m) { return _arrayFromMap(m, false); };
       MapWrapper.values = function (m) { return _arrayFromMap(m, true); };
       return MapWrapper;
@@ -567,26 +415,6 @@
   var StringMapWrapper = (function () {
       function StringMapWrapper() {
       }
-      StringMapWrapper.get = function (map, key) {
-          return map.hasOwnProperty(key) ? map[key] : undefined;
-      };
-      StringMapWrapper.set = function (map, key, value) { map[key] = value; };
-      StringMapWrapper.keys = function (map) { return Object.keys(map); };
-      StringMapWrapper.values = function (map) {
-          return Object.keys(map).map(function (k) { return map[k]; });
-      };
-      StringMapWrapper.isEmpty = function (map) {
-          for (var prop in map) {
-              return false;
-          }
-          return true;
-      };
-      StringMapWrapper.forEach = function (map, callback) {
-          for (var _i = 0, _a = Object.keys(map); _i < _a.length; _i++) {
-              var k = _a[_i];
-              callback(map[k], k);
-          }
-      };
       StringMapWrapper.merge = function (m1, m2) {
           var m = {};
           for (var _i = 0, _a = Object.keys(m1); _i < _a.length; _i++) {
@@ -735,7 +563,7 @@
       if (isPresent(source)) {
           for (var i = 0; i < source.length; i++) {
               var item = source[i];
-              if (isArray(item)) {
+              if (Array.isArray(item)) {
                   _flattenArray(item, target);
               }
               else {
@@ -745,33 +573,6 @@
       }
       return target;
   }
-  // Safari and Internet Explorer do not support the iterable parameter to the
-  // Set constructor.  We work around that by manually adding the items.
-  var createSetFromList = (function () {
-      var test = new Set([1, 2, 3]);
-      if (test.size === 3) {
-          return function createSetFromList(lst) { return new Set(lst); };
-      }
-      else {
-          return function createSetAndPopulateFromList(lst) {
-              var res = new Set(lst);
-              if (res.size !== lst.length) {
-                  for (var i = 0; i < lst.length; i++) {
-                      res.add(lst[i]);
-                  }
-              }
-              return res;
-          };
-      }
-  })();
-  var SetWrapper = (function () {
-      function SetWrapper() {
-      }
-      SetWrapper.createFromList = function (lst) { return createSetFromList(lst); };
-      SetWrapper.has = function (s, key) { return s.has(key); };
-      SetWrapper.delete = function (m, k) { m.delete(k); };
-      return SetWrapper;
-  }());
 
   /**
    * @license
@@ -1156,7 +957,6 @@
       return TAG_DEFINITIONS[tagName.toLowerCase()] || _DEFAULT_TAG_DEFINITION;
   }
 
-  var _EMPTY_ATTR_VALUE = '';
   var _SELECTOR_REGEXP = new RegExp('(\\:not\\()|' +
       '([-\\w]+)|' +
       '(?:\\.([-\\w]+))|' +
@@ -1179,8 +979,8 @@
       CssSelector.parse = function (selector) {
           var results = [];
           var _addResult = function (res, cssSel) {
-              if (cssSel.notSelectors.length > 0 && isBlank(cssSel.element) &&
-                  ListWrapper.isEmpty(cssSel.classNames) && ListWrapper.isEmpty(cssSel.attrs)) {
+              if (cssSel.notSelectors.length > 0 && !cssSel.element && cssSel.classNames.length == 0 &&
+                  cssSel.attrs.length == 0) {
                   cssSel.element = '*';
               }
               res.push(cssSel);
@@ -1190,8 +990,8 @@
           var current = cssSelector;
           var inNot = false;
           _SELECTOR_REGEXP.lastIndex = 0;
-          while (isPresent(match = _SELECTOR_REGEXP.exec(selector))) {
-              if (isPresent(match[1])) {
+          while (match = _SELECTOR_REGEXP.exec(selector)) {
+              if (match[1]) {
                   if (inNot) {
                       throw new Error('Nesting :not is not allowed in a selector');
                   }
@@ -1199,20 +999,20 @@
                   current = new CssSelector();
                   cssSelector.notSelectors.push(current);
               }
-              if (isPresent(match[2])) {
+              if (match[2]) {
                   current.setElement(match[2]);
               }
-              if (isPresent(match[3])) {
+              if (match[3]) {
                   current.addClassName(match[3]);
               }
-              if (isPresent(match[4])) {
+              if (match[4]) {
                   current.addAttribute(match[4], match[5]);
               }
-              if (isPresent(match[6])) {
+              if (match[6]) {
                   inNot = false;
                   current = cssSelector;
               }
-              if (isPresent(match[7])) {
+              if (match[7]) {
                   if (inNot) {
                       throw new Error('Multiple selectors in :not are not supported');
                   }
@@ -1246,36 +1046,20 @@
               "<" + tagName + classAttr + attrs + "></" + tagName + ">";
       };
       CssSelector.prototype.addAttribute = function (name, value) {
-          if (value === void 0) { value = _EMPTY_ATTR_VALUE; }
-          this.attrs.push(name);
-          if (isPresent(value)) {
-              value = value.toLowerCase();
-          }
-          else {
-              value = _EMPTY_ATTR_VALUE;
-          }
-          this.attrs.push(value);
+          if (value === void 0) { value = ''; }
+          this.attrs.push(name, value && value.toLowerCase() || '');
       };
       CssSelector.prototype.addClassName = function (name) { this.classNames.push(name.toLowerCase()); };
       CssSelector.prototype.toString = function () {
-          var res = '';
-          if (isPresent(this.element)) {
-              res += this.element;
+          var res = this.element || '';
+          if (this.classNames) {
+              this.classNames.forEach(function (klass) { return res += "." + klass; });
           }
-          if (isPresent(this.classNames)) {
-              for (var i = 0; i < this.classNames.length; i++) {
-                  res += '.' + this.classNames[i];
-              }
-          }
-          if (isPresent(this.attrs)) {
-              for (var i = 0; i < this.attrs.length;) {
-                  var attrName = this.attrs[i++];
-                  var attrValue = this.attrs[i++];
-                  res += '[' + attrName;
-                  if (attrValue.length > 0) {
-                      res += '=' + attrValue;
-                  }
-                  res += ']';
+          if (this.attrs) {
+              for (var i = 0; i < this.attrs.length; i += 2) {
+                  var name_1 = this.attrs[i];
+                  var value = this.attrs[i + 1];
+                  res += "[" + name_1 + (value ? '=' + value : '') + "]";
               }
           }
           this.notSelectors.forEach(function (notSelector) { return res += ":not(" + notSelector + ")"; });
@@ -1289,12 +1073,12 @@
    */
   var SelectorMatcher = (function () {
       function SelectorMatcher() {
-          this._elementMap = new Map();
-          this._elementPartialMap = new Map();
-          this._classMap = new Map();
-          this._classPartialMap = new Map();
-          this._attrValueMap = new Map();
-          this._attrValuePartialMap = new Map();
+          this._elementMap = {};
+          this._elementPartialMap = {};
+          this._classMap = {};
+          this._classPartialMap = {};
+          this._attrValueMap = {};
+          this._attrValuePartialMap = {};
           this._listContexts = [];
       }
       SelectorMatcher.createNotMatcher = function (notSelectors) {
@@ -1323,7 +1107,7 @@
           var classNames = cssSelector.classNames;
           var attrs = cssSelector.attrs;
           var selectable = new SelectorContext(cssSelector, callbackCtxt, listContext);
-          if (isPresent(element)) {
+          if (element) {
               var isTerminal = attrs.length === 0 && classNames.length === 0;
               if (isTerminal) {
                   this._addTerminal(matcher._elementMap, element, selectable);
@@ -1332,10 +1116,10 @@
                   matcher = this._addPartial(matcher._elementPartialMap, element);
               }
           }
-          if (isPresent(classNames)) {
-              for (var index = 0; index < classNames.length; index++) {
-                  var isTerminal = attrs.length === 0 && index === classNames.length - 1;
-                  var className = classNames[index];
+          if (classNames) {
+              for (var i = 0; i < classNames.length; i++) {
+                  var isTerminal = attrs.length === 0 && i === classNames.length - 1;
+                  var className = classNames[i];
                   if (isTerminal) {
                       this._addTerminal(matcher._classMap, className, selectable);
                   }
@@ -1344,45 +1128,45 @@
                   }
               }
           }
-          if (isPresent(attrs)) {
-              for (var index = 0; index < attrs.length;) {
-                  var isTerminal = index === attrs.length - 2;
-                  var attrName = attrs[index++];
-                  var attrValue = attrs[index++];
+          if (attrs) {
+              for (var i = 0; i < attrs.length; i += 2) {
+                  var isTerminal = i === attrs.length - 2;
+                  var name_2 = attrs[i];
+                  var value = attrs[i + 1];
                   if (isTerminal) {
                       var terminalMap = matcher._attrValueMap;
-                      var terminalValuesMap = terminalMap.get(attrName);
-                      if (isBlank(terminalValuesMap)) {
-                          terminalValuesMap = new Map();
-                          terminalMap.set(attrName, terminalValuesMap);
+                      var terminalValuesMap = terminalMap[name_2];
+                      if (!terminalValuesMap) {
+                          terminalValuesMap = {};
+                          terminalMap[name_2] = terminalValuesMap;
                       }
-                      this._addTerminal(terminalValuesMap, attrValue, selectable);
+                      this._addTerminal(terminalValuesMap, value, selectable);
                   }
                   else {
-                      var parttialMap = matcher._attrValuePartialMap;
-                      var partialValuesMap = parttialMap.get(attrName);
-                      if (isBlank(partialValuesMap)) {
-                          partialValuesMap = new Map();
-                          parttialMap.set(attrName, partialValuesMap);
+                      var partialMap = matcher._attrValuePartialMap;
+                      var partialValuesMap = partialMap[name_2];
+                      if (!partialValuesMap) {
+                          partialValuesMap = {};
+                          partialMap[name_2] = partialValuesMap;
                       }
-                      matcher = this._addPartial(partialValuesMap, attrValue);
+                      matcher = this._addPartial(partialValuesMap, value);
                   }
               }
           }
       };
       SelectorMatcher.prototype._addTerminal = function (map, name, selectable) {
-          var terminalList = map.get(name);
-          if (isBlank(terminalList)) {
+          var terminalList = map[name];
+          if (!terminalList) {
               terminalList = [];
-              map.set(name, terminalList);
+              map[name] = terminalList;
           }
           terminalList.push(selectable);
       };
       SelectorMatcher.prototype._addPartial = function (map, name) {
-          var matcher = map.get(name);
-          if (isBlank(matcher)) {
+          var matcher = map[name];
+          if (!matcher) {
               matcher = new SelectorMatcher();
-              map.set(name, matcher);
+              map[name] = matcher;
           }
           return matcher;
       };
@@ -1404,9 +1188,9 @@
           result = this._matchTerminal(this._elementMap, element, cssSelector, matchedCallback) || result;
           result = this._matchPartial(this._elementPartialMap, element, cssSelector, matchedCallback) ||
               result;
-          if (isPresent(classNames)) {
-              for (var index = 0; index < classNames.length; index++) {
-                  var className = classNames[index];
+          if (classNames) {
+              for (var i = 0; i < classNames.length; i++) {
+                  var className = classNames[i];
                   result =
                       this._matchTerminal(this._classMap, className, cssSelector, matchedCallback) || result;
                   result =
@@ -1414,56 +1198,55 @@
                           result;
               }
           }
-          if (isPresent(attrs)) {
-              for (var index = 0; index < attrs.length;) {
-                  var attrName = attrs[index++];
-                  var attrValue = attrs[index++];
-                  var terminalValuesMap = this._attrValueMap.get(attrName);
-                  if (!StringWrapper.equals(attrValue, _EMPTY_ATTR_VALUE)) {
-                      result = this._matchTerminal(terminalValuesMap, _EMPTY_ATTR_VALUE, cssSelector, matchedCallback) ||
-                          result;
-                  }
-                  result = this._matchTerminal(terminalValuesMap, attrValue, cssSelector, matchedCallback) ||
-                      result;
-                  var partialValuesMap = this._attrValuePartialMap.get(attrName);
-                  if (!StringWrapper.equals(attrValue, _EMPTY_ATTR_VALUE)) {
-                      result = this._matchPartial(partialValuesMap, _EMPTY_ATTR_VALUE, cssSelector, matchedCallback) ||
-                          result;
+          if (attrs) {
+              for (var i = 0; i < attrs.length; i += 2) {
+                  var name_3 = attrs[i];
+                  var value = attrs[i + 1];
+                  var terminalValuesMap = this._attrValueMap[name_3];
+                  if (value) {
+                      result =
+                          this._matchTerminal(terminalValuesMap, '', cssSelector, matchedCallback) || result;
                   }
                   result =
-                      this._matchPartial(partialValuesMap, attrValue, cssSelector, matchedCallback) || result;
+                      this._matchTerminal(terminalValuesMap, value, cssSelector, matchedCallback) || result;
+                  var partialValuesMap = this._attrValuePartialMap[name_3];
+                  if (value) {
+                      result = this._matchPartial(partialValuesMap, '', cssSelector, matchedCallback) || result;
+                  }
+                  result =
+                      this._matchPartial(partialValuesMap, value, cssSelector, matchedCallback) || result;
               }
           }
           return result;
       };
       /** @internal */
       SelectorMatcher.prototype._matchTerminal = function (map, name, cssSelector, matchedCallback) {
-          if (isBlank(map) || isBlank(name)) {
+          if (!map || typeof name !== 'string') {
               return false;
           }
-          var selectables = map.get(name);
-          var starSelectables = map.get('*');
-          if (isPresent(starSelectables)) {
+          var selectables = map[name];
+          var starSelectables = map['*'];
+          if (starSelectables) {
               selectables = selectables.concat(starSelectables);
           }
-          if (isBlank(selectables)) {
+          if (!selectables) {
               return false;
           }
           var selectable;
           var result = false;
-          for (var index = 0; index < selectables.length; index++) {
-              selectable = selectables[index];
+          for (var i = 0; i < selectables.length; i++) {
+              selectable = selectables[i];
               result = selectable.finalize(cssSelector, matchedCallback) || result;
           }
           return result;
       };
       /** @internal */
       SelectorMatcher.prototype._matchPartial = function (map, name, cssSelector, matchedCallback) {
-          if (isBlank(map) || isBlank(name)) {
+          if (!map || typeof name !== 'string') {
               return false;
           }
-          var nestedSelector = map.get(name);
-          if (isBlank(nestedSelector)) {
+          var nestedSelector = map[name];
+          if (!nestedSelector) {
               return false;
           }
           // TODO(perf): get rid of recursion and measure again
@@ -1490,14 +1273,12 @@
       }
       SelectorContext.prototype.finalize = function (cssSelector, callback) {
           var result = true;
-          if (this.notSelectors.length > 0 &&
-              (isBlank(this.listContext) || !this.listContext.alreadyMatched)) {
+          if (this.notSelectors.length > 0 && (!this.listContext || !this.listContext.alreadyMatched)) {
               var notMatcher = SelectorMatcher.createNotMatcher(this.notSelectors);
               result = !notMatcher.match(cssSelector, null);
           }
-          if (result && isPresent(callback) &&
-              (isBlank(this.listContext) || !this.listContext.alreadyMatched)) {
-              if (isPresent(this.listContext)) {
+          if (result && callback && (!this.listContext || !this.listContext.alreadyMatched)) {
+              if (this.listContext) {
                   this.listContext.alreadyMatched = true;
               }
               callback(this.selector, this.cbContext);
@@ -1528,7 +1309,7 @@
       function Type(modifiers) {
           if (modifiers === void 0) { modifiers = null; }
           this.modifiers = modifiers;
-          if (isBlank(modifiers)) {
+          if (!modifiers) {
               this.modifiers = [];
           }
       }
@@ -1703,7 +1484,7 @@
       function ReadVarExpr(name, type) {
           if (type === void 0) { type = null; }
           _super.call(this, type);
-          if (isString(name)) {
+          if (typeof name === 'string') {
               this.name = name;
               this.builtin = null;
           }
@@ -1722,7 +1503,7 @@
       __extends$2(WriteVarExpr, _super);
       function WriteVarExpr(name, value, type) {
           if (type === void 0) { type = null; }
-          _super.call(this, isPresent(type) ? type : value.type);
+          _super.call(this, type || value.type);
           this.name = name;
           this.value = value;
       }
@@ -1740,7 +1521,7 @@
       __extends$2(WriteKeyExpr, _super);
       function WriteKeyExpr(receiver, index, value, type) {
           if (type === void 0) { type = null; }
-          _super.call(this, isPresent(type) ? type : value.type);
+          _super.call(this, type || value.type);
           this.receiver = receiver;
           this.index = index;
           this.value = value;
@@ -1754,7 +1535,7 @@
       __extends$2(WritePropExpr, _super);
       function WritePropExpr(receiver, name, value, type) {
           if (type === void 0) { type = null; }
-          _super.call(this, isPresent(type) ? type : value.type);
+          _super.call(this, type || value.type);
           this.receiver = receiver;
           this.name = name;
           this.value = value;
@@ -1777,7 +1558,7 @@
           _super.call(this, type);
           this.receiver = receiver;
           this.args = args;
-          if (isString(method)) {
+          if (typeof method === 'string') {
               this.name = method;
               this.builtin = null;
           }
@@ -1847,7 +1628,7 @@
       function ConditionalExpr(condition, trueCase, falseCase, type) {
           if (falseCase === void 0) { falseCase = null; }
           if (type === void 0) { type = null; }
-          _super.call(this, isPresent(type) ? type : trueCase.type);
+          _super.call(this, type || trueCase.type);
           this.condition = condition;
           this.falseCase = falseCase;
           this.trueCase = trueCase;
@@ -1908,7 +1689,7 @@
       __extends$2(BinaryOperatorExpr, _super);
       function BinaryOperatorExpr(operator, lhs, rhs, type) {
           if (type === void 0) { type = null; }
-          _super.call(this, isPresent(type) ? type : lhs.type);
+          _super.call(this, type || lhs.type);
           this.operator = operator;
           this.rhs = rhs;
           this.lhs = lhs;
@@ -1993,7 +1774,7 @@
       function Statement(modifiers) {
           if (modifiers === void 0) { modifiers = null; }
           this.modifiers = modifiers;
-          if (isBlank(modifiers)) {
+          if (!modifiers) {
               this.modifiers = [];
           }
       }
@@ -2008,7 +1789,7 @@
           _super.call(this, modifiers);
           this.name = name;
           this.value = value;
-          this.type = isPresent(type) ? type : value.type;
+          this.type = type || value.type;
       }
       DeclareVarStmt.prototype.visitStatement = function (visitor, context) {
           return visitor.visitDeclareVarStmt(this, context);
@@ -2058,7 +1839,7 @@
           if (type === void 0) { type = null; }
           this.type = type;
           this.modifiers = modifiers;
-          if (isBlank(modifiers)) {
+          if (!modifiers) {
               this.modifiers = [];
           }
       }
@@ -2177,7 +1958,7 @@
           return new WritePropExpr(expr.receiver.visitExpression(this, context), expr.name, expr.value.visitExpression(this, context));
       };
       ExpressionTransformer.prototype.visitInvokeMethodExpr = function (ast, context) {
-          var method = isPresent(ast.builtin) ? ast.builtin : ast.name;
+          var method = ast.builtin || ast.name;
           return new InvokeMethodExpr(ast.receiver.visitExpression(this, context), method, this.visitAllExpressions(ast.args, context), ast.type);
       };
       ExpressionTransformer.prototype.visitInvokeFunctionExpr = function (ast, context) {
@@ -2215,7 +1996,8 @@
       };
       ExpressionTransformer.prototype.visitLiteralMapExpr = function (ast, context) {
           var _this = this;
-          return new LiteralMapExpr(ast.entries.map(function (entry) { return [entry[0], entry[1].visitExpression(_this, context)]; }));
+          var entries = ast.entries.map(function (entry) { return [entry[0], entry[1].visitExpression(_this, context),]; });
+          return new LiteralMapExpr(entries);
       };
       ExpressionTransformer.prototype.visitAllExpressions = function (exprs, context) {
           var _this = this;
@@ -2441,32 +2223,32 @@
   }
 
   var MODULE_SUFFIX = '';
-  var CAMEL_CASE_REGEXP = /([A-Z])/g;
-  function camelCaseToDashCase(input) {
-      return StringWrapper.replaceAllMapped(input, CAMEL_CASE_REGEXP, function (m) { return '-' + m[1].toLowerCase(); });
-  }
   function splitAtColon(input, defaultValues) {
-      var colonIndex = input.indexOf(':');
-      if (colonIndex == -1)
+      return _splitAt(input, ':', defaultValues);
+  }
+  function splitAtPeriod(input, defaultValues) {
+      return _splitAt(input, '.', defaultValues);
+  }
+  function _splitAt(input, character, defaultValues) {
+      var characterIndex = input.indexOf(character);
+      if (characterIndex == -1)
           return defaultValues;
-      return [input.slice(0, colonIndex).trim(), input.slice(colonIndex + 1).trim()];
+      return [input.slice(0, characterIndex).trim(), input.slice(characterIndex + 1).trim()];
   }
   function sanitizeIdentifier(name) {
-      return StringWrapper.replaceAll(name, /\W/g, '_');
+      return name.replace(/\W/g, '_');
   }
   function visitValue(value, visitor, context) {
-      if (isArray(value)) {
+      if (Array.isArray(value)) {
           return visitor.visitArray(value, context);
       }
-      else if (isStrictStringMap(value)) {
+      if (isStrictStringMap(value)) {
           return visitor.visitStringMap(value, context);
       }
-      else if (isBlank(value) || isPrimitive(value)) {
+      if (isBlank(value) || isPrimitive(value)) {
           return visitor.visitPrimitive(value, context);
       }
-      else {
-          return visitor.visitOther(value, context);
-      }
+      return visitor.visitOther(value, context);
   }
   var ValueTransformer = (function () {
       function ValueTransformer() {
@@ -2478,9 +2260,7 @@
       ValueTransformer.prototype.visitStringMap = function (map, context) {
           var _this = this;
           var result = {};
-          StringMapWrapper.forEach(map, function (value /** TODO #9100 */, key /** TODO #9100 */) {
-              result[key] = visitValue(value, _this, context);
-          });
+          Object.keys(map).forEach(function (key) { result[key] = visitValue(map[key], _this, context); });
           return result;
       };
       ValueTransformer.prototype.visitPrimitive = function (value, context) { return value; };
@@ -2775,7 +2555,7 @@
           this.styleUrls = _normalizeArray(styleUrls);
           this.externalStylesheets = _normalizeArray(externalStylesheets);
           this.animations = isPresent(animations) ? ListWrapper.flatten(animations) : [];
-          this.ngContentSelectors = isPresent(ngContentSelectors) ? ngContentSelectors : [];
+          this.ngContentSelectors = ngContentSelectors || [];
           if (isPresent(interpolation) && interpolation.length != 2) {
               throw new Error("'interpolation' should have a start and an end symbol.");
           }
@@ -2812,7 +2592,8 @@
           var hostProperties = {};
           var hostAttributes = {};
           if (isPresent(host)) {
-              StringMapWrapper.forEach(host, function (value, key) {
+              Object.keys(host).forEach(function (key) {
+                  var value = host[key];
                   var matches = key.match(HOST_REG_EXP);
                   if (matches === null) {
                       hostAttributes[key] = value;
@@ -2965,10 +2746,10 @@
       return MapWrapper.values(map);
   }
   function _normalizeArray(obj) {
-      return isPresent(obj) ? obj : [];
+      return obj || [];
   }
   function isStaticSymbol(value) {
-      return isStringMap(value) && isPresent(value['name']) && isPresent(value['filePath']);
+      return typeof value === 'object' && value !== null && value['name'] && value['filePath'];
   }
   var ProviderMeta = (function () {
       function ProviderMeta(token, _a) {
@@ -3483,11 +3264,11 @@
       if (!_angular_core.isDevMode() || isBlank(value)) {
           return;
       }
-      if (!isArray(value)) {
+      if (!Array.isArray(value)) {
           throw new Error("Expected '" + identifier + "' to be an array of strings.");
       }
       for (var i = 0; i < value.length; i += 1) {
-          if (!isString(value[i])) {
+          if (typeof value[i] !== 'string') {
               throw new Error("Expected '" + identifier + "' to be an array of strings.");
           }
       }
@@ -3500,7 +3281,7 @@
       /^\/\//,
   ];
   function assertInterpolationSymbols(identifier, value) {
-      if (isPresent(value) && !(isArray(value) && value.length == 2)) {
+      if (isPresent(value) && !(Array.isArray(value) && value.length == 2)) {
           throw new Error("Expected '" + identifier + "' to be an array, [start, end].");
       }
       else if (_angular_core.isDevMode() && !isBlank(value)) {
@@ -3532,7 +3313,7 @@
   }());
   var DEFAULT_INTERPOLATION_CONFIG = new InterpolationConfig('{{', '}}');
 
-  var TokenType;
+  exports.TokenType;
   (function (TokenType) {
       TokenType[TokenType["Character"] = 0] = "Character";
       TokenType[TokenType["Identifier"] = 1] = "Identifier";
@@ -3541,7 +3322,7 @@
       TokenType[TokenType["Operator"] = 4] = "Operator";
       TokenType[TokenType["Number"] = 5] = "Number";
       TokenType[TokenType["Error"] = 6] = "Error";
-  })(TokenType || (TokenType = {}));
+  })(exports.TokenType || (exports.TokenType = {}));
   var KEYWORDS = ['var', 'let', 'null', 'undefined', 'true', 'false', 'if', 'else', 'this'];
   var Lexer = (function () {
       function Lexer() {
@@ -3571,35 +3352,35 @@
           this.strValue = strValue;
       }
       Token.prototype.isCharacter = function (code) {
-          return this.type == TokenType.Character && this.numValue == code;
+          return this.type == exports.TokenType.Character && this.numValue == code;
       };
-      Token.prototype.isNumber = function () { return this.type == TokenType.Number; };
-      Token.prototype.isString = function () { return this.type == TokenType.String; };
+      Token.prototype.isNumber = function () { return this.type == exports.TokenType.Number; };
+      Token.prototype.isString = function () { return this.type == exports.TokenType.String; };
       Token.prototype.isOperator = function (operater) {
-          return this.type == TokenType.Operator && this.strValue == operater;
+          return this.type == exports.TokenType.Operator && this.strValue == operater;
       };
-      Token.prototype.isIdentifier = function () { return this.type == TokenType.Identifier; };
-      Token.prototype.isKeyword = function () { return this.type == TokenType.Keyword; };
-      Token.prototype.isKeywordLet = function () { return this.type == TokenType.Keyword && this.strValue == 'let'; };
-      Token.prototype.isKeywordNull = function () { return this.type == TokenType.Keyword && this.strValue == 'null'; };
+      Token.prototype.isIdentifier = function () { return this.type == exports.TokenType.Identifier; };
+      Token.prototype.isKeyword = function () { return this.type == exports.TokenType.Keyword; };
+      Token.prototype.isKeywordLet = function () { return this.type == exports.TokenType.Keyword && this.strValue == 'let'; };
+      Token.prototype.isKeywordNull = function () { return this.type == exports.TokenType.Keyword && this.strValue == 'null'; };
       Token.prototype.isKeywordUndefined = function () {
-          return this.type == TokenType.Keyword && this.strValue == 'undefined';
+          return this.type == exports.TokenType.Keyword && this.strValue == 'undefined';
       };
-      Token.prototype.isKeywordTrue = function () { return this.type == TokenType.Keyword && this.strValue == 'true'; };
-      Token.prototype.isKeywordFalse = function () { return this.type == TokenType.Keyword && this.strValue == 'false'; };
-      Token.prototype.isKeywordThis = function () { return this.type == TokenType.Keyword && this.strValue == 'this'; };
-      Token.prototype.isError = function () { return this.type == TokenType.Error; };
-      Token.prototype.toNumber = function () { return this.type == TokenType.Number ? this.numValue : -1; };
+      Token.prototype.isKeywordTrue = function () { return this.type == exports.TokenType.Keyword && this.strValue == 'true'; };
+      Token.prototype.isKeywordFalse = function () { return this.type == exports.TokenType.Keyword && this.strValue == 'false'; };
+      Token.prototype.isKeywordThis = function () { return this.type == exports.TokenType.Keyword && this.strValue == 'this'; };
+      Token.prototype.isError = function () { return this.type == exports.TokenType.Error; };
+      Token.prototype.toNumber = function () { return this.type == exports.TokenType.Number ? this.numValue : -1; };
       Token.prototype.toString = function () {
           switch (this.type) {
-              case TokenType.Character:
-              case TokenType.Identifier:
-              case TokenType.Keyword:
-              case TokenType.Operator:
-              case TokenType.String:
-              case TokenType.Error:
+              case exports.TokenType.Character:
+              case exports.TokenType.Identifier:
+              case exports.TokenType.Keyword:
+              case exports.TokenType.Operator:
+              case exports.TokenType.String:
+              case exports.TokenType.Error:
                   return this.strValue;
-              case TokenType.Number:
+              case exports.TokenType.Number:
                   return this.numValue.toString();
               default:
                   return null;
@@ -3608,27 +3389,27 @@
       return Token;
   }());
   function newCharacterToken(index, code) {
-      return new Token(index, TokenType.Character, code, StringWrapper.fromCharCode(code));
+      return new Token(index, exports.TokenType.Character, code, String.fromCharCode(code));
   }
   function newIdentifierToken(index, text) {
-      return new Token(index, TokenType.Identifier, 0, text);
+      return new Token(index, exports.TokenType.Identifier, 0, text);
   }
   function newKeywordToken(index, text) {
-      return new Token(index, TokenType.Keyword, 0, text);
+      return new Token(index, exports.TokenType.Keyword, 0, text);
   }
   function newOperatorToken(index, text) {
-      return new Token(index, TokenType.Operator, 0, text);
+      return new Token(index, exports.TokenType.Operator, 0, text);
   }
   function newStringToken(index, text) {
-      return new Token(index, TokenType.String, 0, text);
+      return new Token(index, exports.TokenType.String, 0, text);
   }
   function newNumberToken(index, n) {
-      return new Token(index, TokenType.Number, n, '');
+      return new Token(index, exports.TokenType.Number, n, '');
   }
   function newErrorToken(index, message) {
-      return new Token(index, TokenType.Error, 0, message);
+      return new Token(index, exports.TokenType.Error, 0, message);
   }
-  var EOF = new Token(-1, TokenType.Character, 0, '');
+  var EOF = new Token(-1, exports.TokenType.Character, 0, '');
   var _Scanner = (function () {
       function _Scanner(input) {
           this.input = input;
@@ -3638,8 +3419,7 @@
           this.advance();
       }
       _Scanner.prototype.advance = function () {
-          this.peek =
-              ++this.index >= this.length ? $EOF : StringWrapper.charCodeAt(this.input, this.index);
+          this.peek = ++this.index >= this.length ? $EOF : this.input.charCodeAt(this.index);
       };
       _Scanner.prototype.scanToken = function () {
           var input = this.input, length = this.length, peek = this.peek, index = this.index;
@@ -3650,7 +3430,7 @@
                   break;
               }
               else {
-                  peek = StringWrapper.charCodeAt(input, index);
+                  peek = input.charCodeAt(index);
               }
           }
           this.peek = peek;
@@ -3689,15 +3469,15 @@
               case $SLASH:
               case $PERCENT:
               case $CARET:
-                  return this.scanOperator(start, StringWrapper.fromCharCode(peek));
+                  return this.scanOperator(start, String.fromCharCode(peek));
               case $QUESTION:
                   return this.scanComplexOperator(start, '?', $PERIOD, '.');
               case $LT:
               case $GT:
-                  return this.scanComplexOperator(start, StringWrapper.fromCharCode(peek), $EQ, '=');
+                  return this.scanComplexOperator(start, String.fromCharCode(peek), $EQ, '=');
               case $BANG:
               case $EQ:
-                  return this.scanComplexOperator(start, StringWrapper.fromCharCode(peek), $EQ, '=', $EQ, '=');
+                  return this.scanComplexOperator(start, String.fromCharCode(peek), $EQ, '=', $EQ, '=');
               case $AMPERSAND:
                   return this.scanComplexOperator(start, '&', $AMPERSAND, '&');
               case $BAR:
@@ -3708,7 +3488,7 @@
                   return this.scanToken();
           }
           this.advance();
-          return this.error("Unexpected character [" + StringWrapper.fromCharCode(peek) + "]", 0);
+          return this.error("Unexpected character [" + String.fromCharCode(peek) + "]", 0);
       };
       _Scanner.prototype.scanCharacter = function (start, code) {
           this.advance();
@@ -3781,16 +3561,14 @@
           var start = this.index;
           var quote = this.peek;
           this.advance(); // Skip initial quote.
-          var buffer;
+          var buffer = '';
           var marker = this.index;
           var input = this.input;
           while (this.peek != quote) {
               if (this.peek == $BACKSLASH) {
-                  if (buffer == null)
-                      buffer = new StringJoiner();
-                  buffer.add(input.substring(marker, this.index));
+                  buffer += input.substring(marker, this.index);
                   this.advance();
-                  var unescapedCode;
+                  var unescapedCode = void 0;
                   if (this.peek == $u) {
                       // 4 character hex code for unicode character.
                       var hex = input.substring(this.index + 1, this.index + 5);
@@ -3808,7 +3586,7 @@
                       unescapedCode = unescape(this.peek);
                       this.advance();
                   }
-                  buffer.add(StringWrapper.fromCharCode(unescapedCode));
+                  buffer += String.fromCharCode(unescapedCode);
                   marker = this.index;
               }
               else if (this.peek == $EOF) {
@@ -3820,13 +3598,7 @@
           }
           var last = input.substring(marker, this.index);
           this.advance(); // Skip terminating quote.
-          // Compute the unescaped string value.
-          var unescaped = last;
-          if (buffer != null) {
-              buffer.add(last);
-              unescaped = buffer.toString();
-          }
-          return newStringToken(start, unescaped);
+          return newStringToken(start, buffer + last);
       };
       _Scanner.prototype.error = function (message, offset) {
           var position = this.index + offset;
@@ -3883,9 +3655,10 @@
   }
 
   var SplitInterpolation = (function () {
-      function SplitInterpolation(strings, expressions) {
+      function SplitInterpolation(strings, expressions, offsets) {
           this.strings = strings;
           this.expressions = expressions;
+          this.offsets = offsets;
       }
       return SplitInterpolation;
   }());
@@ -3909,8 +3682,10 @@
       Parser.prototype.parseAction = function (input, location, interpolationConfig) {
           if (interpolationConfig === void 0) { interpolationConfig = DEFAULT_INTERPOLATION_CONFIG; }
           this._checkNoInterpolation(input, location, interpolationConfig);
+          var sourceToLex = this._stripComments(input);
           var tokens = this._lexer.tokenize(this._stripComments(input));
-          var ast = new _ParseAST(input, location, tokens, true, this.errors).parseChain();
+          var ast = new _ParseAST(input, location, tokens, sourceToLex.length, true, this.errors, input.length - sourceToLex.length)
+              .parseChain();
           return new ASTWithSource(ast, input, location, this.errors);
       };
       Parser.prototype.parseBinding = function (input, location, interpolationConfig) {
@@ -3937,8 +3712,10 @@
               return quote;
           }
           this._checkNoInterpolation(input, location, interpolationConfig);
-          var tokens = this._lexer.tokenize(this._stripComments(input));
-          return new _ParseAST(input, location, tokens, false, this.errors).parseChain();
+          var sourceToLex = this._stripComments(input);
+          var tokens = this._lexer.tokenize(sourceToLex);
+          return new _ParseAST(input, location, tokens, sourceToLex.length, false, this.errors, input.length - sourceToLex.length)
+              .parseChain();
       };
       Parser.prototype._parseQuote = function (input, location) {
           if (isBlank(input))
@@ -3954,7 +3731,8 @@
       };
       Parser.prototype.parseTemplateBindings = function (input, location) {
           var tokens = this._lexer.tokenize(input);
-          return new _ParseAST(input, location, tokens, false, this.errors).parseTemplateBindings();
+          return new _ParseAST(input, location, tokens, input.length, false, this.errors, 0)
+              .parseTemplateBindings();
       };
       Parser.prototype.parseInterpolation = function (input, location, interpolationConfig) {
           if (interpolationConfig === void 0) { interpolationConfig = DEFAULT_INTERPOLATION_CONFIG; }
@@ -3963,8 +3741,11 @@
               return null;
           var expressions = [];
           for (var i = 0; i < split.expressions.length; ++i) {
+              var expressionText = split.expressions[i];
+              var sourceToLex = this._stripComments(expressionText);
               var tokens = this._lexer.tokenize(this._stripComments(split.expressions[i]));
-              var ast = new _ParseAST(input, location, tokens, false, this.errors).parseChain();
+              var ast = new _ParseAST(input, location, tokens, sourceToLex.length, false, this.errors, split.offsets[i] + (expressionText.length - sourceToLex.length))
+                  .parseChain();
               expressions.push(ast);
           }
           return new ASTWithSource(new Interpolation(new ParseSpan(0, isBlank(input) ? 0 : input.length), split.strings, expressions), input, location, this.errors);
@@ -3972,26 +3753,32 @@
       Parser.prototype.splitInterpolation = function (input, location, interpolationConfig) {
           if (interpolationConfig === void 0) { interpolationConfig = DEFAULT_INTERPOLATION_CONFIG; }
           var regexp = _createInterpolateRegExp(interpolationConfig);
-          var parts = StringWrapper.split(input, regexp);
+          var parts = input.split(regexp);
           if (parts.length <= 1) {
               return null;
           }
           var strings = [];
           var expressions = [];
+          var offsets = [];
+          var offset = 0;
           for (var i = 0; i < parts.length; i++) {
               var part = parts[i];
               if (i % 2 === 0) {
                   // fixed string
                   strings.push(part);
+                  offset += part.length;
               }
               else if (part.trim().length > 0) {
+                  offset += interpolationConfig.start.length;
                   expressions.push(part);
+                  offsets.push(offset);
+                  offset += part.length + interpolationConfig.end.length;
               }
               else {
                   this._reportError('Blank expressions are not allowed in interpolated strings', input, "at column " + this._findInterpolationErrorColumn(parts, i, interpolationConfig) + " in", location);
               }
           }
-          return new SplitInterpolation(strings, expressions);
+          return new SplitInterpolation(strings, expressions, offsets);
       };
       Parser.prototype.wrapLiteralPrimitive = function (input, location) {
           return new ASTWithSource(new LiteralPrimitive(new ParseSpan(0, isBlank(input) ? 0 : input.length), input), input, location, this.errors);
@@ -4003,8 +3790,8 @@
       Parser.prototype._commentStart = function (input) {
           var outerQuote = null;
           for (var i = 0; i < input.length - 1; i++) {
-              var char = StringWrapper.charCodeAt(input, i);
-              var nextChar = StringWrapper.charCodeAt(input, i + 1);
+              var char = input.charCodeAt(i);
+              var nextChar = input.charCodeAt(i + 1);
               if (char === $SLASH && nextChar == $SLASH && isBlank(outerQuote))
                   return i;
               if (outerQuote === char) {
@@ -4018,7 +3805,7 @@
       };
       Parser.prototype._checkNoInterpolation = function (input, location, interpolationConfig) {
           var regexp = _createInterpolateRegExp(interpolationConfig);
-          var parts = StringWrapper.split(input, regexp);
+          var parts = input.split(regexp);
           if (parts.length > 1) {
               this._reportError("Got interpolation (" + interpolationConfig.start + interpolationConfig.end + ") where expression was expected", input, "at column " + this._findInterpolationErrorColumn(parts, 1, interpolationConfig) + " in", location);
           }
@@ -4042,12 +3829,14 @@
       return Parser;
   }());
   var _ParseAST = (function () {
-      function _ParseAST(input, location, tokens, parseAction, errors) {
+      function _ParseAST(input, location, tokens, inputLength, parseAction, errors, offset) {
           this.input = input;
           this.location = location;
           this.tokens = tokens;
+          this.inputLength = inputLength;
           this.parseAction = parseAction;
           this.errors = errors;
+          this.offset = offset;
           this.rparensExpected = 0;
           this.rbracketsExpected = 0;
           this.rbracesExpected = 0;
@@ -4064,7 +3853,8 @@
       });
       Object.defineProperty(_ParseAST.prototype, "inputIndex", {
           get: function () {
-              return (this.index < this.tokens.length) ? this.next.index : this.input.length;
+              return (this.index < this.tokens.length) ? this.next.index + this.offset :
+                  this.inputLength + this.offset;
           },
           enumerable: true,
           configurable: true
@@ -4084,7 +3874,7 @@
       _ParseAST.prototype.expectCharacter = function (code) {
           if (this.optionalCharacter(code))
               return;
-          this.error("Missing expected " + StringWrapper.fromCharCode(code));
+          this.error("Missing expected " + String.fromCharCode(code));
       };
       _ParseAST.prototype.optionalOperator = function (op) {
           if (this.next.isOperator(op)) {
@@ -4153,7 +3943,7 @@
                   while (this.optionalCharacter($COLON)) {
                       args.push(this.parseExpression());
                   }
-                  result = new BindingPipe(this.span(result.span.start), result, name, args);
+                  result = new BindingPipe(this.span(result.span.start - this.offset), result, name, args);
               } while (this.optionalOperator('|'));
           }
           return result;
@@ -4201,7 +3991,7 @@
       _ParseAST.prototype.parseEquality = function () {
           // '==','!=','===','!=='
           var result = this.parseRelational();
-          while (this.next.type == TokenType.Operator) {
+          while (this.next.type == exports.TokenType.Operator) {
               var operator = this.next.strValue;
               switch (operator) {
                   case '==':
@@ -4220,7 +4010,7 @@
       _ParseAST.prototype.parseRelational = function () {
           // '<', '>', '<=', '>='
           var result = this.parseAdditive();
-          while (this.next.type == TokenType.Operator) {
+          while (this.next.type == exports.TokenType.Operator) {
               var operator = this.next.strValue;
               switch (operator) {
                   case '<':
@@ -4239,7 +4029,7 @@
       _ParseAST.prototype.parseAdditive = function () {
           // '+', '-'
           var result = this.parseMultiplicative();
-          while (this.next.type == TokenType.Operator) {
+          while (this.next.type == exports.TokenType.Operator) {
               var operator = this.next.strValue;
               switch (operator) {
                   case '+':
@@ -4256,7 +4046,7 @@
       _ParseAST.prototype.parseMultiplicative = function () {
           // '*', '%', '/'
           var result = this.parsePrefix();
-          while (this.next.type == TokenType.Operator) {
+          while (this.next.type == exports.TokenType.Operator) {
               var operator = this.next.strValue;
               switch (operator) {
                   case '*':
@@ -4272,7 +4062,7 @@
           return result;
       };
       _ParseAST.prototype.parsePrefix = function () {
-          if (this.next.type == TokenType.Operator) {
+          if (this.next.type == exports.TokenType.Operator) {
               var start = this.inputIndex;
               var operator = this.next.strValue;
               var result = void 0;
@@ -4623,14 +4413,14 @@
       };
       return ParseSourceSpan;
   }());
-  var ParseErrorLevel;
+  exports.ParseErrorLevel;
   (function (ParseErrorLevel) {
       ParseErrorLevel[ParseErrorLevel["WARNING"] = 0] = "WARNING";
       ParseErrorLevel[ParseErrorLevel["FATAL"] = 1] = "FATAL";
-  })(ParseErrorLevel || (ParseErrorLevel = {}));
+  })(exports.ParseErrorLevel || (exports.ParseErrorLevel = {}));
   var ParseError = (function () {
       function ParseError(span, msg, level) {
-          if (level === void 0) { level = ParseErrorLevel.FATAL; }
+          if (level === void 0) { level = exports.ParseErrorLevel.FATAL; }
           this.span = span;
           this.msg = msg;
           this.level = level;
@@ -4717,10 +4507,11 @@
       return ExpansionCase;
   }());
   var Attribute$1 = (function () {
-      function Attribute(name, value, sourceSpan) {
+      function Attribute(name, value, sourceSpan, valueSpan) {
           this.name = name;
           this.value = value;
           this.sourceSpan = sourceSpan;
+          this.valueSpan = valueSpan;
       }
       Attribute.prototype.visit = function (visitor, context) { return visitor.visitAttribute(this, context); };
       return Attribute;
@@ -4748,8 +4539,11 @@
   function visitAll(visitor, nodes, context) {
       if (context === void 0) { context = null; }
       var result = [];
+      var visit = visitor.visit ?
+          function (ast) { return visitor.visit(ast, context) || ast.visit(visitor, context); } :
+          function (ast) { return ast.visit(visitor, context); };
       nodes.forEach(function (ast) {
-          var astResult = ast.visit(visitor, context);
+          var astResult = visit(ast);
           if (astResult) {
               result.push(astResult);
           }
@@ -5529,7 +5323,7 @@
           // read =
           while (this._peek.type === TokenType$1.EXPANSION_CASE_VALUE) {
               var expCase = this._parseExpansionCase();
-              if (isBlank(expCase))
+              if (!expCase)
                   return; // error
               cases.push(expCase);
           }
@@ -5552,7 +5346,7 @@
           // read until }
           var start = this._advance();
           var exp = this._collectExpansionExpTokens(start);
-          if (isBlank(exp))
+          if (!exp)
               return null;
           var end = this._advance();
           exp.push(new Token$1(TokenType$1.EOF, [], end.sourceSpan));
@@ -5699,12 +5493,14 @@
           var fullName = mergeNsAndName(attrName.parts[0], attrName.parts[1]);
           var end = attrName.sourceSpan.end;
           var value = '';
+          var valueSpan;
           if (this._peek.type === TokenType$1.ATTR_VALUE) {
               var valueToken = this._advance();
               value = valueToken.parts[0];
               end = valueToken.sourceSpan.end;
+              valueSpan = valueToken.sourceSpan;
           }
-          return new Attribute$1(fullName, value, new ParseSourceSpan(attrName.sourceSpan.start, end));
+          return new Attribute$1(fullName, value, new ParseSourceSpan(attrName.sourceSpan.start, end), valueSpan);
       };
       _TreeBuilder.prototype._getParentElement = function () {
           return this._elementStack.length > 0 ? ListWrapper.last(this._elementStack) : null;
@@ -6758,6 +6554,11 @@
    * Use of this source code is governed by an MIT-style license that can be
    * found in the LICENSE file at https://angular.io/license
    */
+  var __extends$8 = (this && this.__extends) || function (d, b) {
+      for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+      function __() { this.constructor = d; }
+      d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+  };
   var _Visitor$1 = (function () {
       function _Visitor() {
       }
@@ -6830,6 +6631,14 @@
       Text.prototype.visit = function (visitor) { return visitor.visitText(this); };
       return Text;
   }());
+  var CR = (function (_super) {
+      __extends$8(CR, _super);
+      function CR(ws) {
+          if (ws === void 0) { ws = 0; }
+          _super.call(this, "\n" + new Array(ws + 1).join(' '));
+      }
+      return CR;
+  }(Text$2));
   var _ESCAPED_CHARS = [
       [/&/g, '&amp;'],
       [/"/g, '&quot;'],
@@ -6849,10 +6658,6 @@
   var _SOURCE_TAG = 'source';
   var _TARGET_TAG = 'target';
   var _UNIT_TAG = 'trans-unit';
-  var _CR = function (ws) {
-      if (ws === void 0) { ws = 0; }
-      return new Text$2("\n" + new Array(ws).join(' '));
-  };
   // http://docs.oasis-open.org/xliff/v1.2/os/xliff-core.html
   // http://docs.oasis-open.org/xliff/v1.2/xliff-profile-html/xliff-profile-html-1.2.html
   var Xliff = (function () {
@@ -6866,20 +6671,22 @@
           Object.keys(messageMap).forEach(function (id) {
               var message = messageMap[id];
               var transUnit = new Tag(_UNIT_TAG, { id: id, datatype: 'html' });
-              transUnit.children.push(_CR(8), new Tag(_SOURCE_TAG, {}, visitor.serialize(message.nodes)), _CR(8), new Tag(_TARGET_TAG));
+              transUnit.children.push(new CR(8), new Tag(_SOURCE_TAG, {}, visitor.serialize(message.nodes)), new CR(8), new Tag(_TARGET_TAG));
               if (message.description) {
-                  transUnit.children.push(_CR(8), new Tag('note', { priority: '1', from: 'description' }, [new Text$2(message.description)]));
+                  transUnit.children.push(new CR(8), new Tag('note', { priority: '1', from: 'description' }, [new Text$2(message.description)]));
               }
               if (message.meaning) {
-                  transUnit.children.push(_CR(8), new Tag('note', { priority: '1', from: 'meaning' }, [new Text$2(message.meaning)]));
+                  transUnit.children.push(new CR(8), new Tag('note', { priority: '1', from: 'meaning' }, [new Text$2(message.meaning)]));
               }
-              transUnit.children.push(_CR(6));
-              transUnits.push(_CR(6), transUnit);
+              transUnit.children.push(new CR(6));
+              transUnits.push(new CR(6), transUnit);
           });
-          var body = new Tag('body', {}, transUnits.concat([_CR(4)]));
-          var file = new Tag('file', { 'source-language': _SOURCE_LANG, datatype: 'plaintext', original: 'ng2.template' }, [_CR(4), body, _CR(2)]);
-          var xliff = new Tag('xliff', { version: _VERSION, xmlns: _XMLNS }, [_CR(2), file, _CR()]);
-          return serialize([new Declaration({ version: '1.0', encoding: 'UTF-8' }), _CR(), xliff]);
+          var body = new Tag('body', {}, transUnits.concat([new CR(4)]));
+          var file = new Tag('file', { 'source-language': _SOURCE_LANG, datatype: 'plaintext', original: 'ng2.template' }, [new CR(4), body, new CR(2)]);
+          var xliff = new Tag('xliff', { version: _VERSION, xmlns: _XMLNS }, [new CR(2), file, new CR()]);
+          return serialize([
+              new Declaration({ version: '1.0', encoding: 'UTF-8' }), new CR(), xliff, new CR()
+          ]);
       };
       Xliff.prototype.load = function (content, url, messageBundle) {
           var _this = this;
@@ -6933,12 +6740,13 @@
           return nodes;
       };
       _WriteVisitor.prototype.visitTagPlaceholder = function (ph, context) {
-          var startTagPh = new Tag(_PLACEHOLDER_TAG, { id: ph.startName, ctype: ph.tag });
+          var ctype = getCtypeForTag(ph.tag);
+          var startTagPh = new Tag(_PLACEHOLDER_TAG, { id: ph.startName, ctype: ctype });
           if (ph.isVoid) {
               // void tags have no children nor closing tags
               return [startTagPh];
           }
-          var closeTagPh = new Tag(_PLACEHOLDER_TAG, { id: ph.closeName, ctype: ph.tag });
+          var closeTagPh = new Tag(_PLACEHOLDER_TAG, { id: ph.closeName, ctype: ctype });
           return [startTagPh].concat(this.serialize(ph.children), [closeTagPh]);
       };
       _WriteVisitor.prototype.visitPlaceholder = function (ph, context) {
@@ -7059,6 +6867,16 @@
       };
       return _LoadVisitor;
   }());
+  function getCtypeForTag(tag) {
+      switch (tag.toLowerCase()) {
+          case 'br':
+              return 'lb';
+          case 'img':
+              return 'image';
+          default:
+              return "x-" + tag;
+      }
+  }
 
   var _MESSAGES_TAG = 'messagebundle';
   var _MESSAGE_TAG = 'msg';
@@ -7071,7 +6889,6 @@
       Xmb.prototype.write = function (messageMap) {
           var visitor = new _Visitor$2();
           var rootNode = new Tag(_MESSAGES_TAG);
-          rootNode.children.push(new Text$2('\n'));
           Object.keys(messageMap).forEach(function (id) {
               var message = messageMap[id];
               var attrs = { id: id };
@@ -7081,14 +6898,16 @@
               if (message.meaning) {
                   attrs['meaning'] = message.meaning;
               }
-              rootNode.children.push(new Text$2('  '), new Tag(_MESSAGE_TAG, attrs, visitor.serialize(message.nodes)), new Text$2('\n'));
+              rootNode.children.push(new CR(2), new Tag(_MESSAGE_TAG, attrs, visitor.serialize(message.nodes)));
           });
+          rootNode.children.push(new CR());
           return serialize([
               new Declaration({ version: '1.0', encoding: 'UTF-8' }),
-              new Text$2('\n'),
+              new CR(),
               new Doctype(_MESSAGES_TAG, _DOCTYPE),
-              new Text$2('\n'),
+              new CR(),
               rootNode,
+              new CR(),
           ]);
       };
       Xmb.prototype.load = function (content, url, messageBundle) {
@@ -7366,30 +7185,13 @@
   var NgModuleInjector = _angular_core.__core_private__.NgModuleInjector;
   var registerModuleFactory = _angular_core.__core_private__.registerModuleFactory;
   var ViewType = _angular_core.__core_private__.ViewType;
-  var MAX_INTERPOLATION_VALUES = _angular_core.__core_private__.MAX_INTERPOLATION_VALUES;
-  var checkBinding = _angular_core.__core_private__.checkBinding;
-  var flattenNestedViewRenderNodes = _angular_core.__core_private__.flattenNestedViewRenderNodes;
-  var interpolate = _angular_core.__core_private__.interpolate;
-  var ViewUtils = _angular_core.__core_private__.ViewUtils;
+  var view_utils = _angular_core.__core_private__.view_utils;
   var DebugContext = _angular_core.__core_private__.DebugContext;
   var StaticNodeDebugInfo = _angular_core.__core_private__.StaticNodeDebugInfo;
   var devModeEqual = _angular_core.__core_private__.devModeEqual;
   var UNINITIALIZED = _angular_core.__core_private__.UNINITIALIZED;
   var ValueUnwrapper = _angular_core.__core_private__.ValueUnwrapper;
   var TemplateRef_ = _angular_core.__core_private__.TemplateRef_;
-  var EMPTY_ARRAY = _angular_core.__core_private__.EMPTY_ARRAY;
-  var EMPTY_MAP = _angular_core.__core_private__.EMPTY_MAP;
-  var pureProxy1 = _angular_core.__core_private__.pureProxy1;
-  var pureProxy2 = _angular_core.__core_private__.pureProxy2;
-  var pureProxy3 = _angular_core.__core_private__.pureProxy3;
-  var pureProxy4 = _angular_core.__core_private__.pureProxy4;
-  var pureProxy5 = _angular_core.__core_private__.pureProxy5;
-  var pureProxy6 = _angular_core.__core_private__.pureProxy6;
-  var pureProxy7 = _angular_core.__core_private__.pureProxy7;
-  var pureProxy8 = _angular_core.__core_private__.pureProxy8;
-  var pureProxy9 = _angular_core.__core_private__.pureProxy9;
-  var pureProxy10 = _angular_core.__core_private__.pureProxy10;
-  var castByValue = _angular_core.__core_private__.castByValue;
   var Console = _angular_core.__core_private__.Console;
   var reflector = _angular_core.__core_private__.reflector;
   var Reflector = _angular_core.__core_private__.Reflector;
@@ -7399,7 +7201,6 @@
   var AnimationGroupPlayer = _angular_core.__core_private__.AnimationGroupPlayer;
   var AnimationKeyframe = _angular_core.__core_private__.AnimationKeyframe;
   var AnimationStyles = _angular_core.__core_private__.AnimationStyles;
-  var AnimationOutput = _angular_core.__core_private__.AnimationOutput;
   var ANY_STATE = _angular_core.__core_private__.ANY_STATE;
   var DEFAULT_STATE = _angular_core.__core_private__.DEFAULT_STATE;
   var EMPTY_ANIMATION_STATE = _angular_core.__core_private__.EMPTY_STATE;
@@ -7410,6 +7211,7 @@
   var collectAndResolveStyles = _angular_core.__core_private__.collectAndResolveStyles;
   var renderStyles = _angular_core.__core_private__.renderStyles;
   var ComponentStillLoadingError = _angular_core.__core_private__.ComponentStillLoadingError;
+  var AnimationTransition = _angular_core.__core_private__.AnimationTransition;
 
   var APP_VIEW_MODULE_URL = assetUrl('core', 'linker/view');
   var VIEW_UTILS_MODULE_URL = assetUrl('core', 'linker/view_utils');
@@ -7426,7 +7228,7 @@
       Identifiers.ViewUtils = {
           name: 'ViewUtils',
           moduleUrl: assetUrl('core', 'linker/view_utils'),
-          runtime: ViewUtils
+          runtime: view_utils.ViewUtils
       };
       Identifiers.AppView = { name: 'AppView', moduleUrl: APP_VIEW_MODULE_URL, runtime: AppView };
       Identifiers.DebugAppView = {
@@ -7550,42 +7352,46 @@
       Identifiers.checkBinding = {
           name: 'checkBinding',
           moduleUrl: VIEW_UTILS_MODULE_URL,
-          runtime: checkBinding
+          runtime: view_utils.checkBinding
       };
       Identifiers.flattenNestedViewRenderNodes = {
           name: 'flattenNestedViewRenderNodes',
           moduleUrl: VIEW_UTILS_MODULE_URL,
-          runtime: flattenNestedViewRenderNodes
+          runtime: view_utils.flattenNestedViewRenderNodes
       };
       Identifiers.devModeEqual = { name: 'devModeEqual', moduleUrl: CD_MODULE_URL, runtime: devModeEqual };
       Identifiers.interpolate = {
           name: 'interpolate',
           moduleUrl: VIEW_UTILS_MODULE_URL,
-          runtime: interpolate
+          runtime: view_utils.interpolate
       };
       Identifiers.castByValue = {
           name: 'castByValue',
           moduleUrl: VIEW_UTILS_MODULE_URL,
-          runtime: castByValue
+          runtime: view_utils.castByValue
       };
       Identifiers.EMPTY_ARRAY = {
           name: 'EMPTY_ARRAY',
           moduleUrl: VIEW_UTILS_MODULE_URL,
-          runtime: EMPTY_ARRAY
+          runtime: view_utils.EMPTY_ARRAY
       };
-      Identifiers.EMPTY_MAP = { name: 'EMPTY_MAP', moduleUrl: VIEW_UTILS_MODULE_URL, runtime: EMPTY_MAP };
+      Identifiers.EMPTY_MAP = {
+          name: 'EMPTY_MAP',
+          moduleUrl: VIEW_UTILS_MODULE_URL,
+          runtime: view_utils.EMPTY_MAP
+      };
       Identifiers.pureProxies = [
           null,
-          { name: 'pureProxy1', moduleUrl: VIEW_UTILS_MODULE_URL, runtime: pureProxy1 },
-          { name: 'pureProxy2', moduleUrl: VIEW_UTILS_MODULE_URL, runtime: pureProxy2 },
-          { name: 'pureProxy3', moduleUrl: VIEW_UTILS_MODULE_URL, runtime: pureProxy3 },
-          { name: 'pureProxy4', moduleUrl: VIEW_UTILS_MODULE_URL, runtime: pureProxy4 },
-          { name: 'pureProxy5', moduleUrl: VIEW_UTILS_MODULE_URL, runtime: pureProxy5 },
-          { name: 'pureProxy6', moduleUrl: VIEW_UTILS_MODULE_URL, runtime: pureProxy6 },
-          { name: 'pureProxy7', moduleUrl: VIEW_UTILS_MODULE_URL, runtime: pureProxy7 },
-          { name: 'pureProxy8', moduleUrl: VIEW_UTILS_MODULE_URL, runtime: pureProxy8 },
-          { name: 'pureProxy9', moduleUrl: VIEW_UTILS_MODULE_URL, runtime: pureProxy9 },
-          { name: 'pureProxy10', moduleUrl: VIEW_UTILS_MODULE_URL, runtime: pureProxy10 },
+          { name: 'pureProxy1', moduleUrl: VIEW_UTILS_MODULE_URL, runtime: view_utils.pureProxy1 },
+          { name: 'pureProxy2', moduleUrl: VIEW_UTILS_MODULE_URL, runtime: view_utils.pureProxy2 },
+          { name: 'pureProxy3', moduleUrl: VIEW_UTILS_MODULE_URL, runtime: view_utils.pureProxy3 },
+          { name: 'pureProxy4', moduleUrl: VIEW_UTILS_MODULE_URL, runtime: view_utils.pureProxy4 },
+          { name: 'pureProxy5', moduleUrl: VIEW_UTILS_MODULE_URL, runtime: view_utils.pureProxy5 },
+          { name: 'pureProxy6', moduleUrl: VIEW_UTILS_MODULE_URL, runtime: view_utils.pureProxy6 },
+          { name: 'pureProxy7', moduleUrl: VIEW_UTILS_MODULE_URL, runtime: view_utils.pureProxy7 },
+          { name: 'pureProxy8', moduleUrl: VIEW_UTILS_MODULE_URL, runtime: view_utils.pureProxy8 },
+          { name: 'pureProxy9', moduleUrl: VIEW_UTILS_MODULE_URL, runtime: view_utils.pureProxy9 },
+          { name: 'pureProxy10', moduleUrl: VIEW_UTILS_MODULE_URL, runtime: view_utils.pureProxy10 },
       ];
       Identifiers.SecurityContext = {
           name: 'SecurityContext',
@@ -7652,10 +7458,20 @@
           moduleUrl: assetUrl('core', 'i18n/tokens'),
           runtime: _angular_core.TRANSLATIONS_FORMAT
       };
-      Identifiers.AnimationOutput = {
-          name: 'AnimationOutput',
-          moduleUrl: assetUrl('core', 'animation/animation_output'),
-          runtime: AnimationOutput
+      Identifiers.setBindingDebugInfo = {
+          name: 'setBindingDebugInfo',
+          moduleUrl: VIEW_UTILS_MODULE_URL,
+          runtime: view_utils.setBindingDebugInfo
+      };
+      Identifiers.setBindingDebugInfoForChanges = {
+          name: 'setBindingDebugInfoForChanges',
+          moduleUrl: VIEW_UTILS_MODULE_URL,
+          runtime: view_utils.setBindingDebugInfoForChanges
+      };
+      Identifiers.AnimationTransition = {
+          name: 'AnimationTransition',
+          moduleUrl: assetUrl('core', 'animation/animation_transition'),
+          runtime: AnimationTransition
       };
       return Identifiers;
   }());
@@ -7684,13 +7500,13 @@
    * Use of this source code is governed by an MIT-style license that can be
    * found in the LICENSE file at https://angular.io/license
    */
-  var __extends$8 = (this && this.__extends) || function (d, b) {
+  var __extends$9 = (this && this.__extends) || function (d, b) {
       for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
       function __() { this.constructor = d; }
       d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
   };
   var HtmlParser = (function (_super) {
-      __extends$8(HtmlParser, _super);
+      __extends$9(HtmlParser, _super);
       function HtmlParser() {
           _super.call(this, getHtmlTagDefinition);
       }
@@ -7714,7 +7530,7 @@
    * Use of this source code is governed by an MIT-style license that can be
    * found in the LICENSE file at https://angular.io/license
    */
-  var __extends$9 = (this && this.__extends) || function (d, b) {
+  var __extends$10 = (this && this.__extends) || function (d, b) {
       for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
       function __() { this.constructor = d; }
       d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -7757,7 +7573,7 @@
       return ExpansionResult;
   }());
   var ExpansionError = (function (_super) {
-      __extends$9(ExpansionError, _super);
+      __extends$10(ExpansionError, _super);
       function ExpansionError(span, errorMsg) {
           _super.call(this, span, errorMsg);
       }
@@ -7818,13 +7634,13 @@
    * Use of this source code is governed by an MIT-style license that can be
    * found in the LICENSE file at https://angular.io/license
    */
-  var __extends$10 = (this && this.__extends) || function (d, b) {
+  var __extends$11 = (this && this.__extends) || function (d, b) {
       for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
       function __() { this.constructor = d; }
       d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
   };
   var ProviderError = (function (_super) {
-      __extends$10(ProviderError, _super);
+      __extends$11(ProviderError, _super);
       function ProviderError(message, span) {
           _super.call(this, span, message);
       }
@@ -7847,9 +7663,9 @@
       return ProviderViewContext;
   }());
   var ProviderElementContext = (function () {
-      function ProviderElementContext(_viewContext, _parent, _isViewRoot, _directiveAsts, attrs, refs, _sourceSpan) {
+      function ProviderElementContext(viewContext, _parent, _isViewRoot, _directiveAsts, attrs, refs, _sourceSpan) {
           var _this = this;
-          this._viewContext = _viewContext;
+          this.viewContext = viewContext;
           this._parent = _parent;
           this._isViewRoot = _isViewRoot;
           this._directiveAsts = _directiveAsts;
@@ -7861,7 +7677,7 @@
           attrs.forEach(function (attrAst) { return _this._attrs[attrAst.name] = attrAst.value; });
           var directivesMeta = _directiveAsts.map(function (directiveAst) { return directiveAst.directive; });
           this._allProviders =
-              _resolveProvidersFromDirectives(directivesMeta, _sourceSpan, _viewContext.errors);
+              _resolveProvidersFromDirectives(directivesMeta, _sourceSpan, viewContext.errors);
           this._contentQueries = _getContentQueries(directivesMeta);
           var queriedTokens = new Map();
           MapWrapper.values(this._allProviders).forEach(function (provider) {
@@ -7911,7 +7727,7 @@
       });
       ProviderElementContext.prototype._addQueryReadsTo = function (token, queryReadTokens) {
           this._getQueriesFor(token).forEach(function (query) {
-              var queryReadToken = isPresent(query.read) ? query.read : token;
+              var queryReadToken = query.read || token;
               if (isBlank(queryReadTokens.get(queryReadToken.reference))) {
                   queryReadTokens.set(queryReadToken.reference, true);
               }
@@ -7932,7 +7748,7 @@
               }
               currentEl = currentEl._parent;
           }
-          queries = this._viewContext.viewQueries.get(token.reference);
+          queries = this.viewContext.viewQueries.get(token.reference);
           if (isPresent(queries)) {
               ListWrapper.addAll(result, queries);
           }
@@ -7941,10 +7757,9 @@
       ProviderElementContext.prototype._getOrCreateLocalProvider = function (requestingProviderType, token, eager) {
           var _this = this;
           var resolvedProvider = this._allProviders.get(token.reference);
-          if (isBlank(resolvedProvider) ||
-              ((requestingProviderType === exports.ProviderAstType.Directive ||
-                  requestingProviderType === exports.ProviderAstType.PublicService) &&
-                  resolvedProvider.providerType === exports.ProviderAstType.PrivateService) ||
+          if (!resolvedProvider || ((requestingProviderType === exports.ProviderAstType.Directive ||
+              requestingProviderType === exports.ProviderAstType.PublicService) &&
+              resolvedProvider.providerType === exports.ProviderAstType.PrivateService) ||
               ((requestingProviderType === exports.ProviderAstType.PrivateService ||
                   requestingProviderType === exports.ProviderAstType.PublicService) &&
                   resolvedProvider.providerType === exports.ProviderAstType.Builtin)) {
@@ -7955,7 +7770,7 @@
               return transformedProviderAst;
           }
           if (isPresent(this._seenProviders.get(token.reference))) {
-              this._viewContext.errors.push(new ProviderError("Cannot instantiate cyclic dependency! " + token.name, this._sourceSpan));
+              this.viewContext.errors.push(new ProviderError("Cannot instantiate cyclic dependency! " + token.name, this._sourceSpan));
               return null;
           }
           this._seenProviders.set(token.reference, true);
@@ -7974,12 +7789,12 @@
                   }
               }
               else if (isPresent(provider.useFactory)) {
-                  var deps = isPresent(provider.deps) ? provider.deps : provider.useFactory.diDeps;
+                  var deps = provider.deps || provider.useFactory.diDeps;
                   transformedDeps =
                       deps.map(function (dep) { return _this._getDependency(resolvedProvider.providerType, dep, eager); });
               }
               else if (isPresent(provider.useClass)) {
-                  var deps = isPresent(provider.deps) ? provider.deps : provider.useClass.diDeps;
+                  var deps = provider.deps || provider.useClass.diDeps;
                   transformedDeps =
                       deps.map(function (dep) { return _this._getDependency(resolvedProvider.providerType, dep, eager); });
               }
@@ -8039,13 +7854,13 @@
               result = this._getLocalDependency(requestingProviderType, dep, eager);
           }
           if (dep.isSelf) {
-              if (isBlank(result) && dep.isOptional) {
+              if (!result && dep.isOptional) {
                   result = new CompileDiDependencyMetadata({ isValue: true, value: null });
               }
           }
           else {
               // check parent elements
-              while (isBlank(result) && isPresent(currElement._parent)) {
+              while (!result && isPresent(currElement._parent)) {
                   var prevElement = currElement;
                   currElement = currElement._parent;
                   if (prevElement._isViewRoot) {
@@ -8054,10 +7869,10 @@
                   result = currElement._getLocalDependency(exports.ProviderAstType.PublicService, dep, currEager);
               }
               // check @Host restriction
-              if (isBlank(result)) {
-                  if (!dep.isHost || this._viewContext.component.type.isHost ||
-                      this._viewContext.component.type.reference === dep.token.reference ||
-                      isPresent(this._viewContext.viewProviders.get(dep.token.reference))) {
+              if (!result) {
+                  if (!dep.isHost || this.viewContext.component.type.isHost ||
+                      this.viewContext.component.type.reference === dep.token.reference ||
+                      isPresent(this.viewContext.viewProviders.get(dep.token.reference))) {
                       result = dep;
                   }
                   else {
@@ -8067,8 +7882,8 @@
                   }
               }
           }
-          if (isBlank(result)) {
-              this._viewContext.errors.push(new ProviderError("No provider for " + dep.token.name, this._sourceSpan));
+          if (!result) {
+              this.viewContext.errors.push(new ProviderError("No provider for " + dep.token.name, this._sourceSpan));
           }
           return result;
       };
@@ -8102,7 +7917,7 @@
       NgModuleProviderAnalyzer.prototype._getOrCreateLocalProvider = function (token, eager) {
           var _this = this;
           var resolvedProvider = this._allProviders.get(token.reference);
-          if (isBlank(resolvedProvider)) {
+          if (!resolvedProvider) {
               return null;
           }
           var transformedProviderAst = this._transformedProviders.get(token.reference);
@@ -8129,12 +7944,12 @@
                   }
               }
               else if (isPresent(provider.useFactory)) {
-                  var deps = isPresent(provider.deps) ? provider.deps : provider.useFactory.diDeps;
+                  var deps = provider.deps || provider.useFactory.diDeps;
                   transformedDeps =
                       deps.map(function (dep) { return _this._getDependency(dep, eager, resolvedProvider.sourceSpan); });
               }
               else if (isPresent(provider.useClass)) {
-                  var deps = isPresent(provider.deps) ? provider.deps : provider.useClass.diDeps;
+                  var deps = provider.deps || provider.useClass.diDeps;
                   transformedDeps =
                       deps.map(function (dep) { return _this._getDependency(dep, eager, resolvedProvider.sourceSpan); });
               }
@@ -8194,12 +8009,12 @@
   }
   function _normalizeProviders(providers, sourceSpan, targetErrors, targetProviders) {
       if (targetProviders === void 0) { targetProviders = null; }
-      if (isBlank(targetProviders)) {
+      if (!targetProviders) {
           targetProviders = [];
       }
       if (isPresent(providers)) {
           providers.forEach(function (provider) {
-              if (isArray(provider)) {
+              if (Array.isArray(provider)) {
                   _normalizeProviders(provider, sourceSpan, targetErrors, targetProviders);
               }
               else {
@@ -8241,7 +8056,7 @@
           if (isPresent(resolvedProvider) && resolvedProvider.multiProvider !== provider.multi) {
               targetErrors.push(new ProviderError("Mixing multi and non multi provider is not possible for token " + resolvedProvider.token.name, sourceSpan));
           }
-          if (isBlank(resolvedProvider)) {
+          if (!resolvedProvider) {
               var lifecycleHooks = provider.token.identifier && provider.token.identifier instanceof CompileTypeMetadata ?
                   provider.token.identifier.lifecycleHooks :
                   [];
@@ -8285,7 +8100,7 @@
   function _addQueryToTokenMap(map, query) {
       query.selectors.forEach(function (token) {
           var entry = map.get(token.reference);
-          if (isBlank(entry)) {
+          if (!entry) {
               entry = [];
               map.set(token.reference, entry);
           }
@@ -8325,8 +8140,12 @@
    */
   function extractStyleUrls(resolver, baseUrl, cssText) {
       var foundUrls = [];
-      var modifiedCssText = StringWrapper.replaceAllMapped(cssText, _cssImportRe, function (m) {
-          var url = isPresent(m[1]) ? m[1] : m[2];
+      var modifiedCssText = cssText.replace(_cssImportRe, function () {
+          var m = [];
+          for (var _i = 0; _i < arguments.length; _i++) {
+              m[_i - 0] = arguments[_i];
+          }
+          var url = m[1] || m[2];
           if (!isStyleUrlResolvable(url)) {
               // Do not attempt to resolve non-package absolute URLs with URI scheme
               return m[0];
@@ -8492,8 +8311,8 @@
       }
       TemplateParser.prototype.parse = function (component, template, directives, pipes, schemas, templateUrl) {
           var result = this.tryParse(component, template, directives, pipes, schemas, templateUrl);
-          var warnings = result.errors.filter(function (error) { return error.level === ParseErrorLevel.WARNING; });
-          var errors = result.errors.filter(function (error) { return error.level === ParseErrorLevel.FATAL; });
+          var warnings = result.errors.filter(function (error) { return error.level === exports.ParseErrorLevel.WARNING; });
+          var errors = result.errors.filter(function (error) { return error.level === exports.ParseErrorLevel.FATAL; });
           if (warnings.length > 0) {
               this._console.warn("Template parse warnings:\n" + warnings.join('\n'));
           }
@@ -8504,19 +8323,11 @@
           return result.templateAst;
       };
       TemplateParser.prototype.tryParse = function (component, template, directives, pipes, schemas, templateUrl) {
-          var interpolationConfig;
-          if (component.template) {
-              interpolationConfig = InterpolationConfig.fromArray(component.template.interpolation);
-          }
-          var htmlAstWithErrors = this._htmlParser.parse(template, templateUrl, true, interpolationConfig);
-          var errors = htmlAstWithErrors.errors;
+          return this.tryParseHtml(this.expandHtml(this._htmlParser.parse(template, templateUrl, true, this.getInterpolationConfig(component))), component, template, directives, pipes, schemas, templateUrl);
+      };
+      TemplateParser.prototype.tryParseHtml = function (htmlAstWithErrors, component, template, directives, pipes, schemas, templateUrl) {
           var result;
-          if (errors.length == 0) {
-              // Transform ICU messages to angular directives
-              var expandedHtmlAst = expandNodes(htmlAstWithErrors.rootNodes);
-              errors.push.apply(errors, expandedHtmlAst.errors);
-              htmlAstWithErrors = new ParseTreeResult(expandedHtmlAst.nodes, errors);
-          }
+          var errors = htmlAstWithErrors.errors;
           if (htmlAstWithErrors.rootNodes.length > 0) {
               var uniqDirectives = removeIdentifierDuplicates(directives);
               var uniqPipes = removeIdentifierDuplicates(pipes);
@@ -8537,6 +8348,22 @@
           }
           return new TemplateParseResult(result, errors);
       };
+      TemplateParser.prototype.expandHtml = function (htmlAstWithErrors, forced) {
+          if (forced === void 0) { forced = false; }
+          var errors = htmlAstWithErrors.errors;
+          if (errors.length == 0 || forced) {
+              // Transform ICU messages to angular directives
+              var expandedHtmlAst = expandNodes(htmlAstWithErrors.rootNodes);
+              errors.push.apply(errors, expandedHtmlAst.errors);
+              htmlAstWithErrors = new ParseTreeResult(expandedHtmlAst.nodes, errors);
+          }
+          return htmlAstWithErrors;
+      };
+      TemplateParser.prototype.getInterpolationConfig = function (component) {
+          if (component.template) {
+              return InterpolationConfig.fromArray(component.template.interpolation);
+          }
+      };
       /** @internal */
       TemplateParser.prototype._assertNoReferenceDuplicationOnTemplate = function (result, errors) {
           var existingReferences = [];
@@ -8547,7 +8374,7 @@
                   existingReferences.push(name);
               }
               else {
-                  var error = new TemplateParseError("Reference \"#" + name + "\" is defined several times", reference.sourceSpan, ParseErrorLevel.FATAL);
+                  var error = new TemplateParseError("Reference \"#" + name + "\" is defined several times", reference.sourceSpan, exports.ParseErrorLevel.FATAL);
                   errors.push(error);
               }
           }); });
@@ -8592,7 +8419,7 @@
           pipes.forEach(function (pipe) { return _this.pipesByName.set(pipe.name, pipe); });
       }
       TemplateParseVisitor.prototype._reportError = function (message, sourceSpan, level) {
-          if (level === void 0) { level = ParseErrorLevel.FATAL; }
+          if (level === void 0) { level = exports.ParseErrorLevel.FATAL; }
           this.errors.push(new TemplateParseError(message, sourceSpan, level));
       };
       TemplateParseVisitor.prototype._reportParserErrors = function (errors, sourceSpan) {
@@ -8609,8 +8436,8 @@
                   this._reportParserErrors(ast.errors, sourceSpan);
               this._checkPipes(ast, sourceSpan);
               if (isPresent(ast) &&
-                  ast.ast.expressions.length > MAX_INTERPOLATION_VALUES) {
-                  throw new Error("Only support at most " + MAX_INTERPOLATION_VALUES + " interpolation values!");
+                  ast.ast.expressions.length > view_utils.MAX_INTERPOLATION_VALUES) {
+                  throw new Error("Only support at most " + view_utils.MAX_INTERPOLATION_VALUES + " interpolation values!");
               }
               return ast;
           }
@@ -8663,7 +8490,7 @@
                       _this._checkPipes(binding.expression, sourceSpan);
                   }
               });
-              bindingsResult.warnings.forEach(function (warning) { _this._reportError(warning, sourceSpan, ParseErrorLevel.WARNING); });
+              bindingsResult.warnings.forEach(function (warning) { _this._reportError(warning, sourceSpan, exports.ParseErrorLevel.WARNING); });
               return bindingsResult.templateBindings;
           }
           catch (e) {
@@ -8761,8 +8588,8 @@
           var ngContentIndex = parent.findNgContentIndex(projectionSelector);
           var parsedElement;
           if (preparsedElement.type === PreparsedElementType.NG_CONTENT) {
-              if (isPresent(element.children) && element.children.length > 0) {
-                  this._reportError("<ng-content> element cannot have content. <ng-content> must be immediately followed by </ng-content>", element.sourceSpan);
+              if (element.children && !element.children.every(_isEmptyTextNode)) {
+                  this._reportError("<ng-content> element cannot have content.", element.sourceSpan);
               }
               parsedElement = new NgContentAst(this.ngContentCount++, hasInlineTemplates ? null : ngContentIndex, element.sourceSpan);
           }
@@ -8775,7 +8602,11 @@
               this._assertElementExists(matchElement, element);
               this._assertOnlyOneComponent(directiveAsts, element.sourceSpan);
               var ngContentIndex_1 = hasInlineTemplates ? null : parent.findNgContentIndex(projectionSelector);
-              parsedElement = new ElementAst(nodeName, attrs, elementProps, events, references, providerContext.transformedDirectiveAsts, providerContext.transformProviders, providerContext.transformedHasViewContainer, children, hasInlineTemplates ? null : ngContentIndex_1, element.sourceSpan);
+              parsedElement = new ElementAst(nodeName, attrs, elementProps, events, references, providerContext.transformedDirectiveAsts, providerContext.transformProviders, providerContext.transformedHasViewContainer, children, hasInlineTemplates ? null : ngContentIndex_1, element.sourceSpan, element.endSourceSpan);
+              this._findComponentDirectives(directiveAsts)
+                  .forEach(function (componentDirectiveAst) { return _this._validateElementAnimationInputOutputs(componentDirectiveAst.hostProperties, componentDirectiveAst.hostEvents, componentDirectiveAst.directive.template); });
+              var componentTemplate = providerContext.viewContext.component.template;
+              this._validateElementAnimationInputOutputs(elementProps, events, componentTemplate);
           }
           if (hasInlineTemplates) {
               var templateCssSelector = createElementCssSelector(TEMPLATE_ELEMENT, templateMatchableAttrs);
@@ -8788,6 +8619,26 @@
               parsedElement = new EmbeddedTemplateAst([], [], [], templateElementVars, templateProviderContext.transformedDirectiveAsts, templateProviderContext.transformProviders, templateProviderContext.transformedHasViewContainer, [parsedElement], ngContentIndex, element.sourceSpan);
           }
           return parsedElement;
+      };
+      TemplateParseVisitor.prototype._validateElementAnimationInputOutputs = function (inputs, outputs, template) {
+          var _this = this;
+          var triggerLookup = new Set();
+          template.animations.forEach(function (entry) { triggerLookup.add(entry.name); });
+          var animationInputs = inputs.filter(function (input) { return input.isAnimation; });
+          animationInputs.forEach(function (input) {
+              var name = input.name;
+              if (!triggerLookup.has(name)) {
+                  _this._reportError("Couldn't find an animation entry for \"" + name + "\"", input.sourceSpan);
+              }
+          });
+          outputs.forEach(function (output) {
+              if (output.isAnimation) {
+                  var found = animationInputs.find(function (input) { return input.name == output.name; });
+                  if (!found) {
+                      _this._reportError("Unable to listen on (@" + output.name + "." + output.phase + ") because the animation trigger [@" + output.name + "] isn't being used on the same element", output.sourceSpan);
+                  }
+              }
+          });
       };
       TemplateParseVisitor.prototype._parseInlineTemplateBinding = function (attr, targetMatchableAttrs, targetProps, targetVars) {
           var templateBindingsSource = null;
@@ -8842,16 +8693,16 @@
                   this._parseReference(identifier, value, srcSpan, targetRefs);
               }
               else if (bindParts[KW_ON_IDX]) {
-                  this._parseEvent(bindParts[IDENT_KW_IDX], value, srcSpan, targetMatchableAttrs, targetEvents);
+                  this._parseEventOrAnimationEvent(bindParts[IDENT_KW_IDX], value, srcSpan, targetMatchableAttrs, targetEvents);
               }
               else if (bindParts[KW_BINDON_IDX]) {
                   this._parsePropertyOrAnimation(bindParts[IDENT_KW_IDX], value, srcSpan, targetMatchableAttrs, targetProps, targetAnimationProps);
                   this._parseAssignmentEvent(bindParts[IDENT_KW_IDX], value, srcSpan, targetMatchableAttrs, targetEvents);
               }
               else if (bindParts[KW_AT_IDX]) {
-                  if (name[0] == '@' && isPresent(value) && value.length > 0) {
+                  if (_isAnimationLabel(name) && isPresent(value) && value.length > 0) {
                       this._reportError("Assigning animation triggers via @prop=\"exp\" attributes with an expression is invalid." +
-                          " Use property bindings (e.g. [@prop]=\"exp\") or use an attribute without a value (e.g. @prop) instead.", srcSpan, ParseErrorLevel.FATAL);
+                          " Use property bindings (e.g. [@prop]=\"exp\") or use an attribute without a value (e.g. @prop) instead.", srcSpan, exports.ParseErrorLevel.FATAL);
                   }
                   this._parseAnimation(bindParts[IDENT_KW_IDX], value, srcSpan, targetMatchableAttrs, targetAnimationProps);
               }
@@ -8863,7 +8714,7 @@
                   this._parsePropertyOrAnimation(bindParts[IDENT_PROPERTY_IDX], value, srcSpan, targetMatchableAttrs, targetProps, targetAnimationProps);
               }
               else if (bindParts[IDENT_EVENT_IDX]) {
-                  this._parseEvent(bindParts[IDENT_EVENT_IDX], value, srcSpan, targetMatchableAttrs, targetEvents);
+                  this._parseEventOrAnimationEvent(bindParts[IDENT_EVENT_IDX], value, srcSpan, targetMatchableAttrs, targetEvents);
               }
           }
           else {
@@ -8892,7 +8743,7 @@
       };
       TemplateParseVisitor.prototype._parsePropertyOrAnimation = function (name, expression, sourceSpan, targetMatchableAttrs, targetProps, targetAnimationProps) {
           var animatePropLength = ANIMATE_PROP_PREFIX.length;
-          var isAnimationProp = name[0] == '@';
+          var isAnimationProp = _isAnimationLabel(name);
           var animationPrefixLength = 1;
           if (name.substring(0, animatePropLength) == ANIMATE_PROP_PREFIX) {
               isAnimationProp = true;
@@ -8929,16 +8780,43 @@
           targetProps.push(new BoundElementOrDirectiveProperty(name, ast, false, sourceSpan));
       };
       TemplateParseVisitor.prototype._parseAssignmentEvent = function (name, expression, sourceSpan, targetMatchableAttrs, targetEvents) {
-          this._parseEvent(name + "Change", expression + "=$event", sourceSpan, targetMatchableAttrs, targetEvents);
+          this._parseEventOrAnimationEvent(name + "Change", expression + "=$event", sourceSpan, targetMatchableAttrs, targetEvents);
+      };
+      TemplateParseVisitor.prototype._parseEventOrAnimationEvent = function (name, expression, sourceSpan, targetMatchableAttrs, targetEvents) {
+          if (_isAnimationLabel(name)) {
+              name = name.substr(1);
+              this._parseAnimationEvent(name, expression, sourceSpan, targetEvents);
+          }
+          else {
+              this._parseEvent(name, expression, sourceSpan, targetMatchableAttrs, targetEvents);
+          }
+      };
+      TemplateParseVisitor.prototype._parseAnimationEvent = function (name, expression, sourceSpan, targetEvents) {
+          var matches = splitAtPeriod(name, [name, '']);
+          var eventName = matches[0];
+          var phase = matches[1].toLowerCase();
+          if (phase) {
+              switch (phase) {
+                  case 'start':
+                  case 'done':
+                      var ast = this._parseAction(expression, sourceSpan);
+                      targetEvents.push(new BoundEventAst(eventName, null, phase, ast, sourceSpan));
+                      break;
+                  default:
+                      this._reportError("The provided animation output phase value \"" + phase + "\" for \"@" + eventName + "\" is not supported (use start or done)", sourceSpan);
+                      break;
+              }
+          }
+          else {
+              this._reportError("The animation trigger output event (@" + eventName + ") is missing its phase value name (start or done are currently supported)", sourceSpan);
+          }
       };
       TemplateParseVisitor.prototype._parseEvent = function (name, expression, sourceSpan, targetMatchableAttrs, targetEvents) {
           // long format: 'target: eventName'
-          var parts = splitAtColon(name, [null, name]);
-          var target = parts[0];
-          var eventName = parts[1];
+          var _a = splitAtColon(name, [null, name]), target = _a[0], eventName = _a[1];
           var ast = this._parseAction(expression, sourceSpan);
           targetMatchableAttrs.push([name, ast.source]);
-          targetEvents.push(new BoundEventAst(eventName, target, ast, sourceSpan));
+          targetEvents.push(new BoundEventAst(eventName, target, null, ast, sourceSpan));
           // Don't detect directives for event names for now,
           // so don't add the event name to the matchableAttrs
       };
@@ -9005,8 +8883,9 @@
       TemplateParseVisitor.prototype._createDirectiveHostPropertyAsts = function (elementName, hostProps, sourceSpan, targetPropertyAsts) {
           var _this = this;
           if (hostProps) {
-              StringMapWrapper.forEach(hostProps, function (expression, propName) {
-                  if (isString(expression)) {
+              Object.keys(hostProps).forEach(function (propName) {
+                  var expression = hostProps[propName];
+                  if (typeof expression === 'string') {
                       var exprAst = _this._parseBinding(expression, sourceSpan);
                       targetPropertyAsts.push(_this._createElementPropertyAst(elementName, propName, exprAst, sourceSpan));
                   }
@@ -9019,9 +8898,10 @@
       TemplateParseVisitor.prototype._createDirectiveHostEventAsts = function (hostListeners, sourceSpan, targetEventAsts) {
           var _this = this;
           if (hostListeners) {
-              StringMapWrapper.forEach(hostListeners, function (expression, propName) {
-                  if (isString(expression)) {
-                      _this._parseEvent(propName, expression, sourceSpan, [], targetEventAsts);
+              Object.keys(hostListeners).forEach(function (propName) {
+                  var expression = hostListeners[propName];
+                  if (typeof expression === 'string') {
+                      _this._parseEventOrAnimationEvent(propName, expression, sourceSpan, [], targetEventAsts);
                   }
                   else {
                       _this._reportError("Value of the host listener \"" + propName + "\" needs to be a string representing an expression but got \"" + expression + "\" (" + typeof expression + ")", sourceSpan);
@@ -9034,12 +8914,13 @@
               var boundPropsByName_1 = new Map();
               boundProps.forEach(function (boundProp) {
                   var prevValue = boundPropsByName_1.get(boundProp.name);
-                  if (isBlank(prevValue) || prevValue.isLiteral) {
+                  if (!prevValue || prevValue.isLiteral) {
                       // give [a]="b" a higher precedence than a="b" on the same element
                       boundPropsByName_1.set(boundProp.name, boundProp);
                   }
               });
-              StringMapWrapper.forEach(directiveProperties, function (elProp, dirProp) {
+              Object.keys(directiveProperties).forEach(function (dirProp) {
+                  var elProp = directiveProperties[dirProp];
                   var boundProp = boundPropsByName_1.get(elProp);
                   // Bindings are optional, so this binding only needs to be set up if an expression is given.
                   if (boundProp) {
@@ -9058,7 +8939,7 @@
               });
           });
           props.forEach(function (prop) {
-              if (!prop.isLiteral && isBlank(boundDirectivePropsIndex.get(prop.name))) {
+              if (!prop.isLiteral && !boundDirectivePropsIndex.get(prop.name)) {
                   boundElementProps.push(_this._createElementPropertyAst(elementName, prop.name, prop.expression, prop.sourceSpan));
               }
           });
@@ -9072,7 +8953,7 @@
           var securityContext;
           if (parts.length === 1) {
               var partValue = parts[0];
-              if (partValue[0] == '@') {
+              if (_isAnimationLabel(partValue)) {
                   boundPropertyName = partValue.substr(1);
                   bindingType = exports.PropertyBindingType.Animation;
                   securityContext = _angular_core.SecurityContext.NONE;
@@ -9081,7 +8962,7 @@
                   boundPropertyName = this._schemaRegistry.getMappedPropName(partValue);
                   securityContext = this._schemaRegistry.securityContext(elementName, boundPropertyName);
                   bindingType = exports.PropertyBindingType.Property;
-                  this._assertNoEventBinding(boundPropertyName, sourceSpan, false);
+                  this._validatePropertyOrAttributeName(boundPropertyName, sourceSpan, false);
                   if (!this._schemaRegistry.hasProperty(elementName, boundPropertyName, this._schemas)) {
                       var errorMsg = "Can't bind to '" + boundPropertyName + "' since it isn't a known property of '" + elementName + "'.";
                       if (elementName.indexOf('-') > -1) {
@@ -9096,7 +8977,7 @@
           else {
               if (parts[0] == ATTRIBUTE_PREFIX) {
                   boundPropertyName = parts[1];
-                  this._assertNoEventBinding(boundPropertyName, sourceSpan, true);
+                  this._validatePropertyOrAttributeName(boundPropertyName, sourceSpan, true);
                   // NB: For security purposes, use the mapped property name, not the attribute name.
                   var mapPropName = this._schemaRegistry.getMappedPropName(boundPropertyName);
                   securityContext = this._schemaRegistry.securityContext(elementName, mapPropName);
@@ -9133,27 +9014,19 @@
        * @param isAttr true when binding to an attribute
        * @private
        */
-      TemplateParseVisitor.prototype._assertNoEventBinding = function (propName, sourceSpan, isAttr) {
-          if (propName.toLowerCase().startsWith('on')) {
-              var msg = ("Binding to event attribute '" + propName + "' is disallowed for security reasons, ") +
-                  ("please use (" + propName.slice(2) + ")=...");
-              if (!isAttr) {
-                  msg +=
-                      ("\nIf '" + propName + "' is a directive input, make sure the directive is imported by the") +
-                          " current module.";
-              }
-              this._reportError(msg, sourceSpan, ParseErrorLevel.FATAL);
+      TemplateParseVisitor.prototype._validatePropertyOrAttributeName = function (propName, sourceSpan, isAttr) {
+          var report = isAttr ? this._schemaRegistry.validateAttribute(propName) :
+              this._schemaRegistry.validateProperty(propName);
+          if (report.error) {
+              this._reportError(report.msg, sourceSpan, exports.ParseErrorLevel.FATAL);
           }
       };
+      TemplateParseVisitor.prototype._findComponentDirectives = function (directives) {
+          return directives.filter(function (directive) { return directive.directive.isComponent; });
+      };
       TemplateParseVisitor.prototype._findComponentDirectiveNames = function (directives) {
-          var componentTypeNames = [];
-          directives.forEach(function (directive) {
-              var typeName = directive.directive.type.name;
-              if (directive.directive.isComponent) {
-                  componentTypeNames.push(typeName);
-              }
-          });
-          return componentTypeNames;
+          return this._findComponentDirectives(directives)
+              .map(function (directive) { return directive.directive.type.name; });
       };
       TemplateParseVisitor.prototype._assertOnlyOneComponent = function (directives, sourceSpan) {
           var componentTypeNames = this._findComponentDirectiveNames(directives);
@@ -9193,7 +9066,8 @@
           var _this = this;
           var allDirectiveEvents = new Set();
           directives.forEach(function (directive) {
-              StringMapWrapper.forEach(directive.directive.outputs, function (eventName) {
+              Object.keys(directive.directive.outputs).forEach(function (k) {
+                  var eventName = directive.directive.outputs[k];
                   allDirectiveEvents.add(eventName);
               });
           });
@@ -9222,7 +9096,7 @@
           var selector = createElementCssSelector(ast.name, attrNameAndValues);
           var ngContentIndex = parent.findNgContentIndex(selector);
           var children = visitAll(this, ast.children, EMPTY_ELEMENT_CONTEXT);
-          return new ElementAst(ast.name, visitAll(this, ast.attrs), [], [], [], [], [], false, children, ngContentIndex, ast.sourceSpan);
+          return new ElementAst(ast.name, visitAll(this, ast.attrs), [], [], [], [], [], false, children, ngContentIndex, ast.sourceSpan, ast.endSourceSpan);
       };
       NonBindableVisitor.prototype.visitComment = function (comment, context) { return null; };
       NonBindableVisitor.prototype.visitAttribute = function (attribute, context) {
@@ -9324,6 +9198,12 @@
       };
       return PipeCollector;
   }(RecursiveAstVisitor));
+  function _isAnimationLabel(name) {
+      return name[0] == '@';
+  }
+  function _isEmptyTextNode(node) {
+      return node instanceof Text && node.value.trim().length == 0;
+  }
 
   function unimplemented$1() {
       throw new Error('unimplemented');
@@ -9417,7 +9297,7 @@
    * Use of this source code is governed by an MIT-style license that can be
    * found in the LICENSE file at https://angular.io/license
    */
-  var __extends$11 = (this && this.__extends) || function (d, b) {
+  var __extends$12 = (this && this.__extends) || function (d, b) {
       for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
       function __() { this.constructor = d; }
       d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -9430,14 +9310,14 @@
       return AnimationAst;
   }());
   var AnimationStateAst = (function (_super) {
-      __extends$11(AnimationStateAst, _super);
+      __extends$12(AnimationStateAst, _super);
       function AnimationStateAst() {
           _super.apply(this, arguments);
       }
       return AnimationStateAst;
   }(AnimationAst));
   var AnimationEntryAst = (function (_super) {
-      __extends$11(AnimationEntryAst, _super);
+      __extends$12(AnimationEntryAst, _super);
       function AnimationEntryAst(name, stateDeclarations, stateTransitions) {
           _super.call(this);
           this.name = name;
@@ -9450,7 +9330,7 @@
       return AnimationEntryAst;
   }(AnimationAst));
   var AnimationStateDeclarationAst = (function (_super) {
-      __extends$11(AnimationStateDeclarationAst, _super);
+      __extends$12(AnimationStateDeclarationAst, _super);
       function AnimationStateDeclarationAst(stateName, styles) {
           _super.call(this);
           this.stateName = stateName;
@@ -9469,7 +9349,7 @@
       return AnimationStateTransitionExpression;
   }());
   var AnimationStateTransitionAst = (function (_super) {
-      __extends$11(AnimationStateTransitionAst, _super);
+      __extends$12(AnimationStateTransitionAst, _super);
       function AnimationStateTransitionAst(stateChanges, animation) {
           _super.call(this);
           this.stateChanges = stateChanges;
@@ -9481,7 +9361,7 @@
       return AnimationStateTransitionAst;
   }(AnimationStateAst));
   var AnimationStepAst = (function (_super) {
-      __extends$11(AnimationStepAst, _super);
+      __extends$12(AnimationStepAst, _super);
       function AnimationStepAst(startingStyles, keyframes, duration, delay, easing) {
           _super.call(this);
           this.startingStyles = startingStyles;
@@ -9496,7 +9376,7 @@
       return AnimationStepAst;
   }(AnimationAst));
   var AnimationStylesAst = (function (_super) {
-      __extends$11(AnimationStylesAst, _super);
+      __extends$12(AnimationStylesAst, _super);
       function AnimationStylesAst(styles) {
           _super.call(this);
           this.styles = styles;
@@ -9507,7 +9387,7 @@
       return AnimationStylesAst;
   }(AnimationAst));
   var AnimationKeyframeAst = (function (_super) {
-      __extends$11(AnimationKeyframeAst, _super);
+      __extends$12(AnimationKeyframeAst, _super);
       function AnimationKeyframeAst(offset, styles) {
           _super.call(this);
           this.offset = offset;
@@ -9519,7 +9399,7 @@
       return AnimationKeyframeAst;
   }(AnimationAst));
   var AnimationWithStepsAst = (function (_super) {
-      __extends$11(AnimationWithStepsAst, _super);
+      __extends$12(AnimationWithStepsAst, _super);
       function AnimationWithStepsAst(steps) {
           _super.call(this);
           this.steps = steps;
@@ -9527,7 +9407,7 @@
       return AnimationWithStepsAst;
   }(AnimationAst));
   var AnimationGroupAst = (function (_super) {
-      __extends$11(AnimationGroupAst, _super);
+      __extends$12(AnimationGroupAst, _super);
       function AnimationGroupAst(steps) {
           _super.call(this, steps);
       }
@@ -9537,7 +9417,7 @@
       return AnimationGroupAst;
   }(AnimationWithStepsAst));
   var AnimationSequenceAst = (function (_super) {
-      __extends$11(AnimationSequenceAst, _super);
+      __extends$12(AnimationSequenceAst, _super);
       function AnimationSequenceAst(steps) {
           _super.call(this, steps);
       }
@@ -9547,7 +9427,284 @@
       return AnimationSequenceAst;
   }(AnimationWithStepsAst));
 
-  var Math$2 = global$1.Math;
+  var AnimationEntryCompileResult = (function () {
+      function AnimationEntryCompileResult(name, statements, fnExp) {
+          this.name = name;
+          this.statements = statements;
+          this.fnExp = fnExp;
+      }
+      return AnimationEntryCompileResult;
+  }());
+  var AnimationCompiler = (function () {
+      function AnimationCompiler() {
+      }
+      AnimationCompiler.prototype.compile = function (factoryNamePrefix, parsedAnimations) {
+          return parsedAnimations.map(function (entry) {
+              var factoryName = factoryNamePrefix + "_" + entry.name;
+              var visitor = new _AnimationBuilder(entry.name, factoryName);
+              return visitor.build(entry);
+          });
+      };
+      return AnimationCompiler;
+  }());
+  var _ANIMATION_FACTORY_ELEMENT_VAR = variable('element');
+  var _ANIMATION_DEFAULT_STATE_VAR = variable('defaultStateStyles');
+  var _ANIMATION_FACTORY_VIEW_VAR = variable('view');
+  var _ANIMATION_FACTORY_VIEW_CONTEXT = _ANIMATION_FACTORY_VIEW_VAR.prop('animationContext');
+  var _ANIMATION_FACTORY_RENDERER_VAR = _ANIMATION_FACTORY_VIEW_VAR.prop('renderer');
+  var _ANIMATION_CURRENT_STATE_VAR = variable('currentState');
+  var _ANIMATION_NEXT_STATE_VAR = variable('nextState');
+  var _ANIMATION_PLAYER_VAR = variable('player');
+  var _ANIMATION_TIME_VAR = variable('totalTime');
+  var _ANIMATION_START_STATE_STYLES_VAR = variable('startStateStyles');
+  var _ANIMATION_END_STATE_STYLES_VAR = variable('endStateStyles');
+  var _ANIMATION_COLLECTED_STYLES = variable('collectedStyles');
+  var EMPTY_MAP = literalMap([]);
+  var _AnimationBuilder = (function () {
+      function _AnimationBuilder(animationName, factoryName) {
+          this.animationName = animationName;
+          this._fnVarName = factoryName + '_factory';
+          this._statesMapVarName = factoryName + '_states';
+          this._statesMapVar = variable(this._statesMapVarName);
+      }
+      _AnimationBuilder.prototype.visitAnimationStyles = function (ast, context) {
+          var stylesArr = [];
+          if (context.isExpectingFirstStyleStep) {
+              stylesArr.push(_ANIMATION_START_STATE_STYLES_VAR);
+              context.isExpectingFirstStyleStep = false;
+          }
+          ast.styles.forEach(function (entry) {
+              var entries = Object.keys(entry).map(function (key) { return [key, literal(entry[key])]; });
+              stylesArr.push(literalMap(entries));
+          });
+          return importExpr(resolveIdentifier(Identifiers.AnimationStyles)).instantiate([
+              importExpr(resolveIdentifier(Identifiers.collectAndResolveStyles)).callFn([
+                  _ANIMATION_COLLECTED_STYLES, literalArr(stylesArr)
+              ])
+          ]);
+      };
+      _AnimationBuilder.prototype.visitAnimationKeyframe = function (ast, context) {
+          return importExpr(resolveIdentifier(Identifiers.AnimationKeyframe)).instantiate([
+              literal(ast.offset), ast.styles.visit(this, context)
+          ]);
+      };
+      _AnimationBuilder.prototype.visitAnimationStep = function (ast, context) {
+          var _this = this;
+          if (context.endStateAnimateStep === ast) {
+              return this._visitEndStateAnimation(ast, context);
+          }
+          var startingStylesExpr = ast.startingStyles.visit(this, context);
+          var keyframeExpressions = ast.keyframes.map(function (keyframeEntry) { return keyframeEntry.visit(_this, context); });
+          return this._callAnimateMethod(ast, startingStylesExpr, literalArr(keyframeExpressions), context);
+      };
+      /** @internal */
+      _AnimationBuilder.prototype._visitEndStateAnimation = function (ast, context) {
+          var _this = this;
+          var startingStylesExpr = ast.startingStyles.visit(this, context);
+          var keyframeExpressions = ast.keyframes.map(function (keyframe) { return keyframe.visit(_this, context); });
+          var keyframesExpr = importExpr(resolveIdentifier(Identifiers.balanceAnimationKeyframes)).callFn([
+              _ANIMATION_COLLECTED_STYLES, _ANIMATION_END_STATE_STYLES_VAR,
+              literalArr(keyframeExpressions)
+          ]);
+          return this._callAnimateMethod(ast, startingStylesExpr, keyframesExpr, context);
+      };
+      /** @internal */
+      _AnimationBuilder.prototype._callAnimateMethod = function (ast, startingStylesExpr, keyframesExpr, context) {
+          context.totalTransitionTime += ast.duration + ast.delay;
+          return _ANIMATION_FACTORY_RENDERER_VAR.callMethod('animate', [
+              _ANIMATION_FACTORY_ELEMENT_VAR, startingStylesExpr, keyframesExpr, literal(ast.duration),
+              literal(ast.delay), literal(ast.easing)
+          ]);
+      };
+      _AnimationBuilder.prototype.visitAnimationSequence = function (ast, context) {
+          var _this = this;
+          var playerExprs = ast.steps.map(function (step) { return step.visit(_this, context); });
+          return importExpr(resolveIdentifier(Identifiers.AnimationSequencePlayer)).instantiate([
+              literalArr(playerExprs)
+          ]);
+      };
+      _AnimationBuilder.prototype.visitAnimationGroup = function (ast, context) {
+          var _this = this;
+          var playerExprs = ast.steps.map(function (step) { return step.visit(_this, context); });
+          return importExpr(resolveIdentifier(Identifiers.AnimationGroupPlayer)).instantiate([
+              literalArr(playerExprs)
+          ]);
+      };
+      _AnimationBuilder.prototype.visitAnimationStateDeclaration = function (ast, context) {
+          var flatStyles = {};
+          _getStylesArray(ast).forEach(function (entry) { Object.keys(entry).forEach(function (key) { flatStyles[key] = entry[key]; }); });
+          context.stateMap.registerState(ast.stateName, flatStyles);
+      };
+      _AnimationBuilder.prototype.visitAnimationStateTransition = function (ast, context) {
+          var steps = ast.animation.steps;
+          var lastStep = steps[steps.length - 1];
+          if (_isEndStateAnimateStep(lastStep)) {
+              context.endStateAnimateStep = lastStep;
+          }
+          context.totalTransitionTime = 0;
+          context.isExpectingFirstStyleStep = true;
+          var stateChangePreconditions = [];
+          ast.stateChanges.forEach(function (stateChange) {
+              stateChangePreconditions.push(_compareToAnimationStateExpr(_ANIMATION_CURRENT_STATE_VAR, stateChange.fromState)
+                  .and(_compareToAnimationStateExpr(_ANIMATION_NEXT_STATE_VAR, stateChange.toState)));
+              if (stateChange.fromState != ANY_STATE) {
+                  context.stateMap.registerState(stateChange.fromState);
+              }
+              if (stateChange.toState != ANY_STATE) {
+                  context.stateMap.registerState(stateChange.toState);
+              }
+          });
+          var animationPlayerExpr = ast.animation.visit(this, context);
+          var reducedStateChangesPrecondition = stateChangePreconditions.reduce(function (a, b) { return a.or(b); });
+          var precondition = _ANIMATION_PLAYER_VAR.equals(NULL_EXPR).and(reducedStateChangesPrecondition);
+          var animationStmt = _ANIMATION_PLAYER_VAR.set(animationPlayerExpr).toStmt();
+          var totalTimeStmt = _ANIMATION_TIME_VAR.set(literal(context.totalTransitionTime)).toStmt();
+          return new IfStmt(precondition, [animationStmt, totalTimeStmt]);
+      };
+      _AnimationBuilder.prototype.visitAnimationEntry = function (ast, context) {
+          var _this = this;
+          // visit each of the declarations first to build the context state map
+          ast.stateDeclarations.forEach(function (def) { return def.visit(_this, context); });
+          // this should always be defined even if the user overrides it
+          context.stateMap.registerState(DEFAULT_STATE, {});
+          var statements = [];
+          statements.push(_ANIMATION_FACTORY_VIEW_CONTEXT
+              .callMethod('cancelActiveAnimation', [
+              _ANIMATION_FACTORY_ELEMENT_VAR, literal(this.animationName),
+              _ANIMATION_NEXT_STATE_VAR.equals(literal(EMPTY_ANIMATION_STATE))
+          ])
+              .toStmt());
+          statements.push(_ANIMATION_COLLECTED_STYLES.set(EMPTY_MAP).toDeclStmt());
+          statements.push(_ANIMATION_PLAYER_VAR.set(NULL_EXPR).toDeclStmt());
+          statements.push(_ANIMATION_TIME_VAR.set(literal(0)).toDeclStmt());
+          statements.push(_ANIMATION_DEFAULT_STATE_VAR.set(this._statesMapVar.key(literal(DEFAULT_STATE)))
+              .toDeclStmt());
+          statements.push(_ANIMATION_START_STATE_STYLES_VAR.set(this._statesMapVar.key(_ANIMATION_CURRENT_STATE_VAR))
+              .toDeclStmt());
+          statements.push(new IfStmt(_ANIMATION_START_STATE_STYLES_VAR.equals(NULL_EXPR), [_ANIMATION_START_STATE_STYLES_VAR.set(_ANIMATION_DEFAULT_STATE_VAR).toStmt()]));
+          statements.push(_ANIMATION_END_STATE_STYLES_VAR.set(this._statesMapVar.key(_ANIMATION_NEXT_STATE_VAR))
+              .toDeclStmt());
+          statements.push(new IfStmt(_ANIMATION_END_STATE_STYLES_VAR.equals(NULL_EXPR), [_ANIMATION_END_STATE_STYLES_VAR.set(_ANIMATION_DEFAULT_STATE_VAR).toStmt()]));
+          var RENDER_STYLES_FN = importExpr(resolveIdentifier(Identifiers.renderStyles));
+          // before we start any animation we want to clear out the starting
+          // styles from the element's style property (since they were placed
+          // there at the end of the last animation
+          statements.push(RENDER_STYLES_FN
+              .callFn([
+              _ANIMATION_FACTORY_ELEMENT_VAR, _ANIMATION_FACTORY_RENDERER_VAR,
+              importExpr(resolveIdentifier(Identifiers.clearStyles))
+                  .callFn([_ANIMATION_START_STATE_STYLES_VAR])
+          ])
+              .toStmt());
+          ast.stateTransitions.forEach(function (transAst) { return statements.push(transAst.visit(_this, context)); });
+          // this check ensures that the animation factory always returns a player
+          // so that the onDone callback can be used for tracking
+          statements.push(new IfStmt(_ANIMATION_PLAYER_VAR.equals(NULL_EXPR), [_ANIMATION_PLAYER_VAR
+                  .set(importExpr(resolveIdentifier(Identifiers.NoOpAnimationPlayer)).instantiate([]))
+                  .toStmt()]));
+          // once complete we want to apply the styles on the element
+          // since the destination state's values should persist once
+          // the animation sequence has completed.
+          statements.push(_ANIMATION_PLAYER_VAR
+              .callMethod('onDone', [fn([], [RENDER_STYLES_FN
+                      .callFn([
+                      _ANIMATION_FACTORY_ELEMENT_VAR, _ANIMATION_FACTORY_RENDERER_VAR,
+                      importExpr(resolveIdentifier(Identifiers.prepareFinalAnimationStyles))
+                          .callFn([
+                          _ANIMATION_START_STATE_STYLES_VAR, _ANIMATION_END_STATE_STYLES_VAR
+                      ])
+                  ])
+                      .toStmt()])])
+              .toStmt());
+          statements.push(_ANIMATION_FACTORY_VIEW_CONTEXT
+              .callMethod('queueAnimation', [
+              _ANIMATION_FACTORY_ELEMENT_VAR, literal(this.animationName),
+              _ANIMATION_PLAYER_VAR
+          ])
+              .toStmt());
+          statements.push(new ReturnStatement(importExpr(resolveIdentifier(Identifiers.AnimationTransition)).instantiate([
+              _ANIMATION_PLAYER_VAR, _ANIMATION_CURRENT_STATE_VAR, _ANIMATION_NEXT_STATE_VAR,
+              _ANIMATION_TIME_VAR
+          ])));
+          return fn([
+              new FnParam(_ANIMATION_FACTORY_VIEW_VAR.name, importType(resolveIdentifier(Identifiers.AppView), [DYNAMIC_TYPE])),
+              new FnParam(_ANIMATION_FACTORY_ELEMENT_VAR.name, DYNAMIC_TYPE),
+              new FnParam(_ANIMATION_CURRENT_STATE_VAR.name, DYNAMIC_TYPE),
+              new FnParam(_ANIMATION_NEXT_STATE_VAR.name, DYNAMIC_TYPE)
+          ], statements, importType(resolveIdentifier(Identifiers.AnimationTransition)));
+      };
+      _AnimationBuilder.prototype.build = function (ast) {
+          var context = new _AnimationBuilderContext();
+          var fnStatement = ast.visit(this, context).toDeclStmt(this._fnVarName);
+          var fnVariable = variable(this._fnVarName);
+          var lookupMap = [];
+          Object.keys(context.stateMap.states).forEach(function (stateName) {
+              var value = context.stateMap.states[stateName];
+              var variableValue = EMPTY_MAP;
+              if (isPresent(value)) {
+                  var styleMap_1 = [];
+                  Object.keys(value).forEach(function (key) { styleMap_1.push([key, literal(value[key])]); });
+                  variableValue = literalMap(styleMap_1);
+              }
+              lookupMap.push([stateName, variableValue]);
+          });
+          var compiledStatesMapStmt = this._statesMapVar.set(literalMap(lookupMap)).toDeclStmt();
+          var statements = [compiledStatesMapStmt, fnStatement];
+          return new AnimationEntryCompileResult(this.animationName, statements, fnVariable);
+      };
+      return _AnimationBuilder;
+  }());
+  var _AnimationBuilderContext = (function () {
+      function _AnimationBuilderContext() {
+          this.stateMap = new _AnimationBuilderStateMap();
+          this.endStateAnimateStep = null;
+          this.isExpectingFirstStyleStep = false;
+          this.totalTransitionTime = 0;
+      }
+      return _AnimationBuilderContext;
+  }());
+  var _AnimationBuilderStateMap = (function () {
+      function _AnimationBuilderStateMap() {
+          this._states = {};
+      }
+      Object.defineProperty(_AnimationBuilderStateMap.prototype, "states", {
+          get: function () { return this._states; },
+          enumerable: true,
+          configurable: true
+      });
+      _AnimationBuilderStateMap.prototype.registerState = function (name, value) {
+          if (value === void 0) { value = null; }
+          var existingEntry = this._states[name];
+          if (!existingEntry) {
+              this._states[name] = value;
+          }
+      };
+      return _AnimationBuilderStateMap;
+  }());
+  function _compareToAnimationStateExpr(value, animationState) {
+      var emptyStateLiteral = literal(EMPTY_ANIMATION_STATE);
+      switch (animationState) {
+          case EMPTY_ANIMATION_STATE:
+              return value.equals(emptyStateLiteral);
+          case ANY_STATE:
+              return literal(true);
+          default:
+              return value.equals(literal(animationState));
+      }
+  }
+  function _isEndStateAnimateStep(step) {
+      // the final animation step is characterized by having only TWO
+      // keyframe values and it must have zero styles for both keyframes
+      if (step instanceof AnimationStepAst && step.duration > 0 && step.keyframes.length == 2) {
+          var styles1 = _getStylesArray(step.keyframes[0])[0];
+          var styles2 = _getStylesArray(step.keyframes[1])[0];
+          return Object.keys(styles1).length === 0 && Object.keys(styles2).length === 0;
+      }
+      return false;
+  }
+  function _getStylesArray(obj) {
+      return obj.styles.styles;
+  }
 
   var StylesCollectionEntry = (function () {
       function StylesCollectionEntry(time, value) {
@@ -9607,7 +9764,7 @@
    * Use of this source code is governed by an MIT-style license that can be
    * found in the LICENSE file at https://angular.io/license
    */
-  var __extends$12 = (this && this.__extends) || function (d, b) {
+  var __extends$13 = (this && this.__extends) || function (d, b) {
       for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
       function __() { this.constructor = d; }
       d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -9616,67 +9773,78 @@
   var _TERMINAL_KEYFRAME = 1;
   var _ONE_SECOND = 1000;
   var AnimationParseError = (function (_super) {
-      __extends$12(AnimationParseError, _super);
-      function AnimationParseError(message /** TODO #9100 */) {
+      __extends$13(AnimationParseError, _super);
+      function AnimationParseError(message) {
           _super.call(this, null, message);
       }
       AnimationParseError.prototype.toString = function () { return "" + this.msg; };
       return AnimationParseError;
   }(ParseError));
-  var ParsedAnimationResult = (function () {
-      function ParsedAnimationResult(ast, errors) {
+  var AnimationEntryParseResult = (function () {
+      function AnimationEntryParseResult(ast, errors) {
           this.ast = ast;
           this.errors = errors;
       }
-      return ParsedAnimationResult;
+      return AnimationEntryParseResult;
   }());
-  function parseAnimationEntry(entry) {
-      var errors = [];
-      var stateStyles = {};
-      var transitions = [];
-      var stateDeclarationAsts = [];
-      entry.definitions.forEach(function (def) {
-          if (def instanceof CompileAnimationStateDeclarationMetadata) {
-              _parseAnimationDeclarationStates(def, errors).forEach(function (ast) {
-                  stateDeclarationAsts.push(ast);
-                  stateStyles[ast.stateName] = ast.styles;
-              });
-          }
-          else {
-              transitions.push(def);
-          }
-      });
-      var stateTransitionAsts = transitions.map(function (transDef) { return _parseAnimationStateTransition(transDef, stateStyles, errors); });
-      var ast = new AnimationEntryAst(entry.name, stateDeclarationAsts, stateTransitionAsts);
-      return new ParsedAnimationResult(ast, errors);
-  }
-  function parseAnimationOutputName(outputName, errors) {
-      var values = outputName.split('.');
-      var name;
-      var phase = '';
-      if (values.length > 1) {
-          name = values[0];
-          var parsedPhase = values[1];
-          switch (parsedPhase) {
-              case 'start':
-              case 'done':
-                  phase = parsedPhase;
-                  break;
-              default:
-                  errors.push(new AnimationParseError("The provided animation output phase value \"" + parsedPhase + "\" for \"@" + name + "\" is not supported (use start or done)"));
-          }
+  var AnimationParser = (function () {
+      function AnimationParser() {
       }
-      else {
-          name = outputName;
-          errors.push(new AnimationParseError("The animation trigger output event (@" + name + ") is missing its phase value name (start or done are currently supported)"));
-      }
-      return new AnimationOutput(name, phase, outputName);
-  }
+      AnimationParser.prototype.parseComponent = function (component) {
+          var _this = this;
+          var errors = [];
+          var componentName = component.type.name;
+          var animationTriggerNames = new Set();
+          var asts = component.template.animations.map(function (entry) {
+              var result = _this.parseEntry(entry);
+              var ast = result.ast;
+              var triggerName = ast.name;
+              if (animationTriggerNames.has(triggerName)) {
+                  result.errors.push(new AnimationParseError("The animation trigger \"" + triggerName + "\" has already been registered for the " + componentName + " component"));
+              }
+              else {
+                  animationTriggerNames.add(triggerName);
+              }
+              if (result.errors.length > 0) {
+                  var errorMessage_1 = "- Unable to parse the animation sequence for \"" + triggerName + "\" on the " + componentName + " component due to the following errors:";
+                  result.errors.forEach(function (error) { errorMessage_1 += '\n-- ' + error.msg; });
+                  errors.push(errorMessage_1);
+              }
+              return ast;
+          });
+          if (errors.length > 0) {
+              var errorString = errors.join('\n');
+              throw new Error("Animation parse errors:\n" + errorString);
+          }
+          return asts;
+      };
+      AnimationParser.prototype.parseEntry = function (entry) {
+          var errors = [];
+          var stateStyles = {};
+          var transitions = [];
+          var stateDeclarationAsts = [];
+          entry.definitions.forEach(function (def) {
+              if (def instanceof CompileAnimationStateDeclarationMetadata) {
+                  _parseAnimationDeclarationStates(def, errors).forEach(function (ast) {
+                      stateDeclarationAsts.push(ast);
+                      stateStyles[ast.stateName] = ast.styles;
+                  });
+              }
+              else {
+                  transitions.push(def);
+              }
+          });
+          var stateTransitionAsts = transitions.map(function (transDef) { return _parseAnimationStateTransition(transDef, stateStyles, errors); });
+          var ast = new AnimationEntryAst(entry.name, stateDeclarationAsts, stateTransitionAsts);
+          return new AnimationEntryParseResult(ast, errors);
+      };
+      return AnimationParser;
+  }());
   function _parseAnimationDeclarationStates(stateMetadata, errors) {
       var styleValues = [];
       stateMetadata.styles.styles.forEach(function (stylesEntry) {
           // TODO (matsko): change this when we get CSS class integration support
-          if (isStringMap(stylesEntry)) {
+          if (typeof stylesEntry === 'object' && stylesEntry !== null) {
               styleValues.push(stylesEntry);
           }
           else {
@@ -9691,11 +9859,7 @@
       var styles = new StylesCollection();
       var transitionExprs = [];
       var transitionStates = transitionStateMetadata.stateChangeExpr.split(/\s*,\s*/);
-      transitionStates.forEach(function (expr) {
-          _parseAnimationTransitionExpr(expr, errors).forEach(function (transExpr) {
-              transitionExprs.push(transExpr);
-          });
-      });
+      transitionStates.forEach(function (expr) { transitionExprs.push.apply(transitionExprs, _parseAnimationTransitionExpr(expr, errors)); });
       var entry = _normalizeAnimationEntry(transitionStateMetadata.steps);
       var animation = _normalizeStyleSteps(entry, stateStyles, errors);
       var animationAst = _parseTransitionAnimation(animation, 0, styles, stateStyles, errors);
@@ -9707,8 +9871,22 @@
           new AnimationSequenceAst([animationAst]);
       return new AnimationStateTransitionAst(transitionExprs, stepsAst);
   }
+  function _parseAnimationAlias(alias, errors) {
+      switch (alias) {
+          case ':enter':
+              return 'void => *';
+          case ':leave':
+              return '* => void';
+          default:
+              errors.push(new AnimationParseError("the transition alias value \"" + alias + "\" is not supported"));
+              return '* => *';
+      }
+  }
   function _parseAnimationTransitionExpr(eventStr, errors) {
       var expressions = [];
+      if (eventStr[0] == ':') {
+          eventStr = _parseAnimationAlias(eventStr, errors);
+      }
       var match = eventStr.match(/^(\*|[-\w]+)\s*(<?[=-]>)\s*(\*|[-\w]+)$/);
       if (!isPresent(match) || match.length < 4) {
           errors.push(new AnimationParseError("the provided " + eventStr + " is not of a supported format"));
@@ -9725,13 +9903,12 @@
       return expressions;
   }
   function _normalizeAnimationEntry(entry) {
-      return isArray(entry) ? new CompileAnimationSequenceMetadata(entry) :
-          entry;
+      return Array.isArray(entry) ? new CompileAnimationSequenceMetadata(entry) : entry;
   }
   function _normalizeStyleMetadata(entry, stateStyles, errors) {
       var normalizedStyles = [];
       entry.styles.forEach(function (styleEntry) {
-          if (isString(styleEntry)) {
+          if (typeof styleEntry === 'string') {
               ListWrapper.addAll(normalizedStyles, _resolveStylesFromState(styleEntry, stateStyles, errors));
           }
           else {
@@ -9747,10 +9924,10 @@
           new CompileAnimationSequenceMetadata(steps);
   }
   function _mergeAnimationStyles(stylesList, newItem) {
-      if (isStringMap(newItem) && stylesList.length > 0) {
+      if (typeof newItem === 'object' && newItem !== null && stylesList.length > 0) {
           var lastIndex = stylesList.length - 1;
           var lastItem = stylesList[lastIndex];
-          if (isStringMap(lastItem)) {
+          if (typeof lastItem === 'object' && lastItem !== null) {
               stylesList[lastIndex] = StringMapWrapper.merge(lastItem, newItem);
               return;
           }
@@ -9828,7 +10005,7 @@
           }
           else {
               value.styles.forEach(function (stylesEntry) {
-                  if (isStringMap(stylesEntry)) {
+                  if (typeof stylesEntry === 'object' && stylesEntry !== null) {
                       styles.push(stylesEntry);
                   }
               });
@@ -9862,9 +10039,9 @@
           var offset = styleMetadata.offset;
           var keyframeStyles = {};
           styleMetadata.styles.forEach(function (entry) {
-              StringMapWrapper.forEach(entry, function (value /** TODO #9100 */, prop /** TODO #9100 */) {
+              Object.keys(entry).forEach(function (prop) {
                   if (prop != 'offset') {
-                      keyframeStyles[prop] = value;
+                      keyframeStyles[prop] = entry[prop];
                   }
               });
           });
@@ -9881,7 +10058,6 @@
       if (doSortKeyframes) {
           ListWrapper.sort(rawKeyframes, function (a, b) { return a[0] <= b[0] ? -1 : 1; });
       }
-      var i;
       var firstKeyframe = rawKeyframes[0];
       if (firstKeyframe[0] != _INITIAL_KEYFRAME) {
           ListWrapper.insert(rawKeyframes, 0, firstKeyframe = [_INITIAL_KEYFRAME, {}]);
@@ -9894,23 +10070,26 @@
           limit++;
       }
       var lastKeyframeStyles = lastKeyframe[1];
-      for (i = 1; i <= limit; i++) {
+      for (var i = 1; i <= limit; i++) {
           var entry = rawKeyframes[i];
           var styles = entry[1];
-          StringMapWrapper.forEach(styles, function (value /** TODO #9100 */, prop /** TODO #9100 */) {
+          Object.keys(styles).forEach(function (prop) {
               if (!isPresent(firstKeyframeStyles[prop])) {
                   firstKeyframeStyles[prop] = FILL_STYLE_FLAG;
               }
           });
       }
-      for (i = limit - 1; i >= 0; i--) {
+      var _loop_1 = function(i) {
           var entry = rawKeyframes[i];
           var styles = entry[1];
-          StringMapWrapper.forEach(styles, function (value /** TODO #9100 */, prop /** TODO #9100 */) {
+          Object.keys(styles).forEach(function (prop) {
               if (!isPresent(lastKeyframeStyles[prop])) {
-                  lastKeyframeStyles[prop] = value;
+                  lastKeyframeStyles[prop] = styles[prop];
               }
           });
+      };
+      for (var i = limit - 1; i >= 0; i--) {
+          _loop_1(i);
       }
       return rawKeyframes.map(function (entry) { return new AnimationKeyframeAst(entry[0], new AnimationStylesAst([entry[1]])); });
   }
@@ -9930,9 +10109,7 @@
                   entry.styles.forEach(function (stylesEntry) {
                       // by this point we know that we only have stringmap values
                       var map = stylesEntry;
-                      StringMapWrapper.forEach(map, function (value /** TODO #9100 */, prop /** TODO #9100 */) {
-                          collectedStyles.insertAtTime(prop, time, value);
-                      });
+                      Object.keys(map).forEach(function (prop) { collectedStyles.insertAtTime(prop, time, map[prop]); });
                   });
                   previousStyles = entry.styles;
                   return;
@@ -9952,7 +10129,7 @@
               var astDuration = innerAst.playTime;
               currentTime += astDuration;
               playTime += astDuration;
-              maxDuration = Math$2.max(astDuration, maxDuration);
+              maxDuration = Math.max(astDuration, maxDuration);
               steps.push(innerAst);
           });
           if (isPresent(previousStyles)) {
@@ -9986,9 +10163,7 @@
           ast = new AnimationStepAst(new AnimationStylesAst([]), keyframes, timings.duration, timings.delay, timings.easing);
           playTime = timings.duration + timings.delay;
           currentTime += playTime;
-          keyframes.forEach(function (keyframe /** TODO #9100 */) { return keyframe.styles.styles.forEach(function (entry /** TODO #9100 */) { return StringMapWrapper.forEach(entry, function (value /** TODO #9100 */, prop /** TODO #9100 */) {
-              return collectedStyles.insertAtTime(prop, currentTime, value);
-          }); }); });
+          keyframes.forEach(function (keyframe /** TODO #9100 */) { return keyframe.styles.styles.forEach(function (entry /** TODO #9100 */) { return Object.keys(entry).forEach(function (prop) { collectedStyles.insertAtTime(prop, currentTime, entry[prop]); }); }); });
       }
       else {
           // if the code reaches this stage then an error
@@ -10019,7 +10194,7 @@
       var duration;
       var delay = 0;
       var easing = null;
-      if (isString(exp)) {
+      if (typeof exp === 'string') {
           var matches = exp.match(regex);
           if (matches === null) {
               errors.push(new AnimationParseError("The provided timing value \"" + exp + "\" is invalid."));
@@ -10030,7 +10205,7 @@
           if (durationUnit == 's') {
               durationMatch *= _ONE_SECOND;
           }
-          duration = Math$2.floor(durationMatch);
+          duration = Math.floor(durationMatch);
           var delayMatch = matches[3];
           var delayUnit = matches[4];
           if (isPresent(delayMatch)) {
@@ -10038,7 +10213,7 @@
               if (isPresent(delayUnit) && delayUnit == 's') {
                   delayVal *= _ONE_SECOND;
               }
-              delay = Math$2.floor(delayVal);
+              delay = Math.floor(delayVal);
           }
           var easingVal = matches[5];
           if (!isBlank(easingVal)) {
@@ -10054,7 +10229,8 @@
       var values = {};
       var endTime = startTime + duration;
       endKeyframe.styles.styles.forEach(function (styleData) {
-          StringMapWrapper.forEach(styleData, function (val /** TODO #9100 */, prop /** TODO #9100 */) {
+          Object.keys(styleData).forEach(function (prop) {
+              var val = styleData[prop];
               if (prop == 'offset')
                   return;
               var resultIndex = collectedStyles.indexOfAtOrBeforeTime(prop, startTime);
@@ -10079,398 +10255,147 @@
       return new AnimationKeyframeAst(_INITIAL_KEYFRAME, new AnimationStylesAst([values]));
   }
 
-  var animationCompilationCache = new Map();
-  var CompiledAnimationTriggerResult = (function () {
-      function CompiledAnimationTriggerResult(name, statesMapStatement, statesVariableName, fnStatement, fnVariable) {
-          this.name = name;
-          this.statesMapStatement = statesMapStatement;
-          this.statesVariableName = statesVariableName;
-          this.fnStatement = fnStatement;
-          this.fnVariable = fnVariable;
+  var DirectiveWrapperCompileResult = (function () {
+      function DirectiveWrapperCompileResult(statements, dirWrapperClassVar) {
+          this.statements = statements;
+          this.dirWrapperClassVar = dirWrapperClassVar;
       }
-      return CompiledAnimationTriggerResult;
+      return DirectiveWrapperCompileResult;
   }());
-  var CompiledComponentAnimationResult = (function () {
-      function CompiledComponentAnimationResult(outputs, triggers) {
-          this.outputs = outputs;
-          this.triggers = triggers;
+  var CONTEXT_FIELD_NAME = 'context';
+  var CHANGES_FIELD_NAME = 'changes';
+  var CHANGED_FIELD_NAME = 'changed';
+  var CURR_VALUE_VAR = variable('currValue');
+  var THROW_ON_CHANGE_VAR = variable('throwOnChange');
+  var FORCE_UPDATE_VAR = variable('forceUpdate');
+  var VIEW_VAR = variable('view');
+  var RENDER_EL_VAR = variable('el');
+  var RESET_CHANGES_STMT = THIS_EXPR.prop(CHANGES_FIELD_NAME).set(literalMap([])).toStmt();
+  /**
+   * We generate directive wrappers to prevent code bloat when a directive is used.
+   * A directive wrapper encapsulates
+   * the dirty checking for `@Input`, the handling of `@HostListener` / `@HostBinding`
+   * and calling the lifecyclehooks `ngOnInit`, `ngOnChanges`, `ngDoCheck`.
+   *
+   * So far, only `@Input` and the lifecycle hooks have been implemented.
+   */
+  var DirectiveWrapperCompiler = (function () {
+      function DirectiveWrapperCompiler(compilerConfig) {
+          this.compilerConfig = compilerConfig;
       }
-      return CompiledComponentAnimationResult;
-  }());
-  var AnimationCompiler = (function () {
-      function AnimationCompiler() {
-      }
-      AnimationCompiler.prototype.compileComponent = function (component, template) {
-          var compiledAnimations = [];
-          var groupedErrors = [];
-          var triggerLookup = {};
-          var componentName = component.type.name;
-          component.template.animations.forEach(function (entry) {
-              var result = parseAnimationEntry(entry);
-              var triggerName = entry.name;
-              if (result.errors.length > 0) {
-                  var errorMessage = "Unable to parse the animation sequence for \"" + triggerName + "\" due to the following errors:";
-                  result.errors.forEach(function (error) { errorMessage += '\n-- ' + error.msg; });
-                  groupedErrors.push(errorMessage);
-              }
-              if (triggerLookup[triggerName]) {
-                  groupedErrors.push("The animation trigger \"" + triggerName + "\" has already been registered on \"" + componentName + "\"");
-              }
-              else {
-                  var factoryName = componentName + "_" + entry.name;
-                  var visitor = new _AnimationBuilder(triggerName, factoryName);
-                  var compileResult = visitor.build(result.ast);
-                  compiledAnimations.push(compileResult);
-                  triggerLookup[entry.name] = compileResult;
-              }
-          });
-          var validatedProperties = _validateAnimationProperties(compiledAnimations, template);
-          validatedProperties.errors.forEach(function (error) { groupedErrors.push(error.msg); });
-          if (groupedErrors.length > 0) {
-              var errorMessageStr = "Animation parsing for " + component.type.name + " has failed due to the following errors:";
-              groupedErrors.forEach(function (error) { return errorMessageStr += "\n- " + error; });
-              throw new Error(errorMessageStr);
+      DirectiveWrapperCompiler.dirWrapperClassName = function (id) { return "Wrapper_" + id.name; };
+      DirectiveWrapperCompiler.prototype.compile = function (dirMeta) {
+          var dirDepParamNames = [];
+          for (var i = 0; i < dirMeta.type.diDeps.length; i++) {
+              dirDepParamNames.push("p" + i);
           }
-          animationCompilationCache.set(component, compiledAnimations);
-          return new CompiledComponentAnimationResult(validatedProperties.outputs, compiledAnimations);
-      };
-      return AnimationCompiler;
-  }());
-  var _ANIMATION_FACTORY_ELEMENT_VAR = variable('element');
-  var _ANIMATION_DEFAULT_STATE_VAR = variable('defaultStateStyles');
-  var _ANIMATION_FACTORY_VIEW_VAR = variable('view');
-  var _ANIMATION_FACTORY_RENDERER_VAR = _ANIMATION_FACTORY_VIEW_VAR.prop('renderer');
-  var _ANIMATION_CURRENT_STATE_VAR = variable('currentState');
-  var _ANIMATION_NEXT_STATE_VAR = variable('nextState');
-  var _ANIMATION_PLAYER_VAR = variable('player');
-  var _ANIMATION_TIME_VAR = variable('totalTime');
-  var _ANIMATION_START_STATE_STYLES_VAR = variable('startStateStyles');
-  var _ANIMATION_END_STATE_STYLES_VAR = variable('endStateStyles');
-  var _ANIMATION_COLLECTED_STYLES = variable('collectedStyles');
-  var EMPTY_MAP$1 = literalMap([]);
-  var _AnimationBuilder = (function () {
-      function _AnimationBuilder(animationName, factoryName) {
-          this.animationName = animationName;
-          this._fnVarName = factoryName + '_factory';
-          this._statesMapVarName = factoryName + '_states';
-          this._statesMapVar = variable(this._statesMapVarName);
-      }
-      _AnimationBuilder.prototype.visitAnimationStyles = function (ast, context) {
-          var stylesArr = [];
-          if (context.isExpectingFirstStyleStep) {
-              stylesArr.push(_ANIMATION_START_STATE_STYLES_VAR);
-              context.isExpectingFirstStyleStep = false;
+          var dirLifecycleHooks = dirMeta.type.lifecycleHooks;
+          var lifecycleHooks = {
+              genChanges: dirLifecycleHooks.indexOf(LifecycleHooks.OnChanges) !== -1 ||
+                  this.compilerConfig.logBindingUpdate,
+              ngOnChanges: dirLifecycleHooks.indexOf(LifecycleHooks.OnChanges) !== -1,
+              ngOnInit: dirLifecycleHooks.indexOf(LifecycleHooks.OnInit) !== -1,
+              ngDoCheck: dirLifecycleHooks.indexOf(LifecycleHooks.DoCheck) !== -1
+          };
+          var fields = [
+              new ClassField(CONTEXT_FIELD_NAME, importType(dirMeta.type)),
+              new ClassField(CHANGED_FIELD_NAME, BOOL_TYPE),
+          ];
+          var ctorStmts = [THIS_EXPR.prop(CHANGED_FIELD_NAME).set(literal(false)).toStmt()];
+          if (lifecycleHooks.genChanges) {
+              fields.push(new ClassField(CHANGES_FIELD_NAME, new MapType(DYNAMIC_TYPE)));
+              ctorStmts.push(RESET_CHANGES_STMT);
           }
-          ast.styles.forEach(function (entry) {
-              stylesArr.push(literalMap(StringMapWrapper.keys(entry).map(function (key) { return [key, literal(entry[key])]; })));
+          var methods = [];
+          Object.keys(dirMeta.inputs).forEach(function (inputFieldName, idx) {
+              var fieldName = "_" + inputFieldName;
+              // private is fine here as no child view will reference the cached value...
+              fields.push(new ClassField(fieldName, null, [StmtModifier.Private]));
+              ctorStmts.push(THIS_EXPR.prop(fieldName)
+                  .set(importExpr(resolveIdentifier(Identifiers.UNINITIALIZED)))
+                  .toStmt());
+              methods.push(checkInputMethod(inputFieldName, THIS_EXPR.prop(fieldName), lifecycleHooks));
           });
-          return importExpr(resolveIdentifier(Identifiers.AnimationStyles)).instantiate([
-              importExpr(resolveIdentifier(Identifiers.collectAndResolveStyles)).callFn([
-                  _ANIMATION_COLLECTED_STYLES, literalArr(stylesArr)
-              ])
-          ]);
-      };
-      _AnimationBuilder.prototype.visitAnimationKeyframe = function (ast, context) {
-          return importExpr(resolveIdentifier(Identifiers.AnimationKeyframe)).instantiate([
-              literal(ast.offset), ast.styles.visit(this, context)
-          ]);
-      };
-      _AnimationBuilder.prototype.visitAnimationStep = function (ast, context) {
-          var _this = this;
-          if (context.endStateAnimateStep === ast) {
-              return this._visitEndStateAnimation(ast, context);
-          }
-          var startingStylesExpr = ast.startingStyles.visit(this, context);
-          var keyframeExpressions = ast.keyframes.map(function (keyframeEntry) { return keyframeEntry.visit(_this, context); });
-          return this._callAnimateMethod(ast, startingStylesExpr, literalArr(keyframeExpressions), context);
-      };
-      /** @internal */
-      _AnimationBuilder.prototype._visitEndStateAnimation = function (ast, context) {
-          var _this = this;
-          var startingStylesExpr = ast.startingStyles.visit(this, context);
-          var keyframeExpressions = ast.keyframes.map(function (keyframe) { return keyframe.visit(_this, context); });
-          var keyframesExpr = importExpr(resolveIdentifier(Identifiers.balanceAnimationKeyframes)).callFn([
-              _ANIMATION_COLLECTED_STYLES, _ANIMATION_END_STATE_STYLES_VAR,
-              literalArr(keyframeExpressions)
-          ]);
-          return this._callAnimateMethod(ast, startingStylesExpr, keyframesExpr, context);
-      };
-      /** @internal */
-      _AnimationBuilder.prototype._callAnimateMethod = function (ast, startingStylesExpr, keyframesExpr, context) {
-          context.totalTransitionTime += ast.duration + ast.delay;
-          return _ANIMATION_FACTORY_RENDERER_VAR.callMethod('animate', [
-              _ANIMATION_FACTORY_ELEMENT_VAR, startingStylesExpr, keyframesExpr, literal(ast.duration),
-              literal(ast.delay), literal(ast.easing)
-          ]);
-      };
-      _AnimationBuilder.prototype.visitAnimationSequence = function (ast, context) {
-          var _this = this;
-          var playerExprs = ast.steps.map(function (step) { return step.visit(_this, context); });
-          return importExpr(resolveIdentifier(Identifiers.AnimationSequencePlayer)).instantiate([
-              literalArr(playerExprs)
-          ]);
-      };
-      _AnimationBuilder.prototype.visitAnimationGroup = function (ast, context) {
-          var _this = this;
-          var playerExprs = ast.steps.map(function (step) { return step.visit(_this, context); });
-          return importExpr(resolveIdentifier(Identifiers.AnimationGroupPlayer)).instantiate([
-              literalArr(playerExprs)
-          ]);
-      };
-      _AnimationBuilder.prototype.visitAnimationStateDeclaration = function (ast, context) {
-          var flatStyles = {};
-          _getStylesArray(ast).forEach(function (entry) {
-              StringMapWrapper.forEach(entry, function (value, key) { flatStyles[key] = value; });
-          });
-          context.stateMap.registerState(ast.stateName, flatStyles);
-      };
-      _AnimationBuilder.prototype.visitAnimationStateTransition = function (ast, context) {
-          var steps = ast.animation.steps;
-          var lastStep = steps[steps.length - 1];
-          if (_isEndStateAnimateStep(lastStep)) {
-              context.endStateAnimateStep = lastStep;
-          }
-          context.totalTransitionTime = 0;
-          context.isExpectingFirstStyleStep = true;
-          var stateChangePreconditions = [];
-          ast.stateChanges.forEach(function (stateChange) {
-              stateChangePreconditions.push(_compareToAnimationStateExpr(_ANIMATION_CURRENT_STATE_VAR, stateChange.fromState)
-                  .and(_compareToAnimationStateExpr(_ANIMATION_NEXT_STATE_VAR, stateChange.toState)));
-              if (stateChange.fromState != ANY_STATE) {
-                  context.stateMap.registerState(stateChange.fromState);
-              }
-              if (stateChange.toState != ANY_STATE) {
-                  context.stateMap.registerState(stateChange.toState);
-              }
-          });
-          var animationPlayerExpr = ast.animation.visit(this, context);
-          var reducedStateChangesPrecondition = stateChangePreconditions.reduce(function (a, b) { return a.or(b); });
-          var precondition = _ANIMATION_PLAYER_VAR.equals(NULL_EXPR).and(reducedStateChangesPrecondition);
-          var animationStmt = _ANIMATION_PLAYER_VAR.set(animationPlayerExpr).toStmt();
-          var totalTimeStmt = _ANIMATION_TIME_VAR.set(literal(context.totalTransitionTime)).toStmt();
-          return new IfStmt(precondition, [animationStmt, totalTimeStmt]);
-      };
-      _AnimationBuilder.prototype.visitAnimationEntry = function (ast, context) {
-          var _this = this;
-          // visit each of the declarations first to build the context state map
-          ast.stateDeclarations.forEach(function (def) { return def.visit(_this, context); });
-          // this should always be defined even if the user overrides it
-          context.stateMap.registerState(DEFAULT_STATE, {});
-          var statements = [];
-          statements.push(_ANIMATION_FACTORY_VIEW_VAR
-              .callMethod('cancelActiveAnimation', [
-              _ANIMATION_FACTORY_ELEMENT_VAR, literal(this.animationName),
-              _ANIMATION_NEXT_STATE_VAR.equals(literal(EMPTY_ANIMATION_STATE))
-          ])
+          methods.push(detectChangesInternalMethod(lifecycleHooks, this.compilerConfig.genDebugInfo));
+          ctorStmts.push(THIS_EXPR.prop(CONTEXT_FIELD_NAME)
+              .set(importExpr(dirMeta.type)
+              .instantiate(dirDepParamNames.map(function (paramName) { return variable(paramName); })))
               .toStmt());
-          statements.push(_ANIMATION_COLLECTED_STYLES.set(EMPTY_MAP$1).toDeclStmt());
-          statements.push(_ANIMATION_PLAYER_VAR.set(NULL_EXPR).toDeclStmt());
-          statements.push(_ANIMATION_TIME_VAR.set(literal(0)).toDeclStmt());
-          statements.push(_ANIMATION_DEFAULT_STATE_VAR.set(this._statesMapVar.key(literal(DEFAULT_STATE)))
-              .toDeclStmt());
-          statements.push(_ANIMATION_START_STATE_STYLES_VAR.set(this._statesMapVar.key(_ANIMATION_CURRENT_STATE_VAR))
-              .toDeclStmt());
-          statements.push(new IfStmt(_ANIMATION_START_STATE_STYLES_VAR.equals(NULL_EXPR), [_ANIMATION_START_STATE_STYLES_VAR.set(_ANIMATION_DEFAULT_STATE_VAR).toStmt()]));
-          statements.push(_ANIMATION_END_STATE_STYLES_VAR.set(this._statesMapVar.key(_ANIMATION_NEXT_STATE_VAR))
-              .toDeclStmt());
-          statements.push(new IfStmt(_ANIMATION_END_STATE_STYLES_VAR.equals(NULL_EXPR), [_ANIMATION_END_STATE_STYLES_VAR.set(_ANIMATION_DEFAULT_STATE_VAR).toStmt()]));
-          var RENDER_STYLES_FN = importExpr(resolveIdentifier(Identifiers.renderStyles));
-          // before we start any animation we want to clear out the starting
-          // styles from the element's style property (since they were placed
-          // there at the end of the last animation
-          statements.push(RENDER_STYLES_FN
-              .callFn([
-              _ANIMATION_FACTORY_ELEMENT_VAR, _ANIMATION_FACTORY_RENDERER_VAR,
-              importExpr(resolveIdentifier(Identifiers.clearStyles))
-                  .callFn([_ANIMATION_START_STATE_STYLES_VAR])
-          ])
-              .toStmt());
-          ast.stateTransitions.forEach(function (transAst) { return statements.push(transAst.visit(_this, context)); });
-          // this check ensures that the animation factory always returns a player
-          // so that the onDone callback can be used for tracking
-          statements.push(new IfStmt(_ANIMATION_PLAYER_VAR.equals(NULL_EXPR), [_ANIMATION_PLAYER_VAR
-                  .set(importExpr(resolveIdentifier(Identifiers.NoOpAnimationPlayer)).instantiate([]))
-                  .toStmt()]));
-          // once complete we want to apply the styles on the element
-          // since the destination state's values should persist once
-          // the animation sequence has completed.
-          statements.push(_ANIMATION_PLAYER_VAR
-              .callMethod('onDone', [fn([], [RENDER_STYLES_FN
-                      .callFn([
-                      _ANIMATION_FACTORY_ELEMENT_VAR, _ANIMATION_FACTORY_RENDERER_VAR,
-                      importExpr(resolveIdentifier(Identifiers.prepareFinalAnimationStyles))
-                          .callFn([
-                          _ANIMATION_START_STATE_STYLES_VAR, _ANIMATION_END_STATE_STYLES_VAR
-                      ])
-                  ])
-                      .toStmt()])])
-              .toStmt());
-          statements.push(_ANIMATION_FACTORY_VIEW_VAR
-              .callMethod('queueAnimation', [
-              _ANIMATION_FACTORY_ELEMENT_VAR, literal(this.animationName),
-              _ANIMATION_PLAYER_VAR, _ANIMATION_TIME_VAR,
-              _ANIMATION_CURRENT_STATE_VAR, _ANIMATION_NEXT_STATE_VAR
-          ])
-              .toStmt());
-          return fn([
-              new FnParam(_ANIMATION_FACTORY_VIEW_VAR.name, importType(resolveIdentifier(Identifiers.AppView), [DYNAMIC_TYPE])),
-              new FnParam(_ANIMATION_FACTORY_ELEMENT_VAR.name, DYNAMIC_TYPE),
-              new FnParam(_ANIMATION_CURRENT_STATE_VAR.name, DYNAMIC_TYPE),
-              new FnParam(_ANIMATION_NEXT_STATE_VAR.name, DYNAMIC_TYPE)
-          ], statements);
+          var ctor = new ClassMethod(null, dirDepParamNames.map(function (paramName) { return new FnParam(paramName, DYNAMIC_TYPE); }), ctorStmts);
+          var wrapperClassName = DirectiveWrapperCompiler.dirWrapperClassName(dirMeta.type);
+          var classStmt = new ClassStmt(wrapperClassName, null, fields, [], ctor, methods);
+          return new DirectiveWrapperCompileResult([classStmt], wrapperClassName);
       };
-      _AnimationBuilder.prototype.build = function (ast) {
-          var context = new _AnimationBuilderContext();
-          var fnStatement = ast.visit(this, context).toDeclStmt(this._fnVarName);
-          var fnVariable = variable(this._fnVarName);
-          var lookupMap = [];
-          StringMapWrapper.forEach(context.stateMap.states, function (value, stateName) {
-              var variableValue = EMPTY_MAP$1;
-              if (isPresent(value)) {
-                  var styleMap_1 = [];
-                  StringMapWrapper.forEach(value, function (value, key) {
-                      styleMap_1.push([key, literal(value)]);
-                  });
-                  variableValue = literalMap(styleMap_1);
-              }
-              lookupMap.push([stateName, variableValue]);
-          });
-          var compiledStatesMapExpr = this._statesMapVar.set(literalMap(lookupMap)).toDeclStmt();
-          return new CompiledAnimationTriggerResult(this.animationName, compiledStatesMapExpr, this._statesMapVarName, fnStatement, fnVariable);
-      };
-      return _AnimationBuilder;
+      DirectiveWrapperCompiler.decorators = [
+          { type: _angular_core.Injectable },
+      ];
+      /** @nocollapse */
+      DirectiveWrapperCompiler.ctorParameters = [
+          { type: CompilerConfig, },
+      ];
+      return DirectiveWrapperCompiler;
   }());
-  var _AnimationBuilderContext = (function () {
-      function _AnimationBuilderContext() {
-          this.stateMap = new _AnimationBuilderStateMap();
-          this.endStateAnimateStep = null;
-          this.isExpectingFirstStyleStep = false;
-          this.totalTransitionTime = 0;
-      }
-      return _AnimationBuilderContext;
-  }());
-  var _AnimationBuilderStateMap = (function () {
-      function _AnimationBuilderStateMap() {
-          this._states = {};
-      }
-      Object.defineProperty(_AnimationBuilderStateMap.prototype, "states", {
-          get: function () { return this._states; },
-          enumerable: true,
-          configurable: true
-      });
-      _AnimationBuilderStateMap.prototype.registerState = function (name, value) {
-          if (value === void 0) { value = null; }
-          var existingEntry = this._states[name];
-          if (isBlank(existingEntry)) {
-              this._states[name] = value;
+  function detectChangesInternalMethod(lifecycleHooks, logBindingUpdate) {
+      var changedVar = variable('changed');
+      var stmts = [
+          changedVar.set(THIS_EXPR.prop(CHANGED_FIELD_NAME)).toDeclStmt(),
+          THIS_EXPR.prop(CHANGED_FIELD_NAME).set(literal(false)).toStmt(),
+      ];
+      var lifecycleStmts = [];
+      if (lifecycleHooks.genChanges) {
+          var onChangesStmts = [];
+          if (lifecycleHooks.ngOnChanges) {
+              onChangesStmts.push(THIS_EXPR.prop(CONTEXT_FIELD_NAME)
+                  .callMethod('ngOnChanges', [THIS_EXPR.prop(CHANGES_FIELD_NAME)])
+                  .toStmt());
           }
-      };
-      return _AnimationBuilderStateMap;
-  }());
-  function _compareToAnimationStateExpr(value, animationState) {
-      var emptyStateLiteral = literal(EMPTY_ANIMATION_STATE);
-      switch (animationState) {
-          case EMPTY_ANIMATION_STATE:
-              return value.equals(emptyStateLiteral);
-          case ANY_STATE:
-              return literal(true);
-          default:
-              return value.equals(literal(animationState));
-      }
-  }
-  function _isEndStateAnimateStep(step) {
-      // the final animation step is characterized by having only TWO
-      // keyframe values and it must have zero styles for both keyframes
-      if (step instanceof AnimationStepAst && step.duration > 0 && step.keyframes.length == 2) {
-          var styles1 = _getStylesArray(step.keyframes[0])[0];
-          var styles2 = _getStylesArray(step.keyframes[1])[0];
-          return StringMapWrapper.isEmpty(styles1) && StringMapWrapper.isEmpty(styles2);
-      }
-      return false;
-  }
-  function _getStylesArray(obj) {
-      return obj.styles.styles;
-  }
-  function _validateAnimationProperties(compiledAnimations, template) {
-      var visitor = new _AnimationTemplatePropertyVisitor(compiledAnimations);
-      templateVisitAll(visitor, template);
-      return new AnimationPropertyValidationOutput(visitor.outputs, visitor.errors);
-  }
-  var AnimationPropertyValidationOutput = (function () {
-      function AnimationPropertyValidationOutput(outputs, errors) {
-          this.outputs = outputs;
-          this.errors = errors;
-      }
-      return AnimationPropertyValidationOutput;
-  }());
-  var _AnimationTemplatePropertyVisitor = (function () {
-      function _AnimationTemplatePropertyVisitor(animations) {
-          this.errors = [];
-          this.outputs = [];
-          this._animationRegistry = this._buildCompileAnimationLookup(animations);
-      }
-      _AnimationTemplatePropertyVisitor.prototype._buildCompileAnimationLookup = function (animations) {
-          var map = {};
-          animations.forEach(function (entry) { map[entry.name] = true; });
-          return map;
-      };
-      _AnimationTemplatePropertyVisitor.prototype._validateAnimationInputOutputPairs = function (inputAsts, outputAsts, animationRegistry, isHostLevel) {
-          var _this = this;
-          var detectedAnimationInputs = {};
-          inputAsts.forEach(function (input) {
-              if (input.type == exports.PropertyBindingType.Animation) {
-                  var triggerName = input.name;
-                  if (isPresent(animationRegistry[triggerName])) {
-                      detectedAnimationInputs[triggerName] = true;
-                  }
-                  else {
-                      _this.errors.push(new AnimationParseError("Couldn't find an animation entry for " + triggerName));
-                  }
-              }
-          });
-          outputAsts.forEach(function (output) {
-              if (output.name[0] == '@') {
-                  var normalizedOutputData = parseAnimationOutputName(output.name.substr(1), _this.errors);
-                  var triggerName = normalizedOutputData.name;
-                  var triggerEventPhase = normalizedOutputData.phase;
-                  if (!animationRegistry[triggerName]) {
-                      _this.errors.push(new AnimationParseError("Couldn't find the corresponding " + (isHostLevel ? 'host-level ' : '') + "animation trigger definition for (@" + triggerName + ")"));
-                  }
-                  else if (!detectedAnimationInputs[triggerName]) {
-                      _this.errors.push(new AnimationParseError("Unable to listen on (@" + triggerName + "." + triggerEventPhase + ") because the animation trigger [@" + triggerName + "] isn't being used on the same element"));
-                  }
-                  else {
-                      _this.outputs.push(normalizedOutputData);
-                  }
-              }
-          });
-      };
-      _AnimationTemplatePropertyVisitor.prototype.visitElement = function (ast, ctx) {
-          this._validateAnimationInputOutputPairs(ast.inputs, ast.outputs, this._animationRegistry, false);
-          var componentOnElement = ast.directives.find(function (directive) { return directive.directive.isComponent; });
-          if (componentOnElement) {
-              var cachedComponentAnimations = animationCompilationCache.get(componentOnElement.directive);
-              if (cachedComponentAnimations) {
-                  this._validateAnimationInputOutputPairs(componentOnElement.hostProperties, componentOnElement.hostEvents, this._buildCompileAnimationLookup(cachedComponentAnimations), true);
-              }
+          if (logBindingUpdate) {
+              onChangesStmts.push(importExpr(resolveIdentifier(Identifiers.setBindingDebugInfoForChanges))
+                  .callFn([VIEW_VAR.prop('renderer'), RENDER_EL_VAR, THIS_EXPR.prop(CHANGES_FIELD_NAME)])
+                  .toStmt());
           }
-          templateVisitAll(this, ast.children);
-      };
-      _AnimationTemplatePropertyVisitor.prototype.visitEmbeddedTemplate = function (ast, ctx) {
-          templateVisitAll(this, ast.children);
-      };
-      _AnimationTemplatePropertyVisitor.prototype.visitEvent = function (ast, ctx) { };
-      _AnimationTemplatePropertyVisitor.prototype.visitBoundText = function (ast, ctx) { };
-      _AnimationTemplatePropertyVisitor.prototype.visitText = function (ast, ctx) { };
-      _AnimationTemplatePropertyVisitor.prototype.visitNgContent = function (ast, ctx) { };
-      _AnimationTemplatePropertyVisitor.prototype.visitAttr = function (ast, ctx) { };
-      _AnimationTemplatePropertyVisitor.prototype.visitDirective = function (ast, ctx) { };
-      _AnimationTemplatePropertyVisitor.prototype.visitReference = function (ast, ctx) { };
-      _AnimationTemplatePropertyVisitor.prototype.visitVariable = function (ast, ctx) { };
-      _AnimationTemplatePropertyVisitor.prototype.visitDirectiveProperty = function (ast, ctx) { };
-      _AnimationTemplatePropertyVisitor.prototype.visitElementProperty = function (ast, ctx) { };
-      return _AnimationTemplatePropertyVisitor;
-  }());
+          onChangesStmts.push(RESET_CHANGES_STMT);
+          lifecycleStmts.push(new IfStmt(changedVar, onChangesStmts));
+      }
+      if (lifecycleHooks.ngOnInit) {
+          lifecycleStmts.push(new IfStmt(VIEW_VAR.prop('numberOfChecks').identical(new LiteralExpr(0)), [THIS_EXPR.prop(CONTEXT_FIELD_NAME).callMethod('ngOnInit', []).toStmt()]));
+      }
+      if (lifecycleHooks.ngDoCheck) {
+          lifecycleStmts.push(THIS_EXPR.prop(CONTEXT_FIELD_NAME).callMethod('ngDoCheck', []).toStmt());
+      }
+      if (lifecycleStmts.length > 0) {
+          stmts.push(new IfStmt(not(THROW_ON_CHANGE_VAR), lifecycleStmts));
+      }
+      stmts.push(new ReturnStatement(changedVar));
+      return new ClassMethod('detectChangesInternal', [
+          new FnParam(VIEW_VAR.name, importType(resolveIdentifier(Identifiers.AppView), [DYNAMIC_TYPE])),
+          new FnParam(RENDER_EL_VAR.name, DYNAMIC_TYPE),
+          new FnParam(THROW_ON_CHANGE_VAR.name, BOOL_TYPE),
+      ], stmts, BOOL_TYPE);
+  }
+  function checkInputMethod(input, fieldExpr, lifecycleHooks) {
+      var onChangeStatements = [
+          THIS_EXPR.prop(CHANGED_FIELD_NAME).set(literal(true)).toStmt(),
+          THIS_EXPR.prop(CONTEXT_FIELD_NAME).prop(input).set(CURR_VALUE_VAR).toStmt(),
+      ];
+      if (lifecycleHooks.genChanges) {
+          onChangeStatements.push(THIS_EXPR.prop(CHANGES_FIELD_NAME)
+              .key(literal(input))
+              .set(importExpr(resolveIdentifier(Identifiers.SimpleChange))
+              .instantiate([fieldExpr, CURR_VALUE_VAR]))
+              .toStmt());
+      }
+      onChangeStatements.push(fieldExpr.set(CURR_VALUE_VAR).toStmt());
+      var methodBody = [
+          new IfStmt(FORCE_UPDATE_VAR.or(importExpr(resolveIdentifier(Identifiers.checkBinding))
+              .callFn([THROW_ON_CHANGE_VAR, fieldExpr, CURR_VALUE_VAR])), onChangeStatements),
+      ];
+      return new ClassMethod("check_" + input, [
+          new FnParam(CURR_VALUE_VAR.name, DYNAMIC_TYPE),
+          new FnParam(THROW_ON_CHANGE_VAR.name, BOOL_TYPE),
+          new FnParam(FORCE_UPDATE_VAR.name, BOOL_TYPE),
+      ], methodBody);
+  }
 
   function convertValueToOutputAst(value, type) {
       if (type === void 0) { type = null; }
@@ -10486,9 +10411,7 @@
       _ValueOutputAstTransformer.prototype.visitStringMap = function (map, type) {
           var _this = this;
           var entries = [];
-          StringMapWrapper.forEach(map, function (value, key) {
-              entries.push([key, visitValue(value, _this, null)]);
-          });
+          Object.keys(map).forEach(function (key) { entries.push([key, visitValue(map[key], _this, null)]); });
           return literalMap(entries, type);
       };
       _ValueOutputAstTransformer.prototype.visitPrimitive = function (value, type) { return literal(value, type); };
@@ -10547,7 +10470,7 @@
       };
       CompileMethod.prototype.resetDebugInfoExpr = function (nodeIndex, templateAst) {
           var res = this._updateDebugContext(new _DebugState(nodeIndex, templateAst));
-          return isPresent(res) ? res : NULL_EXPR;
+          return res || NULL_EXPR;
       };
       CompileMethod.prototype.resetDebugInfo = function (nodeIndex, templateAst) {
           this._newState = new _DebugState(nodeIndex, templateAst);
@@ -10565,6 +10488,18 @@
       return CompileMethod;
   }());
 
+  /**
+   * @license
+   * Copyright Google Inc. All Rights Reserved.
+   *
+   * Use of this source code is governed by an MIT-style license that can be
+   * found in the LICENSE file at https://angular.io/license
+   */
+  var __extends$15 = (this && this.__extends) || function (d, b) {
+      for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+      function __() { this.constructor = d; }
+      d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+  };
   function getPropertyInView(property, callingView, definedView) {
       if (callingView === definedView) {
           return property;
@@ -10579,17 +10514,34 @@
           if (currView !== definedView) {
               throw new Error("Internal error: Could not calculate a property in a parent view: " + property);
           }
-          if (property instanceof ReadPropExpr) {
-              var readPropExpr_1 = property;
-              // Note: Don't cast for members of the AppView base class...
-              if (definedView.fields.some(function (field) { return field.name == readPropExpr_1.name; }) ||
-                  definedView.getters.some(function (field) { return field.name == readPropExpr_1.name; })) {
-                  viewProp = viewProp.cast(definedView.classType);
-              }
-          }
-          return replaceVarInExpression(THIS_EXPR.name, viewProp, property);
+          return property.visitExpression(new _ReplaceViewTransformer(viewProp, definedView), null);
       }
   }
+  var _ReplaceViewTransformer = (function (_super) {
+      __extends$15(_ReplaceViewTransformer, _super);
+      function _ReplaceViewTransformer(_viewExpr, _view) {
+          _super.call(this);
+          this._viewExpr = _viewExpr;
+          this._view = _view;
+      }
+      _ReplaceViewTransformer.prototype._isThis = function (expr) {
+          return expr instanceof ReadVarExpr && expr.builtin === BuiltinVar.This;
+      };
+      _ReplaceViewTransformer.prototype.visitReadVarExpr = function (ast, context) {
+          return this._isThis(ast) ? this._viewExpr : ast;
+      };
+      _ReplaceViewTransformer.prototype.visitReadPropExpr = function (ast, context) {
+          if (this._isThis(ast.receiver)) {
+              // Note: Don't cast for members of the AppView base class...
+              if (this._view.fields.some(function (field) { return field.name == ast.name; }) ||
+                  this._view.getters.some(function (field) { return field.name == ast.name; })) {
+                  return this._viewExpr.cast(this._view.classType).prop(ast.name);
+              }
+          }
+          return _super.prototype.visitReadPropExpr.call(this, ast, context);
+      };
+      return _ReplaceViewTransformer;
+  }(ExpressionTransformer));
   function injectFromViewParentInjector(token, optional) {
       var args = [createDiTokenExpression(token)];
       if (optional) {
@@ -10626,7 +10578,7 @@
   function createPureProxy(fn, argCount, pureProxyProp, view) {
       view.fields.push(new ClassField(pureProxyProp.name, null));
       var pureProxyId = argCount < Identifiers.pureProxies.length ? Identifiers.pureProxies[argCount] : null;
-      if (isBlank(pureProxyId)) {
+      if (!pureProxyId) {
           throw new Error("Unsupported number of argument for pure functions: " + argCount);
       }
       view.createMethod.addStmt(THIS_EXPR.prop(pureProxyProp.name)
@@ -10678,7 +10630,7 @@
       CompileQuery.prototype._isStatic = function () {
           return !this._values.values.some(function (value) { return value instanceof ViewQueryValues; });
       };
-      CompileQuery.prototype.afterChildren = function (targetStaticMethod /** TODO #9100 */, targetDynamicMethod) {
+      CompileQuery.prototype.afterChildren = function (targetStaticMethod, targetDynamicMethod) {
           var values = createQueryValues(this._values);
           var updateStmts = [this.queryList.callMethod('reset', [literalArr(values)]).toStmt()];
           if (isPresent(this.ownerDirectiveExpression)) {
@@ -10712,9 +10664,7 @@
       }));
   }
   function mapNestedViews(declarationAppElement, view, expressions) {
-      var adjustedExpressions = expressions.map(function (expr) {
-          return replaceVarInExpression(THIS_EXPR.name, variable('nestedView'), expr);
-      });
+      var adjustedExpressions = expressions.map(function (expr) { return replaceVarInExpression(THIS_EXPR.name, variable('nestedView'), expr); });
       return declarationAppElement.callMethod('mapNestedViews', [
           variable(view.className),
           fn([new FnParam('nestedView', view.classType)], [new ReturnStatement(literalArr(adjustedExpressions))], DYNAMIC_TYPE)
@@ -10732,7 +10682,7 @@
   function addQueryToTokenMap(map, query) {
       query.meta.selectors.forEach(function (selector) {
           var entry = map.get(selector.reference);
-          if (isBlank(entry)) {
+          if (!entry) {
               entry = [];
               map.set(selector.reference, entry);
           }
@@ -10850,7 +10800,36 @@
    * Use of this source code is governed by an MIT-style license that can be
    * found in the LICENSE file at https://angular.io/license
    */
-  var __extends$13 = (this && this.__extends) || function (d, b) {
+  var ViewFactoryDependency = (function () {
+      function ViewFactoryDependency(comp, placeholder) {
+          this.comp = comp;
+          this.placeholder = placeholder;
+      }
+      return ViewFactoryDependency;
+  }());
+  var ComponentFactoryDependency = (function () {
+      function ComponentFactoryDependency(comp, placeholder) {
+          this.comp = comp;
+          this.placeholder = placeholder;
+      }
+      return ComponentFactoryDependency;
+  }());
+  var DirectiveWrapperDependency = (function () {
+      function DirectiveWrapperDependency(dir, placeholder) {
+          this.dir = dir;
+          this.placeholder = placeholder;
+      }
+      return DirectiveWrapperDependency;
+  }());
+
+  /**
+   * @license
+   * Copyright Google Inc. All Rights Reserved.
+   *
+   * Use of this source code is governed by an MIT-style license that can be
+   * found in the LICENSE file at https://angular.io/license
+   */
+  var __extends$14 = (this && this.__extends) || function (d, b) {
       for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
       function __() { this.constructor = d; }
       d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -10863,13 +10842,13 @@
           this.renderNode = renderNode;
           this.sourceAst = sourceAst;
       }
-      CompileNode.prototype.isNull = function () { return isBlank(this.renderNode); };
+      CompileNode.prototype.isNull = function () { return !this.renderNode; };
       CompileNode.prototype.isRootElement = function () { return this.view != this.parent.view; };
       return CompileNode;
   }());
   var CompileElement = (function (_super) {
-      __extends$13(CompileElement, _super);
-      function CompileElement(parent, view, nodeIndex, renderNode, sourceAst, component, _directives, _resolvedProvidersArray, hasViewContainer, hasEmbeddedView, references) {
+      __extends$14(CompileElement, _super);
+      function CompileElement(parent, view, nodeIndex, renderNode, sourceAst, component, _directives, _resolvedProvidersArray, hasViewContainer, hasEmbeddedView, references, _targetDependencies) {
           var _this = this;
           _super.call(this, parent, view, nodeIndex, renderNode, sourceAst);
           this.component = component;
@@ -10877,8 +10856,10 @@
           this._resolvedProvidersArray = _resolvedProvidersArray;
           this.hasViewContainer = hasViewContainer;
           this.hasEmbeddedView = hasEmbeddedView;
+          this._targetDependencies = _targetDependencies;
           this._compViewExpr = null;
           this.instances = new Map();
+          this.directiveWrapperInstance = new Map();
           this._queryCount = 0;
           this._queries = new Map();
           this._componentConstructorViewQueryLists = [];
@@ -10894,9 +10875,12 @@
           if (this.hasViewContainer || this.hasEmbeddedView || isPresent(this.component)) {
               this._createAppElement();
           }
+          if (this.component) {
+              this._createComponentFactoryResolver();
+          }
       }
       CompileElement.createNull = function () {
-          return new CompileElement(null, null, null, null, null, null, [], [], false, false, []);
+          return new CompileElement(null, null, null, null, null, null, [], [], false, false, [], []);
       };
       CompileElement.prototype._createAppElement = function () {
           var fieldName = "_appEl_" + this.nodeIndex;
@@ -10912,7 +10896,13 @@
           this.appElement = THIS_EXPR.prop(fieldName);
           this.instances.set(resolveIdentifierToken(Identifiers.AppElement).reference, this.appElement);
       };
-      CompileElement.prototype.createComponentFactoryResolver = function (entryComponents) {
+      CompileElement.prototype._createComponentFactoryResolver = function () {
+          var _this = this;
+          var entryComponents = this.component.entryComponents.map(function (entryComponent) {
+              var id = new CompileIdentifierMetadata({ name: entryComponent.name });
+              _this._targetDependencies.push(new ComponentFactoryDependency(entryComponent, id));
+              return id;
+          });
           if (!entryComponents || entryComponents.length === 0) {
               return;
           }
@@ -10961,20 +10951,30 @@
           // create all the provider instances, some in the view constructor,
           // some as getters. We rely on the fact that they are already sorted topologically.
           MapWrapper.values(this._resolvedProviders).forEach(function (resolvedProvider) {
+              var isDirectiveWrapper = resolvedProvider.providerType === exports.ProviderAstType.Component ||
+                  resolvedProvider.providerType === exports.ProviderAstType.Directive;
               var providerValueExpressions = resolvedProvider.providers.map(function (provider) {
                   if (isPresent(provider.useExisting)) {
                       return _this._getDependency(resolvedProvider.providerType, new CompileDiDependencyMetadata({ token: provider.useExisting }));
                   }
                   else if (isPresent(provider.useFactory)) {
-                      var deps = isPresent(provider.deps) ? provider.deps : provider.useFactory.diDeps;
+                      var deps = provider.deps || provider.useFactory.diDeps;
                       var depsExpr = deps.map(function (dep) { return _this._getDependency(resolvedProvider.providerType, dep); });
                       return importExpr(provider.useFactory).callFn(depsExpr);
                   }
                   else if (isPresent(provider.useClass)) {
-                      var deps = isPresent(provider.deps) ? provider.deps : provider.useClass.diDeps;
+                      var deps = provider.deps || provider.useClass.diDeps;
                       var depsExpr = deps.map(function (dep) { return _this._getDependency(resolvedProvider.providerType, dep); });
-                      return importExpr(provider.useClass)
-                          .instantiate(depsExpr, importType(provider.useClass));
+                      if (isDirectiveWrapper) {
+                          var directiveWrapperIdentifier = new CompileIdentifierMetadata({ name: DirectiveWrapperCompiler.dirWrapperClassName(provider.useClass) });
+                          _this._targetDependencies.push(new DirectiveWrapperDependency(provider.useClass, directiveWrapperIdentifier));
+                          return importExpr(directiveWrapperIdentifier)
+                              .instantiate(depsExpr, importType(directiveWrapperIdentifier));
+                      }
+                      else {
+                          return importExpr(provider.useClass)
+                              .instantiate(depsExpr, importType(provider.useClass));
+                      }
                   }
                   else {
                       return convertValueToOutputAst(provider.useValue);
@@ -10982,7 +10982,13 @@
               });
               var propName = "_" + resolvedProvider.token.name + "_" + _this.nodeIndex + "_" + _this.instances.size;
               var instance = createProviderProperty(propName, resolvedProvider, providerValueExpressions, resolvedProvider.multiProvider, resolvedProvider.eager, _this);
-              _this.instances.set(resolvedProvider.token.reference, instance);
+              if (isDirectiveWrapper) {
+                  _this.directiveWrapperInstance.set(resolvedProvider.token.reference, instance);
+                  _this.instances.set(resolvedProvider.token.reference, instance.prop('context'));
+              }
+              else {
+                  _this.instances.set(resolvedProvider.token.reference, instance);
+              }
           });
           for (var i = 0; i < this._directives.length; i++) {
               var directive = this._directives[i];
@@ -10994,7 +11000,7 @@
               var queriesForProvider = _this._getQueriesFor(resolvedProvider.token);
               ListWrapper.addAll(queriesWithReads, queriesForProvider.map(function (query) { return new _QueryWithRead(query, resolvedProvider.token); }));
           });
-          StringMapWrapper.forEach(this.referenceTokens, function (_, varName) {
+          Object.keys(this.referenceTokens).forEach(function (varName) {
               var token = _this.referenceTokens[varName];
               var varValue;
               if (isPresent(token)) {
@@ -11097,17 +11103,17 @@
       CompileElement.prototype._getLocalDependency = function (requestingProviderType, dep) {
           var result = null;
           // constructor content query
-          if (isBlank(result) && isPresent(dep.query)) {
+          if (!result && isPresent(dep.query)) {
               result = this._addQuery(dep.query, null).queryList;
           }
           // constructor view query
-          if (isBlank(result) && isPresent(dep.viewQuery)) {
+          if (!result && isPresent(dep.viewQuery)) {
               result = createQueryList(dep.viewQuery, null, "_viewQuery_" + dep.viewQuery.selectors[0].name + "_" + this.nodeIndex + "_" + this._componentConstructorViewQueryLists.length, this.view);
               this._componentConstructorViewQueryLists.push(result);
           }
           if (isPresent(dep.token)) {
               // access builtins with special visibility
-              if (isBlank(result)) {
+              if (!result) {
                   if (dep.token.reference ===
                       resolveIdentifierToken(Identifiers.ChangeDetectorRef).reference) {
                       if (requestingProviderType === exports.ProviderAstType.Component) {
@@ -11119,7 +11125,7 @@
                   }
               }
               // access regular providers on the element
-              if (isBlank(result)) {
+              if (!result) {
                   var resolvedProvider = this._resolvedProviders.get(dep.token.reference);
                   // don't allow directives / public services to access private services.
                   // only components and private services can access private services.
@@ -11139,18 +11145,18 @@
           if (dep.isValue) {
               result = literal(dep.value);
           }
-          if (isBlank(result) && !dep.isSkipSelf) {
+          if (!result && !dep.isSkipSelf) {
               result = this._getLocalDependency(requestingProviderType, dep);
           }
           // check parent elements
-          while (isBlank(result) && !currElement.parent.isNull()) {
+          while (!result && !currElement.parent.isNull()) {
               currElement = currElement.parent;
               result = currElement._getLocalDependency(exports.ProviderAstType.PublicService, new CompileDiDependencyMetadata({ token: dep.token }));
           }
-          if (isBlank(result)) {
+          if (!result) {
               result = injectFromViewParentInjector(dep.token, dep.isOptional);
           }
-          if (isBlank(result)) {
+          if (!result) {
               result = NULL_EXPR;
           }
           return getPropertyInView(result, this.view, currElement.view);
@@ -11181,7 +11187,7 @@
           resolvedProviderValueExpr = providerValueExpressions[0];
           type = providerValueExpressions[0].type;
       }
-      if (isBlank(type)) {
+      if (!type) {
           type = DYNAMIC_TYPE;
       }
       if (isEager) {
@@ -11203,7 +11209,7 @@
   var _QueryWithRead = (function () {
       function _QueryWithRead(query, match) {
           this.query = query;
-          this.read = isPresent(query.meta.read) ? query.meta.read : match;
+          this.read = query.meta.read || match;
       }
       return _QueryWithRead;
   }());
@@ -11235,7 +11241,7 @@
           if (meta.pure) {
               // pure pipes live on the component view
               pipe = compView.purePipes.get(name);
-              if (isBlank(pipe)) {
+              if (!pipe) {
                   pipe = new CompilePipe(compView, meta);
                   compView.purePipes.set(name, pipe);
                   compView.pipes.push(pipe);
@@ -11279,7 +11285,7 @@
               break;
           }
       }
-      if (isBlank(pipeMeta)) {
+      if (!pipeMeta) {
           throw new Error("Illegal state: Could not find pipe " + name + " although the parser should have detected this error!");
       }
       return pipeMeta;
@@ -11371,7 +11377,7 @@
           }
           var currView = this;
           var result = currView.locals.get(name);
-          while (isBlank(result) && isPresent(currView.declarationElement.view)) {
+          while (!result && isPresent(currView.declarationElement.view)) {
               currView = currView.declarationElement.view;
               result = currView.locals.get(name);
           }
@@ -11845,7 +11851,7 @@
       return _AstToIrVisitor;
   }());
   function flattenStatements(arg, output) {
-      if (isArray(arg)) {
+      if (Array.isArray(arg)) {
           arg.forEach(function (entry) { return flattenStatements(entry, output); });
       }
       else {
@@ -11853,29 +11859,24 @@
       }
   }
 
-  var CompileElementAnimationOutput = (function () {
-      function CompileElementAnimationOutput(listener, output) {
-          this.listener = listener;
-          this.output = output;
-      }
-      return CompileElementAnimationOutput;
-  }());
   var CompileEventListener = (function () {
-      function CompileEventListener(compileElement, eventTarget, eventName, listenerIndex) {
+      function CompileEventListener(compileElement, eventTarget, eventName, eventPhase, listenerIndex) {
           this.compileElement = compileElement;
           this.eventTarget = eventTarget;
           this.eventName = eventName;
+          this.eventPhase = eventPhase;
           this._hasComponentHostListener = false;
           this._actionResultExprs = [];
           this._method = new CompileMethod(compileElement.view);
           this._methodName =
-              "_handle_" + santitizeEventName(eventName) + "_" + compileElement.nodeIndex + "_" + listenerIndex;
+              "_handle_" + sanitizeEventName(eventName) + "_" + compileElement.nodeIndex + "_" + listenerIndex;
           this._eventParam = new FnParam(EventHandlerVars.event.name, importType(this.compileElement.view.genConfig.renderTypes.renderEvent));
       }
-      CompileEventListener.getOrCreate = function (compileElement, eventTarget, eventName, targetEventListeners) {
-          var listener = targetEventListeners.find(function (listener) { return listener.eventTarget == eventTarget && listener.eventName == eventName; });
-          if (isBlank(listener)) {
-              listener = new CompileEventListener(compileElement, eventTarget, eventName, targetEventListeners.length);
+      CompileEventListener.getOrCreate = function (compileElement, eventTarget, eventName, eventPhase, targetEventListeners) {
+          var listener = targetEventListeners.find(function (listener) { return listener.eventTarget == eventTarget && listener.eventName == eventName &&
+              listener.eventPhase == eventPhase; });
+          if (!listener) {
+              listener = new CompileEventListener(compileElement, eventTarget, eventName, eventPhase, targetEventListeners.length);
               targetEventListeners.push(listener);
           }
           return listener;
@@ -11885,13 +11886,17 @@
           enumerable: true,
           configurable: true
       });
+      Object.defineProperty(CompileEventListener.prototype, "isAnimation", {
+          get: function () { return !!this.eventPhase; },
+          enumerable: true,
+          configurable: true
+      });
       CompileEventListener.prototype.addAction = function (hostEvent, directive, directiveInstance) {
           if (isPresent(directive) && directive.isComponent) {
               this._hasComponentHostListener = true;
           }
           this._method.resetDebugInfo(this.compileElement.nodeIndex, hostEvent);
-          var context = isPresent(directiveInstance) ? directiveInstance :
-              this.compileElement.view.componentContext;
+          var context = directiveInstance || this.compileElement.view.componentContext;
           var actionStmts = convertCdStatementToIr(this.compileElement.view, context, hostEvent.handler, this.compileElement.nodeIndex);
           var lastIndex = actionStmts.length - 1;
           if (lastIndex >= 0) {
@@ -11935,19 +11940,11 @@
           // private is fine here as no child view will reference the event handler...
           this.compileElement.view.createMethod.addStmt(disposable.set(listenExpr).toDeclStmt(FUNCTION_TYPE, [StmtModifier.Private]));
       };
-      CompileEventListener.prototype.listenToAnimation = function (output) {
-          var outputListener = THIS_EXPR.callMethod('eventHandler', [THIS_EXPR.prop(this._methodName).callMethod(BuiltinMethod.Bind, [THIS_EXPR])]);
-          // tie the property callback method to the view animations map
-          var stmt = THIS_EXPR
-              .callMethod('registerAnimationOutput', [
-              this.compileElement.renderNode,
-              importExpr(resolveIdentifier(Identifiers.AnimationOutput)).instantiate([
-                  literal(output.name), literal(output.phase)
-              ]),
-              outputListener
-          ])
+      CompileEventListener.prototype.listenToAnimation = function (animationTransitionVar) {
+          var callbackMethod = this.eventPhase == 'start' ? 'onStart' : 'onDone';
+          return animationTransitionVar
+              .callMethod(callbackMethod, [THIS_EXPR.prop(this.methodName).callMethod(BuiltinMethod.Bind, [THIS_EXPR])])
               .toStmt();
-          this.compileElement.view.createMethod.addStmt(stmt);
       };
       CompileEventListener.prototype.listenToDirective = function (directiveInstance, observablePropName) {
           var subscription = variable("subscription_" + this.compileElement.view.subscriptions.length);
@@ -11964,14 +11961,14 @@
       var eventListeners = [];
       hostEvents.forEach(function (hostEvent) {
           compileElement.view.bindings.push(new CompileBinding(compileElement, hostEvent));
-          var listener = CompileEventListener.getOrCreate(compileElement, hostEvent.target, hostEvent.name, eventListeners);
+          var listener = CompileEventListener.getOrCreate(compileElement, hostEvent.target, hostEvent.name, hostEvent.phase, eventListeners);
           listener.addAction(hostEvent, null, null);
       });
       dirs.forEach(function (directiveAst) {
           var directiveInstance = compileElement.instances.get(identifierToken(directiveAst.directive.type).reference);
           directiveAst.hostEvents.forEach(function (hostEvent) {
               compileElement.view.bindings.push(new CompileBinding(compileElement, hostEvent));
-              var listener = CompileEventListener.getOrCreate(compileElement, hostEvent.target, hostEvent.name, eventListeners);
+              var listener = CompileEventListener.getOrCreate(compileElement, hostEvent.target, hostEvent.name, hostEvent.phase, eventListeners);
               listener.addAction(hostEvent, directiveAst.directive, directiveInstance);
           });
       });
@@ -11979,17 +11976,21 @@
       return eventListeners;
   }
   function bindDirectiveOutputs(directiveAst, directiveInstance, eventListeners) {
-      StringMapWrapper.forEach(directiveAst.directive.outputs, function (eventName /** TODO #9100 */, observablePropName /** TODO #9100 */) {
+      Object.keys(directiveAst.directive.outputs).forEach(function (observablePropName) {
+          var eventName = directiveAst.directive.outputs[observablePropName];
           eventListeners.filter(function (listener) { return listener.eventName == eventName; }).forEach(function (listener) {
               listener.listenToDirective(directiveInstance, observablePropName);
           });
       });
   }
   function bindRenderOutputs(eventListeners) {
-      eventListeners.forEach(function (listener) { return listener.listenToRenderer(); });
-  }
-  function bindAnimationOutputs(eventListeners) {
-      eventListeners.forEach(function (entry) { entry.listener.listenToAnimation(entry.output); });
+      eventListeners.forEach(function (listener) {
+          // the animation listeners are handled within property_binder.ts to
+          // allow them to be placed next to the animation factory statements
+          if (!listener.isAnimation) {
+              listener.listenToRenderer();
+          }
+      });
   }
   function convertStmtIntoExpression(stmt) {
       if (stmt instanceof ExpressionStatement) {
@@ -12000,26 +12001,12 @@
       }
       return null;
   }
-  function santitizeEventName(name) {
-      return StringWrapper.replaceAll(name, /[^a-zA-Z_]/g, '_');
+  function sanitizeEventName(name) {
+      return name.replace(/[^a-zA-Z_]/g, '_');
   }
 
   var STATE_IS_NEVER_CHECKED = THIS_EXPR.prop('numberOfChecks').identical(new LiteralExpr(0));
   var NOT_THROW_ON_CHANGES = not(DetectChangesVars.throwOnChange);
-  function bindDirectiveDetectChangesLifecycleCallbacks(directiveAst, directiveInstance, compileElement) {
-      var view = compileElement.view;
-      var detectChangesInInputsMethod = view.detectChangesInInputsMethod;
-      var lifecycleHooks = directiveAst.directive.type.lifecycleHooks;
-      if (lifecycleHooks.indexOf(LifecycleHooks.OnChanges) !== -1 && directiveAst.inputs.length > 0) {
-          detectChangesInInputsMethod.addStmt(new IfStmt(DetectChangesVars.changes.notIdentical(NULL_EXPR), [directiveInstance.callMethod('ngOnChanges', [DetectChangesVars.changes]).toStmt()]));
-      }
-      if (lifecycleHooks.indexOf(LifecycleHooks.OnInit) !== -1) {
-          detectChangesInInputsMethod.addStmt(new IfStmt(STATE_IS_NEVER_CHECKED.and(NOT_THROW_ON_CHANGES), [directiveInstance.callMethod('ngOnInit', []).toStmt()]));
-      }
-      if (lifecycleHooks.indexOf(LifecycleHooks.DoCheck) !== -1) {
-          detectChangesInInputsMethod.addStmt(new IfStmt(NOT_THROW_ON_CHANGES, [directiveInstance.callMethod('ngDoCheck', []).toStmt()]));
-      }
-  }
   function bindDirectiveAfterContentLifecycleCallbacks(directiveMeta, directiveInstance, compileElement) {
       var view = compileElement.view;
       var lifecycleHooks = directiveMeta.type.lifecycleHooks;
@@ -12064,32 +12051,50 @@
   function createCurrValueExpr(exprIndex) {
       return variable("currVal_" + exprIndex); // fix syntax highlighting: `
   }
-  function bind(view, currValExpr, fieldExpr, parsedExpression, context, actions, method, bindingIndex) {
+  var EvalResult = (function () {
+      function EvalResult(forceUpdate) {
+          this.forceUpdate = forceUpdate;
+      }
+      return EvalResult;
+  }());
+  function evalCdAst(view, currValExpr, parsedExpression, context, method, bindingIndex) {
       var checkExpression = convertCdExpressionToIr(view, context, parsedExpression, DetectChangesVars.valUnwrapper, bindingIndex);
-      if (isBlank(checkExpression.expression)) {
+      if (!checkExpression.expression) {
           // e.g. an empty expression was given
-          return;
+          return null;
       }
       if (checkExpression.temporaryCount) {
           for (var i = 0; i < checkExpression.temporaryCount; i++) {
               method.addStmt(temporaryDeclaration(bindingIndex, i));
           }
       }
-      // private is fine here as no child view will reference the cached value...
-      view.fields.push(new ClassField(fieldExpr.name, null, [StmtModifier.Private]));
-      view.createMethod.addStmt(THIS_EXPR.prop(fieldExpr.name)
-          .set(importExpr(resolveIdentifier(Identifiers.UNINITIALIZED)))
-          .toStmt());
       if (checkExpression.needsValueUnwrapper) {
           var initValueUnwrapperStmt = DetectChangesVars.valUnwrapper.callMethod('reset', []).toStmt();
           method.addStmt(initValueUnwrapperStmt);
       }
       method.addStmt(currValExpr.set(checkExpression.expression).toDeclStmt(null, [StmtModifier.Final]));
+      if (checkExpression.needsValueUnwrapper) {
+          return new EvalResult(DetectChangesVars.valUnwrapper.prop('hasWrappedValue'));
+      }
+      else {
+          return new EvalResult(null);
+      }
+  }
+  function bind(view, currValExpr, fieldExpr, parsedExpression, context, actions, method, bindingIndex) {
+      var evalResult = evalCdAst(view, currValExpr, parsedExpression, context, method, bindingIndex);
+      if (!evalResult) {
+          return;
+      }
+      // private is fine here as no child view will reference the cached value...
+      view.fields.push(new ClassField(fieldExpr.name, null, [StmtModifier.Private]));
+      view.createMethod.addStmt(THIS_EXPR.prop(fieldExpr.name)
+          .set(importExpr(resolveIdentifier(Identifiers.UNINITIALIZED)))
+          .toStmt());
       var condition = importExpr(resolveIdentifier(Identifiers.checkBinding)).callFn([
           DetectChangesVars.throwOnChange, fieldExpr, currValExpr
       ]);
-      if (checkExpression.needsValueUnwrapper) {
-          condition = DetectChangesVars.valUnwrapper.prop('hasWrappedValue').or(condition);
+      if (evalResult.forceUpdate) {
+          condition = evalResult.forceUpdate.or(condition);
       }
       method.addStmt(new IfStmt(condition, actions.concat([THIS_EXPR.prop(fieldExpr.name).set(currValExpr).toStmt()])));
   }
@@ -12103,7 +12108,7 @@
               .callMethod('setText', [compileNode.renderNode, currValExpr])
               .toStmt()], view.detectChangesRenderPropertiesMethod, bindingIndex);
   }
-  function bindAndWriteToRenderer(boundProps, context, compileElement, isHostProp) {
+  function bindAndWriteToRenderer(boundProps, context, compileElement, isHostProp, eventListeners) {
       var view = compileElement.view;
       var renderNode = compileElement.renderNode;
       boundProps.forEach(function (boundProp) {
@@ -12112,7 +12117,6 @@
           view.detectChangesRenderPropertiesMethod.resetDebugInfo(compileElement.nodeIndex, boundProp);
           var fieldExpr = createBindFieldExpr(bindingIndex);
           var currValExpr = createCurrValueExpr(bindingIndex);
-          var renderMethod;
           var oldRenderValue = sanitizedValue(boundProp, fieldExpr);
           var renderValue = sanitizedValue(boundProp, currValExpr);
           var updateStmts = [];
@@ -12149,27 +12153,34 @@
                       .toStmt());
                   break;
               case exports.PropertyBindingType.Animation:
-                  var animationName = boundProp.name;
-                  var targetViewExpr = THIS_EXPR;
-                  if (isHostProp) {
-                      targetViewExpr = compileElement.appElement.prop('componentView');
-                  }
                   compileMethod = view.animationBindingsMethod;
-                  var animationFnExpr = targetViewExpr.prop('componentType').prop('animations').key(literal(animationName));
+                  var detachStmts_1 = [];
+                  var animationName_1 = boundProp.name;
+                  var targetViewExpr = isHostProp ? compileElement.appElement.prop('componentView') : THIS_EXPR;
+                  var animationFnExpr = targetViewExpr.prop('componentType').prop('animations').key(literal(animationName_1));
                   // it's important to normalize the void value as `void` explicitly
                   // so that the styles data can be obtained from the stringmap
                   var emptyStateValue = literal(EMPTY_ANIMATION_STATE);
-                  // void => ...
-                  var oldRenderVar = variable('oldRenderVar');
-                  updateStmts.push(oldRenderVar.set(oldRenderValue).toDeclStmt());
-                  updateStmts.push(new IfStmt(oldRenderVar.equals(importExpr(resolveIdentifier(Identifiers.UNINITIALIZED))), [oldRenderVar.set(emptyStateValue).toStmt()]));
-                  // ... => void
-                  var newRenderVar = variable('newRenderVar');
-                  updateStmts.push(newRenderVar.set(renderValue).toDeclStmt());
-                  updateStmts.push(new IfStmt(newRenderVar.equals(importExpr(resolveIdentifier(Identifiers.UNINITIALIZED))), [newRenderVar.set(emptyStateValue).toStmt()]));
-                  updateStmts.push(animationFnExpr.callFn([THIS_EXPR, renderNode, oldRenderVar, newRenderVar]).toStmt());
-                  view.detachMethod.addStmt(animationFnExpr.callFn([THIS_EXPR, renderNode, oldRenderValue, emptyStateValue])
-                      .toStmt());
+                  var unitializedValue = importExpr(resolveIdentifier(Identifiers.UNINITIALIZED));
+                  var animationTransitionVar_1 = variable('animationTransition_' + animationName_1);
+                  updateStmts.push(animationTransitionVar_1
+                      .set(animationFnExpr.callFn([
+                      THIS_EXPR, renderNode, oldRenderValue.equals(unitializedValue)
+                          .conditional(emptyStateValue, oldRenderValue),
+                      renderValue.equals(unitializedValue).conditional(emptyStateValue, renderValue)
+                  ]))
+                      .toDeclStmt());
+                  detachStmts_1.push(animationTransitionVar_1
+                      .set(animationFnExpr.callFn([THIS_EXPR, renderNode, oldRenderValue, emptyStateValue]))
+                      .toDeclStmt());
+                  eventListeners.forEach(function (listener) {
+                      if (listener.isAnimation && listener.eventName === animationName_1) {
+                          var animationStmt = listener.listenToAnimation(animationTransitionVar_1);
+                          updateStmts.push(animationStmt);
+                          detachStmts_1.push(animationStmt);
+                      }
+                  });
+                  view.detachMethod.addStmts(detachStmts_1);
                   break;
           }
           bind(view, currValExpr, fieldExpr, boundProp.value, context, updateStmts, compileMethod, view.bindings.length);
@@ -12202,88 +12213,57 @@
       var args = [importExpr(resolveIdentifier(Identifiers.SecurityContext)).prop(enumValue), renderValue];
       return ctx.callMethod('sanitize', args);
   }
-  function bindRenderInputs(boundProps, compileElement) {
-      bindAndWriteToRenderer(boundProps, compileElement.view.componentContext, compileElement, false);
+  function bindRenderInputs(boundProps, compileElement, eventListeners) {
+      bindAndWriteToRenderer(boundProps, compileElement.view.componentContext, compileElement, false, eventListeners);
   }
-  function bindDirectiveHostProps(directiveAst, directiveInstance, compileElement) {
-      bindAndWriteToRenderer(directiveAst.hostProperties, directiveInstance, compileElement, true);
+  function bindDirectiveHostProps(directiveAst, directiveInstance, compileElement, eventListeners) {
+      bindAndWriteToRenderer(directiveAst.hostProperties, directiveInstance, compileElement, true, eventListeners);
   }
-  function bindDirectiveInputs(directiveAst, directiveInstance, compileElement) {
-      if (directiveAst.inputs.length === 0) {
-          return;
-      }
+  function bindDirectiveInputs(directiveAst, directiveWrapperInstance, compileElement) {
       var view = compileElement.view;
       var detectChangesInInputsMethod = view.detectChangesInInputsMethod;
       detectChangesInInputsMethod.resetDebugInfo(compileElement.nodeIndex, compileElement.sourceAst);
-      var lifecycleHooks = directiveAst.directive.type.lifecycleHooks;
-      var calcChangesMap = lifecycleHooks.indexOf(LifecycleHooks.OnChanges) !== -1;
-      var isOnPushComp = directiveAst.directive.isComponent &&
-          !isDefaultChangeDetectionStrategy(directiveAst.directive.changeDetection);
-      if (calcChangesMap) {
-          detectChangesInInputsMethod.addStmt(DetectChangesVars.changes.set(NULL_EXPR).toStmt());
-      }
-      if (isOnPushComp) {
-          detectChangesInInputsMethod.addStmt(DetectChangesVars.changed.set(literal(false)).toStmt());
-      }
       directiveAst.inputs.forEach(function (input) {
           var bindingIndex = view.bindings.length;
           view.bindings.push(new CompileBinding(compileElement, input));
           detectChangesInInputsMethod.resetDebugInfo(compileElement.nodeIndex, input);
-          var fieldExpr = createBindFieldExpr(bindingIndex);
           var currValExpr = createCurrValueExpr(bindingIndex);
-          var statements = [directiveInstance.prop(input.directiveName).set(currValExpr).toStmt()];
-          if (calcChangesMap) {
-              statements.push(new IfStmt(DetectChangesVars.changes.identical(NULL_EXPR), [DetectChangesVars.changes
-                      .set(literalMap([], new MapType(importType(resolveIdentifier(Identifiers.SimpleChange)))))
-                      .toStmt()]));
-              statements.push(DetectChangesVars.changes.key(literal(input.directiveName))
-                  .set(importExpr(resolveIdentifier(Identifiers.SimpleChange))
-                  .instantiate([fieldExpr, currValExpr]))
-                  .toStmt());
+          var evalResult = evalCdAst(view, currValExpr, input.value, view.componentContext, detectChangesInInputsMethod, bindingIndex);
+          if (!evalResult) {
+              return;
           }
-          if (isOnPushComp) {
-              statements.push(DetectChangesVars.changed.set(literal(true)).toStmt());
-          }
-          if (view.genConfig.logBindingUpdate) {
-              statements.push(logBindingUpdateStmt(compileElement.renderNode, input.directiveName, currValExpr));
-          }
-          bind(view, currValExpr, fieldExpr, input.value, view.componentContext, statements, detectChangesInInputsMethod, bindingIndex);
+          detectChangesInInputsMethod.addStmt(directiveWrapperInstance
+              .callMethod("check_" + input.directiveName, [
+              currValExpr, DetectChangesVars.throwOnChange,
+              evalResult.forceUpdate || literal(false)
+          ])
+              .toStmt());
       });
-      if (isOnPushComp) {
-          detectChangesInInputsMethod.addStmt(new IfStmt(DetectChangesVars.changed, [
-              compileElement.appElement.prop('componentView').callMethod('markAsCheckOnce', []).toStmt()
-          ]));
-      }
+      var isOnPushComp = directiveAst.directive.isComponent &&
+          !isDefaultChangeDetectionStrategy(directiveAst.directive.changeDetection);
+      var directiveDetectChangesExpr = directiveWrapperInstance.callMethod('detectChangesInternal', [THIS_EXPR, compileElement.renderNode, DetectChangesVars.throwOnChange]);
+      var directiveDetectChangesStmt = isOnPushComp ?
+          new IfStmt(directiveDetectChangesExpr, [compileElement.appElement.prop('componentView')
+                  .callMethod('markAsCheckOnce', [])
+                  .toStmt()]) :
+          directiveDetectChangesExpr.toStmt();
+      detectChangesInInputsMethod.addStmt(directiveDetectChangesStmt);
   }
   function logBindingUpdateStmt(renderNode, propName, value) {
-      var tryStmt = THIS_EXPR.prop('renderer')
-          .callMethod('setBindingDebugInfo', [
-          renderNode, literal("ng-reflect-" + camelCaseToDashCase(propName)),
-          value.isBlank().conditional(NULL_EXPR, value.callMethod('toString', []))
-      ])
+      return importExpr(resolveIdentifier(Identifiers.setBindingDebugInfo))
+          .callFn([THIS_EXPR.prop('renderer'), renderNode, literal(propName), value])
           .toStmt();
-      var catchStmt = THIS_EXPR.prop('renderer')
-          .callMethod('setBindingDebugInfo', [
-          renderNode, literal("ng-reflect-" + camelCaseToDashCase(propName)),
-          literal('[ERROR] Exception while trying to serialize the value')
-      ])
-          .toStmt();
-      return new TryCatchStmt([tryStmt], [catchStmt]);
   }
 
-  function bindView(view, parsedTemplate, animationOutputs) {
-      var visitor = new ViewBinderVisitor(view, animationOutputs);
+  function bindView(view, parsedTemplate) {
+      var visitor = new ViewBinderVisitor(view);
       templateVisitAll(visitor, parsedTemplate);
       view.pipes.forEach(function (pipe) { bindPipeDestroyLifecycleCallbacks(pipe.meta, pipe.instance, pipe.view); });
   }
   var ViewBinderVisitor = (function () {
-      function ViewBinderVisitor(view, animationOutputs) {
-          var _this = this;
+      function ViewBinderVisitor(view) {
           this.view = view;
-          this.animationOutputs = animationOutputs;
           this._nodeIndex = 0;
-          this._animationOutputsMap = {};
-          animationOutputs.forEach(function (entry) { _this._animationOutputsMap[entry.fullPropertyName] = entry; });
       }
       ViewBinderVisitor.prototype.visitBoundText = function (ast, parent) {
           var node = this.view.nodes[this._nodeIndex++];
@@ -12296,33 +12276,18 @@
       };
       ViewBinderVisitor.prototype.visitNgContent = function (ast, parent) { return null; };
       ViewBinderVisitor.prototype.visitElement = function (ast, parent) {
-          var _this = this;
           var compileElement = this.view.nodes[this._nodeIndex++];
           var eventListeners = [];
-          var animationEventListeners = [];
           collectEventListeners(ast.outputs, ast.directives, compileElement).forEach(function (entry) {
-              // TODO: figure out how to abstract this `if` statement elsewhere
-              if (entry.eventName[0] == '@') {
-                  var animationOutputName = entry.eventName.substr(1);
-                  var output = _this._animationOutputsMap[animationOutputName];
-                  // no need to report an error here since the parser will
-                  // have caught the missing animation trigger definition
-                  if (output) {
-                      animationEventListeners.push(new CompileElementAnimationOutput(entry, output));
-                  }
-              }
-              else {
-                  eventListeners.push(entry);
-              }
+              eventListeners.push(entry);
           });
-          bindAnimationOutputs(animationEventListeners);
-          bindRenderInputs(ast.inputs, compileElement);
+          bindRenderInputs(ast.inputs, compileElement, eventListeners);
           bindRenderOutputs(eventListeners);
           ast.directives.forEach(function (directiveAst) {
               var directiveInstance = compileElement.instances.get(directiveAst.directive.type.reference);
-              bindDirectiveInputs(directiveAst, directiveInstance, compileElement);
-              bindDirectiveDetectChangesLifecycleCallbacks(directiveAst, directiveInstance, compileElement);
-              bindDirectiveHostProps(directiveAst, directiveInstance, compileElement);
+              var directiveWrapperInstance = compileElement.directiveWrapperInstance.get(directiveAst.directive.type.reference);
+              bindDirectiveInputs(directiveAst, directiveWrapperInstance, compileElement);
+              bindDirectiveHostProps(directiveAst, directiveInstance, compileElement, eventListeners);
               bindDirectiveOutputs(directiveAst, directiveInstance, eventListeners);
           });
           templateVisitAll(this, ast.children, compileElement);
@@ -12344,8 +12309,8 @@
           var eventListeners = collectEventListeners(ast.outputs, ast.directives, compileElement);
           ast.directives.forEach(function (directiveAst) {
               var directiveInstance = compileElement.instances.get(directiveAst.directive.type.reference);
-              bindDirectiveInputs(directiveAst, directiveInstance, compileElement);
-              bindDirectiveDetectChangesLifecycleCallbacks(directiveAst, directiveInstance, compileElement);
+              var directiveWrapperInstance = compileElement.directiveWrapperInstance.get(directiveAst.directive.type.reference);
+              bindDirectiveInputs(directiveAst, directiveWrapperInstance, compileElement);
               bindDirectiveOutputs(directiveAst, directiveInstance, eventListeners);
               bindDirectiveAfterContentLifecycleCallbacks(directiveAst.directive, directiveInstance, compileElement);
               bindDirectiveAfterViewLifecycleCallbacks(directiveAst.directive, directiveInstance, compileElement);
@@ -12354,7 +12319,7 @@
               var providerInstance = compileElement.instances.get(providerAst.token.reference);
               bindInjectableDestroyLifecycleCallbacks(providerAst, providerInstance, compileElement);
           });
-          bindView(compileElement.embeddedView, ast.children, this.animationOutputs);
+          bindView(compileElement.embeddedView, ast.children);
           return null;
       };
       ViewBinderVisitor.prototype.visitAttr = function (ast, ctx) { return null; };
@@ -12375,20 +12340,6 @@
   var NG_CONTAINER_TAG = 'ng-container';
   var parentRenderNodeVar = variable('parentRenderNode');
   var rootSelectorVar = variable('rootSelector');
-  var ViewFactoryDependency = (function () {
-      function ViewFactoryDependency(comp, placeholder) {
-          this.comp = comp;
-          this.placeholder = placeholder;
-      }
-      return ViewFactoryDependency;
-  }());
-  var ComponentFactoryDependency = (function () {
-      function ComponentFactoryDependency(comp, placeholder) {
-          this.comp = comp;
-          this.placeholder = placeholder;
-      }
-      return ComponentFactoryDependency;
-  }());
   function buildView(view, template, targetDependencies) {
       var builderVisitor = new ViewBuilderVisitor(view, targetDependencies);
       templateVisitAll(builderVisitor, template, view.declarationElement.isNull() ? view.declarationElement : view.declarationElement.parent);
@@ -12408,7 +12359,6 @@
           this.view = view;
           this.targetDependencies = targetDependencies;
           this.nestedViewCount = 0;
-          this._animationCompiler = new AnimationCompiler();
       }
       ViewBuilderVisitor.prototype._isRootNode = function (parent) { return parent.view !== this.view; };
       ViewBuilderVisitor.prototype._addRootNodeAndProject = function (node) {
@@ -12419,11 +12369,11 @@
           if (this._isRootNode(parent)) {
               // store appElement as root node only for ViewContainers
               if (this.view.viewType !== ViewType.COMPONENT) {
-                  this.view.rootNodesOrAppElements.push(isPresent(vcAppEl) ? vcAppEl : node.renderNode);
+                  this.view.rootNodesOrAppElements.push(vcAppEl || node.renderNode);
               }
           }
           else if (isPresent(parent.component) && isPresent(ngContentIndex)) {
-              parent.addContentNode(ngContentIndex, isPresent(vcAppEl) ? vcAppEl : node.renderNode);
+              parent.addContentNode(ngContentIndex, vcAppEl || node.renderNode);
           }
       };
       ViewBuilderVisitor.prototype._getParentRenderNode = function (parent) {
@@ -12495,7 +12445,6 @@
           return null;
       };
       ViewBuilderVisitor.prototype.visitElement = function (ast, parent) {
-          var _this = this;
           var nodeIndex = this.view.nodes.length;
           var createRenderNodeExpr;
           var debugContextExpr = this.view.createMethod.resetDebugInfoExpr(nodeIndex, ast);
@@ -12528,18 +12477,12 @@
                       .toStmt());
               }
           }
-          var compileElement = new CompileElement(parent, this.view, nodeIndex, renderNode, ast, component, directives, ast.providers, ast.hasViewContainer, false, ast.references);
+          var compileElement = new CompileElement(parent, this.view, nodeIndex, renderNode, ast, component, directives, ast.providers, ast.hasViewContainer, false, ast.references, this.targetDependencies);
           this.view.nodes.push(compileElement);
           var compViewExpr = null;
           if (isPresent(component)) {
               var nestedComponentIdentifier = new CompileIdentifierMetadata({ name: getViewFactoryName(component, 0) });
               this.targetDependencies.push(new ViewFactoryDependency(component.type, nestedComponentIdentifier));
-              var entryComponentIdentifiers = component.entryComponents.map(function (entryComponent) {
-                  var id = new CompileIdentifierMetadata({ name: entryComponent.name });
-                  _this.targetDependencies.push(new ComponentFactoryDependency(entryComponent, id));
-                  return id;
-              });
-              compileElement.createComponentFactoryResolver(entryComponentIdentifiers);
               compViewExpr = variable("compView_" + nodeIndex); // fix highlighting: `
               compileElement.setComponentView(compViewExpr);
               this.view.createMethod.addStmt(compViewExpr
@@ -12579,11 +12522,10 @@
           var renderNode = THIS_EXPR.prop(fieldName);
           var templateVariableBindings = ast.variables.map(function (varAst) { return [varAst.value.length > 0 ? varAst.value : IMPLICIT_TEMPLATE_VAR, varAst.name]; });
           var directives = ast.directives.map(function (directiveAst) { return directiveAst.directive; });
-          var compileElement = new CompileElement(parent, this.view, nodeIndex, renderNode, ast, null, directives, ast.providers, ast.hasViewContainer, true, ast.references);
+          var compileElement = new CompileElement(parent, this.view, nodeIndex, renderNode, ast, null, directives, ast.providers, ast.hasViewContainer, true, ast.references, this.targetDependencies);
           this.view.nodes.push(compileElement);
-          var compiledAnimations = this._animationCompiler.compileComponent(this.view.component, [ast]);
           this.nestedViewCount++;
-          var embeddedView = new CompileView(this.view.component, this.view.genConfig, this.view.pipeMetas, NULL_EXPR, compiledAnimations.triggers, this.view.viewIndex + this.nestedViewCount, compileElement, templateVariableBindings);
+          var embeddedView = new CompileView(this.view.component, this.view.genConfig, this.view.pipeMetas, NULL_EXPR, this.view.animations, this.view.viewIndex + this.nestedViewCount, compileElement, templateVariableBindings);
           this.nestedViewCount += buildView(embeddedView, ast.children, this.targetDependencies);
           compileElement.beforeChildren();
           this._addRootNodeAndProject(compileElement);
@@ -12635,9 +12577,10 @@
   }
   function _mergeHtmlAndDirectiveAttrs(declaredHtmlAttrs, directives) {
       var result = {};
-      StringMapWrapper.forEach(declaredHtmlAttrs, function (value, key) { result[key] = value; });
+      Object.keys(declaredHtmlAttrs).forEach(function (key) { result[key] = declaredHtmlAttrs[key]; });
       directives.forEach(function (directiveMeta) {
-          StringMapWrapper.forEach(directiveMeta.hostAttributes, function (value, name) {
+          Object.keys(directiveMeta.hostAttributes).forEach(function (name) {
+              var value = directiveMeta.hostAttributes[name];
               var prevValue = result[name];
               result[name] = isPresent(prevValue) ? mergeAttributeValue(name, prevValue, value) : value;
           });
@@ -12659,12 +12602,10 @@
   }
   function mapToKeyValueArray(data) {
       var entryArray = [];
-      StringMapWrapper.forEach(data, function (value, name) {
-          entryArray.push([name, value]);
-      });
+      Object.keys(data).forEach(function (name) { entryArray.push([name, data[name]]); });
       // We need to sort to get a defined output order
       // for tests and for caching generated artifacts...
-      ListWrapper.sort(entryArray, function (entry1, entry2) { return StringWrapper.compare(entry1[0], entry2[0]); });
+      ListWrapper.sort(entryArray);
       return entryArray;
   }
   function createViewTopLevelStmts(view, targetStatements) {
@@ -12694,7 +12635,8 @@
           if (isPresent(compileElement.component)) {
               componentToken = createDiTokenExpression(identifierToken(compileElement.component.type));
           }
-          StringMapWrapper.forEach(compileElement.referenceTokens, function (token, varName) {
+          Object.keys(compileElement.referenceTokens).forEach(function (varName) {
+              var token = compileElement.referenceTokens[varName];
               varTokenEntries.push([varName, isPresent(token) ? createDiTokenExpression(token) : NULL_EXPR]);
           });
       }
@@ -12754,20 +12696,25 @@
           templateUrlInfo = view.component.template.templateUrl;
       }
       if (view.viewIndex === 0) {
-          var animationsExpr = literalMap(view.animations.map(function (entry) { return [entry.name, entry.fnVariable]; }));
-          initRenderCompTypeStmts = [new IfStmt(renderCompTypeVar.identical(NULL_EXPR), [
+          var animationsExpr = literalMap(view.animations.map(function (entry) { return [entry.name, entry.fnExp]; }));
+          initRenderCompTypeStmts = [
+              new IfStmt(renderCompTypeVar.identical(NULL_EXPR), [
                   renderCompTypeVar
                       .set(ViewConstructorVars.viewUtils.callMethod('createRenderComponentType', [
-                      literal(templateUrlInfo),
+                      view.genConfig.genDebugInfo ? literal(templateUrlInfo) : literal(''),
                       literal(view.component.template.ngContentSelectors.length),
-                      ViewEncapsulationEnum.fromValue(view.component.template.encapsulation), view.styles,
-                      animationsExpr
+                      ViewEncapsulationEnum.fromValue(view.component.template.encapsulation),
+                      view.styles,
+                      animationsExpr,
                   ]))
-                      .toStmt()
-              ])];
+                      .toStmt(),
+              ]),
+          ];
       }
-      return fn(viewFactoryArgs, initRenderCompTypeStmts.concat([new ReturnStatement(variable(viewClass.name)
-              .instantiate(viewClass.constructorMethod.params.map(function (param) { return variable(param.name); })))]), importType(resolveIdentifier(Identifiers.AppView), [getContextType(view)]))
+      return fn(viewFactoryArgs, initRenderCompTypeStmts.concat([
+          new ReturnStatement(variable(viewClass.name)
+              .instantiate(viewClass.constructorMethod.params.map(function (param) { return variable(param.name); }))),
+      ]), importType(resolveIdentifier(Identifiers.AppView), [getContextType(view)]))
           .toDeclStmt(view.viewFactory.name, [StmtModifier.Final]);
   }
   function generateCreateMethod(view) {
@@ -12823,14 +12770,14 @@
       }
       var varStmts = [];
       var readVars = findReadVarNames(stmts);
-      if (SetWrapper.has(readVars, DetectChangesVars.changed.name)) {
+      if (readVars.has(DetectChangesVars.changed.name)) {
           varStmts.push(DetectChangesVars.changed.set(literal(true)).toDeclStmt(BOOL_TYPE));
       }
-      if (SetWrapper.has(readVars, DetectChangesVars.changes.name)) {
+      if (readVars.has(DetectChangesVars.changes.name)) {
           varStmts.push(DetectChangesVars.changes.set(NULL_EXPR)
               .toDeclStmt(new MapType(importType(resolveIdentifier(Identifiers.SimpleChange)))));
       }
-      if (SetWrapper.has(readVars, DetectChangesVars.valUnwrapper.name)) {
+      if (readVars.has(DetectChangesVars.valUnwrapper.name)) {
           varStmts.push(DetectChangesVars.valUnwrapper
               .set(importExpr(resolveIdentifier(Identifiers.ValueUnwrapper)).instantiate([]))
               .toDeclStmt(null, [StmtModifier.Final]));
@@ -12875,22 +12822,15 @@
   var ViewCompiler = (function () {
       function ViewCompiler(_genConfig) {
           this._genConfig = _genConfig;
-          this._animationCompiler = new AnimationCompiler();
       }
-      ViewCompiler.prototype.compileComponent = function (component, template, styles, pipes) {
+      ViewCompiler.prototype.compileComponent = function (component, template, styles, pipes, compiledAnimations) {
           var dependencies = [];
-          var compiledAnimations = this._animationCompiler.compileComponent(component, template);
+          var view = new CompileView(component, this._genConfig, pipes, styles, compiledAnimations, 0, CompileElement.createNull(), []);
           var statements = [];
-          var animationTriggers = compiledAnimations.triggers;
-          animationTriggers.forEach(function (entry) {
-              statements.push(entry.statesMapStatement);
-              statements.push(entry.fnStatement);
-          });
-          var view = new CompileView(component, this._genConfig, pipes, styles, animationTriggers, 0, CompileElement.createNull(), []);
           buildView(view, template, dependencies);
           // Need to separate binding from creation to be able to refer to
           // variables that have been declared after usage.
-          bindView(view, template, compiledAnimations.outputs);
+          bindView(view, template);
           finishView(view, statements);
           return new ViewCompileResult(statements, view.viewFactory.name, dependencies);
       };
@@ -12912,41 +12852,47 @@
       return SourceModule;
   }());
   var NgModulesSummary = (function () {
-      function NgModulesSummary(ngModuleByComponent) {
-          this.ngModuleByComponent = ngModuleByComponent;
+      function NgModulesSummary(ngModuleByDirective, ngModules) {
+          this.ngModuleByDirective = ngModuleByDirective;
+          this.ngModules = ngModules;
       }
       return NgModulesSummary;
   }());
+  function analyzeModules(ngModules, metadataResolver) {
+      var ngModuleByDirective = new Map();
+      var modules = [];
+      ngModules.forEach(function (ngModule) {
+          var ngModuleMeta = metadataResolver.getNgModuleMetadata(ngModule);
+          modules.push(ngModuleMeta);
+          ngModuleMeta.declaredDirectives.forEach(function (dirMeta) {
+              ngModuleByDirective.set(dirMeta.type.reference, ngModuleMeta);
+          });
+      });
+      return new NgModulesSummary(ngModuleByDirective, modules);
+  }
   var OfflineCompiler = (function () {
-      function OfflineCompiler(_metadataResolver, _directiveNormalizer, _templateParser, _styleCompiler, _viewCompiler, _ngModuleCompiler, _outputEmitter, _localeId, _translationFormat) {
+      function OfflineCompiler(_metadataResolver, _directiveNormalizer, _templateParser, _styleCompiler, _viewCompiler, _dirWrapperCompiler, _ngModuleCompiler, _outputEmitter, _localeId, _translationFormat) {
           this._metadataResolver = _metadataResolver;
           this._directiveNormalizer = _directiveNormalizer;
           this._templateParser = _templateParser;
           this._styleCompiler = _styleCompiler;
           this._viewCompiler = _viewCompiler;
+          this._dirWrapperCompiler = _dirWrapperCompiler;
           this._ngModuleCompiler = _ngModuleCompiler;
           this._outputEmitter = _outputEmitter;
           this._localeId = _localeId;
           this._translationFormat = _translationFormat;
+          this._animationParser = new AnimationParser();
+          this._animationCompiler = new AnimationCompiler();
       }
       OfflineCompiler.prototype.analyzeModules = function (ngModules) {
-          var _this = this;
-          var ngModuleByComponent = new Map();
-          ngModules.forEach(function (ngModule) {
-              var ngModuleMeta = _this._metadataResolver.getNgModuleMetadata(ngModule);
-              ngModuleMeta.declaredDirectives.forEach(function (dirMeta) {
-                  if (dirMeta.isComponent) {
-                      ngModuleByComponent.set(dirMeta.type.reference, ngModuleMeta);
-                  }
-              });
-          });
-          return new NgModulesSummary(ngModuleByComponent);
+          return analyzeModules(ngModules, this._metadataResolver);
       };
       OfflineCompiler.prototype.clearCache = function () {
           this._directiveNormalizer.clearCache();
           this._metadataResolver.clearCache();
       };
-      OfflineCompiler.prototype.compile = function (moduleUrl, ngModulesSummary, components, ngModules) {
+      OfflineCompiler.prototype.compile = function (moduleUrl, ngModulesSummary, directives, ngModules) {
           var _this = this;
           var fileSuffix = _splitTypescriptSuffix(moduleUrl)[1];
           var statements = [];
@@ -12954,11 +12900,16 @@
           var outputSourceModules = [];
           // compile all ng modules
           exportedVars.push.apply(exportedVars, ngModules.map(function (ngModuleType) { return _this._compileModule(ngModuleType, statements); }));
+          // compile directive wrappers
+          exportedVars.push.apply(exportedVars, directives.map(function (directiveType) { return _this._compileDirectiveWrapper(directiveType, statements); }));
           // compile components
           return Promise
-              .all(components.map(function (compType) {
-              var compMeta = _this._metadataResolver.getDirectiveMetadata(compType);
-              var ngModule = ngModulesSummary.ngModuleByComponent.get(compType);
+              .all(directives.map(function (dirType) {
+              var compMeta = _this._metadataResolver.getDirectiveMetadata(dirType);
+              if (!compMeta.isComponent) {
+                  return Promise.resolve(null);
+              }
+              var ngModule = ngModulesSummary.ngModuleByDirective.get(dirType);
               if (!ngModule) {
                   throw new Error("Cannot determine the module for component " + compMeta.type.name + "!");
               }
@@ -13006,6 +12957,12 @@
           targetStatements.push.apply(targetStatements, appCompileResult.statements);
           return appCompileResult.ngModuleFactoryVar;
       };
+      OfflineCompiler.prototype._compileDirectiveWrapper = function (directiveType, targetStatements) {
+          var dirMeta = this._metadataResolver.getDirectiveMetadata(directiveType);
+          var dirCompileResult = this._dirWrapperCompiler.compile(dirMeta);
+          targetStatements.push.apply(targetStatements, dirCompileResult.statements);
+          return dirCompileResult.dirWrapperClassVar;
+      };
       OfflineCompiler.prototype._compileComponentFactory = function (compMeta, fileSuffix, targetStatements) {
           var hostMeta = createHostComponentMeta(compMeta);
           var hostViewFactoryVar = this._compileComponent(hostMeta, [compMeta], [], [], null, fileSuffix, targetStatements);
@@ -13021,12 +12978,15 @@
           return compFactoryVar;
       };
       OfflineCompiler.prototype._compileComponent = function (compMeta, directives, pipes, schemas, componentStyles, fileSuffix, targetStatements) {
+          var parsedAnimations = this._animationParser.parseComponent(compMeta);
           var parsedTemplate = this._templateParser.parse(compMeta, compMeta.template.template, directives, pipes, schemas, compMeta.type.name);
           var stylesExpr = componentStyles ? variable(componentStyles.stylesVar) : literalArr([]);
-          var viewResult = this._viewCompiler.compileComponent(compMeta, parsedTemplate, stylesExpr, pipes);
+          var compiledAnimations = this._animationCompiler.compile(compMeta.type.name, parsedAnimations);
+          var viewResult = this._viewCompiler.compileComponent(compMeta, parsedTemplate, stylesExpr, pipes, compiledAnimations);
           if (componentStyles) {
               targetStatements.push.apply(targetStatements, _resolveStyleStatements(componentStyles, fileSuffix));
           }
+          compiledAnimations.forEach(function (entry) { entry.statements.forEach(function (statement) { targetStatements.push(statement); }); });
           targetStatements.push.apply(targetStatements, _resolveViewStatements(viewResult));
           return viewResult.viewFactoryVar;
       };
@@ -13050,6 +13010,10 @@
               cfd.placeholder.name = _componentFactoryName(cfd.comp);
               cfd.placeholder.moduleUrl = _ngfactoryModuleUrl(cfd.comp.moduleUrl);
           }
+          else if (dep instanceof DirectiveWrapperDependency) {
+              var dwd = dep;
+              dwd.placeholder.moduleUrl = _ngfactoryModuleUrl(dwd.dir.moduleUrl);
+          }
       });
       return compileResult.statements;
   }
@@ -13059,8 +13023,8 @@
       });
       return compileResult.statements;
   }
-  function _ngfactoryModuleUrl(compUrl) {
-      var urlWithSuffix = _splitTypescriptSuffix(compUrl);
+  function _ngfactoryModuleUrl(dirUrl) {
+      var urlWithSuffix = _splitTypescriptSuffix(dirUrl);
       return urlWithSuffix[0] + ".ngfactory" + urlWithSuffix[1];
   }
   function _componentFactoryName(comp) {
@@ -13104,6 +13068,12 @@
   }());
 
   var _ASSET_SCHEME = 'asset:';
+  /**
+   * Create a {@link UrlResolver} with no package prefix.
+   */
+  function createUrlResolverWithoutPackagePrefix() {
+      return new UrlResolver();
+  }
   function createOfflineCompileUrlResolver() {
       return new UrlResolver(_ASSET_SCHEME);
   }
@@ -13158,8 +13128,8 @@
                   resolvedUrl = "asset:" + pathSegements[0] + "/lib/" + pathSegements.slice(1).join('/');
               }
               else {
-                  prefix = StringWrapper.stripRight(prefix, '/');
-                  path = StringWrapper.stripLeft(path, '/');
+                  prefix = prefix.replace(/\/+$/, '');
+                  path = path.replace(/^\/+/, '');
                   return prefix + "/" + path;
               }
           }
@@ -13636,9 +13606,6 @@
       });
   }
 
-  function _isDirectiveMetadata(type) {
-      return type instanceof _angular_core.Directive;
-  }
   /*
    * Resolve a `Type` for {@link Directive}.
    *
@@ -13657,9 +13624,9 @@
       DirectiveResolver.prototype.resolve = function (type, throwIfNotFound) {
           if (throwIfNotFound === void 0) { throwIfNotFound = true; }
           var typeMetadata = this._reflector.annotations(_angular_core.resolveForwardRef(type));
-          if (isPresent(typeMetadata)) {
-              var metadata = typeMetadata.find(_isDirectiveMetadata);
-              if (isPresent(metadata)) {
+          if (typeMetadata) {
+              var metadata = typeMetadata.find(isDirectiveMetadata);
+              if (metadata) {
                   var propertyMetadata = this._reflector.propMetadata(type);
                   return this._mergeWithPropertyMetadata(metadata, propertyMetadata, type);
               }
@@ -13674,10 +13641,10 @@
           var outputs = [];
           var host = {};
           var queries = {};
-          StringMapWrapper.forEach(propertyMetadata, function (metadata, propName) {
-              metadata.forEach(function (a) {
+          Object.keys(propertyMetadata).forEach(function (propName) {
+              propertyMetadata[propName].forEach(function (a) {
                   if (a instanceof _angular_core.Input) {
-                      if (isPresent(a.bindingPropertyName)) {
+                      if (a.bindingPropertyName) {
                           inputs.push(propName + ": " + a.bindingPropertyName);
                       }
                       else {
@@ -13686,7 +13653,7 @@
                   }
                   else if (a instanceof _angular_core.Output) {
                       var output = a;
-                      if (isPresent(output.bindingPropertyName)) {
+                      if (output.bindingPropertyName) {
                           outputs.push(propName + ": " + output.bindingPropertyName);
                       }
                       else {
@@ -13695,7 +13662,14 @@
                   }
                   else if (a instanceof _angular_core.HostBinding) {
                       var hostBinding = a;
-                      if (isPresent(hostBinding.hostPropertyName)) {
+                      if (hostBinding.hostPropertyName) {
+                          var startWith = hostBinding.hostPropertyName[0];
+                          if (startWith === '(') {
+                              throw new Error("@HostBinding can not bind to events. Use @HostListener instead.");
+                          }
+                          else if (startWith === '[') {
+                              throw new Error("@HostBinding parameter should be a property name, 'class.<name>', or 'attr.<name>'.");
+                          }
                           host[("[" + hostBinding.hostPropertyName + "]")] = propName;
                       }
                       else {
@@ -13704,8 +13678,8 @@
                   }
                   else if (a instanceof _angular_core.HostListener) {
                       var hostListener = a;
-                      var args = isPresent(hostListener.args) ? hostListener.args.join(', ') : '';
-                      host[("(" + hostListener.eventName + ")")] = propName + "(" + args + ")";
+                      var args = hostListener.args || [];
+                      host[("(" + hostListener.eventName + ")")] = propName + "(" + args.join(',') + ")";
                   }
                   else if (a instanceof _angular_core.Query) {
                       queries[propName] = a;
@@ -13715,69 +13689,63 @@
           return this._merge(dm, inputs, outputs, host, queries, directiveType);
       };
       DirectiveResolver.prototype._extractPublicName = function (def) { return splitAtColon(def, [null, def])[1].trim(); };
-      DirectiveResolver.prototype._merge = function (dm, inputs, outputs, host, queries, directiveType) {
+      DirectiveResolver.prototype._merge = function (directive, inputs, outputs, host, queries, directiveType) {
           var _this = this;
-          var mergedInputs;
-          if (isPresent(dm.inputs)) {
-              var inputNames_1 = dm.inputs.map(function (def) { return _this._extractPublicName(def); });
+          var mergedInputs = inputs;
+          if (directive.inputs) {
+              var inputNames_1 = directive.inputs.map(function (def) { return _this._extractPublicName(def); });
               inputs.forEach(function (inputDef) {
                   var publicName = _this._extractPublicName(inputDef);
                   if (inputNames_1.indexOf(publicName) > -1) {
                       throw new Error("Input '" + publicName + "' defined multiple times in '" + stringify(directiveType) + "'");
                   }
               });
-              mergedInputs = dm.inputs.concat(inputs);
+              mergedInputs.unshift.apply(mergedInputs, directive.inputs);
           }
-          else {
-              mergedInputs = inputs;
-          }
-          var mergedOutputs;
-          if (isPresent(dm.outputs)) {
-              var outputNames_1 = dm.outputs.map(function (def) { return _this._extractPublicName(def); });
+          var mergedOutputs = outputs;
+          if (directive.outputs) {
+              var outputNames_1 = directive.outputs.map(function (def) { return _this._extractPublicName(def); });
               outputs.forEach(function (outputDef) {
                   var publicName = _this._extractPublicName(outputDef);
                   if (outputNames_1.indexOf(publicName) > -1) {
                       throw new Error("Output event '" + publicName + "' defined multiple times in '" + stringify(directiveType) + "'");
                   }
               });
-              mergedOutputs = dm.outputs.concat(outputs);
+              mergedOutputs.unshift.apply(mergedOutputs, directive.outputs);
           }
-          else {
-              mergedOutputs = outputs;
-          }
-          var mergedHost = isPresent(dm.host) ? StringMapWrapper.merge(dm.host, host) : host;
-          var mergedQueries = isPresent(dm.queries) ? StringMapWrapper.merge(dm.queries, queries) : queries;
-          if (dm instanceof _angular_core.Component) {
+          var mergedHost = directive.host ? StringMapWrapper.merge(directive.host, host) : host;
+          var mergedQueries = directive.queries ? StringMapWrapper.merge(directive.queries, queries) : queries;
+          if (directive instanceof _angular_core.Component) {
               return new _angular_core.Component({
-                  selector: dm.selector,
+                  selector: directive.selector,
                   inputs: mergedInputs,
                   outputs: mergedOutputs,
                   host: mergedHost,
-                  exportAs: dm.exportAs,
-                  moduleId: dm.moduleId,
+                  exportAs: directive.exportAs,
+                  moduleId: directive.moduleId,
                   queries: mergedQueries,
-                  changeDetection: dm.changeDetection,
-                  providers: dm.providers,
-                  viewProviders: dm.viewProviders,
-                  entryComponents: dm.entryComponents,
-                  template: dm.template,
-                  templateUrl: dm.templateUrl,
-                  styles: dm.styles,
-                  styleUrls: dm.styleUrls,
-                  encapsulation: dm.encapsulation,
-                  animations: dm.animations,
-                  interpolation: dm.interpolation
+                  changeDetection: directive.changeDetection,
+                  providers: directive.providers,
+                  viewProviders: directive.viewProviders,
+                  entryComponents: directive.entryComponents,
+                  template: directive.template,
+                  templateUrl: directive.templateUrl,
+                  styles: directive.styles,
+                  styleUrls: directive.styleUrls,
+                  encapsulation: directive.encapsulation,
+                  animations: directive.animations,
+                  interpolation: directive.interpolation
               });
           }
           else {
               return new _angular_core.Directive({
-                  selector: dm.selector,
+                  selector: directive.selector,
                   inputs: mergedInputs,
                   outputs: mergedOutputs,
                   host: mergedHost,
-                  exportAs: dm.exportAs,
+                  exportAs: directive.exportAs,
                   queries: mergedQueries,
-                  providers: dm.providers
+                  providers: directive.providers
               });
           }
       };
@@ -13790,31 +13758,32 @@
       ];
       return DirectiveResolver;
   }());
+  function isDirectiveMetadata(type) {
+      return type instanceof _angular_core.Directive;
+  }
 
-  var LIFECYCLE_INTERFACES = MapWrapper.createFromPairs([
-      [LifecycleHooks.OnInit, _angular_core.OnInit],
-      [LifecycleHooks.OnDestroy, _angular_core.OnDestroy],
-      [LifecycleHooks.DoCheck, _angular_core.DoCheck],
-      [LifecycleHooks.OnChanges, _angular_core.OnChanges],
-      [LifecycleHooks.AfterContentInit, _angular_core.AfterContentInit],
-      [LifecycleHooks.AfterContentChecked, _angular_core.AfterContentChecked],
-      [LifecycleHooks.AfterViewInit, _angular_core.AfterViewInit],
-      [LifecycleHooks.AfterViewChecked, _angular_core.AfterViewChecked],
-  ]);
-  var LIFECYCLE_PROPS = MapWrapper.createFromPairs([
-      [LifecycleHooks.OnInit, 'ngOnInit'],
-      [LifecycleHooks.OnDestroy, 'ngOnDestroy'],
-      [LifecycleHooks.DoCheck, 'ngDoCheck'],
-      [LifecycleHooks.OnChanges, 'ngOnChanges'],
-      [LifecycleHooks.AfterContentInit, 'ngAfterContentInit'],
-      [LifecycleHooks.AfterContentChecked, 'ngAfterContentChecked'],
-      [LifecycleHooks.AfterViewInit, 'ngAfterViewInit'],
-      [LifecycleHooks.AfterViewChecked, 'ngAfterViewChecked'],
-  ]);
   function hasLifecycleHook(hook, token) {
-      var lcInterface = LIFECYCLE_INTERFACES.get(hook);
-      var lcProp = LIFECYCLE_PROPS.get(hook);
-      return reflector.hasLifecycleHook(token, lcInterface, lcProp);
+      return reflector.hasLifecycleHook(token, getHookName(hook));
+  }
+  function getHookName(hook) {
+      switch (hook) {
+          case LifecycleHooks.OnInit:
+              return 'ngOnInit';
+          case LifecycleHooks.OnDestroy:
+              return 'ngOnDestroy';
+          case LifecycleHooks.DoCheck:
+              return 'ngDoCheck';
+          case LifecycleHooks.OnChanges:
+              return 'ngOnChanges';
+          case LifecycleHooks.AfterContentInit:
+              return 'ngAfterContentInit';
+          case LifecycleHooks.AfterContentChecked:
+              return 'ngAfterContentChecked';
+          case LifecycleHooks.AfterViewInit:
+              return 'ngAfterViewInit';
+          case LifecycleHooks.AfterViewChecked:
+              return 'ngAfterViewChecked';
+      }
   }
 
   function _isNgModuleMetadata(obj) {
@@ -13900,7 +13869,7 @@
    * Use of this source code is governed by an MIT-style license that can be
    * found in the LICENSE file at https://angular.io/license
    */
-  var __extends$14 = (this && this.__extends) || function (d, b) {
+  var __extends$16 = (this && this.__extends) || function (d, b) {
       for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
       function __() { this.constructor = d; }
       d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -14385,7 +14354,7 @@
       CompileMetadataResolver.prototype.getTokenMetadata = function (token) {
           token = _angular_core.resolveForwardRef(token);
           var compileToken;
-          if (isString(token)) {
+          if (typeof token === 'string') {
               compileToken = new CompileTokenMetadata({ value: token });
           }
           else {
@@ -14588,7 +14557,7 @@
       return visitValue(value, new _CompileValueConverter(), targetIdentifiers);
   }
   var _CompileValueConverter = (function (_super) {
-      __extends$14(_CompileValueConverter, _super);
+      __extends$16(_CompileValueConverter, _super);
       function _CompileValueConverter() {
           _super.apply(this, arguments);
       }
@@ -14720,12 +14689,12 @@
               result = this._getDependency(new CompileDiDependencyMetadata({ token: provider.useExisting }));
           }
           else if (isPresent(provider.useFactory)) {
-              var deps = isPresent(provider.deps) ? provider.deps : provider.useFactory.diDeps;
+              var deps = provider.deps || provider.useFactory.diDeps;
               var depsExpr = deps.map(function (dep) { return _this._getDependency(dep); });
               result = importExpr(provider.useFactory).callFn(depsExpr);
           }
           else if (isPresent(provider.useClass)) {
-              var deps = isPresent(provider.deps) ? provider.deps : provider.useClass.diDeps;
+              var deps = provider.deps || provider.useClass.diDeps;
               var depsExpr = deps.map(function (dep) { return _this._getDependency(dep); });
               result =
                   importExpr(provider.useClass).instantiate(depsExpr, importType(provider.useClass));
@@ -14746,7 +14715,7 @@
               resolvedProviderValueExpr = providerValueExpressions[0];
               type = providerValueExpressions[0].type;
           }
-          if (isBlank(type)) {
+          if (!type) {
               type = DYNAMIC_TYPE;
           }
           if (isEager) {
@@ -14777,11 +14746,11 @@
                           resolveIdentifierToken(Identifiers.ComponentFactoryResolver).reference)) {
                   result = THIS_EXPR;
               }
-              if (isBlank(result)) {
+              if (!result) {
                   result = this._instances.get(dep.token.reference);
               }
           }
-          if (isBlank(result)) {
+          if (!result) {
               var args = [createDiTokenExpression(dep.token)];
               if (dep.isOptional) {
                   args.push(NULL_EXPR);
@@ -15035,7 +15004,7 @@
       AbstractEmitterVisitor.prototype.visitLiteralExpr = function (ast, ctx, absentValue) {
           if (absentValue === void 0) { absentValue = 'null'; }
           var value = ast.value;
-          if (isString(value)) {
+          if (typeof value === 'string') {
               ctx.print(escapeIdentifier(value, this._escapeDollarInStrings));
           }
           else if (isBlank(value)) {
@@ -15146,7 +15115,7 @@
           var useNewLine = ast.entries.length > 1;
           ctx.print("{", useNewLine);
           ctx.incIndent();
-          this.visitAllObjects(function (entry /** TODO #9100 */) {
+          this.visitAllObjects(function (entry) {
               ctx.print(escapeIdentifier(entry[0], _this._escapeDollarInStrings, false) + ": ");
               entry[1].visitExpression(_this, ctx);
           }, ast.entries, ctx, ',', useNewLine);
@@ -15157,7 +15126,7 @@
       AbstractEmitterVisitor.prototype.visitAllExpressions = function (expressions, ctx, separator, newLine) {
           var _this = this;
           if (newLine === void 0) { newLine = false; }
-          this.visitAllObjects(function (expr /** TODO #9100 */) { return expr.visitExpression(_this, ctx); }, expressions, ctx, separator, newLine);
+          this.visitAllObjects(function (expr) { return expr.visitExpression(_this, ctx); }, expressions, ctx, separator, newLine);
       };
       AbstractEmitterVisitor.prototype.visitAllObjects = function (handler, expressions, ctx, separator, newLine) {
           if (newLine === void 0) { newLine = false; }
@@ -15182,7 +15151,11 @@
       if (isBlank(input)) {
           return null;
       }
-      var body = StringWrapper.replaceAllMapped(input, _SINGLE_QUOTE_ESCAPE_STRING_RE, function (match /** TODO #9100 */) {
+      var body = input.replace(_SINGLE_QUOTE_ESCAPE_STRING_RE, function () {
+          var match = [];
+          for (var _i = 0; _i < arguments.length; _i++) {
+              match[_i - 0] = arguments[_i];
+          }
           if (match[0] == '$') {
               return escapeDollar ? '\\$' : '$';
           }
@@ -15214,7 +15187,7 @@
    * Use of this source code is governed by an MIT-style license that can be
    * found in the LICENSE file at https://angular.io/license
    */
-  var __extends$15 = (this && this.__extends) || function (d, b) {
+  var __extends$17 = (this && this.__extends) || function (d, b) {
       for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
       function __() { this.constructor = d; }
       d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -15223,13 +15196,7 @@
   function debugOutputAstAsTypeScript(ast) {
       var converter = new _TsEmitterVisitor(_debugModuleUrl);
       var ctx = EmitterVisitorContext.createRoot([]);
-      var asts;
-      if (isArray(ast)) {
-          asts = ast;
-      }
-      else {
-          asts = [ast];
-      }
+      var asts = Array.isArray(ast) ? ast : [ast];
       asts.forEach(function (ast) {
           if (ast instanceof Statement) {
               ast.visitStatement(converter, ctx);
@@ -15267,7 +15234,7 @@
       return TypeScriptEmitter;
   }());
   var _TsEmitterVisitor = (function (_super) {
-      __extends$15(_TsEmitterVisitor, _super);
+      __extends$17(_TsEmitterVisitor, _super);
       function _TsEmitterVisitor(_moduleUrl) {
           _super.call(this, false);
           this._moduleUrl = _moduleUrl;
@@ -15284,6 +15251,20 @@
       };
       _TsEmitterVisitor.prototype.visitLiteralExpr = function (ast, ctx) {
           _super.prototype.visitLiteralExpr.call(this, ast, ctx, '(null as any)');
+      };
+      // Temporary workaround to support strictNullCheck enabled consumers of ngc emit.
+      // In SNC mode, [] have the type never[], so we cast here to any[].
+      // TODO: narrow the cast to a more explicit type, or use a pattern that does not
+      // start with [].concat. see https://github.com/angular/angular/pull/11846
+      _TsEmitterVisitor.prototype.visitLiteralArrayExpr = function (ast, ctx) {
+          if (ast.entries.length === 0) {
+              ctx.print('(');
+          }
+          var result = _super.prototype.visitLiteralArrayExpr.call(this, ast, ctx);
+          if (ast.entries.length === 0) {
+              ctx.print(' as any[])');
+          }
+          return result;
       };
       _TsEmitterVisitor.prototype.visitExternalExpr = function (ast, ctx) {
           this._visitIdentifier(ast.value, ast.typeParams, ctx);
@@ -15487,7 +15468,7 @@
       };
       _TsEmitterVisitor.prototype._visitParams = function (params, ctx) {
           var _this = this;
-          this.visitAllObjects(function (param /** TODO #9100 */) {
+          this.visitAllObjects(function (param) {
               ctx.print(param.name);
               ctx.print(':');
               _this.visitType(param.type, ctx);
@@ -15516,7 +15497,7 @@
           }
           if (isPresent(typeParams) && typeParams.length > 0) {
               ctx.print("<");
-              this.visitAllObjects(function (type /** TODO #9100 */) { return type.visitType(_this, ctx); }, typeParams, ctx, ',');
+              this.visitAllObjects(function (type) { return type.visitType(_this, ctx); }, typeParams, ctx, ',');
               ctx.print(">");
           }
       };
@@ -15596,7 +15577,7 @@
           _classStmt.fields.forEach(function (field) { _this[field.name] = undefined; });
           _executeFunctionStatements(ctorParamNames, args, _classStmt.constructorMethod.body, instanceCtx, _visitor);
       };
-      var superClass = _classStmt.parent.visitExpression(_visitor, _ctx);
+      var superClass = _classStmt.parent ? _classStmt.parent.visitExpression(_visitor, _ctx) : Object;
       ctor.prototype = Object.create(superClass.prototype, propertyDescriptors);
       return ctor;
   }
@@ -15860,13 +15841,13 @@
    * Use of this source code is governed by an MIT-style license that can be
    * found in the LICENSE file at https://angular.io/license
    */
-  var __extends$17 = (this && this.__extends) || function (d, b) {
+  var __extends$19 = (this && this.__extends) || function (d, b) {
       for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
       function __() { this.constructor = d; }
       d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
   };
   var AbstractJsEmitterVisitor = (function (_super) {
-      __extends$17(AbstractJsEmitterVisitor, _super);
+      __extends$19(AbstractJsEmitterVisitor, _super);
       function AbstractJsEmitterVisitor() {
           _super.call(this, false);
       }
@@ -15996,7 +15977,7 @@
           return null;
       };
       AbstractJsEmitterVisitor.prototype._visitParams = function (params, ctx) {
-          this.visitAllObjects(function (param /** TODO #9100 */) { return ctx.print(param.name); }, params, ctx, ',');
+          this.visitAllObjects(function (param) { return ctx.print(param.name); }, params, ctx, ',');
       };
       AbstractJsEmitterVisitor.prototype.getBuiltinMethodName = function (method) {
           var name;
@@ -16025,11 +16006,21 @@
    * Use of this source code is governed by an MIT-style license that can be
    * found in the LICENSE file at https://angular.io/license
    */
-  var __extends$16 = (this && this.__extends) || function (d, b) {
+  var __extends$18 = (this && this.__extends) || function (d, b) {
       for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
       function __() { this.constructor = d; }
       d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
   };
+  function evalExpression(sourceUrl, expr, declarations, vars) {
+      var fnBody = declarations + "\nreturn " + expr + "\n//# sourceURL=" + sourceUrl;
+      var fnArgNames = [];
+      var fnArgValues = [];
+      for (var argName in vars) {
+          fnArgNames.push(argName);
+          fnArgValues.push(vars[argName]);
+      }
+      return new (Function.bind.apply(Function, [void 0].concat(fnArgNames.concat(fnBody))))().apply(void 0, fnArgValues);
+  }
   function jitStatements(sourceUrl, statements, resultVar) {
       var converter = new JitEmitterVisitor();
       var ctx = EmitterVisitorContext.createRoot([resultVar]);
@@ -16037,7 +16028,7 @@
       return evalExpression(sourceUrl, resultVar, ctx.toSource(), converter.getArgs());
   }
   var JitEmitterVisitor = (function (_super) {
-      __extends$16(JitEmitterVisitor, _super);
+      __extends$18(JitEmitterVisitor, _super);
       function JitEmitterVisitor() {
           _super.apply(this, arguments);
           this._evalArgNames = [];
@@ -16065,6 +16056,13 @@
       return JitEmitterVisitor;
   }(AbstractJsEmitterVisitor));
 
+  /**
+   * @license
+   * Copyright Google Inc. All Rights Reserved.
+   *
+   * Use of this source code is governed by an MIT-style license that can be
+   * found in the LICENSE file at https://angular.io/license
+   */
   /**
    * This file is a port of shadowCSS from webcomponents.js to TypeScript.
    *
@@ -16228,7 +16226,13 @@
       **/
       ShadowCss.prototype._insertPolyfillDirectivesInCssText = function (cssText) {
           // Difference with webcomponents.js: does not handle comments
-          return StringWrapper.replaceAllMapped(cssText, _cssContentNextSelectorRe, function (m /** TODO #9100 */) { return m[1] + '{'; });
+          return cssText.replace(_cssContentNextSelectorRe, function () {
+              var m = [];
+              for (var _i = 0; _i < arguments.length; _i++) {
+                  m[_i - 0] = arguments[_i];
+              }
+              return m[2] + '{';
+          });
       };
       /*
        * Process styles to add rules which will only apply under the polyfill
@@ -16247,11 +16251,13 @@
       **/
       ShadowCss.prototype._insertPolyfillRulesInCssText = function (cssText) {
           // Difference with webcomponents.js: does not handle comments
-          return StringWrapper.replaceAllMapped(cssText, _cssContentRuleRe, function (m /** TODO #9100 */) {
-              var rule = m[0];
-              rule = StringWrapper.replace(rule, m[1], '');
-              rule = StringWrapper.replace(rule, m[2], '');
-              return m[3] + rule;
+          return cssText.replace(_cssContentRuleRe, function () {
+              var m = [];
+              for (var _i = 0; _i < arguments.length; _i++) {
+                  m[_i - 0] = arguments[_i];
+              }
+              var rule = m[0].replace(m[1], '').replace(m[2], '');
+              return m[4] + rule;
           });
       };
       /* Ensure styles are scoped. Pseudo-scoping takes a rule like:
@@ -16263,15 +16269,16 @@
        *  scopeName .foo { ... }
       */
       ShadowCss.prototype._scopeCssText = function (cssText, scopeSelector, hostSelector) {
-          var unscoped = this._extractUnscopedRulesFromCssText(cssText);
+          var unscopedRules = this._extractUnscopedRulesFromCssText(cssText);
+          // replace :host and :host-context -shadowcsshost and -shadowcsshost respectively
           cssText = this._insertPolyfillHostInCssText(cssText);
           cssText = this._convertColonHost(cssText);
           cssText = this._convertColonHostContext(cssText);
           cssText = this._convertShadowDOMSelectors(cssText);
-          if (isPresent(scopeSelector)) {
+          if (scopeSelector) {
               cssText = this._scopeSelectors(cssText, scopeSelector, hostSelector);
           }
-          cssText = cssText + '\n' + unscoped;
+          cssText = cssText + '\n' + unscopedRules;
           return cssText.trim();
       };
       /*
@@ -16295,9 +16302,7 @@
           var m;
           _cssContentUnscopedRuleRe.lastIndex = 0;
           while ((m = _cssContentUnscopedRuleRe.exec(cssText)) !== null) {
-              var rule = m[0];
-              rule = StringWrapper.replace(rule, m[2], '');
-              rule = StringWrapper.replace(rule, m[1], m[3]);
+              var rule = m[0].replace(m[2], '').replace(m[1], m[4]);
               r += rule + '\n\n';
           }
           return r;
@@ -16307,7 +16312,7 @@
        *
        * to
        *
-       * scopeName.foo > .bar
+       * .foo<scopeName> > .bar
       */
       ShadowCss.prototype._convertColonHost = function (cssText) {
           return this._convertColonRule(cssText, _cssColonHostRe, this._colonHostPartReplacer);
@@ -16317,7 +16322,7 @@
        *
        * to
        *
-       * scopeName.foo > .bar, .foo scopeName > .bar { }
+       * .foo<scopeName> > .bar, .foo scopeName > .bar { }
        *
        * and
        *
@@ -16325,21 +16330,25 @@
        *
        * to
        *
-       * scopeName.foo .bar { ... }
+       * .foo<scopeName> .bar { ... }
       */
       ShadowCss.prototype._convertColonHostContext = function (cssText) {
           return this._convertColonRule(cssText, _cssColonHostContextRe, this._colonHostContextPartReplacer);
       };
       ShadowCss.prototype._convertColonRule = function (cssText, regExp, partReplacer) {
-          // p1 = :host, p2 = contents of (), p3 rest of rule
-          return StringWrapper.replaceAllMapped(cssText, regExp, function (m /** TODO #9100 */) {
-              if (isPresent(m[2])) {
-                  var parts = m[2].split(','), r = [];
+          // m[1] = :host(-context), m[2] = contents of (), m[3] rest of rule
+          return cssText.replace(regExp, function () {
+              var m = [];
+              for (var _i = 0; _i < arguments.length; _i++) {
+                  m[_i - 0] = arguments[_i];
+              }
+              if (m[2]) {
+                  var parts = m[2].split(',');
+                  var r = [];
                   for (var i = 0; i < parts.length; i++) {
-                      var p = parts[i];
-                      if (isBlank(p))
+                      var p = parts[i].trim();
+                      if (!p)
                           break;
-                      p = p.trim();
                       r.push(partReplacer(_polyfillHostNoCombinator, p, m[3]));
                   }
                   return r.join(',');
@@ -16350,7 +16359,7 @@
           });
       };
       ShadowCss.prototype._colonHostContextPartReplacer = function (host, part, suffix) {
-          if (StringWrapper.contains(part, _polyfillHost)) {
+          if (part.indexOf(_polyfillHost) > -1) {
               return this._colonHostPartReplacer(host, part, suffix);
           }
           else {
@@ -16358,14 +16367,14 @@
           }
       };
       ShadowCss.prototype._colonHostPartReplacer = function (host, part, suffix) {
-          return host + StringWrapper.replace(part, _polyfillHost, '') + suffix;
+          return host + part.replace(_polyfillHost, '') + suffix;
       };
       /*
        * Convert combinators like ::shadow and pseudo-elements like ::content
        * by replacing with space.
       */
       ShadowCss.prototype._convertShadowDOMSelectors = function (cssText) {
-          return _shadowDOMSelectorsRe.reduce(function (result, pattern) { return StringWrapper.replaceAll(result, pattern, ' '); }, cssText);
+          return _shadowDOMSelectorsRe.reduce(function (result, pattern) { return result.replace(pattern, ' '); }, cssText);
       };
       // change a selector like 'div' to 'name div'
       ShadowCss.prototype._scopeSelectors = function (cssText, scopeSelector, hostSelector) {
@@ -16373,11 +16382,12 @@
           return processRules(cssText, function (rule) {
               var selector = rule.selector;
               var content = rule.content;
-              if (rule.selector[0] != '@' || rule.selector.startsWith('@page')) {
+              if (rule.selector[0] != '@') {
                   selector =
                       _this._scopeSelector(rule.selector, scopeSelector, hostSelector, _this.strictStyling);
               }
-              else if (rule.selector.startsWith('@media') || rule.selector.startsWith('@supports')) {
+              else if (rule.selector.startsWith('@media') || rule.selector.startsWith('@supports') ||
+                  rule.selector.startsWith('@page') || rule.selector.startsWith('@document')) {
                   content = _this._scopeSelectors(rule.content, scopeSelector, hostSelector);
               }
               return new CssRule(selector, content);
@@ -16410,8 +16420,7 @@
       ShadowCss.prototype._makeScopeMatcher = function (scopeSelector) {
           var lre = /\[/g;
           var rre = /\]/g;
-          scopeSelector = StringWrapper.replaceAll(scopeSelector, lre, '\\[');
-          scopeSelector = StringWrapper.replaceAll(scopeSelector, rre, '\\]');
+          scopeSelector = scopeSelector.replace(lre, '\\[').replace(rre, '\\]');
           return new RegExp('^(' + scopeSelector + ')' + _selectorReSuffix, 'm');
       };
       ShadowCss.prototype._applySelectorScope = function (selector, scopeSelector, hostSelector) {
@@ -16423,13 +16432,12 @@
           // In Android browser, the lastIndex is not reset when the regex is used in String.replace()
           _polyfillHostRe.lastIndex = 0;
           if (_polyfillHostRe.test(selector)) {
-              var replaceBy = this.strictStyling ? "[" + hostSelector + "]" : scopeSelector;
-              selector = StringWrapper.replace(selector, _polyfillHostNoCombinator, replaceBy);
-              return StringWrapper.replaceAll(selector, _polyfillHostRe, replaceBy + ' ');
+              var replaceBy_1 = this.strictStyling ? "[" + hostSelector + "]" : scopeSelector;
+              return selector
+                  .replace(_polyfillHostNoCombinatorRe, function (hnc, selector) { return selector[0] === ':' ? replaceBy_1 + selector : selector + replaceBy_1; })
+                  .replace(_polyfillHostRe, replaceBy_1 + ' ');
           }
-          else {
-              return scopeSelector + ' ' + selector;
-          }
+          return scopeSelector + ' ' + selector;
       };
       // return a selector with [name] suffix on each simple selector
       // e.g. .foo.bar > .zot becomes .foo[name].bar[name] > .zot[name]  /** @internal */
@@ -16446,7 +16454,7 @@
           var attrName = '[' + scopeSelector + ']';
           var _scopeSelectorPart = function (p) {
               var scopedP = p.trim();
-              if (scopedP.length == 0) {
+              if (!scopedP) {
                   return '';
               }
               if (p.indexOf(_polyfillHostNoCombinator) > -1) {
@@ -16464,21 +16472,33 @@
               }
               return scopedP;
           };
-          var sep = /( |>|\+|~(?!=))\s*/g;
-          var scopeAfter = selector.indexOf(_polyfillHostNoCombinator);
-          var scoped = '';
+          var attrSelectorIndex = 0;
+          var attrSelectors = [];
+          // replace attribute selectors with placeholders to avoid issue with white space being treated
+          // as separator
+          selector = selector.replace(/\[[^\]]*\]/g, function (attrSelector) {
+              var replaceBy = "__attr_sel_" + attrSelectorIndex + "__";
+              attrSelectors.push(attrSelector);
+              attrSelectorIndex++;
+              return replaceBy;
+          });
+          var scopedSelector = '';
           var startIndex = 0;
           var res;
+          var sep = /( |>|\+|~(?!=))\s*/g;
+          var scopeAfter = selector.indexOf(_polyfillHostNoCombinator);
           while ((res = sep.exec(selector)) !== null) {
               var separator = res[1];
               var part = selector.slice(startIndex, res.index).trim();
               // if a selector appears before :host-context it should not be shimmed as it
               // matches on ancestor elements and not on elements in the host's shadow
               var scopedPart = startIndex >= scopeAfter ? _scopeSelectorPart(part) : part;
-              scoped += scopedPart + " " + separator + " ";
+              scopedSelector += scopedPart + " " + separator + " ";
               startIndex = sep.lastIndex;
           }
-          return scoped + _scopeSelectorPart(selector.substring(startIndex));
+          scopedSelector += _scopeSelectorPart(selector.substring(startIndex));
+          // replace the placeholders with their original values
+          return scopedSelector.replace(/__attr_sel_(\d+)__/g, function (ph, index) { return attrSelectors[+index]; });
       };
       ShadowCss.prototype._insertPolyfillHostInCssText = function (selector) {
           return selector.replace(_colonHostContextRe, _polyfillHostContext)
@@ -16486,9 +16506,9 @@
       };
       return ShadowCss;
   }());
-  var _cssContentNextSelectorRe = /polyfill-next-selector[^}]*content:[\s]*?['"](.*?)['"][;\s]*}([^{]*?){/gim;
-  var _cssContentRuleRe = /(polyfill-rule)[^}]*(content:[\s]*['"](.*?)['"])[;\s]*[^}]*}/gim;
-  var _cssContentUnscopedRuleRe = /(polyfill-unscoped-rule)[^}]*(content:[\s]*['"](.*?)['"])[;\s]*[^}]*}/gim;
+  var _cssContentNextSelectorRe = /polyfill-next-selector[^}]*content:[\s]*?(['"])(.*?)\1[;\s]*}([^{]*?){/gim;
+  var _cssContentRuleRe = /(polyfill-rule)[^}]*(content:[\s]*(['"])(.*?)\3)[;\s]*[^}]*}/gim;
+  var _cssContentUnscopedRuleRe = /(polyfill-unscoped-rule)[^}]*(content:[\s]*(['"])(.*?)\3)[;\s]*[^}]*}/gim;
   var _polyfillHost = '-shadowcsshost';
   // note: :host-context pre-processed to -shadowcsshostcontext.
   var _polyfillHostContext = '-shadowcsscontext';
@@ -16498,6 +16518,7 @@
   var _cssColonHostRe = new RegExp('(' + _polyfillHost + _parenSuffix, 'gim');
   var _cssColonHostContextRe = new RegExp('(' + _polyfillHostContext + _parenSuffix, 'gim');
   var _polyfillHostNoCombinator = _polyfillHost + '-no-combinator';
+  var _polyfillHostNoCombinatorRe = /-shadowcsshost-no-combinator([^\s]*)/;
   var _shadowDOMSelectorsRe = [
       /::shadow/g,
       /::content/g,
@@ -16512,7 +16533,7 @@
   var _colonHostContextRe = /:host-context/gim;
   var _commentRe = /\/\*\s*[\s\S]*?\*\//g;
   function stripComments(input) {
-      return StringWrapper.replaceAllMapped(input, _commentRe, function (_ /** TODO #9100 */) { return ''; });
+      return input.replace(_commentRe, '');
   }
   // all comments except inline source mapping
   var _sourceMappingUrlRe = /\/\*\s*#\s*sourceMappingURL=[\s\S]+?\*\//;
@@ -16535,14 +16556,18 @@
   function processRules(input, ruleCallback) {
       var inputWithEscapedBlocks = escapeBlocks(input);
       var nextBlockIndex = 0;
-      return StringWrapper.replaceAllMapped(inputWithEscapedBlocks.escapedString, _ruleRe, function (m /** TODO #9100 */) {
+      return inputWithEscapedBlocks.escapedString.replace(_ruleRe, function () {
+          var m = [];
+          for (var _i = 0; _i < arguments.length; _i++) {
+              m[_i - 0] = arguments[_i];
+          }
           var selector = m[2];
           var content = '';
           var suffix = m[4];
           var contentPrefix = '';
-          if (isPresent(m[4]) && m[4].startsWith('{' + BLOCK_PLACEHOLDER)) {
+          if (suffix && suffix.startsWith('{' + BLOCK_PLACEHOLDER)) {
               content = inputWithEscapedBlocks.blocks[nextBlockIndex++];
-              suffix = m[4].substring(BLOCK_PLACEHOLDER.length + 1);
+              suffix = suffix.substring(BLOCK_PLACEHOLDER.length + 1);
               contentPrefix = '{';
           }
           var rule = ruleCallback(new CssRule(selector, content));
@@ -16557,7 +16582,7 @@
       return StringWithEscapedBlocks;
   }());
   function escapeBlocks(input) {
-      var inputParts = StringWrapper.split(input, _curlyRe);
+      var inputParts = input.split(_curlyRe);
       var resultParts = [];
       var escapedBlocks = [];
       var bracketCount = 0;
@@ -16684,7 +16709,7 @@
    * application to XSS risks.  For more detail, see the [Security Guide](http://g.co/ng/security).
    */
   var RuntimeCompiler = (function () {
-      function RuntimeCompiler(_injector, _metadataResolver, _templateNormalizer, _templateParser, _styleCompiler, _viewCompiler, _ngModuleCompiler, _compilerConfig) {
+      function RuntimeCompiler(_injector, _metadataResolver, _templateNormalizer, _templateParser, _styleCompiler, _viewCompiler, _ngModuleCompiler, _directiveWrapperCompiler, _compilerConfig) {
           this._injector = _injector;
           this._metadataResolver = _metadataResolver;
           this._templateNormalizer = _templateNormalizer;
@@ -16692,10 +16717,14 @@
           this._styleCompiler = _styleCompiler;
           this._viewCompiler = _viewCompiler;
           this._ngModuleCompiler = _ngModuleCompiler;
+          this._directiveWrapperCompiler = _directiveWrapperCompiler;
           this._compilerConfig = _compilerConfig;
           this._compiledTemplateCache = new Map();
           this._compiledHostTemplateCache = new Map();
+          this._compiledDirectiveWrapperCache = new Map();
           this._compiledNgModuleCache = new Map();
+          this._animationParser = new AnimationParser();
+          this._animationCompiler = new AnimationCompiler();
       }
       Object.defineProperty(RuntimeCompiler.prototype, "injector", {
           get: function () { return this._injector; },
@@ -16726,10 +16755,10 @@
           var moduleMeta = this._metadataResolver.getNgModuleMetadata(moduleType);
           var componentFactories = [];
           var templates = new Set();
-          moduleMeta.transitiveModule.modules.forEach(function (moduleMeta) {
-              moduleMeta.declaredDirectives.forEach(function (dirMeta) {
+          moduleMeta.transitiveModule.modules.forEach(function (localModuleMeta) {
+              localModuleMeta.declaredDirectives.forEach(function (dirMeta) {
                   if (dirMeta.isComponent) {
-                      var template = _this._createCompiledHostTemplate(dirMeta.type.reference);
+                      var template = _this._createCompiledHostTemplate(dirMeta.type.reference, localModuleMeta);
                       templates.add(template);
                       componentFactories.push(template.proxyComponentFactory);
                   }
@@ -16764,7 +16793,7 @@
                       interpretStatements(compileResult.statements, compileResult.ngModuleFactoryVar);
               }
               else {
-                  ngModuleFactory = jitStatements(moduleMeta_1.type.name + ".ngfactory.js", compileResult.statements, compileResult.ngModuleFactoryVar);
+                  ngModuleFactory = jitStatements("/" + moduleMeta_1.type.name + "/module.ngfactory.js", compileResult.statements, compileResult.ngModuleFactoryVar);
               }
               this._compiledNgModuleCache.set(moduleMeta_1.type.reference, ngModuleFactory);
           }
@@ -16778,18 +16807,28 @@
           var templates = new Set();
           var loadingPromises = [];
           var ngModule = this._metadataResolver.getNgModuleMetadata(mainModule);
+          var moduleByDirective = new Map();
+          ngModule.transitiveModule.modules.forEach(function (localModuleMeta) {
+              localModuleMeta.declaredDirectives.forEach(function (dirMeta) {
+                  moduleByDirective.set(dirMeta.type.reference, localModuleMeta);
+                  _this._compileDirectiveWrapper(dirMeta, localModuleMeta);
+                  if (dirMeta.isComponent) {
+                      templates.add(_this._createCompiledTemplate(dirMeta, localModuleMeta));
+                  }
+              });
+          });
           ngModule.transitiveModule.modules.forEach(function (localModuleMeta) {
               localModuleMeta.declaredDirectives.forEach(function (dirMeta) {
                   if (dirMeta.isComponent) {
-                      templates.add(_this._createCompiledTemplate(dirMeta, localModuleMeta));
                       dirMeta.entryComponents.forEach(function (entryComponentType) {
-                          templates.add(_this._createCompiledHostTemplate(entryComponentType.reference));
+                          var moduleMeta = moduleByDirective.get(entryComponentType.reference);
+                          templates.add(_this._createCompiledHostTemplate(entryComponentType.reference, moduleMeta));
                       });
                   }
               });
               localModuleMeta.entryComponents.forEach(function (entryComponentType) {
-                  templates.add(_this._createCompiledHostTemplate(entryComponentType.reference));
-                  // TODO: what about entryComponents of entryComponents?
+                  var moduleMeta = moduleByDirective.get(entryComponentType.reference);
+                  templates.add(_this._createCompiledHostTemplate(entryComponentType.reference, moduleMeta));
               });
           });
           templates.forEach(function (template) {
@@ -16828,22 +16867,25 @@
           this._templateNormalizer.clearCache();
           this._compiledNgModuleCache.clear();
       };
-      RuntimeCompiler.prototype._createCompiledHostTemplate = function (compType) {
+      RuntimeCompiler.prototype._createCompiledHostTemplate = function (compType, ngModule) {
+          if (!ngModule) {
+              throw new Error("Component " + stringify(compType) + " is not part of any NgModule or the module has not been imported into your module.");
+          }
           var compiledTemplate = this._compiledHostTemplateCache.get(compType);
-          if (isBlank(compiledTemplate)) {
+          if (!compiledTemplate) {
               var compMeta = this._metadataResolver.getDirectiveMetadata(compType);
               assertComponent(compMeta);
               var hostMeta = createHostComponentMeta(compMeta);
-              compiledTemplate = new CompiledTemplate(true, compMeta.selector, compMeta.type, [compMeta], [], [], this._templateNormalizer.normalizeDirective(hostMeta));
+              compiledTemplate = new CompiledTemplate(true, compMeta.selector, compMeta.type, ngModule, [compMeta], this._templateNormalizer.normalizeDirective(hostMeta));
               this._compiledHostTemplateCache.set(compType, compiledTemplate);
           }
           return compiledTemplate;
       };
       RuntimeCompiler.prototype._createCompiledTemplate = function (compMeta, ngModule) {
           var compiledTemplate = this._compiledTemplateCache.get(compMeta.type.reference);
-          if (isBlank(compiledTemplate)) {
+          if (!compiledTemplate) {
               assertComponent(compMeta);
-              compiledTemplate = new CompiledTemplate(false, compMeta.selector, compMeta.type, ngModule.transitiveModule.directives, ngModule.transitiveModule.pipes, ngModule.schemas, this._templateNormalizer.normalizeDirective(compMeta));
+              compiledTemplate = new CompiledTemplate(false, compMeta.selector, compMeta.type, ngModule, ngModule.transitiveModule.directives, this._templateNormalizer.normalizeDirective(compMeta));
               this._compiledTemplateCache.set(compMeta.type.reference, compiledTemplate);
           }
           return compiledTemplate;
@@ -16852,12 +16894,7 @@
           var compiledTemplate = isHost ? this._compiledHostTemplateCache.get(compType) :
               this._compiledTemplateCache.get(compType);
           if (!compiledTemplate) {
-              if (isHost) {
-                  throw new Error("Illegal state: Compiled view for component " + stringify(compType) + " does not exist!");
-              }
-              else {
-                  throw new Error("Component " + stringify(compType) + " is not part of any NgModule or the module has not been imported into your module.");
-              }
+              throw new Error("Illegal state: Compiled view for component " + stringify(compType) + " does not exist!");
           }
           return compiledTemplate;
       };
@@ -16867,6 +16904,25 @@
               throw new Error("Illegal state: CompiledTemplate for " + stringify(compType) + " (isHost: " + isHost + ") is still loading!");
           }
           return compiledTemplate;
+      };
+      RuntimeCompiler.prototype._assertDirectiveWrapper = function (dirType) {
+          var dirWrapper = this._compiledDirectiveWrapperCache.get(dirType);
+          if (!dirWrapper) {
+              throw new Error("Illegal state: Directive wrapper for " + stringify(dirType) + " has not been compiled!");
+          }
+          return dirWrapper;
+      };
+      RuntimeCompiler.prototype._compileDirectiveWrapper = function (dirMeta, moduleMeta) {
+          var compileResult = this._directiveWrapperCompiler.compile(dirMeta);
+          var statements = compileResult.statements;
+          var directiveWrapperClass;
+          if (!this._compilerConfig.useJit) {
+              directiveWrapperClass = interpretStatements(statements, compileResult.dirWrapperClassVar);
+          }
+          else {
+              directiveWrapperClass = jitStatements("/" + moduleMeta.type.name + "/" + dirMeta.type.name + "/wrapper.ngfactory.js", statements, compileResult.dirWrapperClassVar);
+          }
+          this._compiledDirectiveWrapperCache.set(dirMeta.type.reference, directiveWrapperClass);
       };
       RuntimeCompiler.prototype._compileTemplate = function (template) {
           var _this = this;
@@ -16879,8 +16935,10 @@
           stylesCompileResult.externalStylesheets.forEach(function (r) { externalStylesheetsByModuleUrl.set(r.meta.moduleUrl, r); });
           this._resolveStylesCompileResult(stylesCompileResult.componentStylesheet, externalStylesheetsByModuleUrl);
           var viewCompMetas = template.viewComponentTypes.map(function (compType) { return _this._assertComponentLoaded(compType, false).normalizedCompMeta; });
+          var parsedAnimations = this._animationParser.parseComponent(compMeta);
           var parsedTemplate = this._templateParser.parse(compMeta, compMeta.template.template, template.viewDirectives.concat(viewCompMetas), template.viewPipes, template.schemas, compMeta.type.name);
-          var compileResult = this._viewCompiler.compileComponent(compMeta, parsedTemplate, variable(stylesCompileResult.componentStylesheet.stylesVar), template.viewPipes);
+          var compiledAnimations = this._animationCompiler.compile(compMeta.type.name, parsedAnimations);
+          var compileResult = this._viewCompiler.compileComponent(compMeta, parsedTemplate, variable(stylesCompileResult.componentStylesheet.stylesVar), template.viewPipes, compiledAnimations);
           compileResult.dependencies.forEach(function (dep) {
               var depTemplate;
               if (dep instanceof ViewFactoryDependency) {
@@ -16895,14 +16953,19 @@
                   cfd.placeholder.reference = depTemplate.proxyComponentFactory;
                   cfd.placeholder.name = "compFactory_" + cfd.comp.name;
               }
+              else if (dep instanceof DirectiveWrapperDependency) {
+                  var dwd = dep;
+                  dwd.placeholder.reference = _this._assertDirectiveWrapper(dwd.dir.reference);
+              }
           });
           var statements = stylesCompileResult.componentStylesheet.statements.concat(compileResult.statements);
+          compiledAnimations.forEach(function (entry) { entry.statements.forEach(function (statement) { statements.push(statement); }); });
           var factory;
           if (!this._compilerConfig.useJit) {
               factory = interpretStatements(statements, compileResult.viewFactoryVar);
           }
           else {
-              factory = jitStatements("" + template.compType.name + (template.isHost ? '_Host' : '') + ".ngfactory.js", statements, compileResult.viewFactoryVar);
+              factory = jitStatements("/" + template.ngModule.type.name + "/" + template.compType.name + "/" + (template.isHost ? 'host' : 'component') + ".ngfactory.js", statements, compileResult.viewFactoryVar);
           }
           template.compiled(factory);
       };
@@ -16921,7 +16984,7 @@
               return interpretStatements(result.statements, result.stylesVar);
           }
           else {
-              return jitStatements(result.meta.moduleUrl + ".css.js", result.statements, result.stylesVar);
+              return jitStatements("/" + result.meta.moduleUrl + ".css.js", result.statements, result.stylesVar);
           }
       };
       RuntimeCompiler.decorators = [
@@ -16936,17 +16999,17 @@
           { type: StyleCompiler, },
           { type: ViewCompiler, },
           { type: NgModuleCompiler, },
+          { type: DirectiveWrapperCompiler, },
           { type: CompilerConfig, },
       ];
       return RuntimeCompiler;
   }());
   var CompiledTemplate = (function () {
-      function CompiledTemplate(isHost, selector, compType, viewDirectivesAndComponents, viewPipes, schemas, _normalizeResult) {
+      function CompiledTemplate(isHost, selector, compType, ngModule, viewDirectiveAndComponents, _normalizeResult) {
           var _this = this;
           this.isHost = isHost;
           this.compType = compType;
-          this.viewPipes = viewPipes;
-          this.schemas = schemas;
+          this.ngModule = ngModule;
           this._viewFactory = null;
           this.loading = null;
           this._normalizedCompMeta = null;
@@ -16954,7 +17017,9 @@
           this.isCompiledWithDeps = false;
           this.viewComponentTypes = [];
           this.viewDirectives = [];
-          viewDirectivesAndComponents.forEach(function (dirMeta) {
+          this.viewPipes = ngModule.transitiveModule.pipes;
+          this.schemas = ngModule.schemas;
+          viewDirectiveAndComponents.forEach(function (dirMeta) {
               if (dirMeta.isComponent) {
                   _this.viewComponentTypes.push(dirMeta.type.reference);
               }
@@ -17098,7 +17163,7 @@
    * Use of this source code is governed by an MIT-style license that can be
    * found in the LICENSE file at https://angular.io/license
    */
-  var __extends$18 = (this && this.__extends) || function (d, b) {
+  var __extends$20 = (this && this.__extends) || function (d, b) {
       for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
       function __() { this.constructor = d; }
       d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -17321,7 +17386,7 @@
       'tabindex': 'tabIndex',
   };
   var DomElementSchemaRegistry = (function (_super) {
-      __extends$18(DomElementSchemaRegistry, _super);
+      __extends$20(DomElementSchemaRegistry, _super);
       function DomElementSchemaRegistry() {
           var _this = this;
           _super.call(this);
@@ -17418,6 +17483,28 @@
       };
       DomElementSchemaRegistry.prototype.getMappedPropName = function (propName) { return _ATTR_TO_PROP[propName] || propName; };
       DomElementSchemaRegistry.prototype.getDefaultComponentElementName = function () { return 'ng-component'; };
+      DomElementSchemaRegistry.prototype.validateProperty = function (name) {
+          if (name.toLowerCase().startsWith('on')) {
+              var msg = ("Binding to event property '" + name + "' is disallowed for security reasons, ") +
+                  ("please use (" + name.slice(2) + ")=...") +
+                  ("\nIf '" + name + "' is a directive input, make sure the directive is imported by the") +
+                  " current module.";
+              return { error: true, msg: msg };
+          }
+          else {
+              return { error: false };
+          }
+      };
+      DomElementSchemaRegistry.prototype.validateAttribute = function (name) {
+          if (name.toLowerCase().startsWith('on')) {
+              var msg = ("Binding to event attribute '" + name + "' is disallowed for security reasons, ") +
+                  ("please use (" + name.slice(2) + ")=...");
+              return { error: true, msg: msg };
+          }
+          else {
+              return { error: false };
+          }
+      };
       DomElementSchemaRegistry.decorators = [
           { type: _angular_core.Injectable },
       ];
@@ -17461,6 +17548,7 @@
       StyleCompiler,
       ViewCompiler,
       NgModuleCompiler,
+      DirectiveWrapperCompiler,
       { provide: CompilerConfig, useValue: new CompilerConfig() },
       RuntimeCompiler,
       { provide: _angular_core.Compiler, useExisting: RuntimeCompiler },
@@ -17587,64 +17675,19 @@
       return AssetUrl;
   }());
 
-  var __compiler_private__ = {
-      SelectorMatcher: SelectorMatcher,
-      CssSelector: CssSelector,
-      AssetUrl: AssetUrl,
-      ImportGenerator: ImportGenerator,
-      CompileMetadataResolver: CompileMetadataResolver,
-      HtmlParser: HtmlParser,
-      InterpolationConfig: InterpolationConfig,
-      DirectiveNormalizer: DirectiveNormalizer,
-      Lexer: Lexer,
-      Parser: Parser,
-      ParseLocation: ParseLocation,
-      ParseError: ParseError,
-      ParseErrorLevel: ParseErrorLevel,
-      ParseSourceFile: ParseSourceFile,
-      ParseSourceSpan: ParseSourceSpan,
-      TemplateParser: TemplateParser,
-      DomElementSchemaRegistry: DomElementSchemaRegistry,
-      StyleCompiler: StyleCompiler,
-      ViewCompiler: ViewCompiler,
-      NgModuleCompiler: NgModuleCompiler,
-      TypeScriptEmitter: TypeScriptEmitter
-  };
-
-  exports.COMPILER_PROVIDERS = COMPILER_PROVIDERS;
-  exports.CompileDiDependencyMetadata = CompileDiDependencyMetadata;
-  exports.CompileDirectiveMetadata = CompileDirectiveMetadata;
-  exports.CompileFactoryMetadata = CompileFactoryMetadata;
-  exports.CompileIdentifierMetadata = CompileIdentifierMetadata;
-  exports.CompileMetadataWithIdentifier = CompileMetadataWithIdentifier;
-  exports.CompilePipeMetadata = CompilePipeMetadata;
-  exports.CompileProviderMetadata = CompileProviderMetadata;
-  exports.CompileQueryMetadata = CompileQueryMetadata;
-  exports.CompileTemplateMetadata = CompileTemplateMetadata;
-  exports.CompileTokenMetadata = CompileTokenMetadata;
-  exports.CompileTypeMetadata = CompileTypeMetadata;
-  exports.CompilerConfig = CompilerConfig;
-  exports.DEFAULT_PACKAGE_URL_PROVIDER = DEFAULT_PACKAGE_URL_PROVIDER;
-  exports.DirectiveResolver = DirectiveResolver;
-  exports.NgModuleResolver = NgModuleResolver;
-  exports.OfflineCompiler = OfflineCompiler;
-  exports.PipeResolver = PipeResolver;
-  exports.RenderTypes = RenderTypes;
-  exports.ResourceLoader = ResourceLoader;
-  exports.RuntimeCompiler = RuntimeCompiler;
-  exports.SourceModule = SourceModule;
   exports.TEMPLATE_TRANSFORMS = TEMPLATE_TRANSFORMS;
-  exports.UrlResolver = UrlResolver;
-  exports.createOfflineCompileUrlResolver = createOfflineCompileUrlResolver;
-  exports.platformCoreDynamic = platformCoreDynamic;
+  exports.CompilerConfig = CompilerConfig;
+  exports.RenderTypes = RenderTypes;
+  exports.RuntimeCompiler = RuntimeCompiler;
+  exports.DirectiveResolver = DirectiveResolver;
+  exports.PipeResolver = PipeResolver;
+  exports.NgModuleResolver = NgModuleResolver;
   exports.DEFAULT_INTERPOLATION_CONFIG = DEFAULT_INTERPOLATION_CONFIG;
   exports.InterpolationConfig = InterpolationConfig;
   exports.ElementSchemaRegistry = ElementSchemaRegistry;
-  exports.I18NHtmlParser = I18NHtmlParser;
-  exports.MessageBundle = MessageBundle;
-  exports.Xliff = Xliff;
-  exports.Xmb = Xmb;
-  exports.Xtb = Xtb;
+  exports.NgModuleCompiler = NgModuleCompiler;
+  exports.DirectiveWrapperCompiler = DirectiveWrapperCompiler;
+  exports.ViewCompiler = ViewCompiler;
   exports.TextAst = TextAst;
   exports.BoundTextAst = BoundTextAst;
   exports.AttrAst = AttrAst;
@@ -17659,6 +17702,88 @@
   exports.ProviderAst = ProviderAst;
   exports.NgContentAst = NgContentAst;
   exports.templateVisitAll = templateVisitAll;
-  exports.__compiler_private__ = __compiler_private__;
+  exports.CompileMetadataWithIdentifier = CompileMetadataWithIdentifier;
+  exports.CompileAnimationEntryMetadata = CompileAnimationEntryMetadata;
+  exports.CompileAnimationStateMetadata = CompileAnimationStateMetadata;
+  exports.CompileAnimationStateDeclarationMetadata = CompileAnimationStateDeclarationMetadata;
+  exports.CompileAnimationStateTransitionMetadata = CompileAnimationStateTransitionMetadata;
+  exports.CompileAnimationMetadata = CompileAnimationMetadata;
+  exports.CompileAnimationKeyframesSequenceMetadata = CompileAnimationKeyframesSequenceMetadata;
+  exports.CompileAnimationStyleMetadata = CompileAnimationStyleMetadata;
+  exports.CompileAnimationAnimateMetadata = CompileAnimationAnimateMetadata;
+  exports.CompileAnimationWithStepsMetadata = CompileAnimationWithStepsMetadata;
+  exports.CompileAnimationSequenceMetadata = CompileAnimationSequenceMetadata;
+  exports.CompileAnimationGroupMetadata = CompileAnimationGroupMetadata;
+  exports.CompileIdentifierMetadata = CompileIdentifierMetadata;
+  exports.CompileDiDependencyMetadata = CompileDiDependencyMetadata;
+  exports.CompileProviderMetadata = CompileProviderMetadata;
+  exports.CompileFactoryMetadata = CompileFactoryMetadata;
+  exports.CompileTokenMetadata = CompileTokenMetadata;
+  exports.CompileTypeMetadata = CompileTypeMetadata;
+  exports.CompileQueryMetadata = CompileQueryMetadata;
+  exports.CompileStylesheetMetadata = CompileStylesheetMetadata;
+  exports.CompileTemplateMetadata = CompileTemplateMetadata;
+  exports.CompileDirectiveMetadata = CompileDirectiveMetadata;
+  exports.createHostComponentMeta = createHostComponentMeta;
+  exports.CompilePipeMetadata = CompilePipeMetadata;
+  exports.CompileNgModuleMetadata = CompileNgModuleMetadata;
+  exports.TransitiveCompileNgModuleMetadata = TransitiveCompileNgModuleMetadata;
+  exports.removeIdentifierDuplicates = removeIdentifierDuplicates;
+  exports.isStaticSymbol = isStaticSymbol;
+  exports.ProviderMeta = ProviderMeta;
+  exports.SourceModule = SourceModule;
+  exports.NgModulesSummary = NgModulesSummary;
+  exports.analyzeModules = analyzeModules;
+  exports.OfflineCompiler = OfflineCompiler;
+  exports.createUrlResolverWithoutPackagePrefix = createUrlResolverWithoutPackagePrefix;
+  exports.createOfflineCompileUrlResolver = createOfflineCompileUrlResolver;
+  exports.DEFAULT_PACKAGE_URL_PROVIDER = DEFAULT_PACKAGE_URL_PROVIDER;
+  exports.UrlResolver = UrlResolver;
+  exports.getUrlScheme = getUrlScheme;
+  exports.ResourceLoader = ResourceLoader;
+  exports.COMPILER_PROVIDERS = COMPILER_PROVIDERS;
+  exports.RuntimeCompilerFactory = RuntimeCompilerFactory;
+  exports.platformCoreDynamic = platformCoreDynamic;
+  exports.I18NHtmlParser = I18NHtmlParser;
+  exports.MessageBundle = MessageBundle;
+  exports.Xliff = Xliff;
+  exports.Xmb = Xmb;
+  exports.Xtb = Xtb;
+  exports.DirectiveNormalizer = DirectiveNormalizer;
+  exports.Lexer = Lexer;
+  exports.Token = Token;
+  exports.EOF = EOF;
+  exports.isIdentifier = isIdentifier;
+  exports.isQuote = isQuote;
+  exports.SplitInterpolation = SplitInterpolation;
+  exports.TemplateBindingParseResult = TemplateBindingParseResult;
+  exports.Parser = Parser;
+  exports._ParseAST = _ParseAST;
+  exports.CompileMetadataResolver = CompileMetadataResolver;
+  exports.HtmlParser = HtmlParser;
+  exports.ParseTreeResult = ParseTreeResult;
+  exports.TreeError = TreeError;
+  exports.ImportGenerator = ImportGenerator;
+  exports.AssetUrl = AssetUrl;
+  exports.debugOutputAstAsTypeScript = debugOutputAstAsTypeScript;
+  exports.TypeScriptEmitter = TypeScriptEmitter;
+  exports.ParseLocation = ParseLocation;
+  exports.ParseSourceFile = ParseSourceFile;
+  exports.ParseSourceSpan = ParseSourceSpan;
+  exports.ParseError = ParseError;
+  exports.DomElementSchemaRegistry = DomElementSchemaRegistry;
+  exports.CssSelector = CssSelector;
+  exports.SelectorMatcher = SelectorMatcher;
+  exports.SelectorListContext = SelectorListContext;
+  exports.SelectorContext = SelectorContext;
+  exports.StylesCompileDependency = StylesCompileDependency;
+  exports.StylesCompileResult = StylesCompileResult;
+  exports.CompiledStylesheet = CompiledStylesheet;
+  exports.StyleCompiler = StyleCompiler;
+  exports.TemplateParseError = TemplateParseError;
+  exports.TemplateParseResult = TemplateParseResult;
+  exports.TemplateParser = TemplateParser;
+  exports.splitClasses = splitClasses;
+  exports.PipeCollector = PipeCollector;
 
 }));

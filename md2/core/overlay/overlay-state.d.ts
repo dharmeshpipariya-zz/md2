@@ -8,4 +8,5 @@ export declare class OverlayState {
     positionStrategy: PositionStrategy;
     /** Whether the overlay has a backdrop. */
     hasBackdrop: boolean;
+    backdropClass: string;
 }

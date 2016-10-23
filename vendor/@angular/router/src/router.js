@@ -9,6 +9,7 @@ import { ComponentFactoryResolver, ReflectiveInjector } from '@angular/core';
 import { Subject } from 'rxjs/Subject';
 import { from } from 'rxjs/observable/from';
 import { of } from 'rxjs/observable/of';
+import { concatMap } from 'rxjs/operator/concatMap';
 import { every } from 'rxjs/operator/every';
 import { map } from 'rxjs/operator/map';
 import { mergeAll } from 'rxjs/operator/mergeAll';
@@ -182,6 +183,16 @@ export var Router = (function () {
         this.configLoader = new RouterConfigLoader(loader, compiler);
         this.currentRouterState = createEmptyState(this.currentUrlTree, this.rootComponentType);
     }
+    /**
+     * @internal
+     * TODO: this should be removed once the constructor of the router made internal
+     */
+    Router.prototype.resetRootComponentType = function (rootComponentType) {
+        this.rootComponentType = rootComponentType;
+        // TODO: vsavkin router 4.0 should make the root component set to null
+        // this will simplify the lifecycle of the router.
+        this.currentRouterState.root.component = this.rootComponentType;
+    };
     /**
      * Sets up the location change listener and performs the initial navigation.
      */
@@ -536,7 +547,7 @@ export var PreActivation = (function () {
         if (this.checks.length === 0)
             return of(null);
         var checks$ = from(this.checks);
-        var runningChecks$ = mergeMap.call(checks$, function (s) {
+        var runningChecks$ = concatMap.call(checks$, function (s) {
             if (s instanceof CanActivate) {
                 return _this.runResolve(s.route);
             }

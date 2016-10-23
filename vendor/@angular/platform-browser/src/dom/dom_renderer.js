@@ -11,7 +11,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 import { Inject, Injectable, ViewEncapsulation } from '@angular/core';
-import { Json, StringWrapper, isArray, isBlank, isPresent, isString, stringify } from '../facade/lang';
+import { isBlank, isPresent, stringify } from '../facade/lang';
 import { AnimationDriver } from './animation_driver';
 import { getDOM } from './dom_adapter';
 import { DOCUMENT } from './dom_tokens';
@@ -35,7 +35,7 @@ export var DomRootRenderer = (function () {
     }
     DomRootRenderer.prototype.renderComponent = function (componentProto) {
         var renderer = this.registeredComponents.get(componentProto.id);
-        if (isBlank(renderer)) {
+        if (!renderer) {
             renderer = new DomRenderer(this, componentProto, this.animationDriver);
             this.registeredComponents.set(componentProto.id, renderer);
         }
@@ -80,7 +80,7 @@ export var DomRenderer = (function () {
     }
     DomRenderer.prototype.selectRootElement = function (selectorOrNode, debugInfo) {
         var el;
-        if (isString(selectorOrNode)) {
+        if (typeof selectorOrNode === 'string') {
             el = getDOM().querySelector(this._rootRenderer.document, selectorOrNode);
             if (isBlank(el)) {
                 throw new Error("The selector \"" + selectorOrNode + "\" did not match any elements");
@@ -188,11 +188,10 @@ export var DomRenderer = (function () {
     DomRenderer.prototype.setBindingDebugInfo = function (renderElement, propertyName, propertyValue) {
         var dashCasedPropertyName = camelCaseToDashCase(propertyName);
         if (getDOM().isCommentNode(renderElement)) {
-            var existingBindings = StringWrapper.replaceAll(getDOM().getText(renderElement), /\n/g, '')
-                .match(TEMPLATE_BINDINGS_EXP);
-            var parsedBindings = Json.parse(existingBindings[1]);
+            var existingBindings = getDOM().getText(renderElement).replace(/\n/g, '').match(TEMPLATE_BINDINGS_EXP);
+            var parsedBindings = JSON.parse(existingBindings[1]);
             parsedBindings[dashCasedPropertyName] = propertyValue;
-            getDOM().setText(renderElement, StringWrapper.replace(TEMPLATE_COMMENT_TEXT, '{}', Json.stringify(parsedBindings)));
+            getDOM().setText(renderElement, TEMPLATE_COMMENT_TEXT.replace('{}', JSON.stringify(parsedBindings, null, 2)));
         }
         else {
             this.setElementAttribute(renderElement, propertyName, propertyValue);
@@ -258,19 +257,19 @@ export var COMPONENT_VARIABLE = '%COMP%';
 export var HOST_ATTR = "_nghost-" + COMPONENT_VARIABLE;
 export var CONTENT_ATTR = "_ngcontent-" + COMPONENT_VARIABLE;
 function _shimContentAttribute(componentShortId) {
-    return StringWrapper.replaceAll(CONTENT_ATTR, COMPONENT_REGEX, componentShortId);
+    return CONTENT_ATTR.replace(COMPONENT_REGEX, componentShortId);
 }
 function _shimHostAttribute(componentShortId) {
-    return StringWrapper.replaceAll(HOST_ATTR, COMPONENT_REGEX, componentShortId);
+    return HOST_ATTR.replace(COMPONENT_REGEX, componentShortId);
 }
 function _flattenStyles(compId, styles, target) {
     for (var i = 0; i < styles.length; i++) {
         var style = styles[i];
-        if (isArray(style)) {
+        if (Array.isArray(style)) {
             _flattenStyles(compId, style, target);
         }
         else {
-            style = StringWrapper.replaceAll(style, COMPONENT_REGEX, compId);
+            style = style.replace(COMPONENT_REGEX, compId);
             target.push(style);
         }
     }

@@ -10,7 +10,7 @@ import { __platform_browser_private__ } from '@angular/platform-browser';
 import { Observable } from 'rxjs/Observable';
 import { ResponseOptions } from '../base_response_options';
 import { ContentType, RequestMethod, ResponseContentType, ResponseType } from '../enums';
-import { isPresent, isString } from '../facade/lang';
+import { isPresent } from '../facade/lang';
 import { Headers } from '../headers';
 import { getResponseURL, isSuccess } from '../http_utils';
 import { XSRFStrategy } from '../interfaces';
@@ -41,11 +41,10 @@ export var XHRConnection = (function () {
             var onLoad = function () {
                 // responseText is the old-school way of retrieving response (supported by IE8 & 9)
                 // response/responseType properties were introduced in ResourceLoader Level2 spec (supported
-                // by
-                // IE10)
-                var body = isPresent(_xhr.response) ? _xhr.response : _xhr.responseText;
+                // by IE10)
+                var body = _xhr.response === undefined ? _xhr.responseText : _xhr.response;
                 // Implicitly strip a potential XSSI prefix.
-                if (isString(body))
+                if (typeof body === 'string')
                     body = body.replace(XSSI_PREFIX, '');
                 var headers = Headers.fromResponseHeaderString(_xhr.getAllResponseHeaders());
                 var url = getResponseURL(_xhr);

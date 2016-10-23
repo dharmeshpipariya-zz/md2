@@ -10,9 +10,10 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-import { CompileDiDependencyMetadata, CompileProviderMetadata, CompileTokenMetadata } from '../compile_metadata';
-import { ListWrapper, MapWrapper, StringMapWrapper } from '../facade/collection';
-import { isBlank, isPresent } from '../facade/lang';
+import { CompileDiDependencyMetadata, CompileIdentifierMetadata, CompileProviderMetadata, CompileTokenMetadata } from '../compile_metadata';
+import { DirectiveWrapperCompiler } from '../directive_wrapper_compiler';
+import { ListWrapper, MapWrapper } from '../facade/collection';
+import { isPresent } from '../facade/lang';
 import { Identifiers, identifierToken, resolveIdentifier, resolveIdentifierToken } from '../identifiers';
 import * as o from '../output/output_ast';
 import { convertValueToOutputAst } from '../output/value_util';
@@ -21,6 +22,7 @@ import { createDiTokenExpression } from '../util';
 import { CompileMethod } from './compile_method';
 import { CompileQuery, addQueryToTokenMap, createQueryList } from './compile_query';
 import { InjectMethodVars } from './constants';
+import { ComponentFactoryDependency, DirectiveWrapperDependency } from './deps';
 import { getPropertyInView, injectFromViewParentInjector } from './util';
 export var CompileNode = (function () {
     function CompileNode(parent, view, nodeIndex, renderNode, sourceAst) {
@@ -30,13 +32,13 @@ export var CompileNode = (function () {
         this.renderNode = renderNode;
         this.sourceAst = sourceAst;
     }
-    CompileNode.prototype.isNull = function () { return isBlank(this.renderNode); };
+    CompileNode.prototype.isNull = function () { return !this.renderNode; };
     CompileNode.prototype.isRootElement = function () { return this.view != this.parent.view; };
     return CompileNode;
 }());
 export var CompileElement = (function (_super) {
     __extends(CompileElement, _super);
-    function CompileElement(parent, view, nodeIndex, renderNode, sourceAst, component, _directives, _resolvedProvidersArray, hasViewContainer, hasEmbeddedView, references) {
+    function CompileElement(parent, view, nodeIndex, renderNode, sourceAst, component, _directives, _resolvedProvidersArray, hasViewContainer, hasEmbeddedView, references, _targetDependencies) {
         var _this = this;
         _super.call(this, parent, view, nodeIndex, renderNode, sourceAst);
         this.component = component;
@@ -44,8 +46,10 @@ export var CompileElement = (function (_super) {
         this._resolvedProvidersArray = _resolvedProvidersArray;
         this.hasViewContainer = hasViewContainer;
         this.hasEmbeddedView = hasEmbeddedView;
+        this._targetDependencies = _targetDependencies;
         this._compViewExpr = null;
         this.instances = new Map();
+        this.directiveWrapperInstance = new Map();
         this._queryCount = 0;
         this._queries = new Map();
         this._componentConstructorViewQueryLists = [];
@@ -61,9 +65,12 @@ export var CompileElement = (function (_super) {
         if (this.hasViewContainer || this.hasEmbeddedView || isPresent(this.component)) {
             this._createAppElement();
         }
+        if (this.component) {
+            this._createComponentFactoryResolver();
+        }
     }
     CompileElement.createNull = function () {
-        return new CompileElement(null, null, null, null, null, null, [], [], false, false, []);
+        return new CompileElement(null, null, null, null, null, null, [], [], false, false, [], []);
     };
     CompileElement.prototype._createAppElement = function () {
         var fieldName = "_appEl_" + this.nodeIndex;
@@ -79,7 +86,13 @@ export var CompileElement = (function (_super) {
         this.appElement = o.THIS_EXPR.prop(fieldName);
         this.instances.set(resolveIdentifierToken(Identifiers.AppElement).reference, this.appElement);
     };
-    CompileElement.prototype.createComponentFactoryResolver = function (entryComponents) {
+    CompileElement.prototype._createComponentFactoryResolver = function () {
+        var _this = this;
+        var entryComponents = this.component.entryComponents.map(function (entryComponent) {
+            var id = new CompileIdentifierMetadata({ name: entryComponent.name });
+            _this._targetDependencies.push(new ComponentFactoryDependency(entryComponent, id));
+            return id;
+        });
         if (!entryComponents || entryComponents.length === 0) {
             return;
         }
@@ -128,20 +141,30 @@ export var CompileElement = (function (_super) {
         // create all the provider instances, some in the view constructor,
         // some as getters. We rely on the fact that they are already sorted topologically.
         MapWrapper.values(this._resolvedProviders).forEach(function (resolvedProvider) {
+            var isDirectiveWrapper = resolvedProvider.providerType === ProviderAstType.Component ||
+                resolvedProvider.providerType === ProviderAstType.Directive;
             var providerValueExpressions = resolvedProvider.providers.map(function (provider) {
                 if (isPresent(provider.useExisting)) {
                     return _this._getDependency(resolvedProvider.providerType, new CompileDiDependencyMetadata({ token: provider.useExisting }));
                 }
                 else if (isPresent(provider.useFactory)) {
-                    var deps = isPresent(provider.deps) ? provider.deps : provider.useFactory.diDeps;
+                    var deps = provider.deps || provider.useFactory.diDeps;
                     var depsExpr = deps.map(function (dep) { return _this._getDependency(resolvedProvider.providerType, dep); });
                     return o.importExpr(provider.useFactory).callFn(depsExpr);
                 }
                 else if (isPresent(provider.useClass)) {
-                    var deps = isPresent(provider.deps) ? provider.deps : provider.useClass.diDeps;
+                    var deps = provider.deps || provider.useClass.diDeps;
                     var depsExpr = deps.map(function (dep) { return _this._getDependency(resolvedProvider.providerType, dep); });
-                    return o.importExpr(provider.useClass)
-                        .instantiate(depsExpr, o.importType(provider.useClass));
+                    if (isDirectiveWrapper) {
+                        var directiveWrapperIdentifier = new CompileIdentifierMetadata({ name: DirectiveWrapperCompiler.dirWrapperClassName(provider.useClass) });
+                        _this._targetDependencies.push(new DirectiveWrapperDependency(provider.useClass, directiveWrapperIdentifier));
+                        return o.importExpr(directiveWrapperIdentifier)
+                            .instantiate(depsExpr, o.importType(directiveWrapperIdentifier));
+                    }
+                    else {
+                        return o.importExpr(provider.useClass)
+                            .instantiate(depsExpr, o.importType(provider.useClass));
+                    }
                 }
                 else {
                     return convertValueToOutputAst(provider.useValue);
@@ -149,7 +172,13 @@ export var CompileElement = (function (_super) {
             });
             var propName = "_" + resolvedProvider.token.name + "_" + _this.nodeIndex + "_" + _this.instances.size;
             var instance = createProviderProperty(propName, resolvedProvider, providerValueExpressions, resolvedProvider.multiProvider, resolvedProvider.eager, _this);
-            _this.instances.set(resolvedProvider.token.reference, instance);
+            if (isDirectiveWrapper) {
+                _this.directiveWrapperInstance.set(resolvedProvider.token.reference, instance);
+                _this.instances.set(resolvedProvider.token.reference, instance.prop('context'));
+            }
+            else {
+                _this.instances.set(resolvedProvider.token.reference, instance);
+            }
         });
         for (var i = 0; i < this._directives.length; i++) {
             var directive = this._directives[i];
@@ -161,7 +190,7 @@ export var CompileElement = (function (_super) {
             var queriesForProvider = _this._getQueriesFor(resolvedProvider.token);
             ListWrapper.addAll(queriesWithReads, queriesForProvider.map(function (query) { return new _QueryWithRead(query, resolvedProvider.token); }));
         });
-        StringMapWrapper.forEach(this.referenceTokens, function (_, varName) {
+        Object.keys(this.referenceTokens).forEach(function (varName) {
             var token = _this.referenceTokens[varName];
             var varValue;
             if (isPresent(token)) {
@@ -264,17 +293,17 @@ export var CompileElement = (function (_super) {
     CompileElement.prototype._getLocalDependency = function (requestingProviderType, dep) {
         var result = null;
         // constructor content query
-        if (isBlank(result) && isPresent(dep.query)) {
+        if (!result && isPresent(dep.query)) {
             result = this._addQuery(dep.query, null).queryList;
         }
         // constructor view query
-        if (isBlank(result) && isPresent(dep.viewQuery)) {
+        if (!result && isPresent(dep.viewQuery)) {
             result = createQueryList(dep.viewQuery, null, "_viewQuery_" + dep.viewQuery.selectors[0].name + "_" + this.nodeIndex + "_" + this._componentConstructorViewQueryLists.length, this.view);
             this._componentConstructorViewQueryLists.push(result);
         }
         if (isPresent(dep.token)) {
             // access builtins with special visibility
-            if (isBlank(result)) {
+            if (!result) {
                 if (dep.token.reference ===
                     resolveIdentifierToken(Identifiers.ChangeDetectorRef).reference) {
                     if (requestingProviderType === ProviderAstType.Component) {
@@ -286,7 +315,7 @@ export var CompileElement = (function (_super) {
                 }
             }
             // access regular providers on the element
-            if (isBlank(result)) {
+            if (!result) {
                 var resolvedProvider = this._resolvedProviders.get(dep.token.reference);
                 // don't allow directives / public services to access private services.
                 // only components and private services can access private services.
@@ -306,18 +335,18 @@ export var CompileElement = (function (_super) {
         if (dep.isValue) {
             result = o.literal(dep.value);
         }
-        if (isBlank(result) && !dep.isSkipSelf) {
+        if (!result && !dep.isSkipSelf) {
             result = this._getLocalDependency(requestingProviderType, dep);
         }
         // check parent elements
-        while (isBlank(result) && !currElement.parent.isNull()) {
+        while (!result && !currElement.parent.isNull()) {
             currElement = currElement.parent;
             result = currElement._getLocalDependency(ProviderAstType.PublicService, new CompileDiDependencyMetadata({ token: dep.token }));
         }
-        if (isBlank(result)) {
+        if (!result) {
             result = injectFromViewParentInjector(dep.token, dep.isOptional);
         }
-        if (isBlank(result)) {
+        if (!result) {
             result = o.NULL_EXPR;
         }
         return getPropertyInView(result, this.view, currElement.view);
@@ -348,7 +377,7 @@ function createProviderProperty(propName, provider, providerValueExpressions, is
         resolvedProviderValueExpr = providerValueExpressions[0];
         type = providerValueExpressions[0].type;
     }
-    if (isBlank(type)) {
+    if (!type) {
         type = o.DYNAMIC_TYPE;
     }
     if (isEager) {
@@ -370,7 +399,7 @@ function createProviderProperty(propName, provider, providerValueExpressions, is
 var _QueryWithRead = (function () {
     function _QueryWithRead(query, match) {
         this.query = query;
-        this.read = isPresent(query.meta.read) ? query.meta.read : match;
+        this.read = query.meta.read || match;
     }
     return _QueryWithRead;
 }());

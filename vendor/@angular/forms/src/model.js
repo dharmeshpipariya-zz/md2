@@ -13,8 +13,7 @@ var __extends = (this && this.__extends) || function (d, b) {
 import { fromPromise } from 'rxjs/observable/fromPromise';
 import { composeAsyncValidators, composeValidators } from './directives/shared';
 import { EventEmitter } from './facade/async';
-import { ListWrapper, StringMapWrapper } from './facade/collection';
-import { isBlank, isPresent, isStringMap, normalizeBool } from './facade/lang';
+import { isBlank, isPresent, normalizeBool } from './facade/lang';
 import { isPromise } from './private_import_core';
 /**
  * Indicates that a FormControl is valid, i.e. that no errors exist in the input value.
@@ -43,19 +42,16 @@ function _find(control, path, delimiter) {
     if (!(path instanceof Array)) {
         path = path.split(delimiter);
     }
-    if (path instanceof Array && ListWrapper.isEmpty(path))
+    if (path instanceof Array && (path.length === 0))
         return null;
     return path.reduce(function (v, name) {
         if (v instanceof FormGroup) {
-            return isPresent(v.controls[name]) ? v.controls[name] : null;
+            return v.controls[name] || null;
         }
-        else if (v instanceof FormArray) {
-            var index = name;
-            return isPresent(v.at(index)) ? v.at(index) : null;
+        if (v instanceof FormArray) {
+            return v.at(name) || null;
         }
-        else {
-            return null;
-        }
+        return null;
     }, control);
 }
 function toObservable(r) {
@@ -474,9 +470,9 @@ export var AbstractControl = (function () {
      */
     AbstractControl.prototype.getError = function (errorCode, path) {
         if (path === void 0) { path = null; }
-        var control = isPresent(path) && !ListWrapper.isEmpty(path) ? this.get(path) : this;
+        var control = isPresent(path) && (path.length > 0) ? this.get(path) : this;
         if (isPresent(control) && isPresent(control._errors)) {
-            return StringMapWrapper.get(control._errors, errorCode);
+            return control._errors[errorCode];
         }
         else {
             return null;
@@ -534,7 +530,7 @@ export var AbstractControl = (function () {
     };
     /** @internal */
     AbstractControl.prototype._anyControlsHaveStatus = function (status) {
-        return this._anyControls(function (control) { return control.status == status; });
+        return this._anyControls(function (control) { return control.status === status; });
     };
     /** @internal */
     AbstractControl.prototype._anyControlsDirty = function () {
@@ -562,8 +558,8 @@ export var AbstractControl = (function () {
     };
     /** @internal */
     AbstractControl.prototype._isBoxedValue = function (formState) {
-        return isStringMap(formState) && Object.keys(formState).length === 2 && 'value' in formState &&
-            'disabled' in formState;
+        return typeof formState === 'object' && formState !== null &&
+            Object.keys(formState).length === 2 && 'value' in formState && 'disabled' in formState;
     };
     /** @internal */
     AbstractControl.prototype._registerOnCollectionChange = function (fn) { this._onCollectionChange = fn; };
@@ -587,6 +583,8 @@ export var AbstractControl = (function () {
  *
  * You can also initialize the control with a form state object on instantiation,
  * which includes both the value and whether or not the control is disabled.
+ * You can't use the value key without the disabled key; both are required
+ * to use this way of initialization.
  *
  * ```ts
  * const ctrl = new FormControl({value: 'n/a', disabled: true});
@@ -886,9 +884,9 @@ export var FormGroup = (function (_super) {
         var _this = this;
         var onlySelf = (_a === void 0 ? {} : _a).onlySelf;
         this._checkAllValuesPresent(value);
-        StringMapWrapper.forEach(value, function (newValue, name) {
+        Object.keys(value).forEach(function (name) {
             _this._throwIfControlMissing(name);
-            _this.controls[name].setValue(newValue, { onlySelf: true });
+            _this.controls[name].setValue(value[name], { onlySelf: true });
         });
         this.updateValueAndValidity({ onlySelf: onlySelf });
     };
@@ -916,9 +914,9 @@ export var FormGroup = (function (_super) {
     FormGroup.prototype.patchValue = function (value, _a) {
         var _this = this;
         var onlySelf = (_a === void 0 ? {} : _a).onlySelf;
-        StringMapWrapper.forEach(value, function (newValue, name) {
+        Object.keys(value).forEach(function (name) {
             if (_this.controls[name]) {
-                _this.controls[name].patchValue(newValue, { onlySelf: true });
+                _this.controls[name].patchValue(value[name], { onlySelf: true });
             }
         });
         this.updateValueAndValidity({ onlySelf: onlySelf });
@@ -988,7 +986,8 @@ export var FormGroup = (function (_super) {
     };
     /** @internal */
     FormGroup.prototype._forEachChild = function (cb) {
-        StringMapWrapper.forEach(this.controls, cb);
+        var _this = this;
+        Object.keys(this.controls).forEach(function (k) { return cb(_this.controls[k], k); });
     };
     /** @internal */
     FormGroup.prototype._setUpControls = function () {
@@ -1117,7 +1116,7 @@ export var FormArray = (function (_super) {
      * Insert a new {@link AbstractControl} at the given `index` in the array.
      */
     FormArray.prototype.insert = function (index, control) {
-        ListWrapper.insert(this.controls, index, control);
+        this.controls.splice(index, 0, control);
         this._registerControl(control);
         this.updateValueAndValidity();
         this._onCollectionChange();
@@ -1128,7 +1127,7 @@ export var FormArray = (function (_super) {
     FormArray.prototype.removeAt = function (index) {
         if (this.controls[index])
             this.controls[index]._registerOnCollectionChange(function () { });
-        ListWrapper.removeAt(this.controls, index);
+        this.controls.splice(index, 1);
         this.updateValueAndValidity();
         this._onCollectionChange();
     };
@@ -1138,9 +1137,9 @@ export var FormArray = (function (_super) {
     FormArray.prototype.setControl = function (index, control) {
         if (this.controls[index])
             this.controls[index]._registerOnCollectionChange(function () { });
-        ListWrapper.removeAt(this.controls, index);
+        this.controls.splice(index, 1);
         if (control) {
-            ListWrapper.insert(this.controls, index, control);
+            this.controls.splice(index, 0, control);
             this._registerControl(control);
         }
         this.updateValueAndValidity();

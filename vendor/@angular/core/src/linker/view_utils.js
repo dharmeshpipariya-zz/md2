@@ -9,7 +9,7 @@ import { APP_ID } from '../application_tokens';
 import { devModeEqual } from '../change_detection/change_detection';
 import { UNINITIALIZED } from '../change_detection/change_detection_util';
 import { Inject, Injectable } from '../di';
-import { isBlank, isPresent, looseIdentical } from '../facade/lang';
+import { isPresent, looseIdentical } from '../facade/lang';
 import { RenderComponentType, RootRenderer } from '../render/api';
 import { Sanitizer } from '../security';
 import { AppElement } from './element';
@@ -67,7 +67,7 @@ function _flattenNestedViewRenderNodes(nodes, renderNodes) {
 var EMPTY_ARR = [];
 export function ensureSlotCount(projectableNodes, expectedSlotCount) {
     var res;
-    if (isBlank(projectableNodes)) {
+    if (!projectableNodes) {
         res = EMPTY_ARR;
     }
     else if (projectableNodes.length < expectedSlotCount) {
@@ -312,5 +312,28 @@ export function pureProxy10(fn) {
         }
         return result;
     };
+}
+export function setBindingDebugInfoForChanges(renderer, el, changes) {
+    Object.keys(changes).forEach(function (propName) {
+        setBindingDebugInfo(renderer, el, propName, changes[propName].currentValue);
+    });
+}
+export function setBindingDebugInfo(renderer, el, propName, value) {
+    try {
+        renderer.setBindingDebugInfo(el, "ng-reflect-" + camelCaseToDashCase(propName), value ? value.toString() : null);
+    }
+    catch (e) {
+        renderer.setBindingDebugInfo(el, "ng-reflect-" + camelCaseToDashCase(propName), '[ERROR] Exception while trying to serialize the value');
+    }
+}
+var CAMEL_CASE_REGEXP = /([A-Z])/g;
+function camelCaseToDashCase(input) {
+    return input.replace(CAMEL_CASE_REGEXP, function () {
+        var m = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            m[_i - 0] = arguments[_i];
+        }
+        return '-' + m[1].toLowerCase();
+    });
 }
 //# sourceMappingURL=view_utils.js.map

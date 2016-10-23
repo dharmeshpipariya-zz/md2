@@ -1,5 +1,5 @@
 /**
- * @license Angular v2.0.1
+ * @license Angular v2.1.1
  * (c) 2010-2016 Google, Inc. https://angular.io/
  * License: MIT
  */
@@ -60,157 +60,8 @@
     function isPresent(obj) {
         return obj !== undefined && obj !== null;
     }
-    function isBlank(obj) {
-        return obj === undefined || obj === null;
-    }
-    function isString(obj) {
-        return typeof obj === 'string';
-    }
-    function isArray(obj) {
-        return Array.isArray(obj);
-    }
-    var StringWrapper = (function () {
-        function StringWrapper() {
-        }
-        StringWrapper.fromCharCode = function (code) { return String.fromCharCode(code); };
-        StringWrapper.charCodeAt = function (s, index) { return s.charCodeAt(index); };
-        StringWrapper.split = function (s, regExp) { return s.split(regExp); };
-        StringWrapper.equals = function (s, s2) { return s === s2; };
-        StringWrapper.stripLeft = function (s, charVal) {
-            if (s && s.length) {
-                var pos = 0;
-                for (var i = 0; i < s.length; i++) {
-                    if (s[i] != charVal)
-                        break;
-                    pos++;
-                }
-                s = s.substring(pos);
-            }
-            return s;
-        };
-        StringWrapper.stripRight = function (s, charVal) {
-            if (s && s.length) {
-                var pos = s.length;
-                for (var i = s.length - 1; i >= 0; i--) {
-                    if (s[i] != charVal)
-                        break;
-                    pos--;
-                }
-                s = s.substring(0, pos);
-            }
-            return s;
-        };
-        StringWrapper.replace = function (s, from, replace) {
-            return s.replace(from, replace);
-        };
-        StringWrapper.replaceAll = function (s, from, replace) {
-            return s.replace(from, replace);
-        };
-        StringWrapper.slice = function (s, from, to) {
-            if (from === void 0) { from = 0; }
-            if (to === void 0) { to = null; }
-            return s.slice(from, to === null ? undefined : to);
-        };
-        StringWrapper.replaceAllMapped = function (s, from, cb) {
-            return s.replace(from, function () {
-                var matches = [];
-                for (var _i = 0; _i < arguments.length; _i++) {
-                    matches[_i - 0] = arguments[_i];
-                }
-                // Remove offset & string from the result array
-                matches.splice(-2, 2);
-                // The callback receives match, p1, ..., pn
-                return cb(matches);
-            });
-        };
-        StringWrapper.contains = function (s, substr) { return s.indexOf(substr) != -1; };
-        StringWrapper.compare = function (a, b) {
-            if (a < b) {
-                return -1;
-            }
-            else if (a > b) {
-                return 1;
-            }
-            else {
-                return 0;
-            }
-        };
-        return StringWrapper;
-    }());
-    var NumberWrapper = (function () {
-        function NumberWrapper() {
-        }
-        NumberWrapper.toFixed = function (n, fractionDigits) { return n.toFixed(fractionDigits); };
-        NumberWrapper.equal = function (a, b) { return a === b; };
-        NumberWrapper.parseIntAutoRadix = function (text) {
-            var result = parseInt(text);
-            if (isNaN(result)) {
-                throw new Error('Invalid integer literal when parsing ' + text);
-            }
-            return result;
-        };
-        NumberWrapper.parseInt = function (text, radix) {
-            if (radix == 10) {
-                if (/^(\-|\+)?[0-9]+$/.test(text)) {
-                    return parseInt(text, radix);
-                }
-            }
-            else if (radix == 16) {
-                if (/^(\-|\+)?[0-9ABCDEFabcdef]+$/.test(text)) {
-                    return parseInt(text, radix);
-                }
-            }
-            else {
-                var result = parseInt(text, radix);
-                if (!isNaN(result)) {
-                    return result;
-                }
-            }
-            throw new Error('Invalid integer literal when parsing ' + text + ' in base ' + radix);
-        };
-        Object.defineProperty(NumberWrapper, "NaN", {
-            get: function () { return NaN; },
-            enumerable: true,
-            configurable: true
-        });
-        NumberWrapper.isNumeric = function (value) { return !isNaN(value - parseFloat(value)); };
-        NumberWrapper.isNaN = function (value) { return isNaN(value); };
-        NumberWrapper.isInteger = function (value) { return Number.isInteger(value); };
-        return NumberWrapper;
-    }());
     function isJsObject(o) {
         return o !== null && (typeof o === 'function' || typeof o === 'object');
-    }
-    // Can't be all uppercase as our transpiler would think it is a special directive...
-    var Json = (function () {
-        function Json() {
-        }
-        Json.parse = function (s) { return global$1.JSON.parse(s); };
-        Json.stringify = function (data) {
-            // Dart doesn't take 3 arguments
-            return global$1.JSON.stringify(data, null, 2);
-        };
-        return Json;
-    }());
-    var _symbolIterator = null;
-    function getSymbolIterator() {
-        if (isBlank(_symbolIterator)) {
-            if (isPresent(globalScope.Symbol) && isPresent(Symbol.iterator)) {
-                _symbolIterator = Symbol.iterator;
-            }
-            else {
-                // es6-shim specific logic
-                var keys = Object.getOwnPropertyNames(Map.prototype);
-                for (var i = 0; i < keys.length; ++i) {
-                    var key = keys[i];
-                    if (key !== 'entries' && key !== 'size' &&
-                        Map.prototype[key] === Map.prototype['entries']) {
-                        _symbolIterator = key;
-                    }
-                }
-            }
-        }
-        return _symbolIterator;
     }
 
     /**
@@ -288,41 +139,6 @@
         ResponseContentType[ResponseContentType["Blob"] = 3] = "Blob";
     })(exports.ResponseContentType || (exports.ResponseContentType = {}));
 
-    // Safari and Internet Explorer do not support the iterable parameter to the
-    // Map constructor.  We work around that by manually adding the items.
-    var createMapFromPairs = (function () {
-        try {
-            if (new Map([[1, 2]]).size === 1) {
-                return function createMapFromPairs(pairs) { return new Map(pairs); };
-            }
-        }
-        catch (e) {
-        }
-        return function createMapAndPopulateFromPairs(pairs) {
-            var map = new Map();
-            for (var i = 0; i < pairs.length; i++) {
-                var pair = pairs[i];
-                map.set(pair[0], pair[1]);
-            }
-            return map;
-        };
-    })();
-    var _clearValues = (function () {
-        if ((new Map()).keys().next) {
-            return function _clearValues(m) {
-                var keyIterator = m.keys();
-                var k;
-                while (!((k = keyIterator.next()).done)) {
-                    m.set(k.value, null);
-                }
-            };
-        }
-        else {
-            return function _clearValuesWithForeEach(m) {
-                m.forEach(function (v, k) { m.set(k, null); });
-            };
-        }
-    })();
     // Safari doesn't implement MapIterator.next(), which is used is Traceur's polyfill of Array.from
     // TODO(mlaval): remove the work around once we have a working polyfill of Array.from
     var _arrayFromMap = (function () {
@@ -354,222 +170,10 @@
             }
             return result;
         };
-        MapWrapper.toStringMap = function (m) {
-            var r = {};
-            m.forEach(function (v, k) { return r[k] = v; });
-            return r;
-        };
-        MapWrapper.createFromPairs = function (pairs) { return createMapFromPairs(pairs); };
-        MapWrapper.iterable = function (m) { return m; };
         MapWrapper.keys = function (m) { return _arrayFromMap(m, false); };
         MapWrapper.values = function (m) { return _arrayFromMap(m, true); };
         return MapWrapper;
     }());
-    /**
-     * Wraps Javascript Objects
-     */
-    var StringMapWrapper = (function () {
-        function StringMapWrapper() {
-        }
-        StringMapWrapper.get = function (map, key) {
-            return map.hasOwnProperty(key) ? map[key] : undefined;
-        };
-        StringMapWrapper.set = function (map, key, value) { map[key] = value; };
-        StringMapWrapper.keys = function (map) { return Object.keys(map); };
-        StringMapWrapper.values = function (map) {
-            return Object.keys(map).map(function (k) { return map[k]; });
-        };
-        StringMapWrapper.isEmpty = function (map) {
-            for (var prop in map) {
-                return false;
-            }
-            return true;
-        };
-        StringMapWrapper.forEach = function (map, callback) {
-            for (var _i = 0, _a = Object.keys(map); _i < _a.length; _i++) {
-                var k = _a[_i];
-                callback(map[k], k);
-            }
-        };
-        StringMapWrapper.merge = function (m1, m2) {
-            var m = {};
-            for (var _i = 0, _a = Object.keys(m1); _i < _a.length; _i++) {
-                var k = _a[_i];
-                m[k] = m1[k];
-            }
-            for (var _b = 0, _c = Object.keys(m2); _b < _c.length; _b++) {
-                var k = _c[_b];
-                m[k] = m2[k];
-            }
-            return m;
-        };
-        StringMapWrapper.equals = function (m1, m2) {
-            var k1 = Object.keys(m1);
-            var k2 = Object.keys(m2);
-            if (k1.length != k2.length) {
-                return false;
-            }
-            for (var i = 0; i < k1.length; i++) {
-                var key = k1[i];
-                if (m1[key] !== m2[key]) {
-                    return false;
-                }
-            }
-            return true;
-        };
-        return StringMapWrapper;
-    }());
-    var ListWrapper = (function () {
-        function ListWrapper() {
-        }
-        // JS has no way to express a statically fixed size list, but dart does so we
-        // keep both methods.
-        ListWrapper.createFixedSize = function (size) { return new Array(size); };
-        ListWrapper.createGrowableSize = function (size) { return new Array(size); };
-        ListWrapper.clone = function (array) { return array.slice(0); };
-        ListWrapper.forEachWithIndex = function (array, fn) {
-            for (var i = 0; i < array.length; i++) {
-                fn(array[i], i);
-            }
-        };
-        ListWrapper.first = function (array) {
-            if (!array)
-                return null;
-            return array[0];
-        };
-        ListWrapper.last = function (array) {
-            if (!array || array.length == 0)
-                return null;
-            return array[array.length - 1];
-        };
-        ListWrapper.indexOf = function (array, value, startIndex) {
-            if (startIndex === void 0) { startIndex = 0; }
-            return array.indexOf(value, startIndex);
-        };
-        ListWrapper.contains = function (list, el) { return list.indexOf(el) !== -1; };
-        ListWrapper.reversed = function (array) {
-            var a = ListWrapper.clone(array);
-            return a.reverse();
-        };
-        ListWrapper.concat = function (a, b) { return a.concat(b); };
-        ListWrapper.insert = function (list, index, value) { list.splice(index, 0, value); };
-        ListWrapper.removeAt = function (list, index) {
-            var res = list[index];
-            list.splice(index, 1);
-            return res;
-        };
-        ListWrapper.removeAll = function (list, items) {
-            for (var i = 0; i < items.length; ++i) {
-                var index = list.indexOf(items[i]);
-                list.splice(index, 1);
-            }
-        };
-        ListWrapper.remove = function (list, el) {
-            var index = list.indexOf(el);
-            if (index > -1) {
-                list.splice(index, 1);
-                return true;
-            }
-            return false;
-        };
-        ListWrapper.clear = function (list) { list.length = 0; };
-        ListWrapper.isEmpty = function (list) { return list.length == 0; };
-        ListWrapper.fill = function (list, value, start, end) {
-            if (start === void 0) { start = 0; }
-            if (end === void 0) { end = null; }
-            list.fill(value, start, end === null ? list.length : end);
-        };
-        ListWrapper.equals = function (a, b) {
-            if (a.length != b.length)
-                return false;
-            for (var i = 0; i < a.length; ++i) {
-                if (a[i] !== b[i])
-                    return false;
-            }
-            return true;
-        };
-        ListWrapper.slice = function (l, from, to) {
-            if (from === void 0) { from = 0; }
-            if (to === void 0) { to = null; }
-            return l.slice(from, to === null ? undefined : to);
-        };
-        ListWrapper.splice = function (l, from, length) { return l.splice(from, length); };
-        ListWrapper.sort = function (l, compareFn) {
-            if (isPresent(compareFn)) {
-                l.sort(compareFn);
-            }
-            else {
-                l.sort();
-            }
-        };
-        ListWrapper.toString = function (l) { return l.toString(); };
-        ListWrapper.toJSON = function (l) { return JSON.stringify(l); };
-        ListWrapper.maximum = function (list, predicate) {
-            if (list.length == 0) {
-                return null;
-            }
-            var solution = null;
-            var maxValue = -Infinity;
-            for (var index = 0; index < list.length; index++) {
-                var candidate = list[index];
-                if (isBlank(candidate)) {
-                    continue;
-                }
-                var candidateValue = predicate(candidate);
-                if (candidateValue > maxValue) {
-                    solution = candidate;
-                    maxValue = candidateValue;
-                }
-            }
-            return solution;
-        };
-        ListWrapper.flatten = function (list) {
-            var target = [];
-            _flattenArray(list, target);
-            return target;
-        };
-        ListWrapper.addAll = function (list, source) {
-            for (var i = 0; i < source.length; i++) {
-                list.push(source[i]);
-            }
-        };
-        return ListWrapper;
-    }());
-    function _flattenArray(source, target) {
-        if (isPresent(source)) {
-            for (var i = 0; i < source.length; i++) {
-                var item = source[i];
-                if (isArray(item)) {
-                    _flattenArray(item, target);
-                }
-                else {
-                    target.push(item);
-                }
-            }
-        }
-        return target;
-    }
-    function isListLikeIterable(obj) {
-        if (!isJsObject(obj))
-            return false;
-        return isArray(obj) ||
-            (!(obj instanceof Map) &&
-                getSymbolIterator() in obj); // JS Iterable have a Symbol.iterator prop
-    }
-    function iterateListLike(obj, fn) {
-        if (isArray(obj)) {
-            for (var i = 0; i < obj.length; i++) {
-                fn(obj[i]);
-            }
-        }
-        else {
-            var iterator = obj[getSymbolIterator()]();
-            var item;
-            while (!((item = iterator.next()).done)) {
-                fn(item.value);
-            }
-        }
-    }
 
     /**
      * Polyfill for [Headers](https://developer.mozilla.org/en-US/docs/Web/API/Headers/Headers), as
@@ -578,7 +182,7 @@
      * The only known difference between this `Headers` implementation and the spec is the
      * lack of an `entries` method.
      *
-     * ### Example ([live demo](http://plnkr.co/edit/MTdwT6?p=preview))
+     * ### Example
      *
      * ```
      * import {Headers} from '@angular/http';
@@ -600,19 +204,26 @@
      * @experimental
      */
     var Headers = (function () {
+        // TODO(vicb): any -> string|string[]
         function Headers(headers) {
             var _this = this;
+            /** @internal header names are lower case */
+            this._headers = new Map();
+            /** @internal map lower case names to actual names */
+            this._normalizedNames = new Map();
+            if (!headers) {
+                return;
+            }
             if (headers instanceof Headers) {
-                this._headersMap = new Map(headers._headersMap);
+                headers._headers.forEach(function (values, name) {
+                    values.forEach(function (value) { return _this.append(name, value); });
+                });
                 return;
             }
-            this._headersMap = new Map();
-            if (isBlank(headers)) {
-                return;
-            }
-            // headers instanceof StringMap
-            StringMapWrapper.forEach(headers, function (v, k) {
-                _this._headersMap.set(normalize(k), isListLikeIterable(v) ? v : [v]);
+            Object.keys(headers).forEach(function (name) {
+                var values = Array.isArray(headers[name]) ? headers[name] : [headers[name]];
+                _this.delete(name);
+                values.forEach(function (value) { return _this.append(name, value); });
             });
         }
         /**
@@ -623,9 +234,9 @@
             headersString.split('\n').forEach(function (line) {
                 var index = line.indexOf(':');
                 if (index > 0) {
-                    var key = line.substring(0, index);
-                    var value = line.substring(index + 1).trim();
-                    headers.set(key, value);
+                    var name_1 = line.slice(0, index);
+                    var value = line.slice(index + 1).trim();
+                    headers.set(name_1, value);
                 }
             });
             return headers;
@@ -634,81 +245,94 @@
          * Appends a header to existing list of header values for a given header name.
          */
         Headers.prototype.append = function (name, value) {
-            name = normalize(name);
-            var mapName = this._headersMap.get(name);
-            var list = isListLikeIterable(mapName) ? mapName : [];
-            list.push(value);
-            this._headersMap.set(name, list);
+            var values = this.getAll(name);
+            if (values === null) {
+                this.set(name, value);
+            }
+            else {
+                values.push(value);
+            }
         };
         /**
          * Deletes all header values for the given name.
          */
-        Headers.prototype.delete = function (name) { this._headersMap.delete(normalize(name)); };
+        Headers.prototype.delete = function (name) {
+            var lcName = name.toLowerCase();
+            this._normalizedNames.delete(lcName);
+            this._headers.delete(lcName);
+        };
         Headers.prototype.forEach = function (fn) {
-            this._headersMap.forEach(fn);
+            var _this = this;
+            this._headers.forEach(function (values, lcName) { return fn(values, _this._normalizedNames.get(lcName), _this._headers); });
         };
         /**
          * Returns first header that matches given name.
          */
-        Headers.prototype.get = function (header) { return ListWrapper.first(this._headersMap.get(normalize(header))); };
+        Headers.prototype.get = function (name) {
+            var values = this.getAll(name);
+            if (values === null) {
+                return null;
+            }
+            return values.length > 0 ? values[0] : null;
+        };
         /**
-         * Check for existence of header by given name.
+         * Checks for existence of header by given name.
          */
-        Headers.prototype.has = function (header) { return this._headersMap.has(normalize(header)); };
+        Headers.prototype.has = function (name) { return this._headers.has(name.toLowerCase()); };
         /**
-         * Provides names of set headers
+         * Returns the names of the headers
          */
-        Headers.prototype.keys = function () { return MapWrapper.keys(this._headersMap); };
+        Headers.prototype.keys = function () { return MapWrapper.values(this._normalizedNames); };
         /**
          * Sets or overrides header value for given name.
          */
-        Headers.prototype.set = function (header, value) {
-            var list = [];
-            if (isListLikeIterable(value)) {
-                var pushValue = value.join(',');
-                list.push(pushValue);
+        Headers.prototype.set = function (name, value) {
+            if (Array.isArray(value)) {
+                if (value.length) {
+                    this._headers.set(name.toLowerCase(), [value.join(',')]);
+                }
             }
             else {
-                list.push(value);
+                this._headers.set(name.toLowerCase(), [value]);
             }
-            this._headersMap.set(normalize(header), list);
+            this.mayBeSetNormalizedName(name);
         };
         /**
          * Returns values of all headers.
          */
-        Headers.prototype.values = function () { return MapWrapper.values(this._headersMap); };
+        Headers.prototype.values = function () { return MapWrapper.values(this._headers); };
         /**
          * Returns string of all headers.
          */
+        // TODO(vicb): returns {[name: string]: string[]}
         Headers.prototype.toJSON = function () {
-            var serializableHeaders = {};
-            this._headersMap.forEach(function (values, name) {
-                var list = [];
-                iterateListLike(values, function (val /** TODO #9100 */) { return list = ListWrapper.concat(list, val.split(',')); });
-                serializableHeaders[normalize(name)] = list;
+            var _this = this;
+            var serialized = {};
+            this._headers.forEach(function (values, name) {
+                var split = [];
+                values.forEach(function (v) { return split.push.apply(split, v.split(',')); });
+                serialized[_this._normalizedNames.get(name)] = split;
             });
-            return serializableHeaders;
+            return serialized;
         };
         /**
          * Returns list of header values for a given name.
          */
-        Headers.prototype.getAll = function (header) {
-            var headers = this._headersMap.get(normalize(header));
-            return isListLikeIterable(headers) ? headers : [];
+        Headers.prototype.getAll = function (name) {
+            return this.has(name) ? this._headers.get(name.toLowerCase()) : null;
         };
         /**
          * This method is not implemented.
          */
         Headers.prototype.entries = function () { throw new Error('"entries" method is not implemented on Headers class'); };
+        Headers.prototype.mayBeSetNormalizedName = function (name) {
+            var lcName = name.toLowerCase();
+            if (!this._normalizedNames.has(lcName)) {
+                this._normalizedNames.set(lcName, name);
+            }
+        };
         return Headers;
     }());
-    // "HTTP character sets are identified by case-insensitive tokens"
-    // Spec at https://tools.ietf.org/html/rfc2616
-    // This implementation is same as NodeJS.
-    // see https://nodejs.org/dist/latest-v6.x/docs/api/http.html#http_message_headers
-    function normalize(name) {
-        return name.toLowerCase();
-    }
 
     /**
      * @license
@@ -899,15 +523,25 @@
     }());
 
     function normalizeMethodName(method) {
-        if (isString(method)) {
-            var originalMethod = method;
-            method = method
-                .replace(/(\w)(\w*)/g, function (g0, g1, g2) { return g1.toUpperCase() + g2.toLowerCase(); });
-            method = exports.RequestMethod[method];
-            if (typeof method !== 'number')
-                throw new Error("Invalid request method. The method \"" + originalMethod + "\" is not supported.");
+        if (typeof method !== 'string')
+            return method;
+        switch (method.toUpperCase()) {
+            case 'GET':
+                return exports.RequestMethod.Get;
+            case 'POST':
+                return exports.RequestMethod.Post;
+            case 'PUT':
+                return exports.RequestMethod.Put;
+            case 'DELETE':
+                return exports.RequestMethod.Delete;
+            case 'OPTIONS':
+                return exports.RequestMethod.Options;
+            case 'HEAD':
+                return exports.RequestMethod.Head;
+            case 'PATCH':
+                return exports.RequestMethod.Patch;
         }
-        return method;
+        throw new Error("Invalid request method. The method \"" + method + "\" is not supported.");
     }
     var isSuccess = function (status) { return (status >= 200 && status < 300); };
     function getResponseURL(xhr) {
@@ -1026,6 +660,10 @@
         };
         URLSearchParams.prototype.getAll = function (param) { return this.paramsMap.get(param) || []; };
         URLSearchParams.prototype.set = function (param, val) {
+            if (val === void 0 || val === null) {
+                this.delete(param);
+                return;
+            }
             var list = this.paramsMap.get(param) || [];
             list.length = 0;
             list.push(val);
@@ -1047,6 +685,8 @@
             });
         };
         URLSearchParams.prototype.append = function (param, val) {
+            if (val === void 0 || val === null)
+                return;
             var list = this.paramsMap.get(param) || [];
             list.push(val);
             this.paramsMap.set(param, list);
@@ -1109,11 +749,11 @@
          * Attempts to return body as parsed `JSON` object, or raises an exception.
          */
         Body.prototype.json = function () {
-            if (isString(this._body)) {
-                return Json.parse(this._body);
+            if (typeof this._body === 'string') {
+                return JSON.parse(this._body);
             }
             if (this._body instanceof ArrayBuffer) {
-                return Json.parse(this.text());
+                return JSON.parse(this.text());
             }
             return this._body;
         };
@@ -1131,7 +771,7 @@
                 return '';
             }
             if (isJsObject(this._body)) {
-                return Json.stringify(this._body);
+                return JSON.stringify(this._body, null, 2);
             }
             return this._body.toString();
         };
@@ -1299,7 +939,7 @@
                 var callback = _dom.requestCallback(_this._id);
                 var url = req.url;
                 if (url.indexOf('=JSONP_CALLBACK&') > -1) {
-                    url = StringWrapper.replace(url, '=JSONP_CALLBACK&', "=" + callback + "&");
+                    url = url.replace('=JSONP_CALLBACK&', "=" + callback + "&");
                 }
                 else if (url.lastIndexOf('=JSONP_CALLBACK') === url.length - '=JSONP_CALLBACK'.length) {
                     url = url.substring(0, url.length - '=JSONP_CALLBACK'.length) + ("=" + callback);
@@ -1417,11 +1057,10 @@
                 var onLoad = function () {
                     // responseText is the old-school way of retrieving response (supported by IE8 & 9)
                     // response/responseType properties were introduced in ResourceLoader Level2 spec (supported
-                    // by
-                    // IE10)
-                    var body = isPresent(_xhr.response) ? _xhr.response : _xhr.responseText;
+                    // by IE10)
+                    var body = _xhr.response === undefined ? _xhr.responseText : _xhr.response;
                     // Implicitly strip a potential XSSI prefix.
-                    if (isString(body))
+                    if (typeof body === 'string')
                         body = body.replace(XSSI_PREFIX, '');
                     var headers = Headers.fromResponseHeaderString(_xhr.getAllResponseHeaders());
                     var url = getResponseURL(_xhr);
@@ -1642,7 +1281,8 @@
             this.body = isPresent(body) ? body : null;
             this.url = isPresent(url) ? url : null;
             this.search = isPresent(search) ?
-                (isString(search) ? new URLSearchParams((search)) : (search)) :
+                (typeof search === 'string' ? new URLSearchParams((search)) :
+                    (search)) :
                 null;
             this.withCredentials = isPresent(withCredentials) ? withCredentials : null;
             this.responseType = isPresent(responseType) ? responseType : null;
@@ -1674,18 +1314,17 @@
          */
         RequestOptions.prototype.merge = function (options) {
             return new RequestOptions({
-                method: isPresent(options) && isPresent(options.method) ? options.method : this.method,
-                headers: isPresent(options) && isPresent(options.headers) ? options.headers : this.headers,
-                body: isPresent(options) && isPresent(options.body) ? options.body : this.body,
-                url: isPresent(options) && isPresent(options.url) ? options.url : this.url,
-                search: isPresent(options) && isPresent(options.search) ?
-                    (isString(options.search) ? new URLSearchParams((options.search)) :
+                method: options && isPresent(options.method) ? options.method : this.method,
+                headers: options && isPresent(options.headers) ? options.headers : this.headers,
+                body: options && isPresent(options.body) ? options.body : this.body,
+                url: options && isPresent(options.url) ? options.url : this.url,
+                search: options && isPresent(options.search) ?
+                    (typeof options.search === 'string' ? new URLSearchParams(options.search) :
                         (options.search).clone()) :
                     this.search,
-                withCredentials: isPresent(options) && isPresent(options.withCredentials) ?
-                    options.withCredentials :
+                withCredentials: options && isPresent(options.withCredentials) ? options.withCredentials :
                     this.withCredentials,
-                responseType: isPresent(options) && isPresent(options.responseType) ? options.responseType :
+                responseType: options && isPresent(options.responseType) ? options.responseType :
                     this.responseType
             });
         };
@@ -1813,7 +1452,7 @@
                 var search = requestOptions.search.toString();
                 if (search.length > 0) {
                     var prefix = '?';
-                    if (StringWrapper.contains(this.url, '?')) {
+                    if (this.url.indexOf('?') != -1) {
                         prefix = (this.url[this.url.length - 1] == '&') ? '' : '&';
                     }
                     // TODO: just delete search-query-looking string in url?
@@ -2015,7 +1654,7 @@
          */
         Http.prototype.request = function (url, options) {
             var responseObservable;
-            if (isString(url)) {
+            if (typeof url === 'string') {
                 responseObservable = httpRequest(this._backend, new Request(mergeOptions(this._defaultOptions, options, exports.RequestMethod.Get, url)));
             }
             else if (url instanceof Request) {
@@ -2030,43 +1669,43 @@
          * Performs a request with `get` http method.
          */
         Http.prototype.get = function (url, options) {
-            return httpRequest(this._backend, new Request(mergeOptions(this._defaultOptions, options, exports.RequestMethod.Get, url)));
+            return this.request(new Request(mergeOptions(this._defaultOptions, options, exports.RequestMethod.Get, url)));
         };
         /**
          * Performs a request with `post` http method.
          */
         Http.prototype.post = function (url, body, options) {
-            return httpRequest(this._backend, new Request(mergeOptions(this._defaultOptions.merge(new RequestOptions({ body: body })), options, exports.RequestMethod.Post, url)));
+            return this.request(new Request(mergeOptions(this._defaultOptions.merge(new RequestOptions({ body: body })), options, exports.RequestMethod.Post, url)));
         };
         /**
          * Performs a request with `put` http method.
          */
         Http.prototype.put = function (url, body, options) {
-            return httpRequest(this._backend, new Request(mergeOptions(this._defaultOptions.merge(new RequestOptions({ body: body })), options, exports.RequestMethod.Put, url)));
+            return this.request(new Request(mergeOptions(this._defaultOptions.merge(new RequestOptions({ body: body })), options, exports.RequestMethod.Put, url)));
         };
         /**
          * Performs a request with `delete` http method.
          */
         Http.prototype.delete = function (url, options) {
-            return httpRequest(this._backend, new Request(mergeOptions(this._defaultOptions, options, exports.RequestMethod.Delete, url)));
+            return this.request(new Request(mergeOptions(this._defaultOptions, options, exports.RequestMethod.Delete, url)));
         };
         /**
          * Performs a request with `patch` http method.
          */
         Http.prototype.patch = function (url, body, options) {
-            return httpRequest(this._backend, new Request(mergeOptions(this._defaultOptions.merge(new RequestOptions({ body: body })), options, exports.RequestMethod.Patch, url)));
+            return this.request(new Request(mergeOptions(this._defaultOptions.merge(new RequestOptions({ body: body })), options, exports.RequestMethod.Patch, url)));
         };
         /**
          * Performs a request with `head` http method.
          */
         Http.prototype.head = function (url, options) {
-            return httpRequest(this._backend, new Request(mergeOptions(this._defaultOptions, options, exports.RequestMethod.Head, url)));
+            return this.request(new Request(mergeOptions(this._defaultOptions, options, exports.RequestMethod.Head, url)));
         };
         /**
          * Performs a request with `options` http method.
          */
         Http.prototype.options = function (url, options) {
-            return httpRequest(this._backend, new Request(mergeOptions(this._defaultOptions, options, exports.RequestMethod.Options, url)));
+            return this.request(new Request(mergeOptions(this._defaultOptions, options, exports.RequestMethod.Options, url)));
         };
         Http.decorators = [
             { type: _angular_core.Injectable },
@@ -2102,7 +1741,7 @@
          */
         Jsonp.prototype.request = function (url, options) {
             var responseObservable;
-            if (isString(url)) {
+            if (typeof url === 'string') {
                 url =
                     new Request(mergeOptions(this._defaultOptions, options, exports.RequestMethod.Get, url));
             }

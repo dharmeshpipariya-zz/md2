@@ -14,6 +14,10 @@ export { applyCssTransform } from './style/apply-transform';
 export { MdError } from './errors/error';
 export { ComponentType } from './overlay/generic-component-type';
 export * from './keyboard/keycodes';
+export * from './compatibility/style-compatibility';
+export * from './animation/animation';
+export { coerceBooleanProperty } from './coersion/boolean-property';
+export * from './pipes/pipes';
 export declare class MdCoreModule {
     static forRoot(): ModuleWithProviders;
 }

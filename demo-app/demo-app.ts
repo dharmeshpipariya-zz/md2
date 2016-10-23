@@ -2,7 +2,7 @@ import {
   Component,
   ViewEncapsulation
 } from '@angular/core';
-import {Location} from '@angular/common';
+import { Location } from '@angular/common';
 
 @Component({
   selector: 'home',
@@ -10,9 +10,9 @@ import {Location} from '@angular/common';
     <h4>Angular2 based Material Design components, directives and services are Accordion, Autocomplete, Collapse, Colorpicker, Datepicker, Dialog(Modal), Menu, Multiselect, Select, Tabs, Toast and Tooltip.</h4>
     <hr>
     <div class="home-page">
-      <a button="primary" href="https://github.com/dharmeshpipariya/md2">View on GitHub</a>
-      <a button="primary" href="https://github.com/dharmeshpipariya/md2/zipball/master">Download .zip</a>
-      <a button="primary" href="https://github.com/dharmeshpipariya/md2/tarball/master">Download .tar.gz</a>
+      <a button="primary" href="https://github.com/Promact/md2">View on GitHub</a>
+      <a button="primary" href="https://github.com/Promact/md2/zipball/master">Download .zip</a>
+      <a button="primary" href="https://github.com/Promact/md2/tarball/master">Download .tar.gz</a>
       <h1>Getting started</h1>
       <h4>Dependencies</h4>
       <p>This module consists of native Angular2 components, directives and services, no jQuery, Material or Bootstrap javascript is required.</p>
@@ -37,6 +37,23 @@ export class Home { }
 })
 export class DemoApp {
   private isSidenavOpened: boolean = false;
+  navItems = [
+    { name: 'Accordion', route: 'accordion' },
+    { name: 'Autocomplete', route: 'autocomplete' },
+    { name: 'Chips', route: 'chips' },
+    { name: 'Collapse', route: 'collapse' },
+    { name: 'Colorpicker', route: 'colorpicker' },
+    { name: 'Data Table', route: 'datatable' },
+    { name: 'Datepicker', route: 'datepicker' },
+    { name: 'Dialog', route: 'dialog' },
+    { name: 'Menu', route: 'menu' },
+    { name: 'Multiselect', route: 'multiselect' },
+    { name: 'Select', route: 'select' },
+    { name: 'Tabs', route: 'tabs' },
+    { name: 'Tags', route: 'tags' },
+    { name: 'Toast', route: 'toast' },
+    { name: 'Tooltip', route: 'tooltip' },
+  ];
 
   constructor(private location: Location) { }
 
@@ -56,7 +73,7 @@ export class DemoApp {
   }
 
   isActive(path: string) {
-    return this.location.path() === path;
+    return this.location.path() === '/' + path;
   }
 
   private get window(): Window { return window; }

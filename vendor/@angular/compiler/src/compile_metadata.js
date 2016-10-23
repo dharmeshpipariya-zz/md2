@@ -11,8 +11,8 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 import { ChangeDetectionStrategy, ViewEncapsulation } from '@angular/core';
-import { ListWrapper, MapWrapper, StringMapWrapper } from './facade/collection';
-import { isPresent, isStringMap, normalizeBlank, normalizeBool } from './facade/lang';
+import { ListWrapper, MapWrapper } from './facade/collection';
+import { isPresent, normalizeBlank, normalizeBool } from './facade/lang';
 import { CssSelector } from './selector';
 import { sanitizeIdentifier, splitAtColon } from './util';
 function unimplemented() {
@@ -258,7 +258,7 @@ export var CompileTemplateMetadata = (function () {
         this.styleUrls = _normalizeArray(styleUrls);
         this.externalStylesheets = _normalizeArray(externalStylesheets);
         this.animations = isPresent(animations) ? ListWrapper.flatten(animations) : [];
-        this.ngContentSelectors = isPresent(ngContentSelectors) ? ngContentSelectors : [];
+        this.ngContentSelectors = ngContentSelectors || [];
         if (isPresent(interpolation) && interpolation.length != 2) {
             throw new Error("'interpolation' should have a start and an end symbol.");
         }
@@ -295,7 +295,8 @@ export var CompileDirectiveMetadata = (function () {
         var hostProperties = {};
         var hostAttributes = {};
         if (isPresent(host)) {
-            StringMapWrapper.forEach(host, function (value, key) {
+            Object.keys(host).forEach(function (key) {
+                var value = host[key];
                 var matches = key.match(HOST_REG_EXP);
                 if (matches === null) {
                     hostAttributes[key] = value;
@@ -448,10 +449,10 @@ export function removeIdentifierDuplicates(items) {
     return MapWrapper.values(map);
 }
 function _normalizeArray(obj) {
-    return isPresent(obj) ? obj : [];
+    return obj || [];
 }
 export function isStaticSymbol(value) {
-    return isStringMap(value) && isPresent(value['name']) && isPresent(value['filePath']);
+    return typeof value === 'object' && value !== null && value['name'] && value['filePath'];
 }
 export var ProviderMeta = (function () {
     function ProviderMeta(token, _a) {

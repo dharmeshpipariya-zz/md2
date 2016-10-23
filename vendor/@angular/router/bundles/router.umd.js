@@ -1,13 +1,13 @@
 /**
- * @license Angular v3.0.1
+ * @license Angular v3.1.1
  * (c) 2010-2016 Google, Inc. https://angular.io/
  * License: MIT
  */
 (function (global, factory) {
-    typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@angular/common'), require('@angular/core'), require('rxjs/Subject'), require('rxjs/observable/from'), require('rxjs/observable/of'), require('rxjs/operator/every'), require('rxjs/operator/map'), require('rxjs/operator/mergeAll'), require('rxjs/operator/mergeMap'), require('rxjs/operator/reduce'), require('rxjs/Observable'), require('rxjs/operator/catch'), require('rxjs/operator/concatAll'), require('rxjs/operator/first'), require('rxjs/util/EmptyError'), require('rxjs/observable/fromPromise'), require('rxjs/operator/last'), require('rxjs/BehaviorSubject')) :
-    typeof define === 'function' && define.amd ? define(['exports', '@angular/common', '@angular/core', 'rxjs/Subject', 'rxjs/observable/from', 'rxjs/observable/of', 'rxjs/operator/every', 'rxjs/operator/map', 'rxjs/operator/mergeAll', 'rxjs/operator/mergeMap', 'rxjs/operator/reduce', 'rxjs/Observable', 'rxjs/operator/catch', 'rxjs/operator/concatAll', 'rxjs/operator/first', 'rxjs/util/EmptyError', 'rxjs/observable/fromPromise', 'rxjs/operator/last', 'rxjs/BehaviorSubject'], factory) :
-    (factory((global.ng = global.ng || {}, global.ng.router = global.ng.router || {}),global.ng.common,global.ng.core,global.Rx,global.Rx.Observable,global.Rx.Observable,global.Rx.Observable.prototype,global.Rx.Observable.prototype,global.Rx.Observable.prototype,global.Rx.Observable.prototype,global.Rx.Observable.prototype,global.Rx,global.Rx.Observable.prototype,global.Rx.Observable.prototype,global.Rx.Observable.prototype,global.Rx,global.Rx.Observable,global.Rx.Observable.prototype,global.Rx));
-}(this, function (exports,_angular_common,_angular_core,rxjs_Subject,rxjs_observable_from,rxjs_observable_of,rxjs_operator_every,rxjs_operator_map,rxjs_operator_mergeAll,rxjs_operator_mergeMap,rxjs_operator_reduce,rxjs_Observable,rxjs_operator_catch,rxjs_operator_concatAll,rxjs_operator_first,rxjs_util_EmptyError,rxjs_observable_fromPromise,l,rxjs_BehaviorSubject) { 'use strict';
+    typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@angular/common'), require('@angular/core'), require('rxjs/Subject'), require('rxjs/observable/from'), require('rxjs/observable/of'), require('rxjs/operator/concatMap'), require('rxjs/operator/every'), require('rxjs/operator/map'), require('rxjs/operator/mergeAll'), require('rxjs/operator/mergeMap'), require('rxjs/operator/reduce'), require('rxjs/Observable'), require('rxjs/operator/catch'), require('rxjs/operator/concatAll'), require('rxjs/operator/first'), require('rxjs/util/EmptyError'), require('rxjs/observable/fromPromise'), require('rxjs/operator/last'), require('rxjs/BehaviorSubject'), require('rxjs/operator/filter')) :
+    typeof define === 'function' && define.amd ? define(['exports', '@angular/common', '@angular/core', 'rxjs/Subject', 'rxjs/observable/from', 'rxjs/observable/of', 'rxjs/operator/concatMap', 'rxjs/operator/every', 'rxjs/operator/map', 'rxjs/operator/mergeAll', 'rxjs/operator/mergeMap', 'rxjs/operator/reduce', 'rxjs/Observable', 'rxjs/operator/catch', 'rxjs/operator/concatAll', 'rxjs/operator/first', 'rxjs/util/EmptyError', 'rxjs/observable/fromPromise', 'rxjs/operator/last', 'rxjs/BehaviorSubject', 'rxjs/operator/filter'], factory) :
+    (factory((global.ng = global.ng || {}, global.ng.router = global.ng.router || {}),global.ng.common,global.ng.core,global.Rx,global.Rx.Observable,global.Rx.Observable,global.rxjs_operator_concatMap,global.Rx.Observable.prototype,global.Rx.Observable.prototype,global.Rx.Observable.prototype,global.Rx.Observable.prototype,global.Rx.Observable.prototype,global.Rx,global.Rx.Observable.prototype,global.Rx.Observable.prototype,global.Rx.Observable.prototype,global.Rx,global.Rx.Observable,global.Rx.Observable.prototype,global.Rx,global.Rx.Observable.prototype));
+}(this, function (exports,_angular_common,_angular_core,rxjs_Subject,rxjs_observable_from,rxjs_observable_of,rxjs_operator_concatMap,rxjs_operator_every,rxjs_operator_map,rxjs_operator_mergeAll,rxjs_operator_mergeMap,rxjs_operator_reduce,rxjs_Observable,rxjs_operator_catch,rxjs_operator_concatAll,rxjs_operator_first,rxjs_util_EmptyError,rxjs_observable_fromPromise,l,rxjs_BehaviorSubject,rxjs_operator_filter) { 'use strict';
 
     /**
      * @license
@@ -766,7 +766,7 @@
             });
         };
         ApplyRedirects.prototype.noMatchError = function (e) {
-            return new Error("Cannot match any routes: '" + e.segmentGroup + "'");
+            return new Error("Cannot match any routes. URL Segment: '" + e.segmentGroup + "'");
         };
         ApplyRedirects.prototype.createUrlTree = function (rootCandidate) {
             var root = rootCandidate.segments.length > 0 ?
@@ -824,19 +824,20 @@
         };
         ApplyRedirects.prototype.expandSegmentAgainstRouteUsingRedirect = function (injector, segmentGroup, routes, route, segments, outlet) {
             if (route.path === '**') {
-                return this.expandWildCardWithParamsAgainstRouteUsingRedirect(route);
+                return this.expandWildCardWithParamsAgainstRouteUsingRedirect(injector, routes, route, outlet);
             }
             else {
                 return this.expandRegularSegmentAgainstRouteUsingRedirect(injector, segmentGroup, routes, route, segments, outlet);
             }
         };
-        ApplyRedirects.prototype.expandWildCardWithParamsAgainstRouteUsingRedirect = function (route) {
+        ApplyRedirects.prototype.expandWildCardWithParamsAgainstRouteUsingRedirect = function (injector, routes, route, outlet) {
             var newSegments = applyRedirectCommands([], route.redirectTo, {});
             if (route.redirectTo.startsWith('/')) {
                 return absoluteRedirect(newSegments);
             }
             else {
-                return rxjs_observable_of.of(new UrlSegmentGroup(newSegments, {}));
+                var group = new UrlSegmentGroup(newSegments, {});
+                return this.expandSegment(injector, group, routes, newSegments, outlet, false);
             }
         };
         ApplyRedirects.prototype.expandRegularSegmentAgainstRouteUsingRedirect = function (injector, segmentGroup, routes, route, segments, outlet) {
@@ -854,7 +855,15 @@
         ApplyRedirects.prototype.matchSegmentAgainstRoute = function (injector, rawSegmentGroup, route, segments) {
             var _this = this;
             if (route.path === '**') {
-                return rxjs_observable_of.of(new UrlSegmentGroup(segments, {}));
+                if (route.loadChildren) {
+                    return rxjs_operator_map.map.call(this.configLoader.load(injector, route.loadChildren), function (r) {
+                        route._loadedConfig = r;
+                        return rxjs_observable_of.of(new UrlSegmentGroup(segments, {}));
+                    });
+                }
+                else {
+                    return rxjs_observable_of.of(new UrlSegmentGroup(segments, {}));
+                }
             }
             else {
                 var _a = match(rawSegmentGroup, route, segments), matched = _a.matched, consumedSegments_1 = _a.consumedSegments, lastChild = _a.lastChild;
@@ -1802,6 +1811,8 @@
         return new Position(g, false, ci - dd);
     }
     function getPath(command) {
+        if (typeof command === 'object' && command.outlets)
+            return command.outlets[PRIMARY_OUTLET];
         return "" + command;
     }
     function getOutlets(commands) {
@@ -1820,8 +1831,14 @@
             return updateSegmentGroupChildren(segmentGroup, startIndex, commands);
         }
         var m = prefixedWith(segmentGroup, startIndex, commands);
-        var slicedCommands = commands.slice(m.lastIndex);
-        if (m.match && slicedCommands.length === 0) {
+        var slicedCommands = commands.slice(m.commandIndex);
+        if (m.match && m.pathIndex < segmentGroup.segments.length) {
+            var g = new UrlSegmentGroup(segmentGroup.segments.slice(0, m.pathIndex), {});
+            g.children[PRIMARY_OUTLET] =
+                new UrlSegmentGroup(segmentGroup.segments.slice(m.pathIndex), segmentGroup.children);
+            return updateSegmentGroupChildren(g, 0, slicedCommands);
+        }
+        else if (m.match && slicedCommands.length === 0) {
             return new UrlSegmentGroup(segmentGroup.segments, {});
         }
         else if (m.match && !segmentGroup.hasChildren()) {
@@ -1857,13 +1874,15 @@
     function prefixedWith(segmentGroup, startIndex, commands) {
         var currentCommandIndex = 0;
         var currentPathIndex = startIndex;
-        var noMatch = { match: false, lastIndex: 0 };
+        var noMatch = { match: false, pathIndex: 0, commandIndex: 0 };
         while (currentPathIndex < segmentGroup.segments.length) {
             if (currentCommandIndex >= commands.length)
                 return noMatch;
             var path = segmentGroup.segments[currentPathIndex];
             var curr = getPath(commands[currentCommandIndex]);
             var next = currentCommandIndex < commands.length - 1 ? commands[currentCommandIndex + 1] : null;
+            if (currentPathIndex > 0 && curr === undefined)
+                break;
             if (curr && next && (typeof next === 'object') && next.outlets === undefined) {
                 if (!compare(curr, next, path))
                     return noMatch;
@@ -1876,7 +1895,7 @@
             }
             currentPathIndex++;
         }
-        return { match: true, lastIndex: currentCommandIndex };
+        return { match: true, pathIndex: currentPathIndex, commandIndex: currentCommandIndex };
     }
     function createNewSegmentGroup(segmentGroup, startIndex, commands) {
         var paths = segmentGroup.segments.slice(0, startIndex);
@@ -2382,6 +2401,16 @@
             this.currentRouterState = createEmptyState(this.currentUrlTree, this.rootComponentType);
         }
         /**
+         * @internal
+         * TODO: this should be removed once the constructor of the router made internal
+         */
+        Router.prototype.resetRootComponentType = function (rootComponentType) {
+            this.rootComponentType = rootComponentType;
+            // TODO: vsavkin router 4.0 should make the root component set to null
+            // this will simplify the lifecycle of the router.
+            this.currentRouterState.root.component = this.rootComponentType;
+        };
+        /**
          * Sets up the location change listener and performs the initial navigation.
          */
         Router.prototype.initialNavigation = function () {
@@ -2735,7 +2764,7 @@
             if (this.checks.length === 0)
                 return rxjs_observable_of.of(null);
             var checks$ = rxjs_observable_from.from(this.checks);
-            var runningChecks$ = rxjs_operator_mergeMap.mergeMap.call(checks$, function (s) {
+            var runningChecks$ = rxjs_operator_concatMap.concatMap.call(checks$, function (s) {
                 if (s instanceof CanActivate) {
                     return _this.runResolve(s.route);
                 }
@@ -3251,7 +3280,7 @@
      * @howToUse
      *
      * ```
-     * <a [routerLink]='/user/bob' routerLinkActive='active-link'>Bob</a>
+     * <a routerLink="/user/bob" routerLinkActive="active-link">Bob</a>
      * ```
      *
      * @description
@@ -3262,7 +3291,7 @@
      * Consider the following example:
      *
      * ```
-     * <a [routerLink]="/user/bob" routerLinkActive="active-link">Bob</a>
+     * <a routerLink="/user/bob" routerLinkActive="active-link">Bob</a>
      * ```
      *
      * When the url is either '/user' or '/user/bob', the active-link class will
@@ -3271,15 +3300,15 @@
      * You can set more than one class, as follows:
      *
      * ```
-     * <a [routerLink]="/user/bob" routerLinkActive="class1 class2">Bob</a>
-     * <a [routerLink]="/user/bob" [routerLinkActive]="['class1', 'class2']">Bob</a>
+     * <a routerLink="/user/bob" routerLinkActive="class1 class2">Bob</a>
+     * <a routerLink="/user/bob" [routerLinkActive]="['class1', 'class2']">Bob</a>
      * ```
      *
      * You can configure RouterLinkActive by passing `exact: true`. This will add the classes
      * only when the url matches the link exactly.
      *
      * ```
-     * <a [routerLink]="/user/bob" routerLinkActive="active-link" [routerLinkActiveOptions]="{exact:
+     * <a routerLink="/user/bob" routerLinkActive="active-link" [routerLinkActiveOptions]="{exact:
      * true}">Bob</a>
      * ```
      *
@@ -3287,8 +3316,8 @@
      *
      * ```
      * <div routerLinkActive="active-link" [routerLinkActiveOptions]="{exact: true}">
-     *   <a [routerLink]="/user/jim">Jim</a>
-     *   <a [routerLink]="/user/bob">Bob</a>
+     *   <a routerLink="/user/jim">Jim</a>
+     *   <a routerLink="/user/bob">Bob</a>
      * </div>
      * ```
      *
@@ -3338,15 +3367,18 @@
             var _this = this;
             if (!this.links || !this.linksWithHrefs || !this.router.navigated)
                 return;
-            var isActiveLinks = this.reduceList(this.links);
-            var isActiveLinksWithHrefs = this.reduceList(this.linksWithHrefs);
-            this.classes.forEach(function (c) { return _this.renderer.setElementClass(_this.element.nativeElement, c, isActiveLinks || isActiveLinksWithHrefs); });
+            var isActive = this.hasActiveLink();
+            this.classes.forEach(function (c) { return _this.renderer.setElementClass(_this.element.nativeElement, c, isActive); });
         };
-        RouterLinkActive.prototype.reduceList = function (q) {
+        RouterLinkActive.prototype.isLinkActive = function (router) {
             var _this = this;
-            return q.reduce(function (res, link) {
-                return res || _this.router.isActive(link.urlTree, _this.routerLinkActiveOptions.exact);
-            }, false);
+            return function (link) {
+                return router.isActive(link.urlTree, _this.routerLinkActiveOptions.exact);
+            };
+        };
+        RouterLinkActive.prototype.hasActiveLink = function () {
+            return this.links.some(this.isLinkActive(this.router)) ||
+                this.linksWithHrefs.some(this.isLinkActive(this.router));
         };
         RouterLinkActive.decorators = [
             { type: _angular_core.Directive, args: [{ selector: '[routerLinkActive]' },] },
@@ -3469,6 +3501,118 @@
     }());
 
     /**
+     * @whatItDoes Provides a preloading strategy.
+     *
+     * @experimental
+     */
+    var PreloadingStrategy = (function () {
+        function PreloadingStrategy() {
+        }
+        return PreloadingStrategy;
+    }());
+    /**
+     * @whatItDoes Provides a preloading strategy that preloads all modules as quicky as possible.
+     *
+     * @howToUse
+     *
+     * ```
+     * RouteModule.forRoot(ROUTES, {preloadingStrategy: PreloadAllModules})
+     * ```
+     *
+     * @experimental
+     */
+    var PreloadAllModules = (function () {
+        function PreloadAllModules() {
+        }
+        PreloadAllModules.prototype.preload = function (route, fn) {
+            return rxjs_operator_catch._catch.call(fn(), function () { return rxjs_observable_of.of(null); });
+        };
+        return PreloadAllModules;
+    }());
+    /**
+     * @whatItDoes Provides a preloading strategy that does not preload any modules.
+     *
+     * @description
+     *
+     * This strategy is enabled by default.
+     *
+     * @experimental
+     */
+    var NoPreloading = (function () {
+        function NoPreloading() {
+        }
+        NoPreloading.prototype.preload = function (route, fn) { return rxjs_observable_of.of(null); };
+        return NoPreloading;
+    }());
+    /**
+     * The preloader optimistically loads all router configurations to
+     * make navigations into lazily-loaded sections of the application faster.
+     *
+     * The preloader runs in the background. When the router bootstraps, the preloader
+     * starts listening to all navigation events. After every such event, the preloader
+     * will check if any configurations can be loaded lazily.
+     *
+     * If a route is protected by `canLoad` guards, the preloaded will not load it.
+     */
+    var RouterPreloader = (function () {
+        function RouterPreloader(router, moduleLoader, compiler, injector, preloadingStrategy) {
+            this.router = router;
+            this.injector = injector;
+            this.preloadingStrategy = preloadingStrategy;
+            this.loader = new RouterConfigLoader(moduleLoader, compiler);
+        }
+        ;
+        RouterPreloader.prototype.setUpPreloading = function () {
+            var _this = this;
+            var navigations = rxjs_operator_filter.filter.call(this.router.events, function (e) { return e instanceof NavigationEnd; });
+            this.subscription = rxjs_operator_concatMap.concatMap.call(navigations, function () { return _this.preload(); }).subscribe(function (v) { });
+        };
+        RouterPreloader.prototype.preload = function () { return this.processRoutes(this.injector, this.router.config); };
+        RouterPreloader.prototype.ngOnDestroy = function () { this.subscription.unsubscribe(); };
+        RouterPreloader.prototype.processRoutes = function (injector, routes) {
+            var res = [];
+            for (var _i = 0, routes_1 = routes; _i < routes_1.length; _i++) {
+                var c = routes_1[_i];
+                // we already have the config loaded, just recurce
+                if (c.loadChildren && !c.canLoad && c._loadedConfig) {
+                    var childConfig = c._loadedConfig;
+                    res.push(this.processRoutes(childConfig.injector, childConfig.routes));
+                }
+                else if (c.loadChildren && !c.canLoad) {
+                    res.push(this.preloadConfig(injector, c));
+                }
+                else if (c.children) {
+                    res.push(this.processRoutes(injector, c.children));
+                }
+            }
+            return rxjs_operator_mergeAll.mergeAll.call(rxjs_observable_from.from(res));
+        };
+        RouterPreloader.prototype.preloadConfig = function (injector, route) {
+            var _this = this;
+            return this.preloadingStrategy.preload(route, function () {
+                var loaded = _this.loader.load(injector, route.loadChildren);
+                return rxjs_operator_mergeMap.mergeMap.call(loaded, function (config) {
+                    var c = route;
+                    c._loadedConfig = config;
+                    return _this.processRoutes(config.injector, config.routes);
+                });
+            });
+        };
+        RouterPreloader.decorators = [
+            { type: _angular_core.Injectable },
+        ];
+        /** @nocollapse */
+        RouterPreloader.ctorParameters = [
+            { type: Router, },
+            { type: _angular_core.NgModuleFactoryLoader, },
+            { type: _angular_core.Compiler, },
+            { type: _angular_core.Injector, },
+            { type: PreloadingStrategy, },
+        ];
+        return RouterPreloader;
+    }());
+
+    /**
      * @whatItDoes Contains a list of directives
      * @stable
      */
@@ -3492,8 +3636,8 @@
             ]
         },
         RouterOutletMap, { provide: ActivatedRoute, useFactory: rootRoute, deps: [Router] },
-        { provide: _angular_core.NgModuleFactoryLoader, useClass: _angular_core.SystemJsNgModuleLoader },
-        { provide: ROUTER_CONFIGURATION, useValue: { enableTracing: false } }
+        { provide: _angular_core.NgModuleFactoryLoader, useClass: _angular_core.SystemJsNgModuleLoader }, RouterPreloader, NoPreloading,
+        PreloadAllModules, { provide: ROUTER_CONFIGURATION, useValue: { enableTracing: false } }
     ];
     /**
      * @whatItDoes Adds router directives and providers.
@@ -3577,6 +3721,11 @@
                             _angular_common.PlatformLocation, [new _angular_core.Inject(_angular_common.APP_BASE_HREF), new _angular_core.Optional()], ROUTER_CONFIGURATION
                         ]
                     },
+                    {
+                        provide: PreloadingStrategy,
+                        useExisting: config && config.preloadingStrategy ? config.preloadingStrategy :
+                            NoPreloading
+                    },
                     provideRouterInitializer()
                 ]
             };
@@ -3630,11 +3779,7 @@
     }
     function setupRouter(ref, urlSerializer, outletMap, location, injector, loader, compiler, config, opts) {
         if (opts === void 0) { opts = {}; }
-        if (ref.componentTypes.length == 0) {
-            throw new Error('Bootstrap at least one component before injecting Router.');
-        }
-        var componentType = ref.componentTypes[0];
-        var r = new Router(componentType, urlSerializer, outletMap, location, injector, loader, compiler, flatten(config));
+        var r = new Router(null, urlSerializer, outletMap, location, injector, loader, compiler, flatten(config));
         if (opts.errorHandler) {
             r.errorHandler = opts.errorHandler;
         }
@@ -3651,8 +3796,10 @@
     function rootRoute(router) {
         return router.routerState.root;
     }
-    function initialRouterNavigation(router, opts) {
+    function initialRouterNavigation(router, ref, preloader, opts) {
         return function () {
+            router.resetRootComponentType(ref.componentTypes[0]);
+            preloader.setUpPreloading();
             if (opts.initialNavigation === false) {
                 router.setUpLocationChangeListener();
             }
@@ -3666,7 +3813,7 @@
             provide: _angular_core.APP_BOOTSTRAP_LISTENER,
             multi: true,
             useFactory: initialRouterNavigation,
-            deps: [Router, ROUTER_CONFIGURATION]
+            deps: [Router, _angular_core.ApplicationRef, RouterPreloader, ROUTER_CONFIGURATION]
         };
     }
 
@@ -3689,6 +3836,9 @@
     exports.RouterModule = RouterModule;
     exports.provideRoutes = provideRoutes;
     exports.RouterOutletMap = RouterOutletMap;
+    exports.NoPreloading = NoPreloading;
+    exports.PreloadAllModules = PreloadAllModules;
+    exports.PreloadingStrategy = PreloadingStrategy;
     exports.ActivatedRoute = ActivatedRoute;
     exports.ActivatedRouteSnapshot = ActivatedRouteSnapshot;
     exports.RouterState = RouterState;

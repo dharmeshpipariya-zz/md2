@@ -97,6 +97,10 @@ export var URLSearchParams = (function () {
     };
     URLSearchParams.prototype.getAll = function (param) { return this.paramsMap.get(param) || []; };
     URLSearchParams.prototype.set = function (param, val) {
+        if (val === void 0 || val === null) {
+            this.delete(param);
+            return;
+        }
         var list = this.paramsMap.get(param) || [];
         list.length = 0;
         list.push(val);
@@ -118,6 +122,8 @@ export var URLSearchParams = (function () {
         });
     };
     URLSearchParams.prototype.append = function (param, val) {
+        if (val === void 0 || val === null)
+            return;
         var list = this.paramsMap.get(param) || [];
         list.push(val);
         this.paramsMap.set(param, list);

@@ -14,7 +14,7 @@ import { RouterLink, RouterLinkWithHref } from './router_link';
  * @howToUse
  *
  * ```
- * <a [routerLink]='/user/bob' routerLinkActive='active-link'>Bob</a>
+ * <a routerLink="/user/bob" routerLinkActive="active-link">Bob</a>
  * ```
  *
  * @description
@@ -25,7 +25,7 @@ import { RouterLink, RouterLinkWithHref } from './router_link';
  * Consider the following example:
  *
  * ```
- * <a [routerLink]="/user/bob" routerLinkActive="active-link">Bob</a>
+ * <a routerLink="/user/bob" routerLinkActive="active-link">Bob</a>
  * ```
  *
  * When the url is either '/user' or '/user/bob', the active-link class will
@@ -34,15 +34,15 @@ import { RouterLink, RouterLinkWithHref } from './router_link';
  * You can set more than one class, as follows:
  *
  * ```
- * <a [routerLink]="/user/bob" routerLinkActive="class1 class2">Bob</a>
- * <a [routerLink]="/user/bob" [routerLinkActive]="['class1', 'class2']">Bob</a>
+ * <a routerLink="/user/bob" routerLinkActive="class1 class2">Bob</a>
+ * <a routerLink="/user/bob" [routerLinkActive]="['class1', 'class2']">Bob</a>
  * ```
  *
  * You can configure RouterLinkActive by passing `exact: true`. This will add the classes
  * only when the url matches the link exactly.
  *
  * ```
- * <a [routerLink]="/user/bob" routerLinkActive="active-link" [routerLinkActiveOptions]="{exact:
+ * <a routerLink="/user/bob" routerLinkActive="active-link" [routerLinkActiveOptions]="{exact:
  * true}">Bob</a>
  * ```
  *
@@ -50,8 +50,8 @@ import { RouterLink, RouterLinkWithHref } from './router_link';
  *
  * ```
  * <div routerLinkActive="active-link" [routerLinkActiveOptions]="{exact: true}">
- *   <a [routerLink]="/user/jim">Jim</a>
- *   <a [routerLink]="/user/bob">Bob</a>
+ *   <a routerLink="/user/jim">Jim</a>
+ *   <a routerLink="/user/bob">Bob</a>
  * </div>
  * ```
  *
@@ -101,15 +101,18 @@ export var RouterLinkActive = (function () {
         var _this = this;
         if (!this.links || !this.linksWithHrefs || !this.router.navigated)
             return;
-        var isActiveLinks = this.reduceList(this.links);
-        var isActiveLinksWithHrefs = this.reduceList(this.linksWithHrefs);
-        this.classes.forEach(function (c) { return _this.renderer.setElementClass(_this.element.nativeElement, c, isActiveLinks || isActiveLinksWithHrefs); });
+        var isActive = this.hasActiveLink();
+        this.classes.forEach(function (c) { return _this.renderer.setElementClass(_this.element.nativeElement, c, isActive); });
     };
-    RouterLinkActive.prototype.reduceList = function (q) {
+    RouterLinkActive.prototype.isLinkActive = function (router) {
         var _this = this;
-        return q.reduce(function (res, link) {
-            return res || _this.router.isActive(link.urlTree, _this.routerLinkActiveOptions.exact);
-        }, false);
+        return function (link) {
+            return router.isActive(link.urlTree, _this.routerLinkActiveOptions.exact);
+        };
+    };
+    RouterLinkActive.prototype.hasActiveLink = function () {
+        return this.links.some(this.isLinkActive(this.router)) ||
+            this.linksWithHrefs.some(this.isLinkActive(this.router));
     };
     RouterLinkActive.decorators = [
         { type: Directive, args: [{ selector: '[routerLinkActive]' },] },
