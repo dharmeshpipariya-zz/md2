@@ -1,3 +1,8 @@
+<a name="0.0.8"></a>
+## [0.0.8](https://github.com/dharmeshpipariya/md2/compare/3.1.5...v0.0.8) (2016-10-27)
+
+
+
 <a name="0.0.7"></a>
 ## [0.0.7](https://github.com/dharmeshpipariya/md2/compare/3.1.5...v0.0.7) (2016-10-27)
 
