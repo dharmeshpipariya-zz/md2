@@ -1,3 +1,8 @@
+<a name="0.0.7"></a>
+## [0.0.7](https://github.com/dharmeshpipariya/md2/compare/3.1.5...v0.0.7) (2016-10-27)
+
+
+
 # md2@0.0.0-alpha.6 (2016-09-28)
 
 ### Updates
