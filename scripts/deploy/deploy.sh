@@ -23,8 +23,6 @@ cd deploy
 git checkout $TARGET_BRANCH || git checkout --orphan $TARGET_BRANCH
 cd ..
 
-openssl aes-256-cbc -K $encrypted_fd9859267a7e_key -iv $encrypted_fd9859267a7e_iv -in deploy_key.enc -out deploy_key -d
-
 # Clean deploy existing contents
 rm -rf deploy/**/* || exit 0
 

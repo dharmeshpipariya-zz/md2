@@ -1,19 +1,17 @@
 language: node_js
 sudo: false
-
 node_js:
-  - 5.6.0
-
+- 5.6.0
 env:
-  global:
-
+  global: 
 install:
-  - npm install
-
+- npm install
 script:
-  - gulp clean
-  - bash ./scripts/deploy/deploy.sh
-
+- gulp clean
+- bash ./scripts/deploy/deploy.sh
 cache:
   directories:
-    - node_modules
+  - node_modules
+before_install:
+- openssl aes-256-cbc -K $encrypted_fd9859267a7e_key -iv $encrypted_fd9859267a7e_iv
+  -in deploy_key.enc -out deploy_key -d
