@@ -61,7 +61,7 @@ gulp.task(':release:tag', (cb: any) => {
   var version = JSON.parse(fs.readFileSync('./package.json', 'utf8')).version;
   git.tag(version, 'Created Tag for version: ' + version, function (error: any) {
     if (error) { return cb(error); }
-    git.push({ args: '--tags' }, cb);
+    git.push('origin', 'master', { args: '--tags' }, cb);
   });
 });
 
