@@ -23,6 +23,8 @@ cd deploy
 git checkout $TARGET_BRANCH || git checkout --orphan $TARGET_BRANCH
 cd ..
 
+openssl aes-256-cbc -K $encrypted_fd9859267a7e_key -iv $encrypted_fd9859267a7e_iv -in deploy_key.enc -out deploy_key -d
+
 # Clean deploy existing contents
 rm -rf deploy/**/* || exit 0
 
@@ -47,7 +49,7 @@ git add -A
 git commit -m "Deploy demo: ${SHA}"
 
 # Get the deploy key by using Travis's stored variables to decrypt deploy_key.enc
-openssl aes-256-cbc -K $encrypted_fd9859267a7e_key -iv $encrypted_fd9859267a7e_iv -in deploy_key.enc -out deploy_key -d
+#openssl aes-256-cbc -K $encrypted_fd9859267a7e_key -iv $encrypted_fd9859267a7e_iv -in deploy_key.enc -out deploy_key -d
 chmod 600 deploy_key
 eval `ssh-agent -s`
 ssh-add deploy_key
