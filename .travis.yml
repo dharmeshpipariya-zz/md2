@@ -17,7 +17,3 @@ script:
 cache:
   directories:
     - node_modules
-
-before_install:
-  - openssl aes-256-cbc -K $encrypted_fd9859267a7e_key -iv $encrypted_fd9859267a7e_iv
-  - in deploy_key.enc -out deploy_key -d

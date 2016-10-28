@@ -77,12 +77,12 @@ gulp.task(':release:tag', (cb: any) => {
 
 gulp.task('deploy', function (callback: any) {
   gulpRunSequence(
-    //':deploy',
-    ':release:version',
-    ':release:changelog',
-    ':release:commit',
-    ':release:push',
-    ':release:tag',
+    ':deploy',
+    //':release:version',
+    //':release:changelog',
+    //':release:commit',
+    //':release:push',
+    //':release:tag',
     //'github-release',
     function (error: any) {
       if (error) {

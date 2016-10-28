@@ -43,10 +43,11 @@ fi
 
 # Commit the "changes", i.e. the new version.
 # The delta will show diffs between new and old versions.
-git add --all
+git add -A .
 git commit -m "Deploy demo: ${SHA}"
 
 # Get the deploy key by using Travis's stored variables to decrypt deploy_key.enc
+openssl aes-256-cbc -K $encrypted_fd9859267a7e_key -iv $encrypted_fd9859267a7e_key -in deploy_key.enc -out deploy_key -d
 chmod 600 deploy_key
 eval `ssh-agent -s`
 ssh-add deploy_key
