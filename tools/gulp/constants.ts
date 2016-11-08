@@ -1,4 +1,4 @@
-import {join} from 'path';
+import { join } from 'path';
 
 export const PROJECT_ROOT = join(__dirname, '../..');
 export const SOURCE_ROOT = join(PROJECT_ROOT, 'src');
@@ -16,5 +16,5 @@ export const SASS_AUTOPREFIXER_OPTIONS = {
 };
 
 export const NPM_VENDOR_FILES = [
-  '@angular', 'core-js/client', 'rxjs', 'systemjs/dist', 'zone.js/dist'
+  '@angular', 'core-js/client', 'hammerjs', 'rxjs', 'systemjs/dist', 'zone.js/dist'
 ];
