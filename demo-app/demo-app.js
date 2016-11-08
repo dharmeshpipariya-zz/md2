@@ -71,7 +71,6 @@ var DemoApp = (function () {
             selector: 'demo-app',
             providers: [],
             templateUrl: 'demo-app.html',
-            styleUrls: ['demo-app.css'],
             encapsulation: core_1.ViewEncapsulation.None,
         }), 
         __metadata('design:paramtypes', [common_1.Location])
