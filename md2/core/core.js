@@ -23,7 +23,6 @@ export { OverlayState } from './overlay/overlay-state';
 export { ConnectedOverlayDirective, OverlayOrigin, OverlayModule } from './overlay/overlay-directives';
 export * from './overlay/position/connected-position-strategy';
 export * from './overlay/position/connected-position';
-export { MdUniqueSelectionDispatcher } from './coordination/unique-selection-dispatcher';
 // Style
 export { applyCssTransform } from './style/apply-transform';
 // Error
@@ -31,9 +30,6 @@ export { MdError } from './errors/error';
 // Misc
 // Keybindings
 export * from './keyboard/keycodes';
-export * from './compatibility/style-compatibility';
-// Animation
-export * from './animation/animation';
 // Coersion
 export { coerceBooleanProperty } from './coersion/boolean-property';
 // Pipes

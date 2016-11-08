@@ -16,6 +16,7 @@ export var OverlayRef = (function () {
             this._attachBackdrop();
         }
         var attachResult = this._portalHost.attach(portal);
+        this.updateSize();
         this.updatePosition();
         return attachResult;
     };
@@ -41,6 +42,15 @@ export var OverlayRef = (function () {
     OverlayRef.prototype.updatePosition = function () {
         if (this._state.positionStrategy) {
             this._state.positionStrategy.apply(this._pane);
+        }
+    };
+    /** Updates the size of the overlay based on the overlay config. */
+    OverlayRef.prototype.updateSize = function () {
+        if (this._state.width || this._state.width === 0) {
+            this._pane.style.width = formatCssUnit(this._state.width);
+        }
+        if (this._state.height || this._state.height === 0) {
+            this._pane.style.height = formatCssUnit(this._state.height);
         }
     };
     /** Attaches a backdrop for this overlay. */
@@ -80,5 +90,8 @@ export var OverlayRef = (function () {
     };
     return OverlayRef;
 }());
+function formatCssUnit(value) {
+    return typeof value === 'string' ? value : value + "px";
+}
 
 //# sourceMappingURL=overlay-ref.js.map
