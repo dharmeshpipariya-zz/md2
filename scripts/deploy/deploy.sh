@@ -26,7 +26,7 @@ git clone https://dharmeshpipariya:$GH_TOKEN@github.com/dharmeshpipariya/md2.git
 #cd ..
 
 # Clean deploy existing contents
-rm -rf deploy/**/* || exit 0
+#rm -rf deploy/**/* || exit 0
 
 # Compile demo-app
 gulp build:devapp
