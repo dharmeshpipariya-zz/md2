@@ -29,6 +29,7 @@ deploy:
     branch: master
     repo: dharmeshpipariya/md2
     tags: true
+    condition: "/^deploy-.*$/"
 
 cache:
   directories:
