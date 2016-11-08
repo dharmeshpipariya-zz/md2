@@ -34,8 +34,8 @@ gulp deploy
 
 # Now let's go have some fun with the cloned repo
 cd deploy
-#git config user.name "Dharmesh Pipariya"
-#git config user.email "pipariyadharmesh@gmail.com"
+git config --global user.email "pipariyadharmesh@gmail.com"
+git config --global user.name "Dharmesh Pipariya"
 
 # If there are no changes (e.g. this is a README update) then just bail.
 if [ -z `git diff --exit-code` ]; then
