@@ -20,8 +20,7 @@ git clone https://dharmeshpipariya:$GH_TOKEN@github.com/dharmeshpipariya/md2.git
 # Clean deploy existing contents
 rm -rf deploy/**/* || exit 0
 
-# Compile demo.
-gulp build:devapp
+# Deploy demo.
 gulp deploy
 
 # Configure cloned repo.
@@ -39,3 +38,4 @@ fi
 git add -A .
 git commit -m "Update demo: ${SHA}"
 git push origin $TARGET_BRANCH
+echo "Demo deployed"
