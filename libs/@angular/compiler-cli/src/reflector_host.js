@@ -6,11 +6,11 @@
  * found in the LICENSE file at https://angular.io/license
  */
 "use strict";
+var compiler_1 = require('@angular/compiler');
 var tsc_wrapped_1 = require('@angular/tsc-wrapped');
 var fs = require('fs');
 var path = require('path');
 var ts = require('typescript');
-var private_import_compiler_1 = require('./private_import_compiler');
 var static_reflector_1 = require('./static_reflector');
 var EXT = /(\.ts|\.d\.ts|\.js|\.jsx|\.tsx)$/;
 var DTS = /\.d\.ts$/;
@@ -27,14 +27,14 @@ var ReflectorHost = (function () {
         // normalize the path so that it never ends with '/'.
         this.basePath = path.normalize(path.join(this.options.basePath, '.')).replace(/\\/g, '/');
         this.genDir = path.normalize(path.join(this.options.genDir, '.')).replace(/\\/g, '/');
-        this.context = context || new NodeReflectorHostContext();
+        this.context = context || new NodeReflectorHostContext(compilerHost);
         var genPath = path.relative(this.basePath, this.genDir);
         this.isGenDirChildOfRootDir = genPath === '' || !genPath.startsWith('..');
     }
     ReflectorHost.prototype.angularImportLocations = function () {
         return {
             coreDecorators: '@angular/core/src/metadata',
-            diDecorators: '@angular/core/src/di/decorators',
+            diDecorators: '@angular/core/src/di/metadata',
             diMetadata: '@angular/core/src/di/metadata',
             diOpaqueToken: '@angular/core/src/di/opaque_token',
             animationMetadata: '@angular/core/src/animation/metadata',
@@ -51,7 +51,7 @@ var ReflectorHost = (function () {
     };
     ;
     ReflectorHost.prototype.normalizeAssetUrl = function (url) {
-        var assetUrl = private_import_compiler_1.AssetUrl.parse(url);
+        var assetUrl = compiler_1.AssetUrl.parse(url);
         var path = assetUrl ? assetUrl.packageName + "/" + assetUrl.modulePath : null;
         return this.getCanonicalFileName(path);
     };
@@ -219,6 +219,10 @@ var ReflectorHost = (function () {
         else {
             var sf = this.program.getSourceFile(filePath);
             if (!sf) {
+                if (this.context.fileExists(filePath)) {
+                    var sourceText = this.context.readFile(filePath);
+                    return this.metadataCollector.getMetadata(ts.createSourceFile(filePath, sourceText, ts.ScriptTarget.Latest, true));
+                }
                 throw new Error("Source file " + filePath + " not present in program.");
             }
             return this.metadataCollector.getMetadata(sf);
@@ -297,11 +301,12 @@ var ReflectorHost = (function () {
 }());
 exports.ReflectorHost = ReflectorHost;
 var NodeReflectorHostContext = (function () {
-    function NodeReflectorHostContext() {
+    function NodeReflectorHostContext(host) {
+        this.host = host;
         this.assumedExists = {};
     }
     NodeReflectorHostContext.prototype.fileExists = function (fileName) {
-        return this.assumedExists[fileName] || fs.existsSync(fileName);
+        return this.assumedExists[fileName] || this.host.fileExists(fileName);
     };
     NodeReflectorHostContext.prototype.directoryExists = function (directoryName) {
         try {

@@ -14,7 +14,6 @@ var compiler = require('@angular/compiler');
 var core_1 = require('@angular/core');
 var path = require('path');
 var path_mapped_reflector_host_1 = require('./path_mapped_reflector_host');
-var private_import_compiler_1 = require('./private_import_compiler');
 var private_import_core_1 = require('./private_import_core');
 var reflector_host_1 = require('./reflector_host');
 var static_reflection_capabilities_1 = require('./static_reflection_capabilities');
@@ -32,41 +31,6 @@ var CodeGenerator = (function () {
         this.compiler = compiler;
         this.reflectorHost = reflectorHost;
     }
-    CodeGenerator.prototype.readFileMetadata = function (absSourcePath) {
-        var moduleMetadata = this.staticReflector.getModuleMetadata(absSourcePath);
-        var result = { components: [], ngModules: [], fileUrl: absSourcePath };
-        if (!moduleMetadata) {
-            console.log("WARNING: no metadata found for " + absSourcePath);
-            return result;
-        }
-        var metadata = moduleMetadata['metadata'];
-        var symbols = metadata && Object.keys(metadata);
-        if (!symbols || !symbols.length) {
-            return result;
-        }
-        var _loop_1 = function(symbol) {
-            if (metadata[symbol] && metadata[symbol].__symbolic == 'error') {
-                // Ignore symbols that are only included to record error information.
-                return "continue";
-            }
-            var staticType = this_1.reflectorHost.findDeclaration(absSourcePath, symbol, absSourcePath);
-            var annotations = this_1.staticReflector.annotations(staticType);
-            annotations.forEach(function (annotation) {
-                if (annotation instanceof core_1.NgModuleMetadata) {
-                    result.ngModules.push(staticType);
-                }
-                else if (annotation instanceof core_1.ComponentMetadata) {
-                    result.components.push(staticType);
-                }
-            });
-        };
-        var this_1 = this;
-        for (var _i = 0, symbols_1 = symbols; _i < symbols_1.length; _i++) {
-            var symbol = symbols_1[_i];
-            _loop_1(symbol);
-        }
-        return result;
-    };
     // Write codegen in a directory structure matching the sources.
     CodeGenerator.prototype.calculateEmitPath = function (filePath) {
         var root = this.options.basePath;
@@ -88,34 +52,18 @@ var CodeGenerator = (function () {
         }
         return path.join(this.options.genDir, relativePath);
     };
-    CodeGenerator.prototype.codegen = function () {
+    CodeGenerator.prototype.codegen = function (options) {
         var _this = this;
-        // Compare with false since the default should be true
-        var skipFileNames = (this.options.generateCodeForLibraries === false) ?
-            GENERATED_OR_DTS_FILES :
-            GENERATED_FILES;
-        var filePaths = this.program.getSourceFiles()
-            .filter(function (sf) { return !skipFileNames.test(sf.fileName); })
-            .map(function (sf) { return _this.reflectorHost.getCanonicalFileName(sf.fileName); });
-        var fileMetas = filePaths.map(function (filePath) { return _this.readFileMetadata(filePath); });
-        var ngModules = fileMetas.reduce(function (ngModules, fileMeta) {
-            ngModules.push.apply(ngModules, fileMeta.ngModules);
-            return ngModules;
-        }, []);
-        var analyzedNgModules = this.compiler.analyzeModules(ngModules);
-        return Promise
-            .all(fileMetas.map(function (fileMeta) { return _this.compiler
-            .compile(fileMeta.fileUrl, analyzedNgModules, fileMeta.components, fileMeta.ngModules)
-            .then(function (generatedModules) {
+        var staticSymbols = extractProgramSymbols(this.program, this.staticReflector, this.reflectorHost, this.options);
+        return this.compiler.compileModules(staticSymbols, options).then(function (generatedModules) {
             generatedModules.forEach(function (generatedModule) {
-                var sourceFile = _this.program.getSourceFile(fileMeta.fileUrl);
+                var sourceFile = _this.program.getSourceFile(generatedModule.fileUrl);
                 var emitPath = _this.calculateEmitPath(generatedModule.moduleUrl);
                 _this.host.writeFile(emitPath, PREAMBLE + generatedModule.source, false, function () { }, [sourceFile]);
             });
-        }); }))
-            .catch(function (e) { console.error(e.stack); });
+        });
     };
-    CodeGenerator.create = function (options, cliOptions, program, compilerHost, reflectorHostContext, resourceLoader) {
+    CodeGenerator.create = function (options, cliOptions, program, compilerHost, reflectorHostContext, resourceLoader, reflectorHost) {
         resourceLoader = resourceLoader || {
             get: function (s) {
                 if (!compilerHost.fileExists(s)) {
@@ -135,30 +83,61 @@ var CodeGenerator = (function () {
             transContent = nodeFs.readFileSync(transFile, 'utf8');
         }
         var urlResolver = compiler.createOfflineCompileUrlResolver();
-        var usePathMapping = !!options.rootDirs && options.rootDirs.length > 0;
-        var reflectorHost = usePathMapping ?
-            new path_mapped_reflector_host_1.PathMappedReflectorHost(program, compilerHost, options, reflectorHostContext) :
-            new reflector_host_1.ReflectorHost(program, compilerHost, options, reflectorHostContext);
+        if (!reflectorHost) {
+            var usePathMapping = !!options.rootDirs && options.rootDirs.length > 0;
+            reflectorHost = usePathMapping ?
+                new path_mapped_reflector_host_1.PathMappedReflectorHost(program, compilerHost, options, reflectorHostContext) :
+                new reflector_host_1.ReflectorHost(program, compilerHost, options, reflectorHostContext);
+        }
         var staticReflector = new static_reflector_1.StaticReflector(reflectorHost);
         static_reflection_capabilities_1.StaticAndDynamicReflectionCapabilities.install(staticReflector);
-        var htmlParser = new compiler.I18NHtmlParser(new private_import_compiler_1.HtmlParser(), transContent, cliOptions.i18nFormat);
+        var htmlParser = new compiler.I18NHtmlParser(new compiler.HtmlParser(), transContent, cliOptions.i18nFormat);
         var config = new compiler.CompilerConfig({
             genDebugInfo: options.debug === true,
             defaultEncapsulation: core_1.ViewEncapsulation.Emulated,
             logBindingUpdate: false,
             useJit: false
         });
-        var normalizer = new private_import_compiler_1.DirectiveNormalizer(resourceLoader, urlResolver, htmlParser, config);
-        var expressionParser = new private_import_compiler_1.Parser(new private_import_compiler_1.Lexer());
-        var elementSchemaRegistry = new private_import_compiler_1.DomElementSchemaRegistry();
+        var normalizer = new compiler.DirectiveNormalizer(resourceLoader, urlResolver, htmlParser, config);
+        var expressionParser = new compiler.Parser(new compiler.Lexer());
+        var elementSchemaRegistry = new compiler.DomElementSchemaRegistry();
         var console = new private_import_core_1.Console();
-        var tmplParser = new private_import_compiler_1.TemplateParser(expressionParser, elementSchemaRegistry, htmlParser, console, []);
-        var resolver = new private_import_compiler_1.CompileMetadataResolver(new compiler.NgModuleResolver(staticReflector), new compiler.DirectiveResolver(staticReflector), new compiler.PipeResolver(staticReflector), elementSchemaRegistry, staticReflector);
+        var tmplParser = new compiler.TemplateParser(expressionParser, elementSchemaRegistry, htmlParser, console, []);
+        var resolver = new compiler.CompileMetadataResolver(new compiler.NgModuleResolver(staticReflector), new compiler.DirectiveResolver(staticReflector), new compiler.PipeResolver(staticReflector), elementSchemaRegistry, staticReflector);
         // TODO(vicb): do not pass cliOptions.i18nFormat here
-        var offlineCompiler = new compiler.OfflineCompiler(resolver, normalizer, tmplParser, new private_import_compiler_1.StyleCompiler(urlResolver), new private_import_compiler_1.ViewCompiler(config), new private_import_compiler_1.NgModuleCompiler(), new private_import_compiler_1.TypeScriptEmitter(reflectorHost), cliOptions.locale, cliOptions.i18nFormat);
+        var offlineCompiler = new compiler.OfflineCompiler(resolver, normalizer, tmplParser, new compiler.StyleCompiler(urlResolver), new compiler.ViewCompiler(config, elementSchemaRegistry), new compiler.DirectiveWrapperCompiler(config, expressionParser, elementSchemaRegistry, console), new compiler.NgModuleCompiler(), new compiler.TypeScriptEmitter(reflectorHost), cliOptions.locale, cliOptions.i18nFormat);
         return new CodeGenerator(options, program, compilerHost, staticReflector, offlineCompiler, reflectorHost);
     };
     return CodeGenerator;
 }());
 exports.CodeGenerator = CodeGenerator;
+function extractProgramSymbols(program, staticReflector, reflectorHost, options) {
+    // Compare with false since the default should be true
+    var skipFileNames = options.generateCodeForLibraries === false ? GENERATED_OR_DTS_FILES : GENERATED_FILES;
+    var staticSymbols = [];
+    program.getSourceFiles()
+        .filter(function (sourceFile) { return !skipFileNames.test(sourceFile.fileName); })
+        .forEach(function (sourceFile) {
+        var absSrcPath = reflectorHost.getCanonicalFileName(sourceFile.fileName);
+        var moduleMetadata = staticReflector.getModuleMetadata(absSrcPath);
+        if (!moduleMetadata) {
+            console.log("WARNING: no metadata found for " + absSrcPath);
+            return;
+        }
+        var metadata = moduleMetadata['metadata'];
+        if (!metadata) {
+            return;
+        }
+        for (var _i = 0, _a = Object.keys(metadata); _i < _a.length; _i++) {
+            var symbol = _a[_i];
+            if (metadata[symbol] && metadata[symbol].__symbolic == 'error') {
+                // Ignore symbols that are only included to record error information.
+                continue;
+            }
+            staticSymbols.push(reflectorHost.findDeclaration(absSrcPath, symbol, absSrcPath));
+        }
+    });
+    return staticSymbols;
+}
+exports.extractProgramSymbols = extractProgramSymbols;
 //# sourceMappingURL=codegen.js.map

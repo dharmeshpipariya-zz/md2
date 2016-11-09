@@ -69,7 +69,12 @@ var PathMappedReflectorHost = (function (_super) {
         // If a file does not yet exist (because we compile it later), we still need to
         // assume it exists so that the `resolve` method works!
         if (!this.context.fileExists(importedFile)) {
-            this.context.assumeFileExists(importedFile);
+            if (this.options.rootDirs && this.options.rootDirs.length > 0) {
+                this.context.assumeFileExists(path.join(this.options.rootDirs[0], importedFile));
+            }
+            else {
+                this.context.assumeFileExists(importedFile);
+            }
         }
         var resolvable = function (candidate) {
             var resolved = _this.getCanonicalFileName(_this.resolve(candidate, importedFile));

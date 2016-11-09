@@ -17,11 +17,9 @@ var StaticAndDynamicReflectionCapabilities = (function () {
     };
     StaticAndDynamicReflectionCapabilities.prototype.isReflectionEnabled = function () { return true; };
     StaticAndDynamicReflectionCapabilities.prototype.factory = function (type) { return this.dynamicDelegate.factory(type); };
-    StaticAndDynamicReflectionCapabilities.prototype.interfaces = function (type) { return this.dynamicDelegate.interfaces(type); };
-    StaticAndDynamicReflectionCapabilities.prototype.hasLifecycleHook = function (type, lcInterface, lcProperty) {
-        return isStaticType(type) ?
-            this.staticDelegate.hasLifecycleHook(type, lcInterface, lcProperty) :
-            this.dynamicDelegate.hasLifecycleHook(type, lcInterface, lcProperty);
+    StaticAndDynamicReflectionCapabilities.prototype.hasLifecycleHook = function (type, lcProperty) {
+        return isStaticType(type) ? this.staticDelegate.hasLifecycleHook(type, lcProperty) :
+            this.dynamicDelegate.hasLifecycleHook(type, lcProperty);
     };
     StaticAndDynamicReflectionCapabilities.prototype.parameters = function (type) {
         return isStaticType(type) ? this.staticDelegate.parameters(type) :

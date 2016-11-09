@@ -46,8 +46,7 @@ var StaticReflector = (function () {
         return staticSymbol ? staticSymbol.filePath : null;
     };
     StaticReflector.prototype.resolveIdentifier = function (name, moduleUrl, runtime) {
-        var result = this.host.findDeclaration(moduleUrl, name, '');
-        return result;
+        return this.host.findDeclaration(moduleUrl, name, '');
     };
     StaticReflector.prototype.resolveEnum = function (enumIdentifier, name) {
         var staticSymbol = enumIdentifier;
@@ -126,21 +125,17 @@ var StaticReflector = (function () {
             throw e;
         }
     };
-    StaticReflector.prototype.hasLifecycleHook = function (type, lcInterface, lcProperty) {
+    StaticReflector.prototype.hasLifecycleHook = function (type, lcProperty) {
         if (!(type instanceof StaticSymbol)) {
             throw new Error("hasLifecycleHook received " + JSON.stringify(type) + " which is not a StaticSymbol");
         }
         var classMetadata = this.getTypeMetadata(type);
         var members = classMetadata ? classMetadata['members'] : null;
-        var member = members ? members[lcProperty] : null;
+        var member = members && members.hasOwnProperty(lcProperty) ? members[lcProperty] : null;
         return member ? member.some(function (a) { return a['__symbolic'] == 'method'; }) : false;
     };
     StaticReflector.prototype.registerDecoratorOrConstructor = function (type, ctor) {
-        this.conversionMap.set(type, function (context, args) {
-            var metadata = Object.create(ctor.prototype);
-            ctor.apply(metadata, args);
-            return metadata;
-        });
+        this.conversionMap.set(type, function (context, args) { return new (ctor.bind.apply(ctor, [void 0].concat(args)))(); });
     };
     StaticReflector.prototype.registerFunction = function (type, fn) {
         this.conversionMap.set(type, function (context, args) { return fn.apply(undefined, args); });
@@ -148,30 +143,30 @@ var StaticReflector = (function () {
     StaticReflector.prototype.initializeConversionMap = function () {
         var _a = this.host.angularImportLocations(), coreDecorators = _a.coreDecorators, diDecorators = _a.diDecorators, diMetadata = _a.diMetadata, diOpaqueToken = _a.diOpaqueToken, animationMetadata = _a.animationMetadata, provider = _a.provider;
         this.opaqueToken = this.host.findDeclaration(diOpaqueToken, 'OpaqueToken');
-        this.registerDecoratorOrConstructor(this.host.findDeclaration(diDecorators, 'Host'), core_1.HostMetadata);
-        this.registerDecoratorOrConstructor(this.host.findDeclaration(diDecorators, 'Injectable'), core_1.InjectableMetadata);
-        this.registerDecoratorOrConstructor(this.host.findDeclaration(diDecorators, 'Self'), core_1.SelfMetadata);
-        this.registerDecoratorOrConstructor(this.host.findDeclaration(diDecorators, 'SkipSelf'), core_1.SkipSelfMetadata);
-        this.registerDecoratorOrConstructor(this.host.findDeclaration(diDecorators, 'Inject'), core_1.InjectMetadata);
-        this.registerDecoratorOrConstructor(this.host.findDeclaration(diDecorators, 'Optional'), core_1.OptionalMetadata);
-        this.registerDecoratorOrConstructor(this.host.findDeclaration(coreDecorators, 'Attribute'), core_1.AttributeMetadata);
-        this.registerDecoratorOrConstructor(this.host.findDeclaration(coreDecorators, 'ContentChild'), core_1.ContentChildMetadata);
-        this.registerDecoratorOrConstructor(this.host.findDeclaration(coreDecorators, 'ContentChildren'), core_1.ContentChildrenMetadata);
-        this.registerDecoratorOrConstructor(this.host.findDeclaration(coreDecorators, 'ViewChild'), core_1.ViewChildMetadata);
-        this.registerDecoratorOrConstructor(this.host.findDeclaration(coreDecorators, 'ViewChildren'), core_1.ViewChildrenMetadata);
-        this.registerDecoratorOrConstructor(this.host.findDeclaration(coreDecorators, 'Input'), core_1.InputMetadata);
-        this.registerDecoratorOrConstructor(this.host.findDeclaration(coreDecorators, 'Output'), core_1.OutputMetadata);
-        this.registerDecoratorOrConstructor(this.host.findDeclaration(coreDecorators, 'Pipe'), core_1.PipeMetadata);
-        this.registerDecoratorOrConstructor(this.host.findDeclaration(coreDecorators, 'HostBinding'), core_1.HostBindingMetadata);
-        this.registerDecoratorOrConstructor(this.host.findDeclaration(coreDecorators, 'HostListener'), core_1.HostListenerMetadata);
-        this.registerDecoratorOrConstructor(this.host.findDeclaration(coreDecorators, 'Directive'), core_1.DirectiveMetadata);
-        this.registerDecoratorOrConstructor(this.host.findDeclaration(coreDecorators, 'Component'), core_1.ComponentMetadata);
-        this.registerDecoratorOrConstructor(this.host.findDeclaration(coreDecorators, 'NgModule'), core_1.NgModuleMetadata);
+        this.registerDecoratorOrConstructor(this.host.findDeclaration(diDecorators, 'Host'), core_1.Host);
+        this.registerDecoratorOrConstructor(this.host.findDeclaration(diDecorators, 'Injectable'), core_1.Injectable);
+        this.registerDecoratorOrConstructor(this.host.findDeclaration(diDecorators, 'Self'), core_1.Self);
+        this.registerDecoratorOrConstructor(this.host.findDeclaration(diDecorators, 'SkipSelf'), core_1.SkipSelf);
+        this.registerDecoratorOrConstructor(this.host.findDeclaration(diDecorators, 'Inject'), core_1.Inject);
+        this.registerDecoratorOrConstructor(this.host.findDeclaration(diDecorators, 'Optional'), core_1.Optional);
+        this.registerDecoratorOrConstructor(this.host.findDeclaration(coreDecorators, 'Attribute'), core_1.Attribute);
+        this.registerDecoratorOrConstructor(this.host.findDeclaration(coreDecorators, 'ContentChild'), core_1.ContentChild);
+        this.registerDecoratorOrConstructor(this.host.findDeclaration(coreDecorators, 'ContentChildren'), core_1.ContentChildren);
+        this.registerDecoratorOrConstructor(this.host.findDeclaration(coreDecorators, 'ViewChild'), core_1.ViewChild);
+        this.registerDecoratorOrConstructor(this.host.findDeclaration(coreDecorators, 'ViewChildren'), core_1.ViewChildren);
+        this.registerDecoratorOrConstructor(this.host.findDeclaration(coreDecorators, 'Input'), core_1.Input);
+        this.registerDecoratorOrConstructor(this.host.findDeclaration(coreDecorators, 'Output'), core_1.Output);
+        this.registerDecoratorOrConstructor(this.host.findDeclaration(coreDecorators, 'Pipe'), core_1.Pipe);
+        this.registerDecoratorOrConstructor(this.host.findDeclaration(coreDecorators, 'HostBinding'), core_1.HostBinding);
+        this.registerDecoratorOrConstructor(this.host.findDeclaration(coreDecorators, 'HostListener'), core_1.HostListener);
+        this.registerDecoratorOrConstructor(this.host.findDeclaration(coreDecorators, 'Directive'), core_1.Directive);
+        this.registerDecoratorOrConstructor(this.host.findDeclaration(coreDecorators, 'Component'), core_1.Component);
+        this.registerDecoratorOrConstructor(this.host.findDeclaration(coreDecorators, 'NgModule'), core_1.NgModule);
         // Note: Some metadata classes can be used directly with Provider.deps.
-        this.registerDecoratorOrConstructor(this.host.findDeclaration(diMetadata, 'HostMetadata'), core_1.HostMetadata);
-        this.registerDecoratorOrConstructor(this.host.findDeclaration(diMetadata, 'SelfMetadata'), core_1.SelfMetadata);
-        this.registerDecoratorOrConstructor(this.host.findDeclaration(diMetadata, 'SkipSelfMetadata'), core_1.SkipSelfMetadata);
-        this.registerDecoratorOrConstructor(this.host.findDeclaration(diMetadata, 'OptionalMetadata'), core_1.OptionalMetadata);
+        this.registerDecoratorOrConstructor(this.host.findDeclaration(diMetadata, 'Host'), core_1.Host);
+        this.registerDecoratorOrConstructor(this.host.findDeclaration(diMetadata, 'Self'), core_1.Self);
+        this.registerDecoratorOrConstructor(this.host.findDeclaration(diMetadata, 'SkipSelf'), core_1.SkipSelf);
+        this.registerDecoratorOrConstructor(this.host.findDeclaration(diMetadata, 'Optional'), core_1.Optional);
         this.registerFunction(this.host.findDeclaration(animationMetadata, 'trigger'), core_1.trigger);
         this.registerFunction(this.host.findDeclaration(animationMetadata, 'state'), core_1.state);
         this.registerFunction(this.host.findDeclaration(animationMetadata, 'transition'), core_1.transition);
@@ -198,7 +193,6 @@ var StaticReflector = (function () {
                 return staticSymbol;
             }
             function resolveReferenceValue(staticSymbol) {
-                var result = staticSymbol;
                 var moduleMetadata = _this.getModuleMetadata(staticSymbol.filePath);
                 var declarationValue = moduleMetadata ? moduleMetadata['metadata'][staticSymbol.name] : null;
                 return declarationValue;
@@ -308,6 +302,9 @@ var StaticReflector = (function () {
                         result_2.push(value_2);
                     }
                     return result_2;
+                }
+                if (expression instanceof StaticSymbol) {
+                    return expression;
                 }
                 if (expression) {
                     if (expression['__symbolic']) {
@@ -487,8 +484,7 @@ var StaticReflector = (function () {
         if (!moduleMetadata) {
             moduleMetadata = this.host.getMetadataFor(module);
             if (Array.isArray(moduleMetadata)) {
-                moduleMetadata = moduleMetadata
-                    .find(function (element) { return element.version === SUPPORTED_SCHEMA_VERSION; }) ||
+                moduleMetadata = moduleMetadata.find(function (md) { return md['version'] === SUPPORTED_SCHEMA_VERSION; }) ||
                     moduleMetadata[0];
             }
             if (!moduleMetadata) {
@@ -504,11 +500,7 @@ var StaticReflector = (function () {
     };
     StaticReflector.prototype.getTypeMetadata = function (type) {
         var moduleMetadata = this.getModuleMetadata(type.filePath);
-        var result = moduleMetadata['metadata'][type.name];
-        if (!result) {
-            result = { __symbolic: 'class' };
-        }
-        return result;
+        return moduleMetadata['metadata'][type.name] || { __symbolic: 'class' };
     };
     return StaticReflector;
 }());
@@ -563,7 +555,6 @@ var BindingScope = (function () {
     }
     BindingScope.build = function () {
         var current = new Map();
-        var parent = undefined;
         return {
             define: function (name, value) {
                 current.set(name, value);
