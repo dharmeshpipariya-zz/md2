@@ -19,7 +19,7 @@
 
     "unit-case": "lower",
     "unit-no-unknown": true,
-    "unit-whitelist": ["px", "%", "deg", "ms", "em", "vh"],
+    "unit-whitelist": ["px", "%", "deg", "ms", "em", "vh", "vw"],
 
     "value-list-comma-space-after": "always-single-line",
     "value-list-comma-space-before": "never",
@@ -28,7 +28,9 @@
 
     "property-case": "lower",
 
-    "declaration-block-no-duplicate-properties": true,
+    "declaration-block-no-duplicate-properties": [ true, {
+      "ignore": ["consecutive-duplicates-with-different-values"]
+    }],
     "declaration-block-no-ignored-properties": true,
     "declaration-block-trailing-semicolon": "always",
     "declaration-block-single-line-max-declarations": 1,

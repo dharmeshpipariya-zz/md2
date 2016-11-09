@@ -3,6 +3,7 @@ import {
   ViewEncapsulation
 } from '@angular/core';
 import { Location } from '@angular/common';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'home',
@@ -10,9 +11,9 @@ import { Location } from '@angular/common';
     <h4>Angular2 based Material Design components, directives and services are Accordion, Autocomplete, Collapse, Colorpicker, Datepicker, Dialog(Modal), Menu, Multiselect, Select, Tabs, Toast and Tooltip.</h4>
     <hr>
     <div class="home-page">
-      <a button="primary" href="https://github.com/Promact/md2">View on GitHub</a>
-      <a button="primary" href="https://github.com/Promact/md2/zipball/master">Download .zip</a>
-      <a button="primary" href="https://github.com/Promact/md2/tarball/master">Download .tar.gz</a>
+      <a button="primary" href="https://github.com/dharmeshpipariya/md2">View on GitHub</a>
+      <a button="primary" href="https://github.com/dharmeshpipariya/md2/zipball/master">Download .zip</a>
+      <a button="primary" href="https://github.com/dharmeshpipariya/md2/tarball/master">Download .tar.gz</a>
       <h1>Getting started</h1>
       <h4>Dependencies</h4>
       <p>This module consists of native Angular2 components, directives and services, no jQuery, Material or Bootstrap javascript is required.</p>
@@ -36,6 +37,7 @@ export class Home { }
 })
 export class DemoApp {
   private isSidenavOpened: boolean = false;
+  private footerNav: any = { prev: null, next: null };
   navItems = [
     { name: 'Accordion', route: 'accordion' },
     { name: 'Autocomplete', route: 'autocomplete' },
@@ -54,7 +56,14 @@ export class DemoApp {
     { name: 'Tooltip', route: 'tooltip' },
   ];
 
-  constructor(private location: Location) { }
+  constructor(private location: Location, private _router: Router) {
+    _router.events.subscribe((value) => {
+      let current = this.navItems.map((v) => '/' + v.route).indexOf(value.url);
+      this.footerNav.prev = this.navItems[current - 1];
+      this.footerNav.next = this.navItems[current + 1];
+      if (current === 0) { this.footerNav.prev = { name: 'Home', route: '' }; }
+    });
+  }
 
   ngOnInit() {
     console.log('Application component initialized ...');
