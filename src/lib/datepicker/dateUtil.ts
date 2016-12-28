@@ -1,4 +1,4 @@
-import { Injectable } from "@angular/core";
+import { Injectable } from '@angular/core';
 
 @Injectable()
 export class Md2DateUtil {
@@ -26,7 +26,8 @@ export class Md2DateUtil {
    * @returns {Date}
    */
   getDateInNextMonth(date: Date) {
-    return new Date(date.getFullYear(), date.getMonth() + 1, 1, date.getHours(), date.getMinutes());
+    return new Date(date.getFullYear(), date.getMonth() + 1, 1,
+      date.getHours(), date.getMinutes());
   }
 
   /**
@@ -35,7 +36,8 @@ export class Md2DateUtil {
    * @returns {Date}
    */
   getDateInPreviousMonth(date: Date) {
-    return new Date(date.getFullYear(), date.getMonth() - 1, 1, date.getHours(), date.getMinutes());
+    return new Date(date.getFullYear(), date.getMonth() - 1, 1,
+      date.getHours(), date.getMinutes());
   }
 
   /**
@@ -107,7 +109,8 @@ export class Md2DateUtil {
    * @returns {Date}
    */
   incrementMinutes(date: Date, numberOfMinutes: number) {
-    return new Date(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes() + numberOfMinutes);
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate(),
+      date.getHours(), date.getMinutes() + numberOfMinutes);
   }
 
   /**
@@ -117,7 +120,8 @@ export class Md2DateUtil {
    * @returns {Date}
    */
   incrementHours(date: Date, numberOfHours: number) {
-    return new Date(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours() + numberOfHours, date.getMinutes());
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate(),
+      date.getHours() + numberOfHours, date.getMinutes());
   }
 
   /**
@@ -127,7 +131,8 @@ export class Md2DateUtil {
    * @returns {Date}
    */
   incrementDays(date: Date, numberOfDays: number) {
-    return new Date(date.getFullYear(), date.getMonth(), date.getDate() + numberOfDays, date.getHours(), date.getMinutes());
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate() + numberOfDays,
+      date.getHours(), date.getMinutes());
   }
 
   /**
@@ -143,7 +148,8 @@ export class Md2DateUtil {
     // automatically advance *another* month by the number of missing days.
     // For example, if you try to go from Jan. 30 to Feb. 30, you'll end up on March 2.
     // So, we check if the month overflowed and go to the last day of the target month instead.
-    let dateInTargetMonth = new Date(date.getFullYear(), date.getMonth() + numberOfMonths, 1, date.getHours(), date.getMinutes());
+    let dateInTargetMonth = new Date(date.getFullYear(), date.getMonth() + numberOfMonths, 1,
+      date.getHours(), date.getMinutes());
     let numberOfDaysInMonth = this.getNumberOfDaysInMonth(dateInTargetMonth);
     if (numberOfDaysInMonth < date.getDate()) {
       dateInTargetMonth.setDate(numberOfDaysInMonth);
@@ -173,7 +179,8 @@ export class Md2DateUtil {
    * @returns {Date}
    */
   getLastDateOfMonth(date: Date) {
-    return new Date(date.getFullYear(), date.getMonth(), this.getNumberOfDaysInMonth(date), date.getHours(), date.getMinutes());
+    return new Date(date.getFullYear(), date.getMonth(), this.getNumberOfDaysInMonth(date),
+      date.getHours(), date.getMinutes());
   }
 
   /**
@@ -201,15 +208,15 @@ export class Md2DateUtil {
    * 1. No argument for Date representing now.
    * 2. Single-argument value representing number of seconds since Unix Epoch
    * or a Date object.
-   * @param {number|Date=} opt_value
+   * @param {number|Date=} value
    * @return {Date} New date with time set to midnight.
    */
-  createDateAtMidnight(opt_value: any) {
+  createDateAtMidnight(value: any) {
     let date: Date;
-    if (!opt_value) {
+    if (!value) {
       date = new Date();
     } else {
-      date = new Date(opt_value);
+      date = new Date(value);
     }
     this.setDateTimeToMidnight(date);
     return date;
