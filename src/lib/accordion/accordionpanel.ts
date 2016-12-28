@@ -1,23 +1,25 @@
 import { Component, EventEmitter, Input, Output, ViewEncapsulation } from '@angular/core';
 import { Md2AccordionTab } from './accordiontab';
-
+import { coerceBooleanProperty } from '../core/core';
 @Component({
   moduleId: module.id,
   selector: 'md2-accordion',
   template: `<ng-content></ng-content>`,
+  styleUrls: ['accordion.css'],
   host: {
     '[class]': 'class',
     '[class.md2-accordion]': 'true'
   },
-  styles: [`
-    .md2-accordion { display: block; }
-  `],
   encapsulation: ViewEncapsulation.None
 })
 
 export class Md2Accordion {
 
-  @Input() multiple: boolean;
+  private _multiple: boolean;
+
+  @Input()
+  get multiple(): boolean { return this._multiple; }
+  set multiple(value) { this._multiple = coerceBooleanProperty(value); }
 
   @Input() class: string = '';
 
@@ -25,7 +27,7 @@ export class Md2Accordion {
 
   @Output() open: EventEmitter<any> = new EventEmitter<any>();
 
-  public tabs: Md2AccordionTab[] = [];
+  tabs: Md2AccordionTab[] = [];
 
   /**
    * Add or append tab in accordion

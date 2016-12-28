@@ -15,11 +15,15 @@ import {Overlay, OVERLAY_PROVIDERS} from './overlay';
 import {OverlayRef} from './overlay-ref';
 import {TemplatePortal} from '../portal/portal';
 import {OverlayState} from './overlay-state';
-import {ConnectionPositionPair} from './position/connected-position';
+import {
+    ConnectionPositionPair,
+    ConnectedOverlayPositionChange
+} from './position/connected-position';
 import {PortalModule} from '../portal/portal-directives';
 import {ConnectedPositionStrategy} from './position/connected-position-strategy';
 import {Subscription} from 'rxjs/Subscription';
 import {Dir, LayoutDirection} from '../rtl/dir';
+import {Scrollable} from './scroll/scrollable';
 
 /** Default set of positions for the overlay. Follows the behavior of a dropdown. */
 let defaultPositionList = [
@@ -37,8 +41,8 @@ let defaultPositionList = [
  * ConnectedPositionStrategy.
  */
 @Directive({
-  selector: '[overlay-origin]',
-  exportAs: 'overlayOrigin',
+  selector: '[cdk-overlay-origin], [overlay-origin]',
+  exportAs: 'cdkOverlayOrigin',
 })
 export class OverlayOrigin {
   constructor(private _elementRef: ElementRef) { }
@@ -54,8 +58,8 @@ export class OverlayOrigin {
  * Directive to facilitate declarative creation of an Overlay using a ConnectedPositionStrategy.
  */
 @Directive({
-  selector: '[connected-overlay]',
-  exportAs: 'connectedOverlay'
+  selector: '[cdk-connected-overlay], [connected-overlay]',
+  exportAs: 'cdkConnectedOverlay'
 })
 export class ConnectedOverlayDirective implements OnDestroy {
   private _overlayRef: OverlayRef;
@@ -63,21 +67,51 @@ export class ConnectedOverlayDirective implements OnDestroy {
   private _open = false;
   private _hasBackdrop = false;
   private _backdropSubscription: Subscription;
+  private _positionSubscription: Subscription;
+  private _offsetX: number = 0;
+  private _offsetY: number = 0;
+  private _position: ConnectedPositionStrategy;
 
   @Input() origin: OverlayOrigin;
   @Input() positions: ConnectionPositionPair[];
 
   /** The offset in pixels for the overlay connection point on the x-axis */
-  @Input() offsetX: number = 0;
+  @Input()
+  get offsetX(): number {
+    return this._offsetX;
+  }
+
+  set offsetX(offsetX: number) {
+    this._offsetX = offsetX;
+    if (this._position) {
+      this._position.withOffsetX(offsetX);
+    }
+  }
 
   /** The offset in pixels for the overlay connection point on the y-axis */
-  @Input() offsetY: number = 0;
+  @Input()
+  get offsetY() {
+    return this._offsetY;
+  }
+
+  set offsetY(offsetY: number) {
+    this._offsetY = offsetY;
+    if (this._position) {
+      this._position.withOffsetY(offsetY);
+    }
+  }
 
   /** The width of the overlay panel. */
   @Input() width: number | string;
 
   /** The height of the overlay panel. */
   @Input() height: number | string;
+
+  /** The min width of the overlay panel. */
+  @Input() minWidth: number | string;
+
+  /** The min height of the overlay panel. */
+  @Input() minHeight: number | string;
 
   /** The custom class to be set on the backdrop element. */
   @Input() backdropClass: string;
@@ -105,6 +139,9 @@ export class ConnectedOverlayDirective implements OnDestroy {
 
   /** Event emitted when the backdrop is clicked. */
   @Output() backdropClick = new EventEmitter<void>();
+  @Output() positionChange = new EventEmitter<ConnectedOverlayPositionChange>();
+  @Output() attach = new EventEmitter<void>();
+  @Output() detach = new EventEmitter<void>();
 
   // TODO(jelbourn): inputs for size, scroll behavior, animation, etc.
 
@@ -124,7 +161,6 @@ export class ConnectedOverlayDirective implements OnDestroy {
     return this._dir ? this._dir.value : 'ltr';
   }
 
-  /** TODO: internal */
   ngOnDestroy() {
     this._destroyOverlay();
   }
@@ -150,13 +186,22 @@ export class ConnectedOverlayDirective implements OnDestroy {
       overlayConfig.height = this.height;
     }
 
+    if (this.minWidth || this.minWidth === 0) {
+      overlayConfig.minWidth = this.minWidth;
+    }
+
+    if (this.minHeight || this.minHeight === 0) {
+      overlayConfig.minHeight = this.minHeight;
+    }
+
     overlayConfig.hasBackdrop = this.hasBackdrop;
 
     if (this.backdropClass) {
       overlayConfig.backdropClass = this.backdropClass;
     }
 
-    overlayConfig.positionStrategy = this._createPositionStrategy();
+    this._position = this._createPositionStrategy() as ConnectedPositionStrategy;
+    overlayConfig.positionStrategy = this._position;
 
     overlayConfig.direction = this.dir;
 
@@ -169,11 +214,27 @@ export class ConnectedOverlayDirective implements OnDestroy {
     const originPoint = {originX: pos.originX, originY: pos.originY};
     const overlayPoint = {overlayX: pos.overlayX, overlayY: pos.overlayY};
 
-    return this._overlay.position()
+    const strategy = this._overlay.position()
       .connectedTo(this.origin.elementRef, originPoint, overlayPoint)
       .withDirection(this.dir)
       .withOffsetX(this.offsetX)
       .withOffsetY(this.offsetY);
+
+    this._handlePositionChanges(strategy);
+
+    return strategy;
+  }
+
+  private _handlePositionChanges(strategy: ConnectedPositionStrategy): void {
+    for (let i = 1; i < this.positions.length; i++) {
+      strategy.withFallbackPosition(
+          {originX: this.positions[i].originX, originY: this.positions[i].originY},
+          {overlayX: this.positions[i].overlayX, overlayY: this.positions[i].overlayY}
+      );
+    }
+
+    this._positionSubscription =
+        strategy.onPositionChange.subscribe(pos => this.positionChange.emit(pos));
   }
 
   /** Attaches the overlay and subscribes to backdrop clicks if backdrop exists */
@@ -184,6 +245,7 @@ export class ConnectedOverlayDirective implements OnDestroy {
 
     if (!this._overlayRef.hasAttached()) {
       this._overlayRef.attach(this._templatePortal);
+      this.attach.emit();
     }
 
     if (this.hasBackdrop) {
@@ -197,6 +259,7 @@ export class ConnectedOverlayDirective implements OnDestroy {
   private _detachOverlay() {
     if (this._overlayRef) {
       this._overlayRef.detach();
+      this.detach.emit();
     }
 
     if (this._backdropSubscription) {
@@ -214,14 +277,17 @@ export class ConnectedOverlayDirective implements OnDestroy {
     if (this._backdropSubscription) {
       this._backdropSubscription.unsubscribe();
     }
+    if (this._positionSubscription) {
+      this._positionSubscription.unsubscribe();
+    }
   }
 }
 
 
 @NgModule({
   imports: [PortalModule],
-  exports: [ConnectedOverlayDirective, OverlayOrigin],
-  declarations: [ConnectedOverlayDirective, OverlayOrigin],
+  exports: [ConnectedOverlayDirective, OverlayOrigin, Scrollable],
+  declarations: [ConnectedOverlayDirective, OverlayOrigin, Scrollable],
 })
 export class OverlayModule {
   static forRoot(): ModuleWithProviders {

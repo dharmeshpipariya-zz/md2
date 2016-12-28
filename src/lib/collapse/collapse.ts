@@ -9,23 +9,22 @@ import { CommonModule } from '@angular/common';
 @Directive({
   selector: '[collapse]',
   host: {
-    '[class.in]': 'isExpanded',
+    '[class.in]': '_isExpanded',
     '[class.collapse]': 'true',
-    '[class.collapsing]': 'isCollapsing',
-    '[attr.aria-expanded]': 'isExpanded',
-    '[attr.aria-hidden]': '!isExpanded',
+    '[class.collapsing]': '_isCollapsing',
+    '[attr.aria-expanded]': '_isExpanded',
+    '[attr.aria-hidden]': '!_isExpanded',
   }
 })
 
 export class Md2Collapse {
-  private height: string;
-  private isExpanded: boolean = true;
-  private isCollapsing: boolean = false;
+  _isExpanded: boolean = true;
+  _isCollapsing: boolean = false;
 
   @Input()
-  get collapse(): boolean { return this.isExpanded; }
+  get collapse(): boolean { return this._isExpanded; }
   set collapse(value: boolean) {
-    this.isExpanded = value;
+    this._isExpanded = value;
     this.toggle();
   }
 
@@ -33,17 +32,17 @@ export class Md2Collapse {
    * toggle collapse
    */
   toggle() {
-    if (this.isExpanded) { this.hide(); } else { this.show(); }
+    if (this._isExpanded) { this.hide(); } else { this.show(); }
   }
 
   /**
    * hide collapse
    */
   hide() {
-    this.isCollapsing = true;
-    this.isExpanded = false;
+    this._isCollapsing = true;
+    this._isExpanded = false;
     setTimeout(() => {
-      this.isCollapsing = false;
+      this._isCollapsing = false;
     }, 4);
   }
 
@@ -51,10 +50,10 @@ export class Md2Collapse {
    * show collapse
    */
   show() {
-    this.isCollapsing = true;
-    this.isExpanded = true;
+    this._isCollapsing = true;
+    this._isExpanded = true;
     setTimeout(() => {
-      this.isCollapsing = false;
+      this._isCollapsing = false;
     }, 4);
   }
 }

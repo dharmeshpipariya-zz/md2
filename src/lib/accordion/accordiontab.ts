@@ -13,7 +13,7 @@ export class Md2AccordionHeader { }
   moduleId: module.id,
   selector: 'md2-accordion-tab',
   template: `
-    <div class="md2-accordion-header" (click)="toggle($event)">
+    <div class="md2-accordion-header" (click)="_handleClick($event)">
       <span>{{header}}</span>
       <ng-content select="md2-accordion-header"></ng-content>
       <span class="md2-accordion-header-icon"></span>
@@ -22,17 +22,7 @@ export class Md2AccordionHeader { }
       <ng-content></ng-content>
     </div>
   `,
-  styles: [`
-    md2-accordion-tab { position: relative; display: block; outline: 0; border: 0; border-width: 0 0 1px 0; border-style: solid; border-color: rgba(0, 0, 0, 0.12); -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box; }
-    md2-accordion-tab.md2-accordion-tab-active { border-color: rgba(0, 0, 0, 0.12); }
-    md2-accordion-tab .md2-accordion-header { position: relative; border-radius: 0; color: rgba(0, 0, 0, 0.85); font-weight: 500; cursor: pointer; display: block; align-items: inherit; line-height: 40px; margin: 0; max-height: 40px; overflow: hidden; padding: 0 35px 0 16px; text-align: left; text-decoration: none; white-space: nowrap; width: 100%; -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; -webkit-user-drag: none; }
-    md2-accordion-tab.md2-accordion-tab-active .md2-accordion-header { color: #106cc8; }
-    md2-accordion-tab.md2-accordion-tab-disabled .md2-accordion-header { pointer-events: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; -webkit-user-drag: none; opacity: 0.5; cursor: default; }
-    md2-accordion-tab .md2-accordion-header-icon { position: absolute; top: 12px; right: 17px; width: 8px; height: 8px; overflow: hidden; display: inline-block; border-width: 0 2px 2px 0; border-style: solid; border-color: rgba(0, 0, 0, 0.54); -moz-transform: rotate(45deg); -ms-transform: rotate(45deg); -o-transform: rotate(45deg); -webkit-transform: rotate(45deg); transform: rotate(45deg); -moz-transition: 0.3s ease-in-out; -o-transition: 0.3s ease-in-out; -webkit-transition: 0.3s ease-in-out; transition: 0.3s ease-in-out; }
-    md2-accordion-tab.md2-accordion-tab-active .md2-accordion-header-icon { -moz-transform: rotate(225deg); -ms-transform: rotate(225deg); -o-transform: rotate(225deg); -webkit-transform: rotate(225deg); transform: rotate(225deg); top: 16px; }
-    md2-accordion-tab .md2-accordion-tab-content { position: relative; display: none; padding: 16px; }
-    md2-accordion-tab.md2-accordion-tab-active .md2-accordion-tab-content { display: block; }
-  `],
+  styleUrls: ['accordion.css'],
   host: {
     'role': 'accordion-tab',
     '[class.md2-accordion-tab-active]': 'active',
@@ -48,8 +38,8 @@ export class Md2AccordionTab {
 
   @Input() disabled: boolean;
 
-  constructor(private accordion: Md2Accordion) {
-    this.accordion.addTab(this);
+  constructor(private _accordion: Md2Accordion) {
+    this._accordion.addTab(this);
   }
 
   /**
@@ -57,7 +47,7 @@ export class Md2AccordionTab {
    * @param event
    * @return if it is disabled
    */
-  toggle(event: Event) {
+  _handleClick(event: Event) {
     if (this.disabled) {
       event.preventDefault();
       return;
@@ -67,16 +57,16 @@ export class Md2AccordionTab {
 
     if (this.active) {
       this.active = !this.active;
-      this.accordion.close.emit({ originalEvent: event, index: index });
-    } else if (!this.accordion.multiple) {
-      for (let i = 0; i < this.accordion.tabs.length; i++) {
-        this.accordion.tabs[i].active = false;
+      this._accordion.close.emit({ originalEvent: event, index: index });
+    } else if (!this._accordion.multiple) {
+      for (let i = 0; i < this._accordion.tabs.length; i++) {
+        this._accordion.tabs[i].active = false;
       }
       this.active = true;
-      this.accordion.open.emit({ originalEvent: event, index: index });
+      this._accordion.open.emit({ originalEvent: event, index: index });
     } else {
       this.active = true;
-      this.accordion.open.emit({ originalEvent: event, index: index });
+      this._accordion.open.emit({ originalEvent: event, index: index });
     }
 
     event.preventDefault();
@@ -88,8 +78,8 @@ export class Md2AccordionTab {
    */
   findTabIndex() {
     let index = -1;
-    for (let i = 0; i < this.accordion.tabs.length; i++) {
-      if (this.accordion.tabs[i] === this) {
+    for (let i = 0; i < this._accordion.tabs.length; i++) {
+      if (this._accordion.tabs[i] === this) {
         index = i;
         break;
       }
