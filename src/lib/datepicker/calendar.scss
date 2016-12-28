@@ -1,0 +1,135 @@
+$md2-calendar-cell-size: 44px !default;
+$md2-calendar-header-height: 40px !default;
+$md2-calendar-cell-emphasis-size: 40px !default;
+$md2-calendar-side-padding: 16px !default;
+$md2-calendar-weeks-to-show: 7 !default;
+
+$md2-calendar-month-label-padding: 8px !default;
+$md2-calendar-month-label-font-size: 14px !default;
+
+$md2-calendar-scroll-cue-shadow-radius: 6px !default;
+
+$md2-calendar-width: (7 * $md2-calendar-cell-size) + (2 * $md2-calendar-side-padding) !default;
+$md2-calendar-height: ($md2-calendar-weeks-to-show * $md2-calendar-cell-size) + $md2-calendar-header-height !default;
+
+@mixin md2-calendar-cell($height: $md2-calendar-cell-size) {
+  height: $height;
+  width: $md2-calendar-cell-size;
+  text-align: center;
+  // Remove all padding and borders so we can completely
+  // control the size of the table cells.
+  padding: 0;
+  border: none;
+  // Prevent issues if somebody is applying box-sizing: border-box; eveywhere.
+  box-sizing: content-box;
+  // The left / right padding is applied to the cells instead of the wrapper
+  // because we want the header background and the month dividing border to
+  // extend the entire width of the calendar.
+  &:first-child {
+    /*@include rtl-prop(padding-left, padding-right, $md2-calendar-side-padding, 0);*/
+  }
+
+  &:last-child {
+    /*@include rtl-prop(padding-right, padding-left, $md2-calendar-side-padding, 0);*/
+  }
+}
+
+// Styles for tables used in mdCalendar (the day-of-the-week header and the table of dates itself).
+@mixin md2-calendar-table() {
+  table-layout: fixed;
+  border-spacing: 0;
+  border-collapse: collapse;
+}
+
+md2-calendar {
+  font-size: 13px;
+  user-select: none;
+}
+
+.md2-calendar-scroll-mask {
+  display: inline-block;
+  overflow: hidden;
+  height: $md2-calendar-weeks-to-show * $md2-calendar-cell-size;
+
+  .md2-virtual-repeat-scroller {
+    overflow-y: scroll;
+    -webkit-overflow-scrolling: touch;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  .md2-virtual-repeat-offsetter {
+    width: 100%;
+  }
+}
+
+// Contains the scrolling element (this is the md2-virtual-repeat-container).
+.md2-calendar-scroll-container {
+  box-shadow: inset -3px 3px $md2-calendar-scroll-cue-shadow-radius rgba(black, 0.2);
+  display: inline-block;
+  height: $md2-calendar-weeks-to-show * $md2-calendar-cell-size;
+  width: $md2-calendar-width + $md2-calendar-scroll-cue-shadow-radius;
+}
+
+.md2-calendar-date {
+  @include md2-calendar-cell();
+
+  &.md2-calendar-date-disabled {
+    cursor: default;
+  }
+}
+
+.md2-calendar-date-selection-indicator {
+  border-radius: 50%;
+  display: inline-block;
+  width: $md2-calendar-cell-emphasis-size;
+  height: $md2-calendar-cell-emphasis-size;
+  line-height: $md2-calendar-cell-emphasis-size;
+
+  .md2-calendar-date:not(.md2-disabled) & {
+    cursor: pointer;
+  }
+}
+
+.md2-calendar-month-label {
+  height: $md2-calendar-cell-size;
+  font-size: $md2-calendar-month-label-font-size;
+  font-weight: 500;
+
+  md2-calendar-month &:not(.md2-calendar-month-label-disabled) {
+    cursor: pointer;
+  }
+
+  span {
+    vertical-align: middle;
+  }
+}
+
+.md2-calendar-day-header {
+  @include md2-calendar-table();
+
+  th {
+    @include md2-calendar-cell($md2-calendar-header-height);
+    font-weight: normal;
+  }
+}
+
+.md2-calendar {
+  @include md2-calendar-table();
+
+  tr:last-child td {
+    border-bottom-width: 1px;
+    border-bottom-style: solid;
+  }
+
+  &:first-child {
+    border-top: 1px solid transparent;
+  }
+
+  tbody, td, tr {
+    vertical-align: middle;
+    box-sizing: content-box;
+  }
+}
