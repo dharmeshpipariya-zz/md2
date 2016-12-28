@@ -43,7 +43,7 @@ export class AppModule { }
 ```
 
 3. More information regarding of using ***md2*** is located in
-  [demo](http://dharmeshpipariya.github.io/md2/) and [demo sources](https://github.com/dharmeshpipariya/md2/tree/master/src/demo-app).
+  [demo](https://github.com/dharmeshpipariya/md2) and [demo sources](https://github.com/dharmeshpipariya/md2/tree/master/src/demo-app).
 
 
 ### Components:

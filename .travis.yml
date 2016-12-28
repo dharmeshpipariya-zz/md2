@@ -4,10 +4,6 @@ sudo: false
 node_js:
   - '6.9.1'
 
-branches:
-  only:
-    - master
-
 install:
   - npm install
 
@@ -15,7 +11,9 @@ script:
   - bash ./scripts/deploy/deploy.sh
 
 before_deploy:
-  - gulp build:devapp
+  - gulp clean
+  - gulp :build:components:ngc
+  - gulp :build:release:clean-spec
   - cd dist
   - cd md2
 

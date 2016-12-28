@@ -3,7 +3,6 @@
 # compiled output
 /dist
 /tmp
-/typings
 /deploy
 
 # dependencies
@@ -20,10 +19,11 @@
 /src/packages
 /src/pubspec.lock
 
-
 # IDEs
 /.idea
 /.vscode
+/.vs
+/*.sln
 
 # misc
 .DS_Store
