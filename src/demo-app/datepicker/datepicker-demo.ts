@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
   moduleId: module.id,
@@ -6,14 +6,13 @@ import {Component} from '@angular/core';
   templateUrl: 'datepicker-demo.html',
 })
 export class DatepickerDemo {
-  private disabled: boolean = true;
-  private datetime: any = '';
-  private datetime1: any = '2016-09-15 12:10';
-  private date: any = '2016-09-15';
-  private time: any = '12:10';
-  private minDate: any = '2016-07-15';
-  private maxDate: any = '2016-12-15';
-  private change(value: any) {
+  disabled: boolean = true;
+  date: Date = new Date(2016, 9, 15);
+  time: Date = new Date(1, 1, 1, 12, 10);
+  datetime: Date = new Date(2016, 9, 15, 12, 10);
+  minDate: Date = new Date(2016, 7, 15);
+  maxDate: Date = new Date(2016, 12, 15);
+  handleChange(value: any) {
     console.log('Changed data: ', value);
   }
 }

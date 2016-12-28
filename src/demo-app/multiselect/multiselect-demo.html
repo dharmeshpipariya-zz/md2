@@ -6,8 +6,7 @@
     <md2-multiselect [items]="items"
                      [item-text]="'name'"
                      [(ngModel)]="item"
-                     required
-                     (change)="change($event)"
+                     (change)="handleChange($event)"
                      placeholder="Select City">
     </md2-multiselect>
   </div>
@@ -16,9 +15,7 @@
     <md2-multiselect [items]="items"
                      [item-text]="'name'"
                      [(ngModel)]="item"
-                     required
                      disabled
-                     (change)="change($event)"
                      placeholder="Select City">
     </md2-multiselect>
   </div>
