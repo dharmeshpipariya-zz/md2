@@ -1,16 +1,18 @@
 import {
-  ApplicationRef,
-  ComponentFactoryResolver,
-  ComponentRef,
+  Component,
   Injectable,
-  Optional,
-  ReflectiveInjector,
-  ViewContainerRef,
   NgModule,
-  ModuleWithProviders
+  ModuleWithProviders,
+  ViewEncapsulation,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Md2ToastComponent } from './toast.component';
+import {
+  Overlay,
+  OverlayState,
+  OverlayRef,
+  ComponentPortal,
+  OVERLAY_PROVIDERS
+} from '../core';
 
 export class Toast {
   id: number;
@@ -18,45 +20,46 @@ export class Toast {
   constructor(public message: string) { }
 }
 
+export class Md2ToastConfig {
+  duration: number = 3000;
+}
+
 @Injectable()
 export class Md2Toast {
-  private delay: number = 3000;
   private index: number = 0;
 
-  container: ComponentRef<any>;
+  _overlayRef: OverlayRef;
+  _toastInstance: Md2ToastComponent;
 
-  constructor(private _componentFactory: ComponentFactoryResolver, private _appRef: ApplicationRef) { }
+  constructor(private _overlay: Overlay, private _config: Md2ToastConfig) { }
 
   /**
    * toast message
    * @param toast string or object with message and other properties of toast
    */
-  toast(toast: string | { message: string, hideDelay: number }) {
-    this.show(toast);
+  toast(message: string, duration?: number) {
+    this.show(message, duration);
   }
 
   /**
    * show toast
    * @param toastObj string or object with message and other properties of toast
    */
-  show(toastObj: string | { message: string, hideDelay: number }) {
+  show(message: string, duration?: number) {
     let toast: Toast;
-    if (typeof toastObj === 'string') {
-      toast = new Toast(toastObj);
-    } else if (typeof toastObj === 'object') {
-      toast = new Toast(toastObj.message);
-      this.delay = toastObj.hideDelay;
-    }
+    toast = new Toast(message);
+    if (duration) { this._config.duration = duration; }
+
     if (toast) {
-      if (!this.container) {
-        let app: any = this._appRef;
-        let appContainer: ViewContainerRef = app['_rootComponents'][0]['_hostElement'].vcRef;
+      if (!this._toastInstance) {
+        let strategy = this._overlay.position().global().top('0').right('0');
+        let config = new OverlayState();
+        config.positionStrategy = strategy;
 
-        let providers = ReflectiveInjector.resolve([]);
+        this._overlayRef = this._overlay.create(config);
+        let portal = new ComponentPortal(Md2ToastComponent);
+        this._toastInstance = this._overlayRef.attach(portal).instance;
 
-        let toastFactory = this._componentFactory.resolveComponentFactory(Md2ToastComponent);
-        let childInjector = ReflectiveInjector.fromResolvedProviders(providers, appContainer.parentInjector);
-        this.container = appContainer.createComponent(toastFactory, appContainer.length, childInjector);
         this.setupToast(toast);
 
       } else {
@@ -72,7 +75,7 @@ export class Md2Toast {
   startTimeout(toastId: number) {
     setTimeout(() => {
       this.clear(toastId);
-    }, this.delay);
+    }, this._config.duration);
   }
 
   /**
@@ -81,7 +84,7 @@ export class Md2Toast {
    */
   setupToast(toast: Toast) {
     toast.id = ++this.index;
-    this.container.instance.add(toast);
+    this._toastInstance.add(toast);
     this.startTimeout(toast.id);
   }
 
@@ -90,11 +93,10 @@ export class Md2Toast {
    * @param toastId
    */
   clear(toastId: number) {
-    if (this.container) {
-      let instance = this.container.instance;
-      instance.remove(toastId);
+    if (this._toastInstance) {
+      this._toastInstance.remove(toastId);
       setTimeout(() => {
-        if (!instance.hasToast()) { this.dispose(); }
+        if (!this._toastInstance.hasToast()) { this.dispose(); }
       }, 250);
 
     }
@@ -104,11 +106,10 @@ export class Md2Toast {
    * clear all toasts
    */
   clearAll() {
-    if (this.container) {
-      let instance = this.container.instance;
-      instance.removeAll();
+    if (this._toastInstance) {
+      this._toastInstance.removeAll();
       setTimeout(() => {
-        if (!instance.hasToast()) { this.dispose(); }
+        if (!this._toastInstance.hasToast()) { this.dispose(); }
       }, 250);
 
     }
@@ -118,9 +119,67 @@ export class Md2Toast {
    * dispose all toasts
    */
   dispose() {
-    this.container.destroy();
-    this.container = null;
+    this._overlayRef.dispose();
+    this._overlayRef = null;
+    this._toastInstance = null;
   }
+
+}
+
+@Component({
+  selector: 'md2-toast',
+  templateUrl: 'toast.html',
+  styleUrls: ['toast.css'],
+  encapsulation: ViewEncapsulation.None,
+})
+export class Md2ToastComponent {
+  toasts: Toast[] = [];
+  maxShown = 5;
+
+  /**
+   * add toast
+   * @param toast toast object with all parameters
+   */
+  add(toast: Toast) {
+    setTimeout(() => {
+      toast.isVisible = true;
+    }, 1);
+    this.toasts.push(toast);
+    if (this.toasts.length > this.maxShown) {
+      this.toasts[0].isVisible = false;
+      setTimeout(() => {
+        this.toasts.splice(0, (this.toasts.length - this.maxShown));
+      }, 250);
+    }
+  }
+
+  /**
+   * remove toast
+   * @param toastId number of toast id
+   */
+  remove(toastId: number) {
+    this.toasts.forEach((t: any) => { if (t.id === toastId) { t.isVisible = false; } });
+    setTimeout(() => {
+      this.toasts = this.toasts.filter((toast) => { return toast.id !== toastId; });
+    }, 250);
+  }
+
+  /**
+   * remove all toasts
+   * @param toastId number of toast id
+   */
+  removeAll() {
+    this.toasts.forEach((t: any) => { t.isVisible = false; });
+    setTimeout(() => {
+      this.toasts = [];
+    }, 250);
+  }
+
+  /**
+   * check has any toast
+   * @return boolean
+   */
+  hasToast(): boolean { return this.toasts.length > 0; }
 
 }
 
@@ -130,14 +189,13 @@ export const MD2_TOAST_DIRECTIVES: any[] = [Md2ToastComponent];
   imports: [CommonModule],
   exports: MD2_TOAST_DIRECTIVES,
   declarations: MD2_TOAST_DIRECTIVES,
-  providers: [Md2Toast],
   entryComponents: MD2_TOAST_DIRECTIVES
 })
 export class Md2ToastModule {
   static forRoot(): ModuleWithProviders {
     return {
       ngModule: Md2ToastModule,
-      providers: []
+      providers: [Md2Toast, Md2ToastConfig, OVERLAY_PROVIDERS]
     };
   }
 }

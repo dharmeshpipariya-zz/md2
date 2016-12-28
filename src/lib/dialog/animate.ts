@@ -81,7 +81,8 @@ export class Animate {
       if (!duration) {
         continue;
       }
-      duration = (duration.indexOf('ms') > -1) ? parseFloat(duration) : parseFloat(duration) * 1000;
+      duration = (duration.indexOf('ms') > -1) ? parseFloat(duration) : parseFloat(duration) *
+        1000;
       if (duration === 0) {
         continue;
       }
@@ -98,7 +99,6 @@ export class Animate {
   }
 
   static setTransitionDuration(element: HTMLElement, delayMs: number) {
-    //element.style['transition-duration'] = `${delayMs}ms`;
   }
 
   /* From Modernizr */
@@ -125,18 +125,15 @@ export class Animate {
   /**
    * Set CSS styles immediately by turning off transition duration and restoring it afterward
    */
-  static setStyles(element: HTMLElement, styles: { [style: string]: string | number }): Promise<void> {
+  static setStyles(element: HTMLElement,
+    styles: { [style: string]: string | number }): Promise<void> {
     let saveDuration = Animate.getTransitionDuration(element);
     Animate.setTransitionDuration(element, 0);
     return new Promise<void>((resolve: any, reject: any) => {
       Object.keys(styles).forEach((key: string) => {
-        //element.style[key] = `${styles[key]}`;
       });
       if (saveDuration !== -1) {
         Animate.setTransitionDuration(element, saveDuration);
-      }
-      else {
-        //element.style['transition-duration'] = null;
       }
       resolve();
     });
@@ -153,6 +150,4 @@ export class Animate {
       setTimeout(() => resolve(), milliseconds);
     });
   }
-
-
 }
