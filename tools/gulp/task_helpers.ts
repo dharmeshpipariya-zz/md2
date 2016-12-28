@@ -12,9 +12,9 @@ const gulpClean = require('gulp-clean');
 const gulpMerge = require('merge2');
 const gulpRunSequence = require('run-sequence');
 const gulpSass = require('gulp-sass');
-const gulpServer = require('gulp-server-livereload');
 const gulpSourcemaps = require('gulp-sourcemaps');
 const gulpAutoprefixer = require('gulp-autoprefixer');
+const gulpConnect = require('gulp-connect');
 const resolveBin = require('resolve-bin');
 
 
@@ -67,13 +67,11 @@ export function tsBuildTask(tsConfigPath: string, tsConfigName = 'tsconfig.json'
 
 
 /** Create a SASS Build Task. */
-export function sassBuildTask(dest: string, root: string, includePaths: string[]) {
-  const sassOptions = { includePaths };
-
+export function sassBuildTask(dest: string, root: string) {
   return () => {
     return gulp.src(_globify(root, '**/*.scss'))
       .pipe(gulpSourcemaps.init())
-      .pipe(gulpSass(sassOptions).on('error', gulpSass.logError))
+      .pipe(gulpSass().on('error', gulpSass.logError))
       .pipe(gulpAutoprefixer(SASS_AUTOPREFIXER_OPTIONS))
       .pipe(gulpSourcemaps.write('.'))
       .pipe(gulp.dest(dest));
@@ -169,7 +167,8 @@ export function buildAppTask(appName: string) {
   return (done: () => void) => {
     gulpRunSequence(
       'clean',
-      ['build:components', ...buildTasks],
+      'build:components',
+      [...buildTasks],
       done
     );
   };
@@ -185,28 +184,21 @@ export function vendorTask() {
     }));
 }
 
-export type livereloadOptions = boolean | {
-  enable: boolean;
-  filter: (filename: string, callback: (isAllowed: boolean) => void) => void;
+/** Create a task that serves the dist folder. */
+export function serverTask(livereload = true) {
+  return () => {
+    gulpConnect.server({
+      root: 'dist/',
+      livereload: livereload,
+      port: 3200,
+      fallback: 'dist/index.html'
+    });
+  };
 }
 
-/** Create a task that serves the dist folder. */
-export function serverTask(liveReload: livereloadOptions = true,
-                           streamCallback: (stream: NodeJS.ReadWriteStream) => void = null) {
-
-  return () => {
-    const stream = gulp.src('dist').pipe(gulpServer({
-      livereload: liveReload,
-      fallback: 'index.html',
-      port: 3200,
-      open: true
-    }));
-
-    if (streamCallback) {
-      streamCallback(stream);
-    }
-    return stream;
-  };
+/** Triggers a reload when livereload is enabled and a gulp-connect server is running. */
+export function triggerLivereload() {
+  gulp.src('dist').pipe(gulpConnect.reload());
 }
 
 
