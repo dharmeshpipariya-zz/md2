@@ -191,37 +191,6 @@ md2-day {
   }
 }
 
-md2-calendar {
-  position: relative;
-  width: $md2-datepicker-width;
-}
-
-.md2-datepicker-header {
-  width: 100%;
-  font-weight: 700;
-  display: inline-block;
-  background-color: $primary;
-  border-top-left-radius: 2px;
-  border-top-right-radius: 2px;
-  border-bottom-left-radius: 0px;
-  color: white;
-  padding: 20px;
-  box-sizing: border-box;
-}
-
-.md2-datepicker-calendar {
-}
-
-
-.md2-datepicker-actions {
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-end;
-  margin: 0px;
-  max-height: 48px;
-  padding: 0px;
-}
-
 .cdk-overlay-container, .cdk-global-overlay-wrapper {
   pointer-events: none;
   top: 0;

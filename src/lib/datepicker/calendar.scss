@@ -1,4 +1,7 @@
-$md2-calendar-cell-size: 44px !default;
+$primary: #106cc8 !default;
+$warn: #f44336 !default;
+
+$md2-calendar-date-size: 44px !default;
 $md2-calendar-header-height: 40px !default;
 $md2-calendar-cell-emphasis-size: 40px !default;
 $md2-calendar-side-padding: 16px !default;
@@ -9,30 +12,8 @@ $md2-calendar-month-label-font-size: 14px !default;
 
 $md2-calendar-scroll-cue-shadow-radius: 6px !default;
 
-$md2-calendar-width: (7 * $md2-calendar-cell-size) + (2 * $md2-calendar-side-padding) !default;
-$md2-calendar-height: ($md2-calendar-weeks-to-show * $md2-calendar-cell-size) + $md2-calendar-header-height !default;
-
-@mixin md2-calendar-cell($height: $md2-calendar-cell-size) {
-  height: $height;
-  width: $md2-calendar-cell-size;
-  text-align: center;
-  // Remove all padding and borders so we can completely
-  // control the size of the table cells.
-  padding: 0;
-  border: none;
-  // Prevent issues if somebody is applying box-sizing: border-box; eveywhere.
-  box-sizing: content-box;
-  // The left / right padding is applied to the cells instead of the wrapper
-  // because we want the header background and the month dividing border to
-  // extend the entire width of the calendar.
-  &:first-child {
-    /*@include rtl-prop(padding-left, padding-right, $md2-calendar-side-padding, 0);*/
-  }
-
-  &:last-child {
-    /*@include rtl-prop(padding-right, padding-left, $md2-calendar-side-padding, 0);*/
-  }
-}
+$md2-calendar-width: (7 * $md2-calendar-date-size) + (2 * $md2-calendar-side-padding) !default;
+$md2-calendar-height: ($md2-calendar-weeks-to-show * $md2-calendar-date-size) + $md2-calendar-header-height !default;
 
 // Styles for tables used in mdCalendar (the day-of-the-week header and the table of dates itself).
 @mixin md2-calendar-table() {
@@ -42,9 +23,109 @@ $md2-calendar-height: ($md2-calendar-weeks-to-show * $md2-calendar-cell-size) + 
 }
 
 md2-calendar {
-  font-size: 13px;
+  position: relative;
+  display: block;
+  width: $md2-calendar-width;
+  font-size: 16px;
+  line-height: 16px;
+  border-radius: 2px;
+  box-shadow: 0 14px 45px rgba(0, 0, 0, 0.4);
   user-select: none;
 }
+
+.md2-calendar-header {
+  position: relative;
+  width: 100%;
+  padding: 16px 22px;
+  color: white;
+  font-weight: 500;
+  background-color: $primary;
+  box-sizing: border-box;
+}
+
+.md2-calendar-header-year {
+  height: 16px;
+  margin: 0 0 10px;
+  opacity: 0.7;
+}
+
+.md2-calendar-header-date {
+  height: 38px;
+  font-size: 36px;
+  line-height: 36px;
+  opacity: 1;
+}
+
+.md2-calendar-container {
+  width: 100%;
+}
+
+.md2-calendar-week-days {
+}
+
+.md2-calendar-week-day {
+}
+
+.md2-calendar-dates {
+  display: block;
+  padding: 0 16px;
+}
+
+.md2-calendar-date {
+  height: $md2-calendar-date-size;
+  width: $md2-calendar-date-size;
+  text-align: center;
+  padding: 0;
+
+  &.md2-calendar-date-today {
+    border: 1px solid rgb(16,108,200);
+  }
+
+  &.md2-calendar-date-focused {
+    background: rgb(224,224,224);
+  }
+
+  &.md2-calendar-date-selected {
+    background: rgb(16,108,200);
+    color: rgba(255,255,255,0.87);
+    border-color: transparent;
+  }
+
+  &.md2-calendar-date-disabled {
+    cursor: default;
+  }
+}
+
+.md2-calendar-actions {
+  display: block;
+  max-height: 48px;
+  text-align: right;
+
+  button {
+    display: inline-block;
+    min-width: 64px;
+    height: 36px;
+    max-height: 36px;
+    margin: 4px 8px 8px 0;
+    padding: 0 16px;
+    color: $primary;
+    font-weight: 500;
+    text-transform: uppercase;
+    line-height: 36px;
+    border: 0;
+    border-radius: 2px;
+    text-align: center;
+    outline: none;
+    cursor: pointer;
+    background-color: rgba(0, 0, 0, 0);
+    box-sizing: border-box;
+
+    &:hover {
+      background-color: rgba(153, 153, 153, 0.2);
+    }
+  }
+}
+
 
 .md2-calendar-scroll-mask {
   display: inline-block;
@@ -71,14 +152,6 @@ md2-calendar {
   display: inline-block;
   height: $md2-calendar-weeks-to-show * $md2-calendar-cell-size;
   width: $md2-calendar-width + $md2-calendar-scroll-cue-shadow-radius;
-}
-
-.md2-calendar-date {
-  @include md2-calendar-cell();
-
-  &.md2-calendar-date-disabled {
-    cursor: default;
-  }
 }
 
 .md2-calendar-date-selection-indicator {
