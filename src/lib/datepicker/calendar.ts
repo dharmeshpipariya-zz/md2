@@ -11,6 +11,7 @@ import {
   encapsulation: ViewEncapsulation.None,
 })
 export class Md2Calendar {
+   _weekDays: Array<string> = ['s', 'm', 't', 'w', 't', 'f', 's'];
   private _displayDate: Date = null
   private _selectedDate: Date = null
 

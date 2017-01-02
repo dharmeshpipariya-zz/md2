@@ -6,7 +6,7 @@
   <div class="md2-calendar-date-container">
     <div class="md2-calendar-navigation-or-toolbar">Month-year</div>
     <div class="md2-calendar-week-days">
-      <div class="md2-calendar-week-day">S</div>
+      <div *ngFor="let day of _weekDays" class="md2-calendar-week-day">{{day}}</div>
     </div>
     <div class="md2-calendar-dates">
       <div class="md2-calendar-date">1</div>
@@ -20,11 +20,3 @@
     <button>Ok</button>
   </div>
 </div>
-
-<!--<div class="md2-calendar-month-label">December 2016</div>
-<div class="md2-calendar-month-body">
-  <div class="md2-calendar-date">1</div>
-  <div class="md2-calendar-date md2-calendar-date-today md2-calendar-date-selected md2-calendar-date-focused">2</div>
-</div>
-
-<br /><br />-->

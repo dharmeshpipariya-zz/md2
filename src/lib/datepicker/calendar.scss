@@ -13,7 +13,6 @@ $md2-calendar-month-label-font-size: 14px !default;
 $md2-calendar-scroll-cue-shadow-radius: 6px !default;
 
 $md2-calendar-width: (7 * $md2-calendar-date-size) + (2 * $md2-calendar-side-padding) !default;
-$md2-calendar-height: ($md2-calendar-weeks-to-show * $md2-calendar-date-size) + $md2-calendar-header-height !default;
 
 // Styles for tables used in mdCalendar (the day-of-the-week header and the table of dates itself).
 @mixin md2-calendar-table() {
@@ -60,15 +59,25 @@ md2-calendar {
   width: 100%;
 }
 
+.md2-calendar-date-container {
+  padding: 16px;
+}
+
 .md2-calendar-week-days {
 }
 
 .md2-calendar-week-day {
+  display: inline-block;
+  width: $md2-calendar-date-size;
+  text-align: center;
+  padding: 0;
+  text-transform: uppercase;
+  font-weight: 400;
 }
 
 .md2-calendar-dates {
   display: block;
-  padding: 0 16px;
+  /*padding: 0 16px;*/
 }
 
 .md2-calendar-date {
@@ -130,7 +139,7 @@ md2-calendar {
 .md2-calendar-scroll-mask {
   display: inline-block;
   overflow: hidden;
-  height: $md2-calendar-weeks-to-show * $md2-calendar-cell-size;
+  height: $md2-calendar-weeks-to-show * $md2-calendar-date-size;
 
   .md2-virtual-repeat-scroller {
     overflow-y: scroll;
@@ -150,7 +159,7 @@ md2-calendar {
 .md2-calendar-scroll-container {
   box-shadow: inset -3px 3px $md2-calendar-scroll-cue-shadow-radius rgba(black, 0.2);
   display: inline-block;
-  height: $md2-calendar-weeks-to-show * $md2-calendar-cell-size;
+  height: $md2-calendar-weeks-to-show * $md2-calendar-date-size;
   width: $md2-calendar-width + $md2-calendar-scroll-cue-shadow-radius;
 }
 
@@ -167,7 +176,7 @@ md2-calendar {
 }
 
 .md2-calendar-month-label {
-  height: $md2-calendar-cell-size;
+  height: $md2-calendar-date-size;
   font-size: $md2-calendar-month-label-font-size;
   font-weight: 500;
 
@@ -184,7 +193,6 @@ md2-calendar {
   @include md2-calendar-table();
 
   th {
-    @include md2-calendar-cell($md2-calendar-header-height);
     font-weight: normal;
   }
 }
