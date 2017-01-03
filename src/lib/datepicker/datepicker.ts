@@ -1,199 +1,320 @@
 import {
   Component,
-  ContentChildren,
   ElementRef,
-  EventEmitter,
-  Input,
-  Optional,
-  Output,
-  QueryList,
-  Renderer,
-  ViewEncapsulation,
-  ViewChild,
+  forwardRef,
   NgModule,
-  ModuleWithProviders
+  Input,
+  Output,
+  SimpleChange,
+  OnChanges,
+  AfterContentInit,
+  EventEmitter,
+  ModuleWithProviders,
+  ViewChild,
+  ViewContainerRef,
+  ViewChildren,
+  QueryList,
+  ViewEncapsulation
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { Md2Calendar } from './calendar';
 import {
-  DefaultStyleCompatibilityModeModule,
-  ENTER,
-  SPACE
-} from '../core/core';
-import { Dir } from '../core/rtl/dir';
-import { Subscription } from 'rxjs/Subscription';
-import { transformPlaceholder, transformPanel, fadeInContent } from './datepicker-animations';
-import { ControlValueAccessor, NgControl } from '@angular/forms';
-import { coerceBooleanProperty } from '../core/coercion/boolean-property';
-import { ConnectedOverlayDirective } from '../core/overlay/overlay-directives';
-import { ViewportRuler } from '../core/overlay/position/viewport-ruler';
+  NG_VALUE_ACCESSOR,
+  ControlValueAccessor,
+  FormsModule,
+} from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import {
+  Overlay,
+  OverlayModule,
+  OverlayState,
+  OverlayOrigin,
+  Portal,
+  PortalModule,
+  TemplatePortalDirective,
+} from '../core';
 
-/** Change event object emitted by Md2Datepicker. */
-export class Md2DatepickerChange {
-  source: Md2Datepicker;
-  value: any;
-}
+const noop = () => { };
+
+export const MD_PICKER_CONTROL_VALUE_ACCESSOR: any = {
+  provide: NG_VALUE_ACCESSOR,
+  useExisting: forwardRef(() => Md2Datepicker),
+  multi: true
+};
 
 @Component({
   moduleId: module.id,
   selector: 'md2-datepicker',
-  templateUrl: 'datepicker.html',
   styleUrls: ['datepicker.css'],
-  encapsulation: ViewEncapsulation.None,
+  templateUrl: 'datepicker.html',
   host: {
-    'role': 'listbox',
-    '[attr.tabindex]': '_getTabIndex()',
-    '[attr.aria-label]': 'placeholder',
-    '[attr.aria-required]': 'required.toString()',
-    '[attr.aria-disabled]': 'disabled.toString()',
-    '[attr.aria-invalid]': '_control?.invalid || "false"',
-    '[class.md2-datepicker-disabled]': 'disabled',
-    '(keydown)': '_handleKeydown($event)',
-    '(blur)': '_onBlur()'
+    '[class]': '_color'
   },
-  animations: [
-    transformPlaceholder,
-    transformPanel,
-    fadeInContent
-  ],
-  exportAs: 'md2Datepicker',
+  providers: [MD_PICKER_CONTROL_VALUE_ACCESSOR],
+  encapsulation: ViewEncapsulation.None,
 })
-export class Md2Datepicker implements ControlValueAccessor {
-  /** Whether or not the overlay panel is open. */
-  private _panelOpen = false;
+export class Md2Datepicker implements ControlValueAccessor, AfterContentInit, OnChanges {
+  public _Date: string = `${new Date()}`;
+  stateSELECT: boolean = false;
+  dateNow: any = new Date();
+  dayActive: any;
+  dayActive2: any;
+  days: any = [];
+  days2: any = [];
+  date2INT: any = Date.now();
+  dateINI: any;
+  dateEND: any;
+  dateINT: any;
+  dateToday: any;
+  _focused: boolean = false;
+  _color: string = 'primary';
+  daysName: Array<string> = [
+    'm',
+    't',
+    'w',
+    't',
+    'f',
+    's',
+    's',
+  ];
+  _value: any = '';
+  @ViewChildren(TemplatePortalDirective) templatePortals: QueryList<Portal<any>>;
+  @ViewChild(OverlayOrigin) _overlayOrigin: OverlayOrigin;
+  openPanelWithBackdrop() {
+    let config = new OverlayState();
 
-  /** The value of date. */
-  private _value: Date = new Date();
+    config.positionStrategy = this.overlay.position()
+      .global()
+      .centerHorizontally()
+      .centerVertically();
+    config.hasBackdrop = true;
 
-  private _min: Date = null;
-  private _max: Date = null;
-
-  /** Whether filling out the datepicker is required in the form.  */
-  private _required: boolean = false;
-
-  /** Whether the datepicker is disabled.  */
-  private _disabled: boolean = false;
-
-  /** The placeholder displayed in the trigger of the datepicker. */
-  private _placeholder: string;
-
-  /** The animation state of the placeholder. */
-  _placeholderState = '';
-
-  /** View -> model callback called when value changes */
-  _onChange = (value: any) => { };
-
-  /** View -> model callback called when datepicker has been touched */
-  _onTouched = () => { };
-
-  @ViewChild('trigger') trigger: ElementRef;
-  @ViewChild(ConnectedOverlayDirective) overlayDir: ConnectedOverlayDirective;
-
-  @Output() change: EventEmitter<Md2DatepickerChange> = new EventEmitter<Md2DatepickerChange>();
+    let overlayRef = this.overlay.create(config);
+    overlayRef.attach(this.templatePortals.first);
+    overlayRef.backdropClick().subscribe(() => overlayRef.detach());
+  }
+  @Input()
+  set date2(v: any) {
+    if (v !== this.days2) {
+      this.days2 = this.Month(v);
+      this.date2INT = new Date(v).getTime();
+    }
+  }
+  @Output() date2Change: EventEmitter<any> = new EventEmitter<any>();
 
   @Input()
-  get min() { return this._min; }
-  set min(value: Date) { this._min = new Date(value); }
+  get color(): string {
+    return this._color;
+  }
 
-  @Input()
-  get max() { return this._max; }
-  set max(value: Date) { this._max = new Date(value); }
+  set color(value: string) {
+    this._updateColor(value);
+  }
+  _updateColor(newColor: string) {
+    this._color = newColor;
+  }
+  constructor(
+    private elementRef: ElementRef,
+    public overlay: Overlay,
+    public viewContainerRef: ViewContainerRef
+  ) {
 
-  @Input()
-  get placeholder() { return this._placeholder; }
-  set placeholder(value: string) { this._placeholder = value; }
+  }
 
-  @Input()
-  get disabled() { return this._disabled; }
-  set disabled(value: any) { this._disabled = coerceBooleanProperty(value); }
+  _handleClick() {
+    let selector: any = this.elementRef.nativeElement.querySelector('._picker');
+    let _Datepicker = this.elementRef.nativeElement.querySelector('._datePicker');
+    if (_Datepicker != null) {
+      _Datepicker.setAttribute('style', `
+      top: ${selector.offsetHeight}px
+      `);
+      this._focused = true;
 
-  @Input()
-  get required() { return this._required; }
-  set required(value: any) { this._required = coerceBooleanProperty(value); }
-
-  @Output() onOpen = new EventEmitter();
-  @Output() onClose = new EventEmitter();
-
-  constructor(private _element: ElementRef, private _renderer: Renderer,
-    private _viewportRuler: ViewportRuler, @Optional() private _dir: Dir,
-    @Optional() public _control: NgControl) {
-    if (this._control) {
-      this._control.valueAccessor = this;
     }
   }
 
-  ///** Toggles the overlay panel open or closed. */
-  //toggle(): void { }
+  /**
+   * OutFocus.
+   * TODO: internal
+   */
+  _handleOutFocus(state: boolean) {
+    this._focused = false;
 
-  ///** Opens the overlay panel. */
-  //open(): void {
-  //  if (this.disabled) {
-  //    return;
-  //  }
-  //  this._placeholderState = this._isRtl() ? 'floating-rtl' : 'floating-ltr';
-  //  this._panelOpen = true;
-  //}
-
-  ///** Closes the overlay panel and focuses the host element. */
-  //close(): void {
-  //  this._panelOpen = false;
-  //  if (!this._value) {
-  //    this._placeholderState = '';
-  //  }
-  //  this._focusHost();
-  //}
-
-  ///** Dispatch change event with current datepicker and value. */
-  //_emitChangeEvent(): void {
-  //  let event = new Md2DatepickerChange();
-  //  event.source = this;
-  //  event.value = this._value;
-  //  this._onChange(event.value);
-  //  this.change.emit(event);
-  //}
-
-  writeValue(value: any): void { }
-
-  registerOnChange(fn: (value: any) => void): void { this._onChange = fn; }
-
-  registerOnTouched(fn: () => {}): void { this._onTouched = fn; }
-
-  //get value(): Date { return this._value; }
-
-  //_isRtl(): boolean { return this._dir ? this._dir.value === 'rtl' : false; }
-
-  _handleKeydown(event: KeyboardEvent): void {
-    //  if (event.keyCode === ENTER || event.keyCode === SPACE) {
-    //    this.open();
-    //  }
   }
 
-  _onBlur() {
-    //if (!this.panelOpen) {
-    //  this._onTouched();
-    //}
+  registerOnChange(fn: any) {
+    this._onChangeCallback = fn;
   }
 
-  _getTabIndex() {
-    return this.disabled ? '-1' : '0';
+  /**
+   * Implemented as part of ControlValueAccessor.
+   * TODO: internal
+   */
+  registerOnTouched(fn: any) {
+    this._onTouchedCallback = fn;
   }
 
-  //private _focusHost(): void {
-  //  this._renderer.invokeElementMethod(this._element.nativeElement, 'focus');
-  //}
+  /** Callback registered via registerOnTouched (ControlValueAccessor) */
+  private _onTouchedCallback: () => void = noop;
 
+  /** Callback registered via registerOnChange (ControlValueAccessor) */
+  private _onChangeCallback: (_: any) => void = noop;
+
+  get value(): any {
+    return this._value;
+  };
+
+  @Input() set value(v: any) {
+    if (v !== this._value) {
+      this._value = v;
+      this._onChangeCallback(v);
+    }
+  }
+
+  writeValue(value: any) {
+    this.selectDate(value, false);
+    this.getMonth(value);
+    this._value = value;
+  }
+
+  private INT_DATE(date: any) {
+    return new Date(date).getTime();
+  }
+
+  selectDate(date: any, _for: any = false, e$: any = false) {
+    let dateSelected = new Date(date);
+    let selector = this.elementRef.nativeElement.querySelector('._picker');
+    if (this.stateSELECT == true) {
+      if (e$ != false) {
+        this.date2 = dateSelected;
+        this.date2Change.emit(dateSelected);
+        selector.focus();
+      }
+      this.dayActive2 = `${
+        dateSelected.getFullYear()
+        }+${
+        dateSelected.getMonth()
+        }+${
+        dateSelected.getDate()
+        }`;
+    } else {
+      this.dayActive = `${
+        dateSelected.getFullYear()
+        }+${
+        dateSelected.getMonth()
+        }+${
+        dateSelected.getDate()
+        }`;
+      this.value = dateSelected;
+      this._value = dateSelected;
+      this._onTouchedCallback();
+    }
+    this._Date = `${
+      new Date(date).getDate()
+      }-${
+      new Date(date).getMonth() + 1
+      }-${
+      new Date(date).getFullYear()
+      }`;
+    this.dateINT = Date.now();
+    this.dateToday = `${
+      new Date().getFullYear()
+      }+${
+      new Date().getMonth()
+      }+${
+      new Date().getDate()
+      }`;
+  }
+
+  /**
+   * _left.
+   */
+  _left(_for: boolean, date: any) {
+    if (_for == false) {
+      this.days = this.Month(date._INI - 60 * 60 * 24 * 1000);
+    } else {
+      this.days2 = this.Month(date._INI - 60 * 60 * 24 * 1000);
+    }
+  }
+
+  /**
+   * Month prev.
+   */
+  _right(_for: boolean, date: any) {
+    if (_for == false) {
+      this.days = this.Month(date._INI.getTime() + (date.dateEND + 2) * 60 * 60 * 24 * 1000);
+    } else {
+      this.days2 = this.Month(date._INI.getTime() + (date.dateEND + 2) * 60 * 60 * 24 * 1000);
+    }
+  }
+
+  ngAfterContentInit() {
+    this.stateSELECT = true;
+    this._handleClick();
+    this._focused = false;
+    this.selectDate(this.date2INT, true);
+    this.stateSELECT = false;
+  }
+
+  getMonth(dateSelected: any) {
+    this.days = this.Month(dateSelected);
+  }
+  get Days() {
+    return ((-this.INT_DATE(this._value) + this.INT_DATE(this.date2INT)) / 60 / 60 / 24 / 1000) + 1;
+  }
+  Month(date: any) {
+    let _days: any = {
+      data: [],
+      _INI: '',
+      dateEND: '',
+    };
+    let dateSelected = new Date(date);
+    let dayNow = (dateSelected.getDate() - 1) * 60 * 60 * 24 * 1000;
+    let dateNow = new Date(dateSelected.getTime());
+    let dateINI = new Date(dateNow.getTime() - dayNow);
+    let dateEND: any;
+    let dayLeft = 0;
+    if (new Date(dateINI).getDay() == 0) {
+      dayLeft = 6;
+    } else {
+      dayLeft = new Date(dateINI).getDay() - 1;
+    }
+    for (var i = 0; i < dayLeft; i++) {
+      _days.data.push({
+        index: null,
+        date: 0,
+      });
+    }
+    let dateTemp: any;
+    for (var _i = 1; _i < 32; _i++) {
+      dateTemp = new Date((dateINI.getTime()) + ((_i - 1) * 60 * 60 * 24 * 1000));
+      if (_i == dateTemp.getDate()) {
+        dateEND = _i;
+        _days.data.push({
+          index: _i,
+          date: dateTemp.getTime(),
+          dateActive: `${dateTemp.getFullYear()}+${dateTemp.getMonth()}+${dateTemp.getDate()}`,
+        });
+      }
+    }
+    this.dateINI = dateINI;
+    _days._INI = dateINI;
+    _days.dateEND = dateEND;
+    return _days;
+  }
+  ngOnChanges(changes: { [key: string]: SimpleChange }) {
+    // ***
+  }
 }
 
-
 @NgModule({
-  imports: [CommonModule, DefaultStyleCompatibilityModeModule],
-  exports: [Md2Datepicker, Md2Calendar, DefaultStyleCompatibilityModeModule],
-  declarations: [Md2Datepicker, Md2Calendar],
+  imports: [OverlayModule, PortalModule, CommonModule, FormsModule],
+  exports: [Md2Datepicker],
+  declarations: [Md2Datepicker],
 })
 export class Md2DatepickerModule {
   static forRoot(): ModuleWithProviders {
     return {
-      ngModule: Md2DatepickerModule
+      ngModule: Md2DatepickerModule,
+      providers: [],
     };
   }
 }

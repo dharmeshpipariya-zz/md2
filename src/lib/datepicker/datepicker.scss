@@ -1,197 +1,210 @@
-$primary: #106cc8 !default;
-$warn: #f44336 !default;
-$md2-datepicker-trigger-height: 30px !default;
-$md2-datepicker-trigger-min-width: 112px !default;
-$md2-datepicker-arrow-size: 5px !default;
-$md2-datepicker-arrow-margin: 4px !default;
-$md2-datepicker-panel-max-height: 256px !default;
-$md2-datepicker-width: 330px !default;
-$md2-datepicker-height: 112px !default;
-
-md2-datepicker {
-  display: block;
-  outline: none;
+:host {
+  display: inline-block;
+  position: relative;
 }
 
-.md2-datepicker-trigger {
-  color: rgba(black, 0.38);
-  border-bottom: 1px solid rgba(black, 0.12);
+._top {
+  padding: 20px;
+
+  ._top_year {
+    font-size: 16px;
+    color: #fff;
+  }
+
+  ._top_date {
+    font-size: 36px;
+    color: #fff;
+  }
+}
+
+._focusedPicker {
+  opacity: 1 !important;
+  transform: scaleY(1) !important;
+}
+
+._bg {
+  background: #fff;
+}
+
+._datePicker-content {
+  position: relative;
+  display: inline-block;
+  float: left;
+
+  ._header {
+    padding: 4px 16px;
+  }
+
+  ._days {
+    padding: 8px 16px;
+  }
+}
+
+._control {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  height: $md2-datepicker-trigger-height;
-  min-width: $md2-datepicker-trigger-min-width;
-  margin: 18px 0;
-  line-height: 22px;
-  cursor: pointer;
   position: relative;
+  cursor: default;
+
+  div {
+    position: absolute;
+    top: 0;
+    text-align: center;
+    width: 100%;
+    opacity: 0.7;
+    left: 0;
+    padding: 4px;
+  }
+
+  span {
+    position: relative;
+    display: flex;
+    cursor: pointer;
+  }
+}
+
+._datePicker {
+  width: 312px;
+  background: transparent;
+  box-shadow: rgba(0, 0, 0, 0.117647) 0 1px 6px, rgba(0, 0, 0, 0.117647) 0 1px 4px;
+  z-index: 66;
+  transition: transform 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms, opacity 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+  transform-origin: left top 0;
+  opacity: 0;
+  transform: scaleY(0);
+  border-radius: 4px;
+  overflow: hidden;
+
+  &._dual {
+    width: 640px;
+
+    ._top {
+      ._top_date, ._top_year {
+        text-align: center;
+      }
+    }
+  }
+}
+
+._days {
+  cursor: default;
+  width: 320px;
   box-sizing: border-box;
-
-  [aria-disabled='true'] & {
-    background-image: linear-gradient(to right, rgba(black, 0.26) 0, rgba(black, 0.26) 33%, transparent 0);
-    background-size: 4px 1px;
-    background-repeat: repeat-x;
-    border-bottom: transparent;
-    background-position: 0 bottom;
-    cursor: default;
-    user-select: none;
-  }
-
-  md2-datepicker:focus:not(.md2-datepicker-disabled) & {
-    color: $primary;
-    border-bottom: 1px solid $primary;
-  }
-
-  md2-datepicker.ng-invalid.ng-touched:not(.md2-datepicker-disabled) & {
-    color: $warn;
-    border-bottom: 1px solid $warn;
-  }
-}
-
-.md2-datepicker-placeholder {
-  position: absolute;
-  right: 18px;
-  left: 0;
-  padding: 0 2px;
-  transform-origin: left top;
-  white-space: nowrap;
-  overflow-x: hidden;
-  text-overflow: ellipsis;
-
-  &.md2-floating-placeholder {
-    top: -16px;
-    left: -2px;
-    transform: scale(0.75);
-  }
-
-  [dir='rtl'] & {
-    transform-origin: right top;
-
-    &.md2-floating-placeholder {
-      left: 2px;
-    }
-  }
-
-  [aria-required=true] &::after {
-    content: '*';
-  }
-}
-
-.md2-datepicker-value {
-  position: relative;
-  white-space: nowrap;
-  overflow-x: hidden;
-  text-overflow: ellipsis;
-  color: rgba(black, 0.87);
-
-  .md2-datepicker-disabled & {
-    color: rgba(black, 0.38);
-  }
-
-  [dir='rtl'] & {
-    left: auto;
-    right: 0;
-  }
-}
-
-.md2-datepicker-value-text:not(:last-child)::after {
-  content: ',';
-  margin-left: -2px;
-}
-
-.md2-datepicker-arrow {
-  width: 0;
-  height: 0;
-  border-left: $md2-datepicker-arrow-size solid transparent;
-  border-right: $md2-datepicker-arrow-size solid transparent;
-  border-top: $md2-datepicker-arrow-size solid;
-  margin: 0 $md2-datepicker-arrow-margin;
-  color: rgba(black, 0.38);
-
-  md2-datepicker:focus:not(.md2-datepicker-disabled) & {
-    color: $primary;
-  }
-
-  md2-datepicker.ng-invalid.ng-touched:not(.md2-datepicker-disabled) & {
-    color: $warn;
-  }
-}
-
-.md2-datepicker-panel {
-  box-shadow: 0 0 3px rgba(black, 0.2), 0 8px 10px 1px rgba(black, 0.14), 0 3px 14px 2px rgba(black, 0.12);
-  min-width: 112px;
-  max-width: 280px;
-  overflow: auto;
-  -webkit-overflow-scrolling: touch;
-  padding-top: 0;
-  padding-bottom: 0;
-  max-height: $md2-datepicker-panel-max-height;
-  background: white;
-}
-
-
-md2-day {
-  white-space: nowrap;
-  overflow-x: hidden;
-  text-overflow: ellipsis;
-  display: block;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
   flex-direction: row;
-  align-items: center;
-  padding: 13px 16px;
-  font-size: 16px;
-  font-family: Roboto, 'Helvetica Neue', sans-serif;
-  text-align: start;
-  text-decoration: none;
+  flex-wrap: wrap;
+}
+
+._DaysName {
+  pointer-events: none;
+  width: 36px;
+  height: 36px;
+  display: inline-block;
+  text-align: center;
+  line-height: 36px;
+  opacity: 0.39;
+  text-transform: uppercase;
+  font-size: 13px;
+  margin: 2px;
+}
+
+._before {
+  opacity: 1;
+}
+
+._today {
+  z-index: 1;
+}
+
+@keyframes stateSELECT {
+  0% {
+    opacity: 0.6;
+    //box-shadow: 0 0 0 0 #00bcd4;
+  }
+
+  75% {
+    opacity: 1;
+    //box-shadow: 0 0 0 16px rgba(255, 255, 255, 0);
+  }
+}
+
+._parent_S {
+  ._background {
+    animation: 1200ms stateSELECT infinite;
+    transition: cubic-bezier(0.23, 1, 0.32, 1);
+  }
+}
+
+._day, ._focused {
+  width: 40px;
+  height: 40px;
+  display: inline-block;
   position: relative;
-  cursor: pointer;
-  outline: none;
-  box-sizing: padding-box;
+  line-height: 40px;
+  text-align: center;
+  font-size: 13px;
 
-  &[aria-disabled='true'] {
-    cursor: default;
-    user-select: none;
+  ._background {
+    content: '';
+    position: absolute;
+    top: 2px;
+    bottom: 2px;
+    left: 2px;
+    right: 2px;
+    margin: auto;
+    border-radius: 100%;
+    pointer-events: none;
   }
 
-  &:hover:not(.md2-option-disabled),
-  &:focus:not(.md2-option-disabled) {
-    background: rgba(black, 0.04);
-  }
+  span {
+    width: inherit;
+    height: inherit;
+    position: absolute;
+    left: 0;
+    top: 0;
+    outline: none;
+    cursor: pointer;
+    opacity: 0.87;
 
-  &.md2-selected {
-    color: $primary;
-  }
-
-  &.md2-option-disabled {
-    color: rgba(black, 0.38);
-  }
-
-  [multiple='true'] & {
-    padding-left: 40px;
-
-    &::after {
-      content: '';
+    div {
       position: absolute;
-      top: 50%;
-      left: 12px;
-      display: block;
-      width: 16px;
-      height: 16px;
-      margin-top: -8px;
-      border: 2px solid;
-      border-radius: 2px;
-      box-sizing: border-box;
-      transition: 240ms;
-    }
-
-    &.md2-selected::after {
-      transform: rotate(-45deg);
-      height: 8px;
-      border-width: 0 0 2px 2px;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
     }
   }
 }
 
-.cdk-overlay-container, .cdk-global-overlay-wrapper {
+._picker {
+  pointer-events: auto;
+  cursor: text;
+  outline: none;
+
+  ._input {
+    pointer-events: none !important;
+  }
+}
+
+._focused {
+  //opacity: 0.1;
+}
+
+.cdk-visually-hidden {
+  border: 0;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  text-transform: none;
+  width: 1px;
+}
+
+.cdk-global-overlay-wrapper, .cdk-overlay-container {
   pointer-events: none;
   top: 0;
   left: 0;
@@ -204,29 +217,42 @@ md2-day {
   z-index: 1000;
 }
 
+.cdk-global-overlay-wrapper {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  position: absolute;
+  z-index: 1000;
+}
+
 .cdk-overlay-pane {
+  box-sizing: border-box;
+}
+
+.cdk-overlay-backdrop, .cdk-overlay-pane {
   position: absolute;
   pointer-events: auto;
-  box-sizing: border-box;
   z-index: 1000;
 }
 
 .cdk-overlay-backdrop {
-  position: absolute;
   top: 0;
   bottom: 0;
   left: 0;
   right: 0;
-  z-index: 1;
-  pointer-events: auto;
-  transition: opacity 400ms cubic-bezier(0.25, 0.8, 0.25, 1);
+  -webkit-transition: opacity .4s cubic-bezier(.25,.8,.25,1);
+  transition: opacity .4s cubic-bezier(.25,.8,.25,1);
   opacity: 0;
+}
+
+.cdk-overlay-backdrop.cdk-overlay-backdrop-showing {
+  opacity: .48;
+}
+
+.cdk-overlay-dark-backdrop {
+  background: rgba(0,0,0,.6);
 }
 
 .cdk-overlay-transparent-backdrop {
   background: none;
-}
-
-.cdk-overlay-backdrop.cdk-overlay-backdrop-showing {
-  opacity: 0.48;
 }
