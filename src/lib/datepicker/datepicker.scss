@@ -1,20 +1,40 @@
+$primary: #106cc8 !default;
+$warn: #f44336 !default;
+
+$md2-datepicker-date-size: 40px !default;
+
 :host {
   display: inline-block;
   position: relative;
 }
 
-._top {
-  padding: 20px;
+.md2-datepicker-header {
+  padding: 16px 20px;
+  color: white;
+  font-weight: 500;
+  background: $primary;
+}
 
-  ._top_year {
-    font-size: 16px;
-    color: #fff;
-  }
+.md2-datepicker-header-year {
+  font-size: 16px;
+  opacity: 0.7;
+}
 
-  ._top_date {
-    font-size: 36px;
-    color: #fff;
-  }
+.md2-datepicker-header-date {
+  font-size: 36px;
+}
+
+.md2-datepicker-container {
+  background: white;
+}
+
+.md2-datepicker-calendar {
+  padding: 0 16px;
+  font-size: 13px;
+  font-weight: 400;
+}
+
+.md2-calendar-header {
 }
 
 ._focusedPicker {
@@ -22,22 +42,8 @@
   transform: scaleY(1) !important;
 }
 
-._bg {
-  background: #fff;
-}
-
-._datePicker-content {
-  position: relative;
-  display: inline-block;
-  float: left;
-
-  ._header {
-    padding: 4px 16px;
-  }
-
-  ._days {
-    padding: 8px 16px;
-  }
+/*._header {
+  padding: 4px 16px;
 }
 
 ._control {
@@ -61,7 +67,7 @@
     display: flex;
     cursor: pointer;
   }
-}
+}*/
 
 ._datePicker {
   width: 312px;
@@ -86,29 +92,48 @@
   }
 }
 
-._days {
-  cursor: default;
-  width: 320px;
-  box-sizing: border-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
+.md2-datepicker-week-days {
 }
 
-._DaysName {
-  pointer-events: none;
-  width: 36px;
-  height: 36px;
+.md2-calendar-week-day {
   display: inline-block;
+  width: $md2-datepicker-date-size;
+  line-height: $md2-datepicker-date-size;
+  color: rgba(black, 0.38);
   text-align: center;
-  line-height: 36px;
-  opacity: 0.39;
   text-transform: uppercase;
-  font-size: 13px;
-  margin: 2px;
 }
+
+.md2-calendar-dates {
+}
+
+.md2-calendar-date {
+  display: inline-block;
+  width: $md2-datepicker-date-size;
+  line-height: $md2-datepicker-date-size;
+  text-align: center;
+  border-radius: 50%;
+
+  &.md2-calendar-date-today {
+    border: 1px solid $primary;
+  }
+
+  &.md2-calendar-date-focused {
+    background: rgb(224,224,224);
+  }
+
+  &.md2-calendar-date-selected {
+    background: $primary;
+    color: white;
+    border-color: transparent;
+  }
+
+  &.md2-calendar-date-disabled {
+    cursor: default;
+    pointer-events: none;
+  }
+}
+
 
 ._before {
   opacity: 1;
@@ -116,36 +141,13 @@
 
 ._today {
   z-index: 1;
-}
 
-@keyframes stateSELECT {
-  0% {
-    opacity: 0.6;
-    //box-shadow: 0 0 0 0 #00bcd4;
-  }
-
-  75% {
-    opacity: 1;
-    //box-shadow: 0 0 0 16px rgba(255, 255, 255, 0);
-  }
-}
-
-._parent_S {
-  ._background {
-    animation: 1200ms stateSELECT infinite;
-    transition: cubic-bezier(0.23, 1, 0.32, 1);
+  span {
+    color: $primary;
   }
 }
 
 ._day, ._focused {
-  width: 40px;
-  height: 40px;
-  display: inline-block;
-  position: relative;
-  line-height: 40px;
-  text-align: center;
-  font-size: 13px;
-
   ._background {
     content: '';
     position: absolute;
@@ -188,8 +190,64 @@
   }
 }
 
-._focused {
-  //opacity: 0.1;
+._days_selected {
+  ._background {
+    background-color: rgba($primary, 0.2) !important;
+  }
+
+  span {
+    color: $primary;
+  }
+}
+
+._day:not(._focused):hover {
+  ._background {
+    background: $primary !important;
+  }
+
+  span {
+    color: #fff;
+  }
+}
+
+._day._focused {
+  ._background {
+    background: $primary !important;
+  }
+
+  span {
+    color: #fff;
+  }
+}
+
+.md2-calendar-actions {
+  display: block;
+  max-height: 48px;
+  text-align: right;
+
+  button {
+    display: inline-block;
+    min-width: 64px;
+    height: 36px;
+    max-height: 36px;
+    margin: 4px 8px 8px 0;
+    padding: 0 16px;
+    color: $primary;
+    font-weight: 500;
+    text-transform: uppercase;
+    line-height: 36px;
+    border: 0;
+    border-radius: 2px;
+    text-align: center;
+    outline: none;
+    cursor: pointer;
+    background-color: rgba(0, 0, 0, 0);
+    box-sizing: border-box;
+
+    &:hover {
+      background-color: rgba(153, 153, 153, 0.2);
+    }
+  }
 }
 
 .cdk-visually-hidden {
