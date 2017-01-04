@@ -6,7 +6,6 @@ import {
   Input,
   Output,
   SimpleChange,
-  OnChanges,
   AfterContentInit,
   EventEmitter,
   ModuleWithProviders,
@@ -51,7 +50,7 @@ export const MD_PICKER_CONTROL_VALUE_ACCESSOR: any = {
   providers: [MD_PICKER_CONTROL_VALUE_ACCESSOR],
   encapsulation: ViewEncapsulation.None,
 })
-export class Md2Datepicker implements ControlValueAccessor, AfterContentInit, OnChanges {
+export class Md2Datepicker implements ControlValueAccessor, AfterContentInit {
   public _Date: string = `${new Date()}`;
   stateSELECT: boolean = false;
   dateNow: any = new Date();
@@ -299,9 +298,6 @@ export class Md2Datepicker implements ControlValueAccessor, AfterContentInit, On
     _days._INI = dateINI;
     _days.dateEND = dateEND;
     return _days;
-  }
-  ngOnChanges(changes: { [key: string]: SimpleChange }) {
-    // ***
   }
 }
 

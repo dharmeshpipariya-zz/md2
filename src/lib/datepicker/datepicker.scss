@@ -29,12 +29,33 @@ $md2-datepicker-date-size: 40px !default;
 }
 
 .md2-datepicker-calendar {
-  padding: 0 16px;
+  padding: 0 8px;
   font-size: 13px;
   font-weight: 400;
 }
 
 .md2-calendar-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  font-weight: 700;
+  text-align: center;
+  line-height: 48px;
+
+  .md2-calendar-month-year {
+    width: 100%;
+  }
+
+  button {
+    display: inline-block;
+    width: 48px;
+    height: 48px;
+    padding: 12px;
+    outline: none;
+    border: 0;
+    cursor: pointer;
+    background: transparent;
+  }
 }
 
 ._focusedPicker {
@@ -70,7 +91,7 @@ $md2-datepicker-date-size: 40px !default;
 }*/
 
 ._datePicker {
-  width: 312px;
+  width: 310px;
   background: transparent;
   box-shadow: rgba(0, 0, 0, 0.117647) 0 1px 6px, rgba(0, 0, 0, 0.117647) 0 1px 4px;
   z-index: 66;
@@ -99,6 +120,7 @@ $md2-datepicker-date-size: 40px !default;
   display: inline-block;
   width: $md2-datepicker-date-size;
   line-height: $md2-datepicker-date-size;
+  margin: 1px;
   color: rgba(black, 0.38);
   text-align: center;
   text-transform: uppercase;
@@ -111,14 +133,17 @@ $md2-datepicker-date-size: 40px !default;
   display: inline-block;
   width: $md2-datepicker-date-size;
   line-height: $md2-datepicker-date-size;
+  margin: 1px;
   text-align: center;
+  cursor: pointer;
   border-radius: 50%;
 
   &.md2-calendar-date-today {
     border: 1px solid $primary;
   }
 
-  &.md2-calendar-date-focused {
+  &.md2-calendar-date-focused,
+  &:hover {
     background: rgb(224,224,224);
   }
 
