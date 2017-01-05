@@ -8,8 +8,29 @@ $md2-datepicker-date-size: 40px !default;
   position: relative;
 }
 
+._picker {
+  pointer-events: auto;
+  cursor: text;
+  outline: none;
+
+  ._input {
+    pointer-events: none !important;
+  }
+}
+
+.md2-datepicker {
+  /*display: flex;*/
+  width: 310px;
+  /*width: 516px;*/
+  border-radius: 3px;
+  overflow: hidden;
+  box-shadow: 0 7px 8px -4px rgba(0,0,0,.2), 0 13px 19px 2px rgba(0,0,0,.14), 0 5px 24px 4px rgba(0,0,0,.12);
+}
+
 .md2-datepicker-header {
+  /*min-width: 120px;*/
   padding: 16px 20px;
+  /*padding: 16px 50px 16px 20px;*/
   color: white;
   font-weight: 500;
   background: $primary;
@@ -30,6 +51,7 @@ $md2-datepicker-date-size: 40px !default;
 
 .md2-datepicker-calendar {
   padding: 0 8px;
+  /*padding: 0 16px;*/
   font-size: 13px;
   font-weight: 400;
 }
@@ -58,61 +80,6 @@ $md2-datepicker-date-size: 40px !default;
   }
 }
 
-._focusedPicker {
-  opacity: 1 !important;
-  transform: scaleY(1) !important;
-}
-
-/*._header {
-  padding: 4px 16px;
-}
-
-._control {
-  display: flex;
-  justify-content: space-between;
-  position: relative;
-  cursor: default;
-
-  div {
-    position: absolute;
-    top: 0;
-    text-align: center;
-    width: 100%;
-    opacity: 0.7;
-    left: 0;
-    padding: 4px;
-  }
-
-  span {
-    position: relative;
-    display: flex;
-    cursor: pointer;
-  }
-}*/
-
-._datePicker {
-  width: 310px;
-  background: transparent;
-  box-shadow: rgba(0, 0, 0, 0.117647) 0 1px 6px, rgba(0, 0, 0, 0.117647) 0 1px 4px;
-  z-index: 66;
-  transition: transform 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms, opacity 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms;
-  transform-origin: left top 0;
-  opacity: 0;
-  transform: scaleY(0);
-  border-radius: 4px;
-  overflow: hidden;
-
-  &._dual {
-    width: 640px;
-
-    ._top {
-      ._top_date, ._top_year {
-        text-align: center;
-      }
-    }
-  }
-}
-
 .md2-datepicker-week-days {
 }
 
@@ -137,9 +104,10 @@ $md2-datepicker-date-size: 40px !default;
   text-align: center;
   cursor: pointer;
   border-radius: 50%;
+  border: 1px solid transparent;
 
   &.md2-calendar-date-today {
-    border: 1px solid $primary;
+    border-color: $primary;
   }
 
   &.md2-calendar-date-focused,
@@ -147,7 +115,7 @@ $md2-datepicker-date-size: 40px !default;
     background: rgb(224,224,224);
   }
 
-  &.md2-calendar-date-selected {
+  &.md2-calendar-date-selected:not(.md2-calendar-date-disabled) {
     background: $primary;
     color: white;
     border-color: transparent;
@@ -156,92 +124,7 @@ $md2-datepicker-date-size: 40px !default;
   &.md2-calendar-date-disabled {
     cursor: default;
     pointer-events: none;
-  }
-}
-
-
-._before {
-  opacity: 1;
-}
-
-._today {
-  z-index: 1;
-
-  span {
-    color: $primary;
-  }
-}
-
-._day, ._focused {
-  ._background {
-    content: '';
-    position: absolute;
-    top: 2px;
-    bottom: 2px;
-    left: 2px;
-    right: 2px;
-    margin: auto;
-    border-radius: 100%;
-    pointer-events: none;
-  }
-
-  span {
-    width: inherit;
-    height: inherit;
-    position: absolute;
-    left: 0;
-    top: 0;
-    outline: none;
-    cursor: pointer;
-    opacity: 0.87;
-
-    div {
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      left: 0;
-      right: 0;
-    }
-  }
-}
-
-._picker {
-  pointer-events: auto;
-  cursor: text;
-  outline: none;
-
-  ._input {
-    pointer-events: none !important;
-  }
-}
-
-._days_selected {
-  ._background {
-    background-color: rgba($primary, 0.2) !important;
-  }
-
-  span {
-    color: $primary;
-  }
-}
-
-._day:not(._focused):hover {
-  ._background {
-    background: $primary !important;
-  }
-
-  span {
-    color: #fff;
-  }
-}
-
-._day._focused {
-  ._background {
-    background: $primary !important;
-  }
-
-  span {
-    color: #fff;
+    opacity: 0.5;
   }
 }
 
