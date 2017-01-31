@@ -26,12 +26,12 @@ export const HTML_MINIFIER_OPTIONS = {
 
 export const LICENSE_BANNER = `/**
   * @license Md2 v${MATERIAL_VERSION}
-  * Copyright (c) 2016 Dharmesh Pipariya, Inc. https://github.com/dharmeshpipariya/md2
+  * Copyright (c) 2017 Md2, Inc. https://dharmeshpipariya.github.io/md2/
   * License: MIT
   */`;
 
 export const NPM_VENDOR_FILES = [
-  '@angular', 'core-js/client', 'rxjs', 'systemjs/dist', 'zone.js/dist'
+  '@angular', 'core-js/client', 'hammerjs', 'rxjs', 'systemjs/dist', 'zone.js/dist'
 ];
 
 export const COMPONENTS_DIR = join(SOURCE_ROOT, 'lib');
