@@ -24,6 +24,7 @@ import {ConnectedPositionStrategy} from './position/connected-position-strategy'
 import {Subscription} from 'rxjs/Subscription';
 import {Dir, LayoutDirection} from '../rtl/dir';
 import {Scrollable} from './scroll/scrollable';
+import {coerceBooleanProperty} from '../coercion/boolean-property';
 
 /** Default set of positions for the overlay. Follows the behavior of a dropdown. */
 let defaultPositionList = [
@@ -45,11 +46,7 @@ let defaultPositionList = [
   exportAs: 'cdkOverlayOrigin',
 })
 export class OverlayOrigin {
-  constructor(private _elementRef: ElementRef) { }
-
-  get elementRef() {
-    return this._elementRef;
-  }
+  constructor(public elementRef: ElementRef) { }
 }
 
 
@@ -72,7 +69,10 @@ export class ConnectedOverlayDirective implements OnDestroy {
   private _offsetY: number = 0;
   private _position: ConnectedPositionStrategy;
 
+  /** Origin for the connected overlay. */
   @Input() origin: OverlayOrigin;
+
+  /** Registered connected position pairs. */
   @Input() positions: ConnectionPositionPair[];
 
   /** The offset in pixels for the overlay connection point on the x-axis */
@@ -122,9 +122,8 @@ export class ConnectedOverlayDirective implements OnDestroy {
     return this._hasBackdrop;
   }
 
-  // TODO: move the boolean coercion logic to a shared function in core
   set hasBackdrop(value: any) {
-    this._hasBackdrop = value != null && `${value}` !== 'false';
+    this._hasBackdrop = coerceBooleanProperty(value);
   }
 
   @Input()
@@ -139,8 +138,14 @@ export class ConnectedOverlayDirective implements OnDestroy {
 
   /** Event emitted when the backdrop is clicked. */
   @Output() backdropClick = new EventEmitter<void>();
+
+  /** Event emitted when the position has changed. */
   @Output() positionChange = new EventEmitter<ConnectedOverlayPositionChange>();
+
+  /** Event emitted when the overlay has been attached. */
   @Output() attach = new EventEmitter<void>();
+
+  /** Event emitted when the overlay has been detached. */
   @Output() detach = new EventEmitter<void>();
 
   // TODO(jelbourn): inputs for size, scroll behavior, animation, etc.
@@ -153,10 +158,12 @@ export class ConnectedOverlayDirective implements OnDestroy {
     this._templatePortal = new TemplatePortal(templateRef, viewContainerRef);
   }
 
+  /** The associated overlay reference. */
   get overlayRef(): OverlayRef {
     return this._overlayRef;
   }
 
+  /** The element's layout direction. */
   get dir(): LayoutDirection {
     return this._dir ? this._dir.value : 'ltr';
   }
@@ -288,12 +295,14 @@ export class ConnectedOverlayDirective implements OnDestroy {
   imports: [PortalModule],
   exports: [ConnectedOverlayDirective, OverlayOrigin, Scrollable],
   declarations: [ConnectedOverlayDirective, OverlayOrigin, Scrollable],
+  providers: [OVERLAY_PROVIDERS],
 })
 export class OverlayModule {
+  /** @deprecated */
   static forRoot(): ModuleWithProviders {
     return {
       ngModule: OverlayModule,
-      providers: OVERLAY_PROVIDERS,
+      providers: [],
     };
   }
 }

@@ -2,11 +2,13 @@ import {
   Injectable,
   OpaqueToken,
   Optional,
-  Inject
+  Inject,
+  SkipSelf,
 } from '@angular/core';
 
 export const LIVE_ANNOUNCER_ELEMENT_TOKEN  = new OpaqueToken('liveAnnouncerElement');
 
+/** Possible politeness levels. */
 export type AriaLivePoliteness = 'off' | 'polite' | 'assertive';
 
 @Injectable()
@@ -23,8 +25,9 @@ export class LiveAnnouncer {
   }
 
   /**
+   * Announces a message to screenreaders.
    * @param message Message to be announced to the screenreader
-   * @param politeness The politeness of the announcer element.
+   * @param politeness The politeness of the announcer element
    */
   announce(message: string, politeness: AriaLivePoliteness = 'polite'): void {
     this._liveElement.textContent = '';
@@ -60,3 +63,17 @@ export class LiveAnnouncer {
   }
 
 }
+
+export function LIVE_ANNOUNCER_PROVIDER_FACTORY(parentDispatcher: LiveAnnouncer, liveElement: any) {
+  return parentDispatcher || new LiveAnnouncer(liveElement);
+};
+
+export const LIVE_ANNOUNCER_PROVIDER = {
+  // If there is already a LiveAnnouncer available, use that. Otherwise, provide a new one.
+  provide: LiveAnnouncer,
+  deps: [
+    [new Optional(), new SkipSelf(), LiveAnnouncer],
+    [new Optional(), new Inject(LIVE_ANNOUNCER_ELEMENT_TOKEN)]
+  ],
+  useFactory: LIVE_ANNOUNCER_PROVIDER_FACTORY
+};

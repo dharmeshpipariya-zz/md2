@@ -51,6 +51,12 @@ export const MD2_AUTOCOMPLETE_CONTROL_VALUE_ACCESSOR: any = {
   multi: true
 };
 
+/** Change event object emitted by Md2Autocomplete. */
+export class Md2AutocompleteChange {
+  source: Md2Autocomplete;
+  value: any;
+}
+
 @Component({
   moduleId: module.id,
   selector: 'md2-autocomplete',
@@ -82,14 +88,15 @@ export class Md2Autocomplete implements AfterContentInit, ControlValueAccessor {
   private _required: boolean = false;
   private _disabled: boolean = false;
   private _isInitialized: boolean = false;
-  private _onTouchedCallback: () => void = noop;
-  private _onChangeCallback: (_: any) => void = noop;
+
+  _onChange = (value: any) => { };
+  _onTouched = () => { };
 
   private _items: Array<any> = [];
   _list: Array<Item> = [];
 
   private selectedItem: Item = null;
-  private noBlur: boolean = true;
+  private noBlur: boolean = false;
   _focusedOption: number = 0;
   _inputValue: string = '';
   _inputFocused: boolean = false;
@@ -130,8 +137,7 @@ export class Md2Autocomplete implements AfterContentInit, ControlValueAccessor {
       }
       if (!this._inputValue) { this._inputValue = ''; }
       if (this._isInitialized) {
-        this._onChangeCallback(value);
-        this.change.emit(value);
+        this._emitChangeEvent();
       }
     }
   }
@@ -251,6 +257,7 @@ export class Md2Autocomplete implements AfterContentInit, ControlValueAccessor {
     this.selectedItem = this._list[index];
     this._inputValue = this._list[index].text;
     this.updateValue();
+    this._handleMouseLeave();
   }
 
   /**
@@ -270,8 +277,7 @@ export class Md2Autocomplete implements AfterContentInit, ControlValueAccessor {
    */
   private updateValue() {
     this._value = this.selectedItem ? this.selectedItem.value : this.selectedItem;
-    this._onChangeCallback(this._value);
-    this.change.emit(this._value);
+    this._emitChangeEvent();
     this.onFocus();
   }
 
@@ -297,6 +303,7 @@ export class Md2Autocomplete implements AfterContentInit, ControlValueAccessor {
    */
   _handleBlur() {
     this._inputFocused = false;
+    this._onTouched();
   }
 
   /**
@@ -325,7 +332,15 @@ export class Md2Autocomplete implements AfterContentInit, ControlValueAccessor {
     }
   }
 
-  writeValue(value: any) {
+  _emitChangeEvent(): void {
+    let event = new Md2AutocompleteChange();
+    event.source = this;
+    event.value = this._value;
+    this._onChange(event.value);
+    this.change.emit(event);
+  }
+
+  writeValue(value: any): void {
     if (value !== this._value) {
       this._value = value;
       this._inputValue = '';
@@ -339,9 +354,10 @@ export class Md2Autocomplete implements AfterContentInit, ControlValueAccessor {
     }
   }
 
-  registerOnChange(fn: any) { this._onChangeCallback = fn; }
+  registerOnChange(fn: (value: any) => void): void { this._onChange = fn; }
 
-  registerOnTouched(fn: any) { this._onTouchedCallback = fn; }
+  registerOnTouched(fn: () => {}): void { this._onTouched = fn; }
+
 }
 
 export const MD2_AUTOCOMPLETE_DIRECTIVES = [Md2Autocomplete, HighlightPipe];

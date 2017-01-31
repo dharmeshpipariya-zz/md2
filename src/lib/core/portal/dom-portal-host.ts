@@ -23,7 +23,10 @@ export class DomPortalHost extends BasePortalHost {
     super();
   }
 
-  /** Attach the given ComponentPortal to DOM element using the ComponentFactoryResolver. */
+  /**
+   * Attach the given ComponentPortal to DOM element using the ComponentFactoryResolver.
+   * @param portal Portal to be attached
+   */
   attachComponentPortal<T>(portal: ComponentPortal<T>): ComponentRef<T> {
     let componentFactory = this._componentFactoryResolver.resolveComponentFactory(portal.component);
     let componentRef: ComponentRef<T>;
@@ -31,8 +34,7 @@ export class DomPortalHost extends BasePortalHost {
     // If the portal specifies a ViewContainerRef, we will use that as the attachment point
     // for the component (in terms of Angular's component tree, not rendering).
     // When the ViewContainerRef is missing, we use the factory to create the component directly
-    // and then manually attach the ChangeDetector for that component to the application (which
-    // happens automatically when using a ViewContainer).
+    // and then manually attach the view to the application.
     if (portal.viewContainerRef) {
       componentRef = portal.viewContainerRef.createComponent(
           componentFactory,
@@ -42,39 +44,12 @@ export class DomPortalHost extends BasePortalHost {
       this.setDisposeFn(() => componentRef.destroy());
     } else {
       componentRef = componentFactory.create(portal.injector || this._defaultInjector);
-
-      // ApplicationRef's attachView and detachView methods are in Angular ^2.3.0 but not before.
-      // The `else` clause here can be removed once 2.3.0 is released.
-      if ((this._appRef as any)['attachView']) {
-        (this._appRef as any).attachView(componentRef.hostView);
-
-        this.setDisposeFn(() => {
-          (this._appRef as any).detachView(componentRef.hostView);
-          componentRef.destroy();
-        });
-      } else {
-        // When creating a component outside of a ViewContainer, we need to manually register
-        // its ChangeDetector with the application. This API is unfortunately not published
-        // in Angular < 2.3.0. The change detector must also be deregistered when the component
-        // is destroyed to prevent memory leaks.
-        let changeDetectorRef = componentRef.changeDetectorRef;
-        (this._appRef as any).registerChangeDetector(changeDetectorRef);
-
-        this.setDisposeFn(() => {
-          (this._appRef as any).unregisterChangeDetector(changeDetectorRef);
-
-          // Normally the ViewContainer will remove the component's nodes from the DOM.
-          // Without a ViewContainer, we need to manually remove the nodes.
-          let componentRootNode = this._getComponentRootNode(componentRef);
-          if (componentRootNode.parentNode) {
-            componentRootNode.parentNode.removeChild(componentRootNode);
-          }
-
-          componentRef.destroy();
-        });
-      }
+      this._appRef.attachView(componentRef.hostView);
+      this.setDisposeFn(() => {
+        this._appRef.detachView(componentRef.hostView);
+        componentRef.destroy();
+      });
     }
-
     // At this point the component has been instantiated, so we move it to the location in the DOM
     // where we want it to be rendered.
     this._hostDomElement.appendChild(this._getComponentRootNode(componentRef));
@@ -82,6 +57,10 @@ export class DomPortalHost extends BasePortalHost {
     return componentRef;
   }
 
+  /**
+   * Attaches a template portal to the DOM as an embedded view.
+   * @param portal Portal to be attached.
+   */
   attachTemplatePortal(portal: TemplatePortal): Map<string, any> {
     let viewContainer = portal.viewContainerRef;
     let viewRef = viewContainer.createEmbeddedView(portal.templateRef);
@@ -99,6 +78,9 @@ export class DomPortalHost extends BasePortalHost {
     return new Map<string, any>();
   }
 
+  /**
+   * Clears out a portal from the DOM.
+   */
   dispose(): void {
     super.dispose();
     if (this._hostDomElement.parentNode != null) {

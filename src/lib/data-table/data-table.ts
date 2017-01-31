@@ -1,27 +1,35 @@
 import {
   Component,
   Directive,
+  EventEmitter,
   Input,
   Output,
-  EventEmitter,
-  SimpleChange,
-  OnChanges,
+  OnInit,
   Optional,
   DoCheck,
+  IterableDiffers,
+  IterableDiffer,
+  ViewEncapsulation,
   NgModule,
   ModuleWithProviders,
-  ViewEncapsulation,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { Md2SelectModule } from '../select/index';
+
+export class Md2PaginationChange {
+  source: Md2Pagination;
+  activePage: number;
+}
 
 export interface SortEvent {
-  sortField: string | string[];
+  sortBy: string | string[];
   sortOrder: string;
 }
 
 export interface PageEvent {
   activePage: number;
-  pageLength: number;
+  rowsPerPage: number;
   dataLength: number;
 }
 
@@ -30,107 +38,89 @@ export interface DataEvent {
 }
 
 @Directive({
-  selector: 'table[md2-data]',
-  exportAs: 'Md2DataTable'
+  selector: 'table[md2Data]',
+  exportAs: 'md2DataTable'
 })
-export class Md2DataTable implements OnChanges, DoCheck {
+export class Md2DataTable implements DoCheck {
 
-  private _dataLength = 0;
+  private diff: IterableDiffer;
+  private isDataChanged = false;
+  private _data: Array<any> = [];
   private _activePage: number = 1;
+  private _rowsPerPage: number = 1000;
+  private _sortBy: string | Array<string> = '';
+  private _sortOrder: string = 'asc';
 
-  data: any[];
-  onDataChange = new EventEmitter<DataEvent>();
+  data: Array<any>;
+
+  @Input()
+  get md2Data() { return this._data; }
+  set md2Data(value: Array<any>) {
+    if (this._data !== value) {
+      this._data = value || [];
+      this.recalculatePage();
+      this.isDataChanged = true;
+    }
+  }
+
+  @Input()
+  get activePage() { return this._activePage; }
+  set activePage(value: number) {
+    if (this._activePage !== value) {
+      this._activePage = value;
+    }
+  }
+
+  @Input()
+  get rowsPerPage() { return this._rowsPerPage; }
+  set rowsPerPage(value: number) {
+    if (this._rowsPerPage !== value) {
+      this._rowsPerPage = value;
+      this.setPage(this.activePage, value);
+      this.isDataChanged = true;
+    }
+  }
+
+  @Input()
+  get sortBy() { return this._sortBy; }
+  set sortBy(value: string | Array<string>) {
+    if (this._sortBy !== value) {
+      this._sortBy = value;
+      if (value) {
+        this.onSortChange.next({ sortBy: this.sortBy, sortOrder: this.sortOrder });
+      }
+      this.isDataChanged = true;
+    }
+  }
+
+  @Input()
+  get sortOrder() { return this._sortOrder; }
+  set sortOrder(value: string) {
+    if (!(value === 'asc' || value === 'desc')) {
+      console.warn('sortOrder value must be one of ["asc", "desc"], but is:', value);
+      value = 'asc';
+    }
+    if (this._sortOrder !== value) {
+      this._sortOrder = value;
+      this.isDataChanged = true;
+    }
+  }
+
+  @Output() activePageChange = new EventEmitter<number>();
+  @Output() sortByChange = new EventEmitter<string | string[]>();
+  @Output() sortOrderChange = new EventEmitter<string>();
+
   onSortChange = new EventEmitter<SortEvent>();
   onPageChange = new EventEmitter<PageEvent>();
 
-  private sortField: string | string[] = '';
-  private sortOrder = 'asc';
-  private isDataChanged = false;
-
-  @Input('md2-data') inputData: any[] = [];
-  @Input('md2-page-length') pageLength = 1000;
-  @Input()
-  get activePage(): number { return this._activePage; }
-  set activePage(value: number) {
-    this._activePage = value;
-    this.activePageChange.emit(value);
-  }
-
-  @Output() activePageChange = new EventEmitter();
-
-  getSort(): SortEvent {
-    return { sortField: this.sortField, sortOrder: this.sortOrder };
-  }
-
-  setSort(sortField: string | string[], sortOrder: string): void {
-    if (this.sortField !== sortField || this.sortOrder !== sortOrder) {
-      this.sortField = sortField;
-      this.sortOrder = sortOrder;
-      this.isDataChanged = true;
-      this.onSortChange.emit({ sortField: sortField, sortOrder: sortOrder });
-    }
-  }
-
-  getPage(): PageEvent {
-    return {
-      activePage: this.activePage,
-      pageLength: this.pageLength,
-      dataLength: this.inputData.length
-    };
-  }
-
-  setPage(activePage: number, pageLength: number): void {
-    if (this.pageLength !== pageLength || this.activePage !== activePage) {
-      this.activePage = this.activePage !== activePage ?
-        activePage : this.calculateNewActivePage(this.pageLength, pageLength);
-      this.pageLength = pageLength;
-      this.isDataChanged = true;
-      this.onPageChange.emit({
-        activePage: this.activePage,
-        pageLength: this.pageLength,
-        dataLength: this.inputData.length
-      });
-    }
-  }
-
-  private calculateNewActivePage(previousPageLength: number,
-    currentPageLength: number): number {
-    let firstRowOnPage = (this.activePage - 1) * previousPageLength + 1;
-    let newActivePage = Math.ceil(firstRowOnPage / currentPageLength);
-    return newActivePage;
-  }
-
-  private recalculatePage() {
-    let _lastPage = Math.ceil(this.inputData.length / this.pageLength);
-    this.activePage = _lastPage < this.activePage ? _lastPage : this.activePage;
-    this.activePage = this.activePage || 1;
-  }
-
-  ngOnChanges(changes: { [key: string]: SimpleChange }): any {
-    if (changes['inputData']) {
-      this.inputData = changes['inputData'].currentValue || [];
-      if (this.inputData.length > 0) {
-        this.recalculatePage();
-        this.onPageChange.emit({
-          activePage: this.activePage,
-          pageLength: this.pageLength,
-          dataLength: this.inputData.length
-        });
-        this.isDataChanged = true;
-      }
-    }
+  constructor(private differs: IterableDiffers) {
+    this.diff = differs.find([]).create(null);
   }
 
   ngDoCheck(): any {
-    if (this._dataLength !== this.inputData.length) {
-      this._dataLength = this.inputData.length;
-      this.fillData();
+    let changes = this.diff.diff(this.md2Data);
+    if (changes) {
       this.recalculatePage();
-      this.onPageChange.emit({
-        activePage: this.activePage,
-        pageLength: this.pageLength,
-        dataLength: this.inputData.length
-      });
       this.isDataChanged = true;
     }
     if (this.isDataChanged) {
@@ -139,153 +129,191 @@ export class Md2DataTable implements OnChanges, DoCheck {
     }
   }
 
-  private fillData(): void {
-    this.activePage = this.activePage;
-    this.pageLength = this.pageLength;
+  getSort(): SortEvent {
+    return { sortBy: this.sortBy, sortOrder: this.sortOrder };
+  }
 
-    let offset = (this.activePage - 1) * this.pageLength;
-    let data = this.inputData;
-    let sortField = this.sortField;
-    if (sortField) {
+  setSort(sortBy: string | string[], sortOrder: string) {
+    if (this.sortBy !== sortBy || this.sortOrder !== sortOrder) {
+      this.sortBy = sortBy;
+      this.sortOrder = sortOrder;
+      this.isDataChanged = true;
+      this.onSortChange.next({ sortBy: sortBy, sortOrder: sortOrder });
+      this.sortByChange.emit(this.sortBy);
+      this.sortOrderChange.emit(this.sortOrder);
+    }
+  }
+
+  getPage(): PageEvent {
+    return {
+      activePage: this.activePage,
+      rowsPerPage: this.rowsPerPage,
+      dataLength: this.md2Data.length
+    };
+  }
+
+  setPage(activePage: number, rowsPerPage: number): void {
+    if (this.rowsPerPage !== rowsPerPage || this.activePage !== activePage) {
+      this.activePage = this.activePage !== activePage ?
+        activePage : this.calculateNewActivePage(this.rowsPerPage, rowsPerPage);
+      this.rowsPerPage = rowsPerPage;
+      this.isDataChanged = true;
+      this.onPageChange.emit({
+        activePage: this.activePage,
+        rowsPerPage: this.rowsPerPage,
+        dataLength: this.md2Data ? this.md2Data.length : 0
+      });
+      this.activePageChange.emit(this.activePage);
+    }
+  }
+
+  private calculateNewActivePage(previousRowsPerPage: number, currentRowsPerPage: number): number {
+    let firstRowOnPage = (this.activePage - 1) * previousRowsPerPage + 1;
+    let newActivePage = Math.ceil(firstRowOnPage / currentRowsPerPage);
+    return newActivePage;
+  }
+
+  private recalculatePage() {
+    let lastPage = Math.ceil(this.md2Data.length / this.rowsPerPage);
+    if (lastPage < this.activePage) {
+      this._activePage = lastPage || 1;
+      setTimeout(() => {
+        this.activePageChange.emit(this.activePage);
+      }, 10);
+    } else { }
+
+    this.onPageChange.emit({
+      activePage: this.activePage,
+      rowsPerPage: this.rowsPerPage,
+      dataLength: this.md2Data.length
+    });
+  }
+
+  private fillData() {
+    let offset = (this.activePage - 1) * this.rowsPerPage;
+    let data = this.md2Data;
+    if (this.sortBy) {
       data = data.sort((a: any, b: any) => {
-        let x = isNaN(a[sortField + '']) ? a[sortField + ''].toLowerCase() : a[sortField + ''];
-        let y = isNaN(b[sortField + '']) ? b[sortField + ''].toLowerCase() : b[sortField + ''];
+        let x = this.caseInsensitiveIteratee(a);
+        let y = this.caseInsensitiveIteratee(b);
         return (x > y) ? 1 : (y > x) ? -1 : 0;
       });
     }
     if (this.sortOrder === 'desc') { data.reverse(); }
-    this.data = data.slice(offset, offset + this.pageLength);
+    this.data = data.slice(offset, offset + this.rowsPerPage);
+  }
+
+  private caseInsensitiveIteratee(value: any) {
+    if (typeof this.sortBy === 'string' || this.sortBy instanceof String) {
+      for (let sortByProperty of this.sortBy.split('.')) {
+        value = value[sortByProperty];
+      }
+    } else {
+      value = value[this.sortBy + ''];
+    }
+    if (value && typeof value === 'string' || value instanceof String) {
+      return value.toLowerCase();
+    }
+    return value;
   }
 
 }
 
 @Component({
-  selector: '[md2-sort-field]',
-  template: `
-    <span (click)="_sort()">
-      <ng-content></ng-content>
-      <svg *ngIf="_isAsc" width="24"height="24" viewBox="0 0 24 24">
-        <path d="M7 14l5-5 5 5z"/>
-      </svg>
-      <svg *ngIf="_isDesc" width="24"height="24" viewBox="0 0 24 24">
-        <path d="M7 10l5 5 5-5z"/>
-      </svg>
-      <svg *ngIf="!_isAsc && !_isDesc" width="24"height="24" viewBox="0 0 24 24">
-        <path d="M7,10.5l5-5l5,5H7z"/>
-        <path d="M7,12.5l5,5l5-5H7z"/>
-      </svg>
-    </span>
-  `,
-  styles: [`
-    [md2-sort-field] span {
-      position: relative;
-      display: block;
-      line-height: 24px;
-      white-space: nowrap;
-      cursor: pointer;
-      -webkit-user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
-      user-select: none;
-    }
-    [md2-sort-field] span svg {
-      display: inline-block;
-      vertical-align: middle;
-      fill: currentColor;
-    }
-  `],
+  selector: '[md2SortBy]',
+  templateUrl: 'sort.html',
+  styleUrls: ['data-table.scss'],
+  host: {
+    '[class.md2-sort-active]': '_isAsc || _isDesc',
+    '(click)': '_sort()'
+  },
   encapsulation: ViewEncapsulation.None
 })
-export class Md2DataTableSortField {
+export class Md2DataTableSortBy implements OnInit {
+
+  @Input() md2SortBy: string;
+
   _isAsc: boolean = false;
   _isDesc: boolean = false;
 
-  @Input('md2-sort-field') sortField: string;
-
   constructor(private _md2Table: Md2DataTable) {
-    _md2Table.onSortChange.subscribe((event: SortEvent) => {
-      this._isAsc = (event.sortField === this.sortField && event.sortOrder === 'asc');
-      this._isDesc = (event.sortField === this.sortField && event.sortOrder === 'desc');
+  }
+
+  ngOnInit() {
+    this._md2Table.onSortChange.subscribe((event: SortEvent) => {
+      this._isAsc = (event.sortBy === this.md2SortBy && event.sortOrder === 'asc');
+      this._isDesc = (event.sortBy === this.md2SortBy && event.sortOrder === 'desc');
     });
   }
 
   _sort() {
     if (this._isAsc) {
-      this._md2Table.setSort(this.sortField, 'desc');
+      this._md2Table.setSort(this.md2SortBy, 'desc');
     } else {
-      this._md2Table.setSort(this.sortField, 'asc');
+      this._md2Table.setSort(this.md2SortBy, 'asc');
     }
   }
+
 }
 
 @Component({
   selector: 'md2-pagination',
   templateUrl: 'pagination.html',
-  styleUrls: ['pagination.css'],
+  styleUrls: ['data-table.css'],
+  exportAs: 'md2Pagination',
   encapsulation: ViewEncapsulation.None
 })
-export class Md2Pagination implements OnChanges {
+export class Md2Pagination {
 
-  private _md2Table: Md2DataTable;
-  _activePage: number;
-  _rows: number;
-  _lastPage: number;
+  private _activePage: number = 1;
+
+  @Input() rowsPerPageSet: any = [];
+  @Input() md2Table: Md2DataTable;
+
+  _rowsPerPage: number;
   _dataLength: number = 0;
+  _lastPage: number;
 
-  @Output() change: EventEmitter<any> = new EventEmitter<any>();
+  constructor( @Optional() private _dataTable: Md2DataTable) { }
 
-  @Input('md2-rows') rows: any = [];
-  @Input('md2-table') md2InputTable: Md2DataTable;
-
-  constructor( @Optional() private _injectMd2Table: Md2DataTable) { }
-
-  ngAfterViewInit() {
-    this._md2Table = this.md2InputTable || this._injectMd2Table;
-    this._onPageChange(this._md2Table.getPage());
-    this._md2Table.onPageChange.subscribe(this._onPageChange);
+  ngDoCheck() {
+    this.md2Table = this.md2Table || this._dataTable;
+    this.onPageChangeSubscriber(this.md2Table.getPage());
+    this.md2Table.onPageChange.subscribe(this.onPageChangeSubscriber);
   }
 
-  ngOnChanges(changes: any): any {
-    this._md2Table = this.md2InputTable || this._injectMd2Table;
-    this._onPageChange(this._md2Table.getPage());
-    this._md2Table.onPageChange.subscribe(this._onPageChange);
-  }
-
-  _setPage(page: number): void {
-    this._md2Table.setPage(page, this._rows);
-    this.change.emit(page);
+  _setPage(pageNumber: number): void {
+    this.md2Table.setPage(pageNumber, this._rowsPerPage);
   }
 
   _setRows(event: any): void {
-    event.stopPropagation();
-    this._md2Table.setPage(this._activePage, event.target.value);
-    this.change.emit(this._activePage);
+    this.md2Table.setPage(this._activePage, parseInt(event.value));
   }
 
-  private _onPageChange = (event: PageEvent) => {
+  private onPageChangeSubscriber = (event: PageEvent) => {
     this._activePage = event.activePage;
-    this._rows = event.pageLength;
+    this._rowsPerPage = event.rowsPerPage;
     this._dataLength = event.dataLength;
-    this._lastPage = Math.ceil(this._dataLength / this._rows);
-  }
+    this._lastPage = Math.ceil(this._dataLength / this._rowsPerPage);
+  };
+
 }
 
 export const MD2_DATA_TABLE_DIRECTIVES: any[] = [
   Md2DataTable,
-  Md2DataTableSortField,
+  Md2DataTableSortBy,
   Md2Pagination
 ];
 
 @NgModule({
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule, Md2SelectModule.forRoot()],
   exports: MD2_DATA_TABLE_DIRECTIVES,
   declarations: MD2_DATA_TABLE_DIRECTIVES,
 })
 export class Md2DataTableModule {
   static forRoot(): ModuleWithProviders {
     return {
-      ngModule: Md2DataTableModule,
-      providers: []
+      ngModule: Md2DataTableModule
     };
   }
 }

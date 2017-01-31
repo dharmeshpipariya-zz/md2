@@ -9,9 +9,10 @@ import {
   Renderer,
   ViewEncapsulation
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ENTER, SPACE } from '../core/keyboard/keycodes';
-import { coerceBooleanProperty } from '../core/coercion/boolean-property';
+import {CommonModule} from '@angular/common';
+import {ENTER, SPACE} from '../keyboard/keycodes';
+import {coerceBooleanProperty} from '../coercion/boolean-property';
+import {MdRippleModule} from '../ripple/ripple';
 
 /**
  * Option IDs need to be unique across components, so this counter exists outside of
@@ -20,39 +21,38 @@ import { coerceBooleanProperty } from '../core/coercion/boolean-property';
 let _uniqueIdCounter = 0;
 
 /** Event object emitted by MdOption when selected. */
-export class Md2OptionSelectEvent {
-  constructor(public source: Md2Option, public isUserInput = false) { }
+export class MdOptionSelectEvent {
+  constructor(public source: MdOption, public isUserInput = false) {}
 }
 
 
 /**
- * Single option inside of a `<md2-select>` element.
+ * Single option inside of a `<md-select>` element.
  */
 @Component({
   moduleId: module.id,
-  selector: 'md2-option',
+  selector: 'md-option, mat-option',
   host: {
     'role': 'option',
     '[attr.tabindex]': '_getTabIndex()',
-    '[class.md2-selected]': 'selected',
+    '[class.md-selected]': 'selected',
     '[id]': 'id',
     '[attr.aria-selected]': 'selected.toString()',
     '[attr.aria-disabled]': 'disabled.toString()',
-    '[class.md2-option-disabled]': 'disabled',
+    '[class.md-option-disabled]': 'disabled',
     '(click)': '_selectViaInteraction()',
     '(keydown)': '_handleKeydown($event)'
   },
-  template: '<ng-content></ng-content>',
-  styleUrls: ['select.css'],
+  templateUrl: 'option.html',
   encapsulation: ViewEncapsulation.None
 })
-export class Md2Option {
+export class MdOption {
   private _selected: boolean = false;
 
   /** Whether the option is disabled.  */
   private _disabled: boolean = false;
 
-  private _id: string = `md2-option-${_uniqueIdCounter++}`;
+  private _id: string = `md-option-${_uniqueIdCounter++}`;
 
   /** The unique ID of the option. */
   get id() { return this._id; }
@@ -66,9 +66,9 @@ export class Md2Option {
   set disabled(value: any) { this._disabled = coerceBooleanProperty(value); }
 
   /** Event emitted when the option is selected. */
-  @Output() onSelect = new EventEmitter<Md2OptionSelectEvent>();
+  @Output() onSelect = new EventEmitter<MdOptionSelectEvent>();
 
-  constructor(private _element: ElementRef, private _renderer: Renderer) { }
+  constructor(private _element: ElementRef, private _renderer: Renderer) {}
 
   /** Whether or not the option is currently selected. */
   get selected(): boolean {
@@ -80,13 +80,14 @@ export class Md2Option {
    * select's trigger.
    */
   get viewValue(): string {
+    // TODO(kara): Add input property alternative for node envs.
     return this._getHostElement().textContent.trim();
   }
 
   /** Selects the option. */
   select(): void {
     this._selected = true;
-    this.onSelect.emit(new Md2OptionSelectEvent(this, false));
+    this.onSelect.emit(new MdOptionSelectEvent(this, false));
   }
 
   /** Deselects the option. */
@@ -113,7 +114,7 @@ export class Md2Option {
   _selectViaInteraction() {
     if (!this.disabled) {
       this._selected = true;
-      this.onSelect.emit(new Md2OptionSelectEvent(this, true));
+      this.onSelect.emit(new MdOptionSelectEvent(this, true));
     }
   }
 
@@ -129,14 +130,14 @@ export class Md2Option {
 }
 
 @NgModule({
-  imports: [CommonModule],
-  exports: [Md2Option],
-  declarations: [Md2Option]
+  imports: [MdRippleModule, CommonModule],
+  exports: [MdOption],
+  declarations: [MdOption]
 })
-export class Md2OptionModule {
+export class MdOptionModule {
   static forRoot(): ModuleWithProviders {
     return {
-      ngModule: Md2OptionModule,
+      ngModule: MdOptionModule,
       providers: []
     };
   }
