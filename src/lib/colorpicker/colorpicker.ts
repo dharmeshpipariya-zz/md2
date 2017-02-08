@@ -52,8 +52,15 @@ export class Md2ColorChange {
   host: {
     'role': 'colorpicker',
     '[id]': 'id',
-    '[tabindex]': 'disabled ? -1 : tabindex',
     '[class.md2-colorpicker-disabled]': 'disabled',
+    '[attr.tabindex]': 'disabled ? -1 : tabindex',
+    '[attr.aria-label]': 'placeholder',
+    '[attr.aria-required]': 'required.toString()',
+    '[attr.aria-disabled]': 'disabled.toString()',
+    '[attr.aria-invalid]': '_control?.invalid || "false"',
+    '(keydown)': '_handleKeydown($event)',
+    '(focus)': '_onFocus()',
+    '(blur)': '_onBlur()'
   },
   encapsulation: ViewEncapsulation.None
 })
@@ -75,12 +82,26 @@ export class Md2Colorpicker implements AfterViewInit, OnDestroy, ControlValueAcc
   /** Whether the select is disabled.  */
   private _disabled: boolean = false;
 
+  /** The placeholder displayed in the trigger of the select. */
+  private _placeholder: string;
+
   _onChange = (value: any) => { };
   _onTouched = () => { };
+
+  @Input() tabindex: number = 0;
 
   @Input()
   get color() { return this._color; }
   set color(value: string) { this._color = value; }
+
+  /** Placeholder to be shown if no value has been selected. */
+  @Input()
+  get placeholder() { return this._placeholder; }
+  set placeholder(value: string) { this._placeholder = value; }
+
+  @Input()
+  get required(): boolean { return this._required; }
+  set required(value) { this._required = coerceBooleanProperty(value); }
 
   /** Whether the component is disabled. */
   @Input()
@@ -161,6 +182,22 @@ export class Md2Colorpicker implements AfterViewInit, OnDestroy, ControlValueAcc
       this._overlayRef = null;
 
       this._cleanUpSubscriptions();
+    }
+  }
+
+  _handleKeydown(event: KeyboardEvent) {
+    if (this.disabled) { return; }
+  }
+
+  _onFocus() {
+    //if (!this.panelOpen && this.openOnFocus) {
+    //  this.open();
+    //}
+  }
+
+  _onBlur() {
+    if (!this.panelOpen) {
+      this._onTouched();
     }
   }
 
