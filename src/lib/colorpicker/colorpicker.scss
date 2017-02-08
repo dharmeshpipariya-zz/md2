@@ -1,5 +1,14 @@
 
-
+.md2-colorpicker-panel {
+  box-shadow: 0 0 3px rgba(black, 0.2), 0 8px 10px 1px rgba(black, 0.14), 0 3px 14px 2px rgba(black, 0.12);
+  min-width: 112px;
+  max-width: 280px;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-top: 0;
+  padding-bottom: 0;
+  background: white;
+}
 
 .cdk-overlay-container, .cdk-global-overlay-wrapper {
   pointer-events: none;
@@ -11,6 +20,12 @@
 
 .cdk-overlay-container {
   position: fixed;
+  z-index: 1000;
+}
+
+.cdk-global-overlay-wrapper {
+  display: flex;
+  position: absolute;
   z-index: 1000;
 }
 
@@ -33,10 +48,10 @@
   opacity: 0;
 }
 
-.cdk-overlay-transparent-backdrop {
-  background: none;
-}
-
 .cdk-overlay-backdrop.cdk-overlay-backdrop-showing {
   opacity: 0.48;
+}
+
+.cdk-overlay-dark-backdrop {
+  background: rgba(black, 0.6);
 }

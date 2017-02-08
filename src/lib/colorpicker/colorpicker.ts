@@ -33,6 +33,7 @@ import {
   TemplatePortal,
   PortalModule,
   TemplatePortalDirective,
+  OverlayContainer
 } from '../core';
 import { coerceBooleanProperty } from '../core/coercion/boolean-property';
 import { Subscription } from 'rxjs/Subscription';
@@ -131,32 +132,12 @@ export class Md2Colorpicker implements AfterViewInit, OnDestroy, ControlValueAcc
     //if (this.disabled) {
     //  return;
     //}
-    //this._calculateOverlayPosition();
-    //this._placeholderState = this._isRtl() ? 'floating-rtl' : 'floating-ltr';
-
-
-
-
-    //if (!this._panelOpen) {
-    if (!this._overlayRef) {
-      let config = new OverlayState();
-
-      config.positionStrategy = this.overlay.position()
-        .global()
-        .centerHorizontally();
-      config.hasBackdrop = true;
-      config.backdropClass = 'cdk-overlay-transparent-backdrop';
-
-      this._overlayRef = this.overlay.create(config);
-      this._overlayRef.attach(this.templatePortals.first);
-      this._subscribeToBackdrop();
-    }
-
-    //  this._overlayRef.attach(this._portal);
-
+    this._createOverlay();
+    this._overlayRef.attach(this.templatePortals.first);
+    this._subscribeToBackdrop();
     //  this._initMenu();
-    //}
     this._panelOpen = true;
+    this.onOpen.emit();
   }
 
   /** Closes the overlay panel and focuses the host element. */
@@ -169,28 +150,19 @@ export class Md2Colorpicker implements AfterViewInit, OnDestroy, ControlValueAcc
     if (this._overlayRef) {
       this._overlayRef.detach();
       this._backdropSubscription.unsubscribe();
-      //  this._resetMenu();
     }
-  }
-
-  private _subscribeToBackdrop(): void {
-    this._overlayRef.backdropClick().subscribe(() => {
-      this.close();
-    });
+    this.onClose.emit();
   }
 
   /** Removes the panel from the DOM. */
   destroyPanel(): void {
-    //if (this._overlayRef) {
-    //  this._overlayRef.dispose();
-    //  this._overlayRef = null;
+    if (this._overlayRef) {
+      this._overlayRef.dispose();
+      this._overlayRef = null;
 
-    //  this._cleanUpSubscriptions();
-    //}
+      this._cleanUpSubscriptions();
+    }
   }
-
-
-
 
   /** Emits an event when the user selects a color. */
   _emitChangeEvent(): void {
@@ -206,12 +178,45 @@ export class Md2Colorpicker implements AfterViewInit, OnDestroy, ControlValueAcc
 
   registerOnTouched(fn: () => {}): void { this._onTouched = fn; }
 
+  private _subscribeToBackdrop(): void {
+    this._backdropSubscription = this._overlayRef.backdropClick().subscribe(() => {
+      this.close();
+    });
+  }
+
+  /**
+   *  This method creates the overlay from the provided panel's template and saves its
+   *  OverlayRef so that it can be attached to the DOM when open is called.
+   */
+  private _createOverlay(): void {
+    if (!this._overlayRef) {
+      let config = new OverlayState();
+      config.positionStrategy = this.overlay.position()
+        .global()
+        .centerHorizontally()
+        .centerVertically();
+      config.hasBackdrop = true;
+      config.backdropClass = 'cdk-overlay-dark-backdrop';
+
+      this._overlayRef = this.overlay.create(config);
+    }
+  }
+
+  private _cleanUpSubscriptions(): void {
+    if (this._backdropSubscription) {
+      this._backdropSubscription.unsubscribe();
+    }
+    if (this._positionSubscription) {
+      this._positionSubscription.unsubscribe();
+    }
+  }
+
 }
 
 export const MD2_COLORPICKER_DIRECTIVES = [Md2Colorpicker];
 
 @NgModule({
-  imports: [CommonModule],
+  imports: [CommonModule, OverlayModule, PortalModule],
   exports: MD2_COLORPICKER_DIRECTIVES,
   declarations: MD2_COLORPICKER_DIRECTIVES,
 })
