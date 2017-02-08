@@ -126,7 +126,7 @@ md2-datepicker.md2-datepicker-disabled:focus {
   border-radius: 3px;
   background-color: white;
   overflow: hidden;
-  box-shadow: 0 2px 6px rgba(black, 0.4);
+  box-shadow: 0 11px 15px -7px rgba(black, 0.2), 0 24px 38px 3px rgba(black, 0.14), 0 9px 46px 8px rgba(black, 0.12);
   outline: none;
   user-select: none;
 }
@@ -300,7 +300,7 @@ md2-datepicker.md2-datepicker-disabled:focus {
 }
 
 .md2-calendar-dates {
-  margin: 0 20px;
+  margin: 0 auto;
 
   th {
     width: 35px;
@@ -464,7 +464,7 @@ md2-datepicker.md2-datepicker-disabled:focus {
   }
 }
 
-@media (min-width: 600px) {
+@media (min-width: 480px) {
   .md2-datepicker-panel {
     display: flex;
     width: 450px;
@@ -500,6 +500,12 @@ md2-datepicker.md2-datepicker-disabled:focus {
   z-index: 1000;
 }
 
+.cdk-global-overlay-wrapper {
+  display: flex;
+  position: absolute;
+  z-index: 1000;
+}
+
 .cdk-overlay-pane {
   position: absolute;
   pointer-events: auto;
@@ -519,10 +525,10 @@ md2-datepicker.md2-datepicker-disabled:focus {
   opacity: 0;
 }
 
-.cdk-overlay-transparent-backdrop {
-  background: none;
-}
-
 .cdk-overlay-backdrop.cdk-overlay-backdrop-showing {
   opacity: 0.48;
+}
+
+.cdk-overlay-dark-backdrop {
+  background: rgba(black, 0.6);
 }

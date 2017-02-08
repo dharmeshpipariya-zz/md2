@@ -4,11 +4,14 @@ import {
   ElementRef,
   HostListener,
   Input,
+  OnDestroy,
   Output,
   Optional,
   EventEmitter,
   Renderer,
   Self,
+  ViewChildren,
+  QueryList,
   ViewEncapsulation,
   NgModule,
   ModuleWithProviders
@@ -20,11 +23,6 @@ import {
 import { CommonModule } from '@angular/common';
 import { Md2DateUtil } from './dateUtil';
 import { DateLocale } from './date-locale';
-import {
-  OverlayModule,
-} from '../core';
-import { transformPlaceholder, transformPanel, fadeInContent } from '../select/select-animations';
-
 import {
   coerceBooleanProperty,
   ENTER,
@@ -38,13 +36,21 @@ import {
   LEFT_ARROW,
   RIGHT_ARROW,
   UP_ARROW,
-  DOWN_ARROW
-} from '../core/core';
+  DOWN_ARROW,
+  Overlay,
+  OverlayState,
+  OverlayRef,
+  OverlayModule,
+  Portal,
+  TemplatePortalDirective,
+  PortalModule
+} from '../core';
+import { fadeInContent } from './datepicker-animations';
+import { Subscription } from 'rxjs/Subscription';
 
 /** Change event object emitted by Md2Select. */
 export class Md2DateChange {
-  source: Md2Datepicker;
-  date: Date;
+  constructor(public source: Md2Datepicker, public date: Date) { }
 }
 
 export interface IDay {
@@ -89,20 +95,23 @@ let nextId = 0;
     '[attr.aria-disabled]': 'disabled.toString()',
     '[attr.aria-invalid]': '_control?.invalid || "false"',
     '(keydown)': '_handleKeydown($event)',
+    '(focus)': '_onFocus()',
     '(blur)': '_onBlur()'
   },
   animations: [
-    transformPlaceholder,
-    transformPanel,
     fadeInContent
   ],
   encapsulation: ViewEncapsulation.None
 })
-export class Md2Datepicker implements AfterContentInit, ControlValueAccessor {
+export class Md2Datepicker implements AfterContentInit, OnDestroy, ControlValueAccessor {
+
+  private _overlayRef: OverlayRef;
+  private _backdropSubscription: Subscription;
 
   private _date: Date = null;
   private _panelOpen = false;
   private _selected: Date = null;
+  private _openOnFocus: boolean = false;
 
   private mouseMoveListener: any;
   private mouseUpListener: any;
@@ -110,25 +119,18 @@ export class Md2Datepicker implements AfterContentInit, ControlValueAccessor {
   _transformOrigin: string = 'top';
   _panelDoneAnimating: boolean = false;
 
-  _positions = [
-    {
-      originX: 'start',
-      originY: 'top',
-      overlayX: 'start',
-      overlayY: 'top',
-    },
-    {
-      originX: 'start',
-      originY: 'bottom',
-      overlayX: 'start',
-      overlayY: 'bottom',
-    },
-  ];
+  @ViewChildren(TemplatePortalDirective) templatePortals: QueryList<Portal<any>>;
 
+  /** Event emitted when the select has been opened. */
   @Output() onOpen: EventEmitter<void> = new EventEmitter<void>();
+
+  /** Event emitted when the select has been closed. */
   @Output() onClose: EventEmitter<void> = new EventEmitter<void>();
 
-  constructor(private _element: ElementRef, private _renderer: Renderer,
+  /** Event emitted when the selected date has been changed by the user. */
+  @Output() change: EventEmitter<Md2DateChange> = new EventEmitter<Md2DateChange>();
+
+  constructor(private _element: ElementRef, private overlay: Overlay, private _renderer: Renderer,
     private _dateUtil: Md2DateUtil, private _locale: DateLocale,
     @Self() @Optional() public _control: NgControl) {
     if (this._control) {
@@ -148,6 +150,8 @@ export class Md2Datepicker implements AfterContentInit, ControlValueAccessor {
     this._isCalendarVisible = this.type !== 'time' ? true : false;
   }
 
+  ngOnDestroy() { this.destroyPanel(); }
+
   @Input()
   get date() { return this._date; }
   set date(value: Date) {
@@ -163,29 +167,40 @@ export class Md2Datepicker implements AfterContentInit, ControlValueAccessor {
         }
       }
       this._viewValue = this._formatDate(this._date);
-      let date = '';
-      if (this.type !== 'time') {
-        date += this._date.getFullYear() + '-' + (this._date.getMonth() + 1) +
-          '-' + this._date.getDate();
-      }
-      if (this.type === 'datetime') {
-        date += ' ';
-      }
-      if (this.type !== 'date') {
-        date += this._date.getHours() + ':' + this._date.getMinutes();
-      }
-      if (this._isInitialized) {
-        if (this._control) {
-          this._onChange(date);
-        }
-        this.change.emit(date);
-      }
+      //let date = '';
+      //if (this.type !== 'time') {
+      //  date += this._date.getFullYear() + '-' + (this._date.getMonth() + 1) +
+      //    '-' + this._date.getDate();
+      //}
+      //if (this.type === 'datetime') {
+      //  date += ' ';
+      //}
+      //if (this.type !== 'date') {
+      //  date += this._date.getHours() + ':' + this._date.getMinutes();
+      //}
+      //if (this._isInitialized) {
+      //  if (this._control) {
+      //    this._onChange(date);
+      //  }
+      //  this.change.emit(date);
+      //}
     }
   }
 
   @Input()
   get selected() { return this._selected; }
   set selected(value: Date) { this._selected = value; }
+
+  @Input()
+  get openOnFocus(): boolean { return this._openOnFocus; }
+  set openOnFocus(value: boolean) { this._openOnFocus = coerceBooleanProperty(value); }
+
+  @Input()
+  set isOpen(value: boolean) {
+    if (value && !this.panelOpen) {
+      this.open();
+    }
+  }
 
   get panelOpen(): boolean {
     return this._panelOpen;
@@ -198,17 +213,40 @@ export class Md2Datepicker implements AfterContentInit, ControlValueAccessor {
   /** Opens the overlay panel. */
   open(): void {
     if (this.disabled) { return; }
+    this._createOverlay();
+    this._overlayRef.attach(this.templatePortals.first);
+    this._subscribeToBackdrop();
     this._panelOpen = true;
     this._showDatepicker();
   }
 
   /** Closes the overlay panel and focuses the host element. */
   close(): void {
-    this._panelOpen = false;
-    //if (!this._date) {
-    //  this._placeholderState = '';
-    //}
-    this._focusHost();
+    setTimeout(() => {
+      this._panelOpen = false;
+      //if (!this._date) {
+      //  this._placeholderState = '';
+      //}
+      if (this._overlayRef) {
+        this._overlayRef.detach();
+        this._backdropSubscription.unsubscribe();
+      }
+      this._focusHost();
+
+      this._isYearsVisible = false;
+      this._isCalendarVisible = this.type !== 'time' ? true : false;
+      this._isHoursVisible = true;
+    }, 10);
+  }
+
+  /** Removes the panel from the DOM. */
+  destroyPanel(): void {
+    if (this._overlayRef) {
+      this._overlayRef.dispose();
+      this._overlayRef = null;
+
+      this._cleanUpSubscriptions();
+    }
   }
 
   _onPanelDone(): void {
@@ -238,11 +276,9 @@ export class Md2Datepicker implements AfterContentInit, ControlValueAccessor {
     return isNaN(timestamp) ? fallbackValue : new Date(timestamp);
   }
 
-
   private _format: string = this.type === 'date' ?
     'DD/MM/YYYY' : this.type === 'time' ? 'HH:mm' : this.type === 'datetime' ?
       'DD/MM/YYYY HH:mm' : 'DD/MM/YYYY';
-  private _readonly: boolean = false;
   private _required: boolean = false;
   private _disabled: boolean = false;
   private _isInitialized: boolean = false;
@@ -284,8 +320,6 @@ export class Md2Datepicker implements AfterContentInit, ControlValueAccessor {
   private _min: Date = null;
   private _max: Date = null;
 
-  @Output() change: EventEmitter<any> = new EventEmitter<any>();
-
   @Input() type: 'date' | 'time' | 'datetime' = 'date';
   @Input() name: string = '';
   @Input() id: string = 'md2-datepicker-' + (++nextId);
@@ -302,10 +336,6 @@ export class Md2Datepicker implements AfterContentInit, ControlValueAccessor {
       }
     }
   }
-
-  @Input()
-  get readonly(): boolean { return this._readonly; }
-  set readonly(value) { this._readonly = coerceBooleanProperty(value); }
 
   @Input()
   get required(): boolean { return this._required; }
@@ -480,14 +510,16 @@ export class Md2Datepicker implements AfterContentInit, ControlValueAccessor {
     }
   }
 
+  _onFocus() {
+    if (!this.panelOpen && this.openOnFocus) {
+      this.open();
+    }
+  }
+
   _onBlur() {
     if (!this.panelOpen) {
       this._onTouched();
     }
-    //this._isYearsVisible = false;
-    //this._isCalendarVisible = this.type !== 'time' ? true : false;
-    //this._isHoursVisible = true;
-    //this._onTouched();
   }
 
 
@@ -533,7 +565,7 @@ export class Md2Datepicker implements AfterContentInit, ControlValueAccessor {
    * Display Datepicker
    */
   _showDatepicker() {
-    if (this.disabled || this.readonly) { return; }
+    if (this.disabled) { return; }
     this.selected = this.date || new Date(1, 0, 1);
     this.displayDate = this.date || this.today;
     this.generateCalendar();
@@ -575,6 +607,7 @@ export class Md2Datepicker implements AfterContentInit, ControlValueAccessor {
       this._resetClock();
     } else {
       this.date = this.displayDate;
+      this._emitChangeEvent();
       this._onBlur();
       this.close();
     }
@@ -606,6 +639,7 @@ export class Md2Datepicker implements AfterContentInit, ControlValueAccessor {
   private setDate(date: Date) {
     if (this.type === 'date') {
       this.date = date;
+      this._emitChangeEvent();
       this._onBlur();
       this.close();
     } else {
@@ -785,6 +819,7 @@ export class Md2Datepicker implements AfterContentInit, ControlValueAccessor {
       date.getDate(), date.getHours(), minute);
     this.selected = this.displayDate;
     this.date = this.displayDate;
+    this._emitChangeEvent();
     this._onBlur();
     this.close();
   }
@@ -1061,12 +1096,10 @@ export class Md2Datepicker implements AfterContentInit, ControlValueAccessor {
     };
   }
 
-  private _emitChangeEvent(): void {
-    let event = new Md2DateChange();
-    event.source = this;
-    event.date = this._date;
-    this._onChange(event.date);
-    this.change.emit(event);
+  /** Emits an event when the user selects a date. */
+  _emitChangeEvent(): void {
+    this._onChange(this.date);
+    this.change.emit(new Md2DateChange(this, this.date));
   }
 
   writeValue(value: any): void {
@@ -1102,124 +1135,42 @@ export class Md2Datepicker implements AfterContentInit, ControlValueAccessor {
 
   registerOnTouched(fn: () => {}): void { this._onTouched = fn; }
 
+  private _subscribeToBackdrop(): void {
+    this._backdropSubscription = this._overlayRef.backdropClick().subscribe(() => {
+      this.close();
+    });
+  }
 
-  ///**
-  // * Calculates the y-offset of the select's overlay panel in relation to the
-  // * top start corner of the trigger. It has to be adjusted in order for the
-  // * selected option to be aligned over the trigger when the panel opens.
-  // */
-  //private _calculateOverlayOffset(selectedIndex: number, scrollBuffer: number,
-  //  maxScroll: number): number {
-  //  let optionOffsetFromPanelTop: number;
+  /**
+   *  This method creates the overlay from the provided panel's template and saves its
+   *  OverlayRef so that it can be attached to the DOM when open is called.
+   */
+  private _createOverlay(): void {
+    if (!this._overlayRef) {
+      let config = new OverlayState();
+      config.positionStrategy = this.overlay.position()
+        .global()
+        .centerHorizontally()
+        .centerVertically();
+      config.hasBackdrop = true;
+      config.backdropClass = 'cdk-overlay-dark-backdrop';
 
-  //  if (this._scrollTop === 0) {
-  //    optionOffsetFromPanelTop = selectedIndex * SELECT_OPTION_HEIGHT;
-  //  } else if (this._scrollTop === maxScroll) {
-  //    const firstDisplayedIndex = this.options.length - SELECT_MAX_OPTIONS_DISPLAYED;
-  //    const selectedDisplayIndex = selectedIndex - firstDisplayedIndex;
+      this._overlayRef = this.overlay.create(config);
+    }
+  }
 
-  //    // Because the panel height is longer than the height of the options alone,
-  //    // there is always extra padding at the top or bottom of the panel. When
-  //    // scrolled to the very bottom, this padding is at the top of the panel and
-  //    // must be added to the offset.
-  //    optionOffsetFromPanelTop =
-  //      selectedDisplayIndex * SELECT_OPTION_HEIGHT + SELECT_PANEL_PADDING_Y;
-  //  } else {
-  //    // If the option was scrolled to the middle of the panel using a scroll buffer,
-  //    // its offset will be the scroll buffer minus the half height that was added to
-  //    // center it.
-  //    optionOffsetFromPanelTop = scrollBuffer - SELECT_OPTION_HEIGHT / 2;
-  //  }
-
-  //  // The final offset is the option's offset from the top, adjusted for the height
-  //  // difference, multiplied by -1 to ensure that the overlay moves in the correct
-  //  // direction up the page.
-  //  return optionOffsetFromPanelTop * -1 - SELECT_OPTION_HEIGHT_ADJUSTMENT;
-  //}
-
-  ///**
-  // * Checks that the attempted overlay position will fit within the viewport.
-  // * If it will not fit, tries to adjust the scroll position and the associated
-  // * y-offset so the panel can open fully on-screen. If it still won't fit,
-  // * sets the offset back to 0 to allow the fallback position to take over.
-  // */
-  //private _checkOverlayWithinViewport(maxScroll: number): void {
-  //  const viewportRect = this._viewportRuler.getViewportRect();
-  //  const triggerRect = this._getTriggerRect();
-
-  //  const topSpaceAvailable = triggerRect.top - SELECT_PANEL_VIEWPORT_PADDING;
-  //  const bottomSpaceAvailable =
-  //    viewportRect.height - triggerRect.bottom - SELECT_PANEL_VIEWPORT_PADDING;
-
-  //  const panelHeightTop = Math.abs(this._offsetY);
-  //  const totalPanelHeight =
-  //    Math.min(this.options.length * SELECT_OPTION_HEIGHT, SELECT_PANEL_MAX_HEIGHT);
-  //  const panelHeightBottom = totalPanelHeight - panelHeightTop - triggerRect.height;
-
-  //  if (panelHeightBottom > bottomSpaceAvailable) {
-  //    this._adjustPanelUp(panelHeightBottom, bottomSpaceAvailable);
-  //  } else if (panelHeightTop > topSpaceAvailable) {
-  //    this._adjustPanelDown(panelHeightTop, topSpaceAvailable, maxScroll);
-  //  } else {
-  //    this._transformOrigin = this._getOriginBasedOnOption();
-  //  }
-  //}
-
-  ///** Adjusts the overlay panel up to fit in the viewport. */
-  //private _adjustPanelUp(panelHeightBottom: number, bottomSpaceAvailable: number) {
-  //  const distanceBelowViewport = panelHeightBottom - bottomSpaceAvailable;
-
-  //  // Scrolls the panel up by the distance it was extending past the boundary, then
-  //  // adjusts the offset by that amount to move the panel up into the viewport.
-  //  this._scrollTop -= distanceBelowViewport;
-  //  this._offsetY -= distanceBelowViewport;
-  //  this._transformOrigin = this._getOriginBasedOnOption();
-
-  //  // If the panel is scrolled to the very top, it won't be able to fit the panel
-  //  // by scrolling, so set the offset to 0 to allow the fallback position to take
-  //  // effect.
-  //  if (this._scrollTop <= 0) {
-  //    this._scrollTop = 0;
-  //    this._offsetY = 0;
-  //    this._transformOrigin = `50% bottom 0px`;
-  //  }
-  //}
-
-  ///** Adjusts the overlay panel down to fit in the viewport. */
-  //private _adjustPanelDown(panelHeightTop: number, topSpaceAvailable: number,
-  //  maxScroll: number) {
-  //  const distanceAboveViewport = panelHeightTop - topSpaceAvailable;
-
-  //  // Scrolls the panel down by the distance it was extending past the boundary, then
-  //  // adjusts the offset by that amount to move the panel down into the viewport.
-  //  this._scrollTop += distanceAboveViewport;
-  //  this._offsetY += distanceAboveViewport;
-  //  this._transformOrigin = this._getOriginBasedOnOption();
-
-  //  // If the panel is scrolled to the very bottom, it won't be able to fit the
-  //  // panel by scrolling, so set the offset to 0 to allow the fallback position
-  //  // to take effect.
-  //  if (this._scrollTop >= maxScroll) {
-  //    this._scrollTop = maxScroll;
-  //    this._offsetY = 0;
-  //    this._transformOrigin = `50% top 0px`;
-  //    return;
-  //  }
-  //}
-
-  ///** Sets the transform origin point based on the selected option. */
-  //private _getOriginBasedOnOption(): string {
-  //  const originY =
-  //    Math.abs(this._offsetY) - SELECT_OPTION_HEIGHT_ADJUSTMENT + SELECT_OPTION_HEIGHT / 2;
-  //  return `50% ${originY}px 0px`;
-  //}
+  private _cleanUpSubscriptions(): void {
+    if (this._backdropSubscription) {
+      this._backdropSubscription.unsubscribe();
+    }
+  }
 
 }
 
 export const MD2_DATEPICKER_DIRECTIVES = [Md2Datepicker];
 
 @NgModule({
-  imports: [CommonModule, OverlayModule],
+  imports: [CommonModule, OverlayModule, PortalModule],
   exports: MD2_DATEPICKER_DIRECTIVES,
   declarations: MD2_DATEPICKER_DIRECTIVES,
 })
