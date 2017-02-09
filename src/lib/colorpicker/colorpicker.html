@@ -1,5 +1,5 @@
 ﻿<div class="md2-colorpicker-trigger" (click)="toggle()">
-  <div class="md2-colorpicker-preview"><span></span></div>
+  <div class="md2-colorpicker-preview"><span [style.background]="color"></span></div>
   <div class="md2-colorpicker-input">
     <label class="md2-colorpicker-placeholder" [class.md2-floating-placeholder]="color"> {{ placeholder }} </label>
     <span class="md2-colorpicker-value"> {{ color }} </span>
@@ -13,7 +13,22 @@
 <template portal>
   <div class="md2-colorpicker-panel">
     <div class="md2-colorpicker-content">
-      <p class="demo-fusilli"> Fusilli </p>
+      <div class="md2-colorpicker-header" [style.background]="color">
+        <!--<input type="text" />-->
+        <div class="md2-colorpicker-formats">
+          <span *ngFor="let f of _formats"
+                [class.active]="!f">{{ f }}</span>
+        </div>
+      </div>
+      <div class="md2-colorpicker-container">
+        <div class="md2-colorpicker-gradient"></div>
+        <div class="md2-colorpicker-hue"></div>
+        <div class="md2-colorpicker-alpha"></div>
+      </div>
+      <div class="md2-colorpicker-actions">
+        <div class="md2-button" (click)="close()">Cancel</div>
+        <div class="md2-button">Ok</div>
+      </div>
     </div>
   </div>
 </template>

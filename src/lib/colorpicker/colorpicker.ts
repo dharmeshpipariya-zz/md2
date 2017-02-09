@@ -85,6 +85,8 @@ export class Md2Colorpicker implements AfterViewInit, OnDestroy, ControlValueAcc
   /** The placeholder displayed in the trigger of the select. */
   private _placeholder: string;
 
+  _formats: Array<string> = ['hex', 'rgb', 'hsl'];
+
   _onChange = (value: any) => { };
   _onTouched = () => { };
 
@@ -150,13 +152,10 @@ export class Md2Colorpicker implements AfterViewInit, OnDestroy, ControlValueAcc
 
   /** Opens the overlay panel. */
   open(): void {
-    //if (this.disabled) {
-    //  return;
-    //}
+    if (this.disabled) { return; }
     this._createOverlay();
     this._overlayRef.attach(this.templatePortals.first);
     this._subscribeToBackdrop();
-    //  this._initMenu();
     this._panelOpen = true;
     this.onOpen.emit();
   }
@@ -164,7 +163,7 @@ export class Md2Colorpicker implements AfterViewInit, OnDestroy, ControlValueAcc
   /** Closes the overlay panel and focuses the host element. */
   close(): void {
     this._panelOpen = false;
-    //if (!this._selected) {
+    //if (!this._color) {
     //  this._placeholderState = '';
     //}
     //this._focusHost();
@@ -208,7 +207,7 @@ export class Md2Colorpicker implements AfterViewInit, OnDestroy, ControlValueAcc
   }
 
   writeValue(value: any): void {
-
+    this.color = value;
   }
 
   registerOnChange(fn: (value: any) => void): void { this._onChange = fn; }
