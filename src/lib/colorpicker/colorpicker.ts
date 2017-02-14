@@ -1,5 +1,6 @@
 import {
   AfterViewInit,
+  Directive,
   Component,
   ElementRef,
   Input,
@@ -37,6 +38,7 @@ import {
 } from '../core';
 import { coerceBooleanProperty } from '../core/coercion/boolean-property';
 import { Subscription } from 'rxjs/Subscription';
+import { ColorLocale } from './color-locale';
 
 
 /** Change event object emitted by Md2Colorpicker. */
@@ -74,7 +76,7 @@ export class Md2Colorpicker implements AfterViewInit, OnDestroy, ControlValueAcc
   /** Whether or not the overlay panel is open. */
   private _panelOpen = false;
 
-  private _color: string = null;
+  private _value: string = null;
 
   /** Whether filling out the select is required in the form.  */
   private _required: boolean = false;
@@ -93,8 +95,8 @@ export class Md2Colorpicker implements AfterViewInit, OnDestroy, ControlValueAcc
   @Input() tabindex: number = 0;
 
   @Input()
-  get color() { return this._color; }
-  set color(value: string) { this._color = value; }
+  get value() { return this._value; }
+  set value(value: string) { this._value = value; }
 
   /** Placeholder to be shown if no value has been selected. */
   @Input()
@@ -128,7 +130,7 @@ export class Md2Colorpicker implements AfterViewInit, OnDestroy, ControlValueAcc
 
   constructor(private _element: ElementRef, private overlay: Overlay,
     private _viewContainerRef: ViewContainerRef, private _renderer: Renderer,
-    @Self() @Optional() public _control: NgControl) {
+    private _locale: ColorLocale, @Self() @Optional() public _control: NgControl) {
     if (this._control) {
       this._control.valueAccessor = this;
     }
@@ -200,14 +202,19 @@ export class Md2Colorpicker implements AfterViewInit, OnDestroy, ControlValueAcc
     }
   }
 
+  _clearValue(event: Event) {
+    event.stopPropagation();
+    this.value = null;
+  }
+
   /** Emits an event when the user selects a color. */
   _emitChangeEvent(): void {
-    this._onChange(this.color);
-    this.change.emit(new Md2ColorChange(this, this.color));
+    this._onChange(this.value);
+    this.change.emit(new Md2ColorChange(this, this.value));
   }
 
   writeValue(value: any): void {
-    this.color = value;
+    this.value = value;
   }
 
   registerOnChange(fn: (value: any) => void): void { this._onChange = fn; }
@@ -249,7 +256,70 @@ export class Md2Colorpicker implements AfterViewInit, OnDestroy, ControlValueAcc
 
 }
 
-export const MD2_COLORPICKER_DIRECTIVES = [Md2Colorpicker];
+@Directive({
+  selector: '[slider]',
+  host: {
+    '(mousedown)': '_handleMousedown($event)',
+  }
+})
+export class Md2Slider {
+
+  private mouseMoveListener: any;
+  private mouseUpListener: any;
+
+  @Input() slider: string = 'x';
+  @Input('rgX') rgX: number;
+  @Input('rgY') rgY: number;
+
+  @Output('newValue') newValue = new EventEmitter<any>();
+
+  constructor(private _element: ElementRef) {
+    this.mouseMoveListener = (event: any) => { this._handleMousemove(event) };
+    this.mouseUpListener = () => { this._handleMouseup() };
+  }
+
+  _handleMousedown(event: any) {
+    this.setPointer(event);
+    document.addEventListener('mousemove', this.mouseMoveListener);
+    document.addEventListener('mouseup', this.mouseUpListener);
+  }
+
+  _handleMousemove(event: any) {
+    event.preventDefault();
+    this.setPointer(event);
+  }
+
+  _handleMouseup() {
+    document.removeEventListener('mousemove', this.mouseMoveListener);
+    document.removeEventListener('mouseup', this.mouseUpListener);
+  }
+
+  private getX(event: any): number {
+    return (event.pageX !== undefined ? event.pageX : event.touches[0].pageX) - this._element.nativeElement.getBoundingClientRect().left - window.pageXOffset;
+  }
+
+  private getY(event: any): number {
+    return (event.pageY !== undefined ? event.pageY : event.touches[0].pageY) - this._element.nativeElement.getBoundingClientRect().top - window.pageYOffset;
+  }
+
+  private setPointer(event: Event): void {
+    let height = this._element.nativeElement.offsetHeight;
+    let width = this._element.nativeElement.offsetWidth;
+    let x = Math.max(0, Math.min(this.getX(event), width));
+    let y = Math.max(0, Math.min(this.getY(event), height));
+
+    if (this.rgX !== undefined && this.rgY !== undefined) {
+      this.newValue.emit({ s: x / width, v: (1 - y / height), rgX: this.rgX, rgY: this.rgY });
+    } else if (this.rgX === undefined && this.rgY !== undefined) {
+      this.newValue.emit({ v: y / height, rg: this.rgY });
+    } else {
+      this.newValue.emit({ v: x / width, rg: this.rgX });
+    }
+  }
+
+}
+
+export const MD2_COLORPICKER_DIRECTIVES = [Md2Colorpicker, Md2Slider];
 
 @NgModule({
   imports: [CommonModule, OverlayModule, PortalModule],
@@ -260,7 +330,7 @@ export class Md2ColorpickerModule {
   static forRoot(): ModuleWithProviders {
     return {
       ngModule: Md2ColorpickerModule,
-      providers: []
+      providers: [ColorLocale]
     };
   }
 }

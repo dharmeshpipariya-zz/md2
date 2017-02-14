@@ -66,20 +66,31 @@ md2-colorpicker {
 }
 
 .md2-colorpicker-panel {
-  box-shadow: 0 0 3px rgba(black, 0.2), 0 8px 10px 1px rgba(black, 0.14), 0 3px 14px 2px rgba(black, 0.12);
-  min-width: 112px;
-  max-width: 280px;
+  max-width: 350px;
+  border-radius: 3px;
   overflow: auto;
   -webkit-overflow-scrolling: touch;
-  padding-top: 0;
-  padding-bottom: 0;
   background: white;
+  box-shadow: 0 0 3px rgba(black, 0.2), 0 8px 10px 1px rgba(black, 0.14), 0 3px 14px 2px rgba(black, 0.12);
+  box-sizing: border-box;
 }
 
 .md2-colorpicker-content {
 }
 
 .md2-colorpicker-header {
+  color: white;
+
+  &.dark {
+    color: black;
+  }
+}
+
+.md2-colorpicker-header-input {
+  font-size: 18px;
+  font-weight: 700;
+  text-align: center;
+  line-height: 60px;
 }
 
 .md2-colorpicker-formats {
@@ -87,13 +98,26 @@ md2-colorpicker {
 
   span {
     flex: 1;
-    padding: 8px;
+    padding: 8px 8px 6px;
     text-align: center;
     text-transform: uppercase;
     cursor: pointer;
+    border-bottom: 2px solid transparent;
+    background: rgba(white, 0.25);
+    box-sizing: border-box;
+
+    .dark & {
+      background: rgba(black, 0.25);
+    }
 
     &.active {
       cursor: default;
+      background: transparent;
+      border-color: rgba(white, 0.5);
+
+      .dark & {
+        border-color: rgba(black, 0.5);
+      }
     }
   }
 }
@@ -104,23 +128,55 @@ md2-colorpicker {
 }
 
 .md2-colorpicker-gradient {
+  position: relative;
   width: 255px;
   height: 255px;
   border-radius: 3px;
   background: linear-gradient(to bottom,rgba(black, 0),black),linear-gradient(to right,white,rgba(white,0));
   cursor: crosshair;
+
+  .md2-colorpicker-pointer {
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    border: 3px solid black;
+    border-radius: 50%;
+    box-sizing: border-box;
+
+    &::after {
+      content: '';
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      border: 2px solid white;
+      border-radius: 50%;
+      box-sizing: border-box;
+    }
+  }
 }
 
 .md2-colorpicker-hue {
+  position: relative;
   width: 30px;
   height: 255px;
   margin-left: 8px;
   border-radius: 3px;
   background: linear-gradient(to bottom,#f00,#ff0,#0f0,#0ff,#00f,#f0f,#f00);
   cursor: crosshair;
+
+  .md2-colorpicker-pointer {
+    position: absolute;
+    left: -3px;
+    right: -3px;
+    height: 9px;
+    border: 3px solid black;
+    border-radius: 3px;
+    box-sizing: border-box;
+  }
 }
 
 .md2-colorpicker-alpha {
+  position: relative;
   width: 30px;
   height: 255px;
   margin-left: 8px;
@@ -129,6 +185,16 @@ md2-colorpicker {
   background-size: 12px 12px;
   background-position: 0 0,6px 6px;
   cursor: crosshair;
+
+  .md2-colorpicker-pointer {
+    position: absolute;
+    left: -3px;
+    right: -3px;
+    height: 9px;
+    border: 3px solid black;
+    border-radius: 3px;
+    box-sizing: border-box;
+  }
 }
 
 .md2-colorpicker-actions {
