@@ -39,6 +39,7 @@ import {
 import { coerceBooleanProperty } from '../core/coercion/boolean-property';
 import { Subscription } from 'rxjs/Subscription';
 import { ColorLocale } from './color-locale';
+import { Md2ColorSpectrum } from './color-spectrum';
 
 
 /** Change event object emitted by Md2Colorpicker. */
@@ -319,7 +320,7 @@ export class Md2Slider {
 
 }
 
-export const MD2_COLORPICKER_DIRECTIVES = [Md2Colorpicker, Md2Slider];
+export const MD2_COLORPICKER_DIRECTIVES = [Md2Colorpicker, Md2Slider, Md2ColorSpectrum];
 
 @NgModule({
   imports: [CommonModule, OverlayModule, PortalModule],

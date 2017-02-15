@@ -4,5 +4,6 @@ import {
 
 @Injectable()
 export class ColorLocale {
-  format = 'hex';
+  format: string = 'hex';
+  defaultValue: string = 'black';
 }

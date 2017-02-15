@@ -123,11 +123,15 @@ md2-colorpicker {
 }
 
 .md2-colorpicker-container {
-  display: flex;
   padding: 8px;
 }
 
-.md2-colorpicker-gradient {
+/* Spectrum */
+md2-color-spectrum {
+  display: flex;
+}
+
+.md2-color-spectrum {
   position: relative;
   width: 255px;
   height: 255px;
@@ -135,7 +139,7 @@ md2-colorpicker {
   background: linear-gradient(to bottom,rgba(black, 0),black),linear-gradient(to right,white,rgba(white,0));
   cursor: crosshair;
 
-  .md2-colorpicker-pointer {
+  .md2-color-pointer {
     position: absolute;
     width: 18px;
     height: 18px;
@@ -155,7 +159,7 @@ md2-colorpicker {
   }
 }
 
-.md2-colorpicker-hue {
+.md2-color-hue {
   position: relative;
   width: 30px;
   height: 255px;
@@ -164,7 +168,7 @@ md2-colorpicker {
   background: linear-gradient(to bottom,#f00,#ff0,#0f0,#0ff,#00f,#f0f,#f00);
   cursor: crosshair;
 
-  .md2-colorpicker-pointer {
+  .md2-color-pointer {
     position: absolute;
     left: -3px;
     right: -3px;
@@ -175,7 +179,7 @@ md2-colorpicker {
   }
 }
 
-.md2-colorpicker-alpha {
+.md2-color-alpha {
   position: relative;
   width: 30px;
   height: 255px;
@@ -186,7 +190,7 @@ md2-colorpicker {
   background-position: 0 0,6px 6px;
   cursor: crosshair;
 
-  .md2-colorpicker-pointer {
+  .md2-color-pointer {
     position: absolute;
     left: -3px;
     right: -3px;
@@ -197,6 +201,7 @@ md2-colorpicker {
   }
 }
 
+/* Actions */
 .md2-colorpicker-actions {
   text-align: right;
 
@@ -221,6 +226,7 @@ md2-colorpicker {
   }
 }
 
+/* Overlay */
 .cdk-overlay-container, .cdk-global-overlay-wrapper {
   pointer-events: none;
   top: 0;
