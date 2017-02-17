@@ -1,4 +1,5 @@
-﻿<div class="md2-color-saturation" [style.background-color]="color">
+﻿<div class="md2-color-saturation" [style.background-color]="color"
+     slide (slideChange)="_onSaturationSlide($event)">
   <span class="md2-color-pointer"></span>
 </div>
 <div class="md2-color-hue">

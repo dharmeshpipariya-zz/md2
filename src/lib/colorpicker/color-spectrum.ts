@@ -32,4 +32,11 @@ export class Md2ColorSpectrum {
     this.colorChange.emit(this.color);
   }
 
+  _onSaturationSlide(event: Event) {
+    event.preventDefault();
+    console.log(event);
+    //this._updateValueFromPosition({ x: event.center.x, y: event.center.y });
+    //this._emitInputEvent();
+  }
+
 }
