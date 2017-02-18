@@ -4,5 +4,5 @@
 
 // Create a theme.
 @mixin angular-material-theme($theme) {
-  @include md-core-theme($theme);
+  @include mat-core-theme($theme);
 }
