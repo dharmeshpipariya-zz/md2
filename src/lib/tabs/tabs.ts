@@ -16,9 +16,9 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-export class Md2TabChangeEvent {
-  index: number;
-  tab: Md2Tab;
+/** Change event object that is emitted when the tab has changed. */
+export class Md2TabChange {
+  constructor(public tab: Md2Tab, public index: number) { }
 }
 
 @Directive({ selector: '[md2Transclude]' })
@@ -95,9 +95,10 @@ export class Md2Tabs implements AfterContentInit {
   @Input() class: string;
 
   @Input()
+  get selectedIndex() { return this._selectedIndex; }
   set selectedIndex(value: any) {
     if (typeof value === 'string') { value = parseInt(value); }
-    if (value != this._selectedIndex) {
+    if (value !== this._selectedIndex) {
       this._selectedIndex = value;
       this.adjustOffset(value);
       this._updateInkBar();
@@ -109,11 +110,11 @@ export class Md2Tabs implements AfterContentInit {
         }
       }
       if (this._isInitialized) {
-        this.change.emit(this._createChangeEvent(value));
+        this._emitChangeEvent();
+        this.selectedIndexChange.emit(value);
       }
     }
   }
-  get selectedIndex() { return this._selectedIndex; }
 
   get focusIndex(): number { return this._focusIndex; }
   set focusIndex(value: number) {
@@ -136,7 +137,8 @@ export class Md2Tabs implements AfterContentInit {
     return elements;
   }
 
-  @Output() change: EventEmitter<Md2TabChangeEvent> = new EventEmitter<Md2TabChangeEvent>();
+  @Output() change: EventEmitter<Md2TabChange> = new EventEmitter<Md2TabChange>();
+  @Output() selectedIndexChange: EventEmitter<number> = new EventEmitter<number>();
 
   constructor(private elementRef: ElementRef) { }
 
@@ -180,18 +182,10 @@ export class Md2Tabs implements AfterContentInit {
     this._inkBarWidth = tab.offsetWidth + 'px';
   }
 
-  /**
-   * Create Change Event
-   * @param index
-   * @return event of Md2TabChangeEvent
-   */
-  private _createChangeEvent(index: number): Md2TabChangeEvent {
-    const event = new Md2TabChangeEvent;
-    event.index = index;
-    if (this.tabs && this.tabs.length) {
-      event.tab = this.tabs.toArray()[index];
-    }
-    return event;
+  /** Emits an event when the user selects an option. */
+  _emitChangeEvent(): void {
+    let index = this._selectedIndex;
+    this.change.emit(new Md2TabChange(this.tabs.toArray()[index], index));
   }
 
   /**
