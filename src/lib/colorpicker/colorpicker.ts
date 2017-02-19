@@ -204,6 +204,10 @@ export class Md2Colorpicker implements AfterViewInit, OnDestroy, ControlValueAcc
     }
   }
 
+  _spectrumColorChange(event: string) {
+    this._value = event;
+  }
+
   _clearValue(event: Event) {
     event.stopPropagation();
     this.value = null;
