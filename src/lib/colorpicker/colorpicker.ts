@@ -38,7 +38,7 @@ import {
 } from '../core';
 import { coerceBooleanProperty } from '../core/coercion/boolean-property';
 import { Subscription } from 'rxjs/Subscription';
-import { ColorLocale } from './color-locale';
+import { ColorLocale, Hsva, Rgba } from './color-locale';
 import { Md2ColorSpectrum } from './color-spectrum';
 import { Md2Slide } from './slide';
 
@@ -79,6 +79,8 @@ export class Md2Colorpicker implements AfterViewInit, OnDestroy, ControlValueAcc
   private _panelOpen = false;
 
   private _value: string = null;
+  private _color: string = null;
+  isDark: boolean = false;
 
   /** Whether filling out the select is required in the form.  */
   private _required: boolean = false;
@@ -99,6 +101,23 @@ export class Md2Colorpicker implements AfterViewInit, OnDestroy, ControlValueAcc
   @Input()
   get value() { return this._value; }
   set value(value: string) { this._value = value; }
+
+  @Input()
+  get color() { return this._color; }
+  set color(value: string) {
+    if (this._color !== value) {
+      this._color = value || this._locale.defaultValue;
+
+      let hsva = this._locale.stringToHsva(this._color);
+      let rgba = this._locale.denormalizeRGBA(this._locale.hsvaToRgba(hsva));
+      let rgbaText = new Rgba(rgba.r, rgba.g, rgba.b, Math.round(rgba.a * 100) / 100);
+      if (Math.round((rgbaText.r * 299 + rgbaText.g * 587 + rgbaText.b * 114) / 1000) >= 128 || hsva.a < 0.35) {
+        this.isDark = true;
+      } else {
+        this.isDark = false;
+      }
+    }
+  }
 
   /** Placeholder to be shown if no value has been selected. */
   @Input()
@@ -205,7 +224,7 @@ export class Md2Colorpicker implements AfterViewInit, OnDestroy, ControlValueAcc
   }
 
   _spectrumColorChange(event: string) {
-    this._value = event;
+    this._color = event;
   }
 
   _clearValue(event: Event) {
