@@ -14,6 +14,7 @@ import {
   selector: '[slide]',
   host: {
     '(mousedown)': '_handleMousedown($event)',
+    '(touchstart)': '_handleMousedown($event)'
   }
 })
 export class Md2Slide {
@@ -21,10 +22,9 @@ export class Md2Slide {
   private mouseMoveListener: any;
   private mouseUpListener: any;
 
-  //@Input('rgX') rgX: number;
-  //@Input('rgY') rgY: number;
+  @Input() slide: string;
 
-  @Output() slideChange: EventEmitter<Event> = new EventEmitter<Event>();
+  @Output() slideChange: EventEmitter<any> = new EventEmitter<any>();
 
   constructor(private _element: ElementRef) {
     this.mouseMoveListener = (event: any) => { this._handleMousemove(event) };
@@ -34,7 +34,9 @@ export class Md2Slide {
   _handleMousedown(event: any) {
     this._emitChangeEvent(event);
     document.addEventListener('mousemove', this.mouseMoveListener);
+    document.addEventListener('touchmove', this.mouseMoveListener);
     document.addEventListener('mouseup', this.mouseUpListener);
+    document.addEventListener('touchend', this.mouseUpListener);
   }
 
   _handleMousemove(event: any) {
@@ -44,34 +46,27 @@ export class Md2Slide {
 
   _handleMouseup(event: any) {
     document.removeEventListener('mousemove', this.mouseMoveListener);
+    document.removeEventListener('touchmove', this.mouseMoveListener);
     document.removeEventListener('mouseup', this.mouseUpListener);
+    document.removeEventListener('touchend', this.mouseUpListener);
   }
 
-  //private getX(event: any): number {
-  //  return (event.pageX !== undefined ? event.pageX : event.touches[0].pageX) - this._element.nativeElement.getBoundingClientRect().left - window.pageXOffset;
-  //}
-
-  //private getY(event: any): number {
-  //  return (event.pageY !== undefined ? event.pageY : event.touches[0].pageY) - this._element.nativeElement.getBoundingClientRect().top - window.pageYOffset;
-  //}
-
-  //private setPointer(event: Event): void {
-  //  let height = this._element.nativeElement.offsetHeight;
-  //  let width = this._element.nativeElement.offsetWidth;
-  //  let x = Math.max(0, Math.min(this.getX(event), width));
-  //  let y = Math.max(0, Math.min(this.getY(event), height));
-
-  //  if (this.rgX !== undefined && this.rgY !== undefined) {
-  //    this.newValue.emit({ s: x / width, v: (1 - y / height), rgX: this.rgX, rgY: this.rgY });
-  //  } else if (this.rgX === undefined && this.rgY !== undefined) {
-  //    this.newValue.emit({ v: y / height, rg: this.rgY });
-  //  } else {
-  //    this.newValue.emit({ v: x / width, rg: this.rgX });
-  //  }
-  //}
-
-  _emitChangeEvent(event: Event): void {
-    this.slideChange.emit(event);
+  _emitChangeEvent(event: any): void {
+    let trigger = this._element.nativeElement;
+    let triggerRect = trigger.getBoundingClientRect();
+    let width = trigger.offsetWidth;
+    let height = trigger.offsetHeight;
+    let x = Math.max(0, Math.min((event.pageX ? event.pageX : event.touches[0].pageX)
+      - triggerRect.left - window.pageXOffset, width));
+    let y = Math.max(0, Math.min((event.pageY ? event.pageY : event.touches[0].pageY)
+      - triggerRect.top - window.pageYOffset, height));
+    this.slideChange.emit({
+      e: event,
+      height: height,
+      width: width,
+      x: x,
+      y: y
+    });
   }
 
 }
