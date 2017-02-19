@@ -24,7 +24,7 @@ export class SliderDimension {
 @Injectable()
 export class ColorLocale {
   format: string = 'hex';
-  defaultValue: string = 'black';
+  defaultValue: string = '#000000';
 
   hsla2hsva(hsla: Hsla) {
     let h: number = Math.min(hsla.h, 1), s = Math.min(hsla.s, 1), l = Math.min(hsla.l, 1);
