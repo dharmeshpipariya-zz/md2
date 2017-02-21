@@ -49,8 +49,6 @@ export class Md2ColorSpectrum {
     };
   }
 
-
-
   get alpha(): { [key: string]: string } {
     return {
       'background': `linear-gradient(to right, transparent, ${this._alpha})`
