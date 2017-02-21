@@ -32,7 +32,7 @@ export class Md2ColorSpectrum {
     if (this._color !== value) {
       this._color = value || this._locale.defaultValue;
       this.hsva = this._locale.stringToHsva(this.color);
-      this.update();
+      this.update(false);
     }
   }
 
@@ -64,27 +64,29 @@ export class Md2ColorSpectrum {
   _setSaturation(event: any) {
     this.hsva.s = event.x / event.width;
     this.hsva.v = 1 - event.y / event.height;
-    this.update();
+    this.update(true);
   }
 
   _setHue(event: any) {
     this.hsva.h = event.x / event.width;
-    this.update();
+    this.update(true);
   }
 
   _setAlpha(event: any) {
     this.hsva.a = event.x / event.width;
-    this.update();
+    this.update(true);
   }
 
-  private update() {
+  private update(isInitialized: boolean) {
     let rgba = this._locale.denormalizeRGBA(this._locale.hsvaToRgba(this.hsva));
     let hueRgba = this._locale.denormalizeRGBA(this._locale.hsvaToRgba(new Hsva(this.hsva.h, 1, 1, 1)));
 
     this._alpha = 'rgb(' + rgba.r + ',' + rgba.g + ',' + rgba.b + ')';
     this._hue = 'rgb(' + hueRgba.r + ',' + hueRgba.g + ',' + hueRgba.b + ')';
     this._color = this._locale.outputFormat(this.hsva, this._locale.format);
-    this._emitChangeEvent();
+    if (isInitialized) {
+      this._emitChangeEvent();
+    }
   }
 
   /** Emits an event when the user selects a color. */

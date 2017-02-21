@@ -180,6 +180,7 @@ export class Md2Colorpicker implements AfterViewInit, OnDestroy, ControlValueAcc
     this._overlayRef.attach(this.templatePortals.first);
     this._subscribeToBackdrop();
     this._panelOpen = true;
+    this.color = this.value;
     this.onOpen.emit();
   }
 
@@ -230,6 +231,12 @@ export class Md2Colorpicker implements AfterViewInit, OnDestroy, ControlValueAcc
   _clearValue(event: Event) {
     event.stopPropagation();
     this.value = null;
+  }
+
+  _onClickOk(): void {
+    this.value = this.color;
+    this._emitChangeEvent();
+    this.close();
   }
 
   /** Emits an event when the user selects a color. */
