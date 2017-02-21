@@ -56,9 +56,9 @@ export class Md2Slide {
     let triggerRect = trigger.getBoundingClientRect();
     let width = trigger.offsetWidth;
     let height = trigger.offsetHeight;
-    let x = Math.max(0, Math.min((event.pageX ? event.pageX : event.touches[0].pageX)
+    let x = Math.max(0, Math.min((event.pageX !== undefined ? event.pageX : event.touches[0].pageX)
       - triggerRect.left - window.pageXOffset, width));
-    let y = Math.max(0, Math.min((event.pageY ? event.pageY : event.touches[0].pageY)
+    let y = Math.max(0, Math.min((event.pageY !== undefined ? event.pageY : event.touches[0].pageY)
       - triggerRect.top - window.pageYOffset, height));
     this.slideChange.emit({
       e: event,
