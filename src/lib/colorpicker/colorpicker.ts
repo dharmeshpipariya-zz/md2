@@ -1,6 +1,5 @@
 import {
   AfterViewInit,
-  Directive,
   Component,
   ElementRef,
   Input,
@@ -10,8 +9,6 @@ import {
   EventEmitter,
   Renderer,
   Self,
-  TemplateRef,
-  ViewChild,
   ViewChildren,
   QueryList,
   ViewContainerRef,
@@ -29,19 +26,16 @@ import {
   OverlayModule,
   OverlayState,
   OverlayRef,
-  OverlayOrigin,
   Portal,
   TemplatePortal,
   PortalModule,
   TemplatePortalDirective,
-  OverlayContainer
 } from '../core';
 import { coerceBooleanProperty } from '../core/coercion/boolean-property';
 import { Subscription } from 'rxjs/Subscription';
-import { ColorLocale, Hsva, Rgba } from './color-locale';
+import { ColorLocale, Rgba } from './color-locale';
 import { Md2ColorSpectrum } from './color-spectrum';
 import { Md2Slide } from './slide';
-
 
 /** Change event object emitted by Md2Colorpicker. */
 export class Md2ColorChange {
@@ -124,11 +118,12 @@ export class Md2Colorpicker implements AfterViewInit, OnDestroy, ControlValueAcc
   set value(value: string) {
     if (this._value !== value) {
       this._value = value || this._locale.defaultValue;
-
       let hsva = this._locale.stringToHsva(this._value);
       let rgba = this._locale.denormalizeRGBA(this._locale.hsvaToRgba(hsva));
       let rgbaText = new Rgba(rgba.r, rgba.g, rgba.b, Math.round(rgba.a * 100) / 100);
-      if (Math.round((rgbaText.r * 299 + rgbaText.g * 587 + rgbaText.b * 114) / 1000) >= 128 || hsva.a < 0.35) {
+      this._value = this._locale.outputFormat(hsva, this._locale.format);
+      if (Math.round((rgbaText.r * 299 + rgbaText.g * 587 + rgbaText.b * 114) / 1000) >= 128
+        || hsva.a < 0.35) {
         this._isDark = true;
       } else {
         this._isDark = false;
@@ -207,6 +202,15 @@ export class Md2Colorpicker implements AfterViewInit, OnDestroy, ControlValueAcc
     if (!this.panelOpen) {
       this._onTouched();
     }
+  }
+
+  _setFormat(format: string) {
+    this._locale.format = format;
+    let hsva = this._locale.stringToHsva(this._value);
+    if (this._locale.format === 'hex' && hsva.a < 1) {
+      this._locale.format = 'rgb';
+    }
+    this._value = this._locale.outputFormat(hsva, this._locale.format);
   }
 
   _spectrumColorChange(event: string) {

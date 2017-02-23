@@ -29,6 +29,11 @@ md2-colorpicker {
   display: block;
   outline: none;
   backface-visibility: hidden;
+
+  &.md2-colorpicker-disabled {
+    pointer-events: none;
+    cursor: default;
+  }
 }
 
 .md2-colorpicker-trigger {
@@ -45,9 +50,9 @@ md2-colorpicker {
   border-radius: 50%;
   overflow: hidden;
   background-color: white;
-  background-image: linear-gradient(45deg,#ddd 25%,transparent 0,transparent 75%,#ddd 0,#ddd),linear-gradient(45deg,#ddd 25%,transparent 0,transparent 75%,#ddd 0,#ddd);
+  background-image: linear-gradient(45deg, #ddd 25%, transparent 0, transparent 75%, #ddd 0, #ddd), linear-gradient(45deg, #ddd 25%, transparent 0, transparent 75%, #ddd 0, #ddd);
   background-size: 12px 12px;
-  background-position: 0 0,6px 6px;
+  background-position: 0 0, 6px 6px;
   box-shadow: 0 3px 1px -2px rgba(black, 0.14), 0 2px 2px 0 rgba(black, 0.098), 0 1px 5px 0 rgba(black, 0.084);
 
   span {
@@ -69,6 +74,20 @@ md2-colorpicker {
   cursor: pointer;
   border-bottom: 1px solid rgba(black, 0.12);
   box-sizing: border-box;
+
+  md2-colorpicker.ng-invalid.ng-touched:not(.md2-colorpicker-disabled) & {
+    color: $warn;
+    border-color: $warn;
+  }
+
+  .md2-colorpicker-disabled & {
+    color: rgba(black, 0.38);
+    border-color: transparent;
+    background-image: linear-gradient(to right, rgba(black, 0.38) 0%, rgba(black, 0.38) 33%, transparent 0%);
+    background-position: bottom -1px left 0;
+    background-size: 4px 1px;
+    background-repeat: repeat-x;
+  }
 }
 
 .md2-colorpicker-placeholder {
@@ -155,9 +174,9 @@ md2-color-spectrum {
 .md2-color-saturation {
   position: relative;
   width: $md2-color-spectrum-size;
-  height: $md2-color-spectrum-size;
+  height: $md2-color-spectrum-size/2;
   border-radius: 3px;
-  background: linear-gradient(to bottom,rgba(black, 0),black),linear-gradient(to right,white,rgba(white,0));
+  background: linear-gradient(to bottom, rgba(black, 0), black), linear-gradient(to right, white, rgba(white, 0));
   cursor: crosshair;
 
   .pointer {
@@ -188,9 +207,9 @@ md2-color-spectrum {
 
 .md2-color-alpha {
   @include md2-color-spectrum();
-  background: linear-gradient(45deg,#ddd 25%,transparent 0,transparent 75%,#ddd 0,#ddd), linear-gradient(45deg,#ddd 25%,transparent 0,transparent 75%,#ddd 0,#ddd);
-  background-size: 12px 12px,12px 12px;
-  background-position: 0 0,6px 6px;
+  background: linear-gradient(45deg, #ddd 25%, transparent 0, transparent 75%, #ddd 0, #ddd), linear-gradient(45deg, #ddd 25%, transparent 0, transparent 75%, #ddd 0, #ddd);
+  background-size: 12px 12px, 12px 12px;
+  background-position: 0 0, 6px 6px;
 
   .alpha-gradient {
     position: absolute;

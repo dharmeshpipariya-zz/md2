@@ -5,9 +5,6 @@ import {
   OnDestroy,
   Output,
   EventEmitter,
-  Renderer,
-  Self,
-  ViewEncapsulation,
 } from '@angular/core';
 
 @Directive({
@@ -27,8 +24,8 @@ export class Md2Slide {
   @Output() slideChange: EventEmitter<any> = new EventEmitter<any>();
 
   constructor(private _element: ElementRef) {
-    this.mouseMoveListener = (event: any) => { this._handleMousemove(event) };
-    this.mouseUpListener = (event: any) => { this._handleMouseup(event) };
+    this.mouseMoveListener = (event: any) => { this._handleMousemove(event); };
+    this.mouseUpListener = (event: any) => { this._handleMouseup(event); };
   }
 
   _handleMousedown(event: any) {
