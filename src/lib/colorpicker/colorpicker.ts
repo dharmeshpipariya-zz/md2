@@ -63,7 +63,6 @@ export class Md2ColorChange {
     '[attr.aria-disabled]': 'disabled.toString()',
     '[attr.aria-invalid]': '_control?.invalid || "false"',
     '(keydown)': '_handleKeydown($event)',
-    '(focus)': '_onFocus()',
     '(blur)': '_onBlur()'
   },
   encapsulation: ViewEncapsulation.None
@@ -80,7 +79,7 @@ export class Md2Colorpicker implements AfterViewInit, OnDestroy, ControlValueAcc
 
   private _value: string = null;
   private _color: string = null;
-  isDark: boolean = false;
+  _isDark: boolean = false;
 
   /** Whether filling out the select is required in the form.  */
   private _required: boolean = false;
@@ -96,28 +95,50 @@ export class Md2Colorpicker implements AfterViewInit, OnDestroy, ControlValueAcc
   _onChange = (value: any) => { };
   _onTouched = () => { };
 
-  @Input() tabindex: number = 0;
+  constructor(private _element: ElementRef, private overlay: Overlay,
+    private _viewContainerRef: ViewContainerRef, private _renderer: Renderer,
+    private _locale: ColorLocale, @Self() @Optional() public _control: NgControl) {
+    if (this._control) {
+      this._control.valueAccessor = this;
+    }
+  }
+
+  ngAfterViewInit() {
+  }
+
+  ngOnDestroy() { this.destroyPanel(); }
+
+  /** Event emitted when the select has been opened. */
+  @Output() onOpen: EventEmitter<void> = new EventEmitter<void>();
+
+  /** Event emitted when the select has been closed. */
+  @Output() onClose: EventEmitter<void> = new EventEmitter<void>();
+
+  /** Event emitted when the selected date has been changed by the user. */
+  @Output() change: EventEmitter<Md2ColorChange> = new EventEmitter<Md2ColorChange>();
+
+  @ViewChildren(TemplatePortalDirective) templatePortals: QueryList<Portal<any>>;
 
   @Input()
   get value() { return this._value; }
-  set value(value: string) { this._value = value; }
+  set value(value: string) {
+    if (this._value !== value) {
+      this._value = value || this._locale.defaultValue;
 
-  @Input()
-  get color() { return this._color; }
-  set color(value: string) {
-    if (this._color !== value) {
-      this._color = value || this._locale.defaultValue;
-
-      let hsva = this._locale.stringToHsva(this._color);
+      let hsva = this._locale.stringToHsva(this._value);
       let rgba = this._locale.denormalizeRGBA(this._locale.hsvaToRgba(hsva));
       let rgbaText = new Rgba(rgba.r, rgba.g, rgba.b, Math.round(rgba.a * 100) / 100);
       if (Math.round((rgbaText.r * 299 + rgbaText.g * 587 + rgbaText.b * 114) / 1000) >= 128 || hsva.a < 0.35) {
-        this.isDark = true;
+        this._isDark = true;
       } else {
-        this.isDark = false;
+        this._isDark = false;
       }
     }
   }
+
+  @Input()
+  get color() { return this._color; }
+  set color(value: string) { this._color = value; }
 
   /** Placeholder to be shown if no value has been selected. */
   @Input()
@@ -131,42 +152,12 @@ export class Md2Colorpicker implements AfterViewInit, OnDestroy, ControlValueAcc
   /** Whether the component is disabled. */
   @Input()
   get disabled() { return this._disabled; }
-  set disabled(value: any) {
-    this._disabled = coerceBooleanProperty(value);
-  }
+  set disabled(value: any) { this._disabled = coerceBooleanProperty(value); }
 
-  /** Event emitted when the select has been opened. */
-  @Output() onOpen: EventEmitter<void> = new EventEmitter<void>();
-
-  /** Event emitted when the select has been closed. */
-  @Output() onClose: EventEmitter<void> = new EventEmitter<void>();
-
-  /** Event emitted when the selected date has been changed by the user. */
-  @Output() change: EventEmitter<Md2ColorChange> = new EventEmitter<Md2ColorChange>();
-
-  //@ViewChild(TemplateRef) templateRef: TemplateRef<any>;
-  @ViewChildren(TemplatePortalDirective) templatePortals: QueryList<Portal<any>>;
-  //@ViewChildren(TemplatePortalDirective) templatePortal: Portal<any>;
-  //@ViewChild(OverlayOrigin) _overlayOrigin: OverlayOrigin;
-
-  constructor(private _element: ElementRef, private overlay: Overlay,
-    private _viewContainerRef: ViewContainerRef, private _renderer: Renderer,
-    private _locale: ColorLocale, @Self() @Optional() public _control: NgControl) {
-    if (this._control) {
-      this._control.valueAccessor = this;
-    }
-  }
-
-  ngAfterViewInit() {
-    //this.menu.close.subscribe(() => this.close());
-  }
-
-  ngOnDestroy() { this.destroyPanel(); }
+  @Input() tabindex: number = 0;
 
   /** Whether or not the overlay panel is open. */
-  get panelOpen(): boolean {
-    return this._panelOpen;
-  }
+  get panelOpen(): boolean { return this._panelOpen; }
 
   /** Toggles the overlay panel open or closed. */
   toggle(): void {
@@ -180,7 +171,7 @@ export class Md2Colorpicker implements AfterViewInit, OnDestroy, ControlValueAcc
     this._overlayRef.attach(this.templatePortals.first);
     this._subscribeToBackdrop();
     this._panelOpen = true;
-    this.color = this.value;
+    this.value = this.color;
     this.onOpen.emit();
   }
 
@@ -212,12 +203,6 @@ export class Md2Colorpicker implements AfterViewInit, OnDestroy, ControlValueAcc
     if (this.disabled) { return; }
   }
 
-  _onFocus() {
-    //if (!this.panelOpen && this.openOnFocus) {
-    //  this.open();
-    //}
-  }
-
   _onBlur() {
     if (!this.panelOpen) {
       this._onTouched();
@@ -225,28 +210,28 @@ export class Md2Colorpicker implements AfterViewInit, OnDestroy, ControlValueAcc
   }
 
   _spectrumColorChange(event: string) {
-    this._color = event;
+    this.value = event;
   }
 
   _clearValue(event: Event) {
     event.stopPropagation();
-    this.value = null;
+    this.color = null;
   }
 
   _onClickOk(): void {
-    this.value = this.color;
+    this.color = this.value;
     this._emitChangeEvent();
     this.close();
   }
 
   /** Emits an event when the user selects a color. */
   _emitChangeEvent(): void {
-    this._onChange(this.value);
-    this.change.emit(new Md2ColorChange(this, this.value));
+    this._onChange(this.color);
+    this.change.emit(new Md2ColorChange(this, this.color));
   }
 
   writeValue(value: any): void {
-    this.value = value;
+    this.color = value;
   }
 
   registerOnChange(fn: (value: any) => void): void { this._onChange = fn; }

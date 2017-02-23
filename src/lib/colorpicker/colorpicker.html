@@ -1,9 +1,9 @@
 ﻿<div class="md2-colorpicker-trigger" (click)="toggle()">
-  <div class="md2-colorpicker-preview"><span [style.background]="value"></span></div>
+  <div class="md2-colorpicker-preview"><span [style.background]="color"></span></div>
   <div class="md2-colorpicker-input">
-    <label class="md2-colorpicker-placeholder" [class.md2-floating-placeholder]="value"> {{ placeholder }} </label>
-    <span class="md2-colorpicker-value"> {{ value }} </span>
-    <span *ngIf="value"
+    <label class="md2-colorpicker-placeholder" [class.md2-floating-placeholder]="color"> {{ placeholder }} </label>
+    <span class="md2-colorpicker-value"> {{ color }} </span>
+    <span *ngIf="color && !required"
           class="md2-colorpicker-clear" (click)="_clearValue($event)">
       <svg viewBox="0 0 24 24" width="24" height="24">
         <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
@@ -14,7 +14,7 @@
 <template portal>
   <div class="md2-colorpicker-panel">
     <div class="md2-colorpicker-content">
-      <div class="md2-colorpicker-header" [class.dark]="isDark" [style.background]="value">
+      <div class="md2-colorpicker-header" [class.dark]="_isDark" [style.background]="value">
         <div class="md2-colorpicker-header-input"> {{ value }} </div>
         <div class="md2-colorpicker-formats">
           <span *ngFor="let f of _formats"
