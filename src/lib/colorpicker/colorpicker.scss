@@ -48,6 +48,7 @@ md2-colorpicker {
   margin-right: 8px;
   border: 2px solid white;
   border-radius: 50%;
+  cursor: pointer;
   overflow: hidden;
   background-color: white;
   background-image: linear-gradient(45deg, #ddd 25%, transparent 0, transparent 75%, #ddd 0, #ddd), linear-gradient(45deg, #ddd 25%, transparent 0, transparent 75%, #ddd 0, #ddd);
@@ -75,11 +76,6 @@ md2-colorpicker {
   border-bottom: 1px solid rgba(black, 0.12);
   box-sizing: border-box;
 
-  md2-colorpicker.ng-invalid.ng-touched:not(.md2-colorpicker-disabled) & {
-    color: $warn;
-    border-color: $warn;
-  }
-
   .md2-colorpicker-disabled & {
     color: rgba(black, 0.38);
     border-color: transparent;
@@ -88,13 +84,58 @@ md2-colorpicker {
     background-size: 4px 1px;
     background-repeat: repeat-x;
   }
+
+  md2-colorpicker:focus:not(.md2-colorpicker-disabled) & {
+    color: $primary;
+    border-color: $primary;
+  }
+
+  md2-colorpicker.ng-invalid.ng-touched:not(.md2-colorpicker-disabled) & {
+    color: $warn;
+    border-color: $warn;
+  }
 }
 
 .md2-colorpicker-placeholder {
   position: absolute;
+  left: 0;
+  padding: 0 2px;
+  transform-origin: left top;
+  white-space: nowrap;
+  overflow-x: hidden;
+  text-overflow: ellipsis;
+
+  &.md2-floating-placeholder {
+    top: -16px;
+    left: -2px;
+    text-align: left;
+    transform: scale(0.75);
+  }
+
+  [dir='rtl'] & {
+    transform-origin: right top;
+
+    &.md2-floating-placeholder {
+      left: 2px;
+      text-align: right;
+    }
+  }
+
+  [aria-required=true] &::after {
+    content: '*';
+  }
 }
 
 .md2-colorpicker-value {
+  position: relative;
+  white-space: nowrap;
+  overflow-x: hidden;
+  text-overflow: ellipsis;
+  color: rgba(black, 0.87);
+
+  .md2-colorpicker-disabled & {
+    color: rgba(black, 0.38);
+  }
 }
 
 .md2-colorpicker-clear {
@@ -113,6 +154,8 @@ md2-colorpicker {
   background: white;
   box-shadow: 0 0 3px rgba(black, 0.2), 0 8px 10px 1px rgba(black, 0.14), 0 3px 14px 2px rgba(black, 0.12);
   box-sizing: border-box;
+  outline: none;
+  user-select: none;
 }
 
 .md2-colorpicker-content {

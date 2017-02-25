@@ -1,5 +1,4 @@
 import {
-  AfterViewInit,
   Component,
   ElementRef,
   Input,
@@ -11,6 +10,11 @@ import {
   Self,
   ViewChildren,
   QueryList,
+  style,
+  trigger,
+  state,
+  transition,
+  animate,
   ViewContainerRef,
   ViewEncapsulation,
   NgModule,
@@ -39,7 +43,7 @@ import { Md2Slide } from './slide';
 
 /** Change event object emitted by Md2Colorpicker. */
 export class Md2ColorChange {
-  constructor(public source: Md2Colorpicker, public date: string) { }
+  constructor(public source: Md2Colorpicker, public color: string) { }
 }
 
 @Component({
@@ -59,9 +63,18 @@ export class Md2ColorChange {
     '(keydown)': '_handleKeydown($event)',
     '(blur)': '_onBlur()'
   },
+  animations: [
+    trigger('fadeInContent', [
+      state('showing', style({ opacity: 1 })),
+      transition('void => showing', [
+        style({ opacity: 0 }),
+        animate(`150ms 100ms cubic-bezier(0.55, 0, 0.55, 0.2)`)
+      ])
+    ])
+  ],
   encapsulation: ViewEncapsulation.None
 })
-export class Md2Colorpicker implements AfterViewInit, OnDestroy, ControlValueAccessor {
+export class Md2Colorpicker implements OnDestroy, ControlValueAccessor {
 
   private _portal: TemplatePortal;
   private _overlayRef: OverlayRef;
@@ -97,9 +110,6 @@ export class Md2Colorpicker implements AfterViewInit, OnDestroy, ControlValueAcc
     }
   }
 
-  ngAfterViewInit() {
-  }
-
   ngOnDestroy() { this.destroyPanel(); }
 
   /** Event emitted when the select has been opened. */
@@ -116,18 +126,20 @@ export class Md2Colorpicker implements AfterViewInit, OnDestroy, ControlValueAcc
   @Input()
   get value() { return this._value; }
   set value(value: string) {
-    if (this._value !== value) {
-      this._value = value || this._locale.defaultValue;
-      let hsva = this._locale.stringToHsva(this._value);
-      let rgba = this._locale.denormalizeRGBA(this._locale.hsvaToRgba(hsva));
-      let rgbaText = new Rgba(rgba.r, rgba.g, rgba.b, Math.round(rgba.a * 100) / 100);
-      this._value = this._locale.outputFormat(hsva, this._locale.format);
-      if (Math.round((rgbaText.r * 299 + rgbaText.g * 587 + rgbaText.b * 114) / 1000) >= 128
-        || hsva.a < 0.35) {
-        this._isDark = true;
-      } else {
-        this._isDark = false;
-      }
+    if (value && this._value !== value) {
+      this._value = value;
+    } else {
+      this._value = this._locale.defaultValue;
+    }
+    let hsva = this._locale.stringToHsva(this._value);
+    let rgba = this._locale.denormalizeRGBA(this._locale.hsvaToRgba(hsva));
+    let rgbaText = new Rgba(rgba.r, rgba.g, rgba.b, Math.round(rgba.a * 100) / 100);
+    this._value = this._locale.outputFormat(hsva, this._locale.format);
+    if (Math.round((rgbaText.r * 299 + rgbaText.g * 587 + rgbaText.b * 114) / 1000) >= 128
+      || hsva.a < 0.35) {
+      this._isDark = true;
+    } else {
+      this._isDark = false;
     }
   }
 
@@ -167,7 +179,6 @@ export class Md2Colorpicker implements AfterViewInit, OnDestroy, ControlValueAcc
     this._subscribeToBackdrop();
     this._panelOpen = true;
     this.value = this.color;
-    this.onOpen.emit();
   }
 
   /** Closes the overlay panel and focuses the host element. */
@@ -176,12 +187,11 @@ export class Md2Colorpicker implements AfterViewInit, OnDestroy, ControlValueAcc
     //if (!this._color) {
     //  this._placeholderState = '';
     //}
-    //this._focusHost();
+    this._focusHost();
     if (this._overlayRef) {
       this._overlayRef.detach();
       this._backdropSubscription.unsubscribe();
     }
-    this.onClose.emit();
   }
 
   /** Removes the panel from the DOM. */
@@ -201,6 +211,14 @@ export class Md2Colorpicker implements AfterViewInit, OnDestroy, ControlValueAcc
   _onBlur() {
     if (!this.panelOpen) {
       this._onTouched();
+    }
+  }
+
+  _onPanelDone(): void {
+    if (this.panelOpen) {
+      this.onOpen.emit();
+    } else {
+      this.onClose.emit();
     }
   }
 
@@ -241,6 +259,11 @@ export class Md2Colorpicker implements AfterViewInit, OnDestroy, ControlValueAcc
   registerOnChange(fn: (value: any) => void): void { this._onChange = fn; }
 
   registerOnTouched(fn: () => {}): void { this._onTouched = fn; }
+
+  /** Focuses the host element when the panel closes. */
+  private _focusHost(): void {
+    this._renderer.invokeElementMethod(this._element.nativeElement, 'focus');
+  }
 
   private _subscribeToBackdrop(): void {
     this._backdropSubscription = this._overlayRef.backdropClick().subscribe(() => {
