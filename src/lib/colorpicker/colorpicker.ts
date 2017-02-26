@@ -219,6 +219,7 @@ export class Md2Colorpicker implements OnDestroy, ControlValueAccessor {
 
   _onPanelDone(): void {
     if (this.panelOpen) {
+      this._renderer.invokeElementMethod(document.querySelectorAll('.md2-colorpicker-panel')[0], 'focus');
       this.onOpen.emit();
     } else {
       this.onClose.emit();
