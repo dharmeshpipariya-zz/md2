@@ -207,7 +207,7 @@ export class Md2Colorpicker implements OnDestroy, ControlValueAccessor {
   _handleKeydown(event: KeyboardEvent) {
     if (this.disabled) { return; }
     if (event.keyCode === ENTER || event.keyCode === SPACE) {
-      this.open();
+      this.toggle();
     }
   }
 
