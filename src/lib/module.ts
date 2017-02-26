@@ -25,6 +25,7 @@ import { Md2TabsModule } from './tabs/index';
 import { Md2TagsModule } from './tags/index';
 import { Md2ToastModule } from './toast/index';
 import { Md2TooltipModule } from './tooltip/index';
+import { Md2TreeModule } from './tree/index';
 
 import { PlatformModule } from './core/platform/index';
 
@@ -44,6 +45,7 @@ const MD2_MODULES = [
   Md2TagsModule,
   Md2ToastModule,
   Md2TooltipModule,
+  Md2TreeModule,
   OverlayModule,
   PortalModule,
   RtlModule,
@@ -71,6 +73,7 @@ const MD2_MODULES = [
     Md2TagsModule.forRoot(),
     Md2ToastModule.forRoot(),
     Md2TooltipModule.forRoot(),
+    Md2TreeModule.forRoot(),
 
     A11yModule.forRoot(),
     OverlayModule.forRoot(),

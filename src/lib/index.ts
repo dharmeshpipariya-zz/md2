@@ -15,3 +15,4 @@ export * from './tabs/index';
 export * from './tags/index';
 export * from './toast/index';
 export * from './tooltip/index';
+export * from './tree/index';
