@@ -38,6 +38,8 @@ md2-colorpicker {
 
 .md2-colorpicker-trigger {
   display: flex;
+  margin: 18px 0;
+  cursor: pointer;
 }
 
 .md2-colorpicker-preview {
@@ -48,7 +50,6 @@ md2-colorpicker {
   margin-right: 8px;
   border: 2px solid white;
   border-radius: 50%;
-  cursor: pointer;
   overflow: hidden;
   background-color: white;
   background-image: linear-gradient(45deg, #ddd 25%, transparent 0, transparent 75%, #ddd 0, #ddd), linear-gradient(45deg, #ddd 25%, transparent 0, transparent 75%, #ddd 0, #ddd);
@@ -72,7 +73,6 @@ md2-colorpicker {
   align-items: center;
   height: $md2-colorpicker-input-height;
   line-height: 22px;
-  cursor: pointer;
   border-bottom: 1px solid rgba(black, 0.12);
   box-sizing: border-box;
 

@@ -37,6 +37,7 @@ import {
 } from '../core';
 import { coerceBooleanProperty } from '../core/coercion/boolean-property';
 import { Subscription } from 'rxjs/Subscription';
+import { ENTER, SPACE } from '../core/keyboard/keycodes';
 import { ColorLocale, Rgba } from './color-locale';
 import { Md2ColorSpectrum } from './color-spectrum';
 import { Md2Slide } from './slide';
@@ -53,13 +54,12 @@ export class Md2ColorChange {
   styleUrls: ['colorpicker.css'],
   host: {
     'role': 'colorpicker',
-    '[id]': 'id',
-    '[class.md2-colorpicker-disabled]': 'disabled',
     '[attr.tabindex]': 'disabled ? -1 : tabindex',
     '[attr.aria-label]': 'placeholder',
     '[attr.aria-required]': 'required.toString()',
     '[attr.aria-disabled]': 'disabled.toString()',
     '[attr.aria-invalid]': '_control?.invalid || "false"',
+    '[class.md2-colorpicker-disabled]': 'disabled',
     '(keydown)': '_handleKeydown($event)',
     '(blur)': '_onBlur()'
   },
@@ -206,6 +206,9 @@ export class Md2Colorpicker implements OnDestroy, ControlValueAccessor {
 
   _handleKeydown(event: KeyboardEvent) {
     if (this.disabled) { return; }
+    if (event.keyCode === ENTER || event.keyCode === SPACE) {
+      this.open();
+    }
   }
 
   _onBlur() {
