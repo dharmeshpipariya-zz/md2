@@ -15,16 +15,32 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['tree.css'],
   host: {
     'role': 'tree',
-    '[class.md2-tree-expanded]': 'isExpanded',
-    '(click)': '_handleClick($event)'
   },
   encapsulation: ViewEncapsulation.None
 })
 export class Md2Tree {
 
+  @Input() value: Array<any> = [];
+
+}
+
+@Component({
+  moduleId: module.id,
+  selector: 'md2-tree-item',
+  templateUrl: 'tree-item.html',
+  styleUrls: ['tree.css'],
+  host: {
+    'role': 'tree-item',
+    '[class.md2-tree-expanded]': 'isExpanded',
+    '(click)': '_handleClick($event)'
+  },
+  encapsulation: ViewEncapsulation.None
+})
+export class Md2TreeItem {
+
   private _isExpanded: boolean = false;
 
-  @Input() value: Array<any> = [];
+  @Input() value: any = null;
 
   get isExpanded(): boolean { return this._isExpanded; }
 
@@ -36,8 +52,8 @@ export class Md2Tree {
 
 @NgModule({
   imports: [CommonModule],
-  exports: [Md2Tree],
-  declarations: [Md2Tree]
+  exports: [Md2Tree, Md2TreeItem],
+  declarations: [Md2Tree, Md2TreeItem]
 })
 export class Md2TreeModule {
   static forRoot(): ModuleWithProviders {

@@ -14,6 +14,7 @@ import { TabsDemo } from '../tabs/tabs-demo';
 import { TagsDemo } from '../tags/tags-demo';
 import { ToastDemo } from '../toast/toast-demo';
 import { TooltipDemo } from '../tooltip/tooltip-demo';
+import { TreeDemo } from '../tree/tree-demo';
 
 export const DEMO_APP_ROUTES: Routes = [
   { path: '', component: Home },
@@ -31,4 +32,5 @@ export const DEMO_APP_ROUTES: Routes = [
   { path: 'tags', component: TagsDemo },
   { path: 'toast', component: ToastDemo },
   { path: 'tooltip', component: TooltipDemo },
+  { path: 'tree', component: TreeDemo },
 ];

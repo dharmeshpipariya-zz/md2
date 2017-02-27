@@ -20,6 +20,7 @@ import {TabsDemo} from './tabs/tabs-demo';
 import {TagsDemo} from './tags/tags-demo';
 import {ToastDemo} from './toast/toast-demo';
 import {TooltipDemo} from './tooltip/tooltip-demo';
+import {TreeDemo} from './tree/tree-demo';
 
 @NgModule({
   imports: [
@@ -48,6 +49,7 @@ import {TooltipDemo} from './tooltip/tooltip-demo';
     TagsDemo,
     ToastDemo,
     TooltipDemo,
+    TreeDemo,
   ],
   entryComponents: [
     DemoApp,

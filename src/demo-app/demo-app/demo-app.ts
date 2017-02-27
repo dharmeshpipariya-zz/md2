@@ -37,6 +37,7 @@ export class DemoApp {
     { name: 'Tags', route: 'tags' },
     { name: 'Toast', route: 'toast' },
     { name: 'Tooltip', route: 'tooltip' },
+    { name: 'Tree', route: 'tree' },
   ];
 
   constructor(private location: Location, private _router: Router) {
