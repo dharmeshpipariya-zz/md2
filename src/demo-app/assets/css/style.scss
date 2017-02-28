@@ -33,6 +33,7 @@ summary {
   line-height: 26px;
   border: 0;
   border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+  background: transparent;
 
   &:focus {
     margin-bottom: 7px;
@@ -449,6 +450,7 @@ html, body {
   display: inline-block;
   width: 100%;
   margin-top: 30px;
+  margin-bottom: 20px;
   border-radius: 3px;
   color: rgba($black, 0.87);
   background: $white;
