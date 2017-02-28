@@ -1,5 +1,4 @@
 import {
-  AfterContentInit,
   Component,
   ElementRef,
   HostListener,
@@ -71,6 +70,8 @@ export interface IWeek {
 
 let nextId = 0;
 
+export type Type = 'date' | 'time' | 'datetime';
+
 @Component({
   moduleId: module.id,
   selector: 'md2-datepicker',
@@ -95,7 +96,7 @@ let nextId = 0;
   ],
   encapsulation: ViewEncapsulation.None
 })
-export class Md2Datepicker implements AfterContentInit, OnDestroy, ControlValueAccessor {
+export class Md2Datepicker implements OnDestroy, ControlValueAccessor {
 
   private _overlayRef: OverlayRef;
   private _backdropSubscription: Subscription;
@@ -107,13 +108,12 @@ export class Md2Datepicker implements AfterContentInit, OnDestroy, ControlValueA
   private _panelOpen = false;
 
   private _openOnFocus: boolean = false;
+  private _type: Type = 'date';
   private _format: string;
   private _required: boolean = false;
   private _disabled: boolean = false;
-  private _isInitialized: boolean = false;
 
   private today: Date = new Date();
-  _viewValue: string = '';
 
   private _min: Date = null;
   private _max: Date = null;
@@ -159,14 +159,8 @@ export class Md2Datepicker implements AfterContentInit, OnDestroy, ControlValueA
     this.getYears();
   }
 
-  ngAfterContentInit() {
-    this._isInitialized = true;
-    this._isCalendarVisible = this.type !== 'time' ? true : false;
-  }
-
   ngOnDestroy() { this.destroyPanel(); }
 
-  @Input() type: 'date' | 'time' | 'datetime' = 'date';
   @Input() name: string = '';
   @Input() id: string = 'md2-datepicker-' + (++nextId);
   @Input() placeholder: string;
@@ -189,7 +183,6 @@ export class Md2Datepicker implements AfterContentInit, OnDestroy, ControlValueA
           this._value = new Date(value);
         }
       }
-      this._viewValue = this._formatDate(this._value);
     }
     this.date = this._value;
   }
@@ -209,13 +202,19 @@ export class Md2Datepicker implements AfterContentInit, OnDestroy, ControlValueA
 
   get time() { return this.date.getHours() + ':' + this.date.getMinutes(); }
   set time(value: string) {
-    //this.date = new Date(this.date.getFullYear(), this.date.getMonth(), this.date.getDate(),
-    //  parseInt(value.split(':')[0]), parseInt(value.split(':')[1]));
-    if (this._clockView === 'hour') {
-      this.date.setHours(parseInt(value.split(':')[0]));
-    } else {
-      this.date.setMinutes(parseInt(value.split(':')[1]));
-    }
+    this.date = new Date(this.date.getFullYear(), this.date.getMonth(), this.date.getDate(),
+      parseInt(value.split(':')[0]), parseInt(value.split(':')[1]));
+    // if (this._clockView === 'hour') {
+    //  this.date.setHours(parseInt(value.split(':')[0]));
+    // } else {
+    //  this.date.setMinutes(parseInt(value.split(':')[1]));
+    // }
+  }
+
+  @Input()
+  get type() { return this._type; }
+  set type(value: Type) {
+    this._type = value || 'date';
   }
 
   @Input()
@@ -229,12 +228,7 @@ export class Md2Datepicker implements AfterContentInit, OnDestroy, ControlValueA
         'dd/MM/y HH:mm' : 'dd/MM/y');
   }
   set format(value: string) {
-    if (this._format !== value) {
-      this._format = value;
-      if (this._viewValue && this._value) {
-        this._viewValue = this._formatDate(this._value);
-      }
-    }
+    if (this._format !== value) { this._format = value; }
   }
 
   @Input()
@@ -282,6 +276,7 @@ export class Md2Datepicker implements AfterContentInit, OnDestroy, ControlValueA
   /** Opens the overlay panel. */
   open(): void {
     if (this.disabled) { return; }
+    this._isCalendarVisible = this.type !== 'time' ? true : false;
     this._createOverlay();
     this._overlayRef.attach(this.templatePortals.first);
     this._subscribeToBackdrop();
@@ -289,16 +284,19 @@ export class Md2Datepicker implements AfterContentInit, OnDestroy, ControlValueA
     this.selected = this.value || new Date(1, 0, 1);
     this.date = this.value || this.today;
     this.generateCalendar();
-    this._element.nativeElement.focus();
   }
 
   /** Closes the overlay panel and focuses the host element. */
   close(): void {
     setTimeout(() => {
       this._panelOpen = false;
-      //if (!this._date) {
+      if (this._openOnFocus) {
+        this._openOnFocus = false;
+        setTimeout(() => { this._openOnFocus = true; }, 100);
+      }
+      // if (!this._date) {
       //  this._placeholderState = '';
-      //}
+      // }
       if (this._overlayRef) {
         this._overlayRef.detach();
         this._backdropSubscription.unsubscribe();
@@ -345,6 +343,7 @@ export class Md2Datepicker implements AfterContentInit, OnDestroy, ControlValueA
 
   private coerceDateProperty(value: any, fallbackValue = new Date()): Date {
     let timestamp = Date.parse(value);
+    fallbackValue = null;
     return isNaN(timestamp) ? fallbackValue : new Date(timestamp);
   }
 
@@ -756,29 +755,6 @@ export class Md2Datepicker implements AfterContentInit, OnDestroy, ControlValueA
     this._emitChangeEvent();
     this._onBlur();
     this.close();
-  }
-
-  /**
-   * format date
-   * @param date Date Object
-   * @return string with formatted date
-   */
-  private _formatDate(date: Date): string {
-    return this.format
-      .replace('yy', ('00' + date.getFullYear()).slice(-2))
-      .replace('y', '' + date.getFullYear())
-      .replace('MMMM', this._locale.months[date.getMonth()].full)
-      .replace('MMM', this._locale.months[date.getMonth()].short)
-      .replace('MM', ('0' + (date.getMonth() + 1)).slice(-2))
-      .replace('M', '' + (date.getMonth() + 1))
-      .replace('dd', ('0' + date.getDate()).slice(-2))
-      .replace('d', '' + date.getDate())
-      .replace('HH', ('0' + date.getHours()).slice(-2))
-      .replace('H', '' + date.getHours())
-      .replace('mm', ('0' + date.getMinutes()).slice(-2))
-      .replace('m', '' + date.getMinutes())
-      .replace('ss', ('0' + date.getSeconds()).slice(-2))
-      .replace('s', '' + date.getSeconds());
   }
 
   /** Emits an event when the user selects a date. */
