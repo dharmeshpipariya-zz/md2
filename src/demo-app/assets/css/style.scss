@@ -33,12 +33,12 @@ summary {
   line-height: 26px;
   border: 0;
   border-bottom: 1px solid rgba(0, 0, 0, 0.12);
-}
 
-.md2-input:focus {
-  margin-bottom: 7px;
-  border-bottom: 2px solid $primary;
-  outline: none;
+  &:focus {
+    margin-bottom: 7px;
+    border-bottom: 2px solid $primary;
+    outline: none;
+  }
 }
 
 a {
@@ -138,7 +138,7 @@ html, body {
   font-weight: 400;
   line-height: 1.42857143;
   color: rgba($black, 0.7);
-  background-color: $white;
+  background-color: darken($white,5);
   -webkit-tap-highlight-color: $white;
   -webkit-touch-callout: none;
 }
@@ -281,17 +281,19 @@ html, body {
 .main {
   position: relative;
   margin-left: 280px;
-  padding: 0 30px 130px;
+  padding: 60px 30px 130px;
   min-height: 100%;
   box-sizing: border-box;
 
   .toolbar {
-    position: relative;
-    margin: 0 -30px;
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
     padding: 0 30px;
     color: $white;
     background: rgba($primary, 0.9);
-    box-shadow: 0 0 8px rgba($black, 0.3);
+    box-shadow: 0 1px 8px rgba($black, 0.3);
 
     .sidenav-toggle {
       position: relative;
@@ -410,7 +412,6 @@ html, body {
       position: fixed;
       top: 0;
       width: 100%;
-      margin: 0 -15px;
       padding: 0 15px;
       z-index: 111;
       box-sizing: border-box;
@@ -439,5 +440,34 @@ html, body {
         }
       }
     }
+  }
+}
+
+// Card
+.card {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  margin-top: 30px;
+  border-radius: 3px;
+  color: rgba($black, 0.87);
+  background: $white;
+  box-shadow: 0 1px 4px 0 rgba($black, 0.14);
+
+  .content {
+    padding: 16px;
+  }
+
+  .header {
+    margin: -20px 20px 10px;
+    padding: 15px;
+    border-radius: 3px;
+    color: $white;
+    background: $primary;
+    box-shadow: 0 16px 38px -12px rgba(black, 0.56), 0 4px 25px 0px rgba(black, 0.12), 0 8px 10px -5px rgba(black, 0.2);
+  }
+
+  .title {
+    margin: 0;
   }
 }
