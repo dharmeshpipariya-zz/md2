@@ -42,9 +42,11 @@ import {
   OverlayModule,
   Portal,
   TemplatePortalDirective,
-  PortalModule
+  PortalModule,
+  HorizontalConnectionPos,
+  VerticalConnectionPos,
 } from '../core';
-import { fadeInContent } from './datepicker-animations';
+import { fadeInContent, slideCalendar } from './datepicker-animations';
 import { Subscription } from 'rxjs/Subscription';
 
 /** Change event object emitted by Md2Select. */
@@ -52,25 +54,11 @@ export class Md2DateChange {
   constructor(public source: Md2Datepicker, public value: Date) { }
 }
 
-export interface IDate {
-  year: number;
-  month: number;
-  day: number;
-  hour: number;
-  minute: number;
-}
-
-export interface IWeek {
-  dateObj: IDate;
-  date: Date;
-  calMonth: number;
-  today: boolean;
-  disabled: boolean;
-}
-
-let nextId = 0;
-
 export type Type = 'date' | 'time' | 'datetime';
+export type Mode = 'auto' | 'portrait' | 'landscape';
+export type Container = 'inline' | 'dialog';
+export type PanelPositionX = 'before' | 'after';
+export type PanelPositionY = 'above' | 'below';
 
 @Component({
   moduleId: module.id,
@@ -79,7 +67,6 @@ export type Type = 'date' | 'time' | 'datetime';
   styleUrls: ['datepicker.css'],
   host: {
     'role': 'datepicker',
-    '[id]': 'id',
     '[class.md2-datepicker-disabled]': 'disabled',
     '[class.md2-datepicker-opened]': 'panelOpen',
     '[attr.tabindex]': 'disabled ? -1 : tabindex',
@@ -89,10 +76,12 @@ export type Type = 'date' | 'time' | 'datetime';
     '[attr.aria-invalid]': '_control?.invalid || "false"',
     '(keydown)': '_handleKeydown($event)',
     '(focus)': '_onFocus()',
-    '(blur)': '_onBlur()'
+    '(blur)': '_onBlur()',
+    '(window:resize)': '_handleWindowResize($event)'
   },
   animations: [
-    fadeInContent
+    fadeInContent,
+    slideCalendar
   ],
   encapsulation: ViewEncapsulation.None
 })
@@ -109,6 +98,8 @@ export class Md2Datepicker implements OnDestroy, ControlValueAccessor {
 
   private _openOnFocus: boolean = false;
   private _type: Type = 'date';
+  private _mode: Mode = 'auto';
+  private _container: Container = 'inline';
   private _format: string;
   private _required: boolean = false;
   private _disabled: boolean = false;
@@ -124,6 +115,7 @@ export class Md2Datepicker implements OnDestroy, ControlValueAccessor {
   _isYearsVisible: boolean;
   _isCalendarVisible: boolean;
   _clockView: string = 'hour';
+  _calendarState: string;
 
   _weekDays: Array<any>;
 
@@ -154,36 +146,64 @@ export class Md2Datepicker implements OnDestroy, ControlValueAccessor {
       this._control.valueAccessor = this;
     }
 
-    this._weekDays = _locale.days;
+    this._weekDays = this._locale.getDays();
 
     this.getYears();
   }
 
   ngOnDestroy() { this.destroyPanel(); }
 
-  @Input() name: string = '';
-  @Input() id: string = 'md2-datepicker-' + (++nextId);
   @Input() placeholder: string;
+  @Input() okLabel: string = 'Ok';
+  @Input() cancelLabel: string = 'Cancel';
   @Input() tabindex: number = 0;
+  @Input() enableDates: Array<Date> = [];
+  @Input() disableDates: Array<Date> = [];
+  @Input() disableWeekDays: Array<number> = [];
+
+  /** Position of the menu in the X axis. */
+  positionX: PanelPositionX = 'after';
+
+  /** Position of the menu in the Y axis. */
+  positionY: PanelPositionY = 'below';
+
+  overlapTrigger: boolean = true;
+
+  @Input()
+  get type() { return this._type; }
+  set type(value: Type) {
+    this._type = value || 'date';
+  }
+
+  @Input()
+  get format() {
+    return this._format || (this.type === 'date' ?
+      'dd/MM/y' : this.type === 'time' ? 'HH:mm' : this.type === 'datetime' ?
+        'dd/MM/y HH:mm' : 'dd/MM/y');
+  }
+  set format(value: string) {
+    if (this._format !== value) { this._format = value; }
+  }
+
+  @Input()
+  get mode() { return this._mode; }
+  set mode(value: Mode) {
+    this._mode = value || 'auto';
+  }
+
+  @Input()
+  get container() { return this._container; }
+  set container(value: Container) {
+    if (this._container !== value) {
+      this._container = value || 'inline';
+      this.destroyPanel();
+    }
+  }
 
   @Input()
   get value() { return this._value; }
   set value(value: Date) {
     this._value = this.coerceDateProperty(value);
-    if (value && value !== this._value) {
-      if (this._locale.isValidDate(value)) {
-        this._value = value;
-      } else {
-        if (this.type === 'time') {
-          let t = value + '';
-          this._value = new Date();
-          this._value.setHours(parseInt(t.substring(0, 2)));
-          this._value.setMinutes(parseInt(t.substring(3, 5)));
-        } else {
-          this._value = new Date(value);
-        }
-      }
-    }
     this.date = this._value;
   }
 
@@ -212,24 +232,8 @@ export class Md2Datepicker implements OnDestroy, ControlValueAccessor {
   }
 
   @Input()
-  get type() { return this._type; }
-  set type(value: Type) {
-    this._type = value || 'date';
-  }
-
-  @Input()
   get selected() { return this._selected; }
   set selected(value: Date) { this._selected = value; }
-
-  @Input()
-  get format() {
-    return this._format || (this.type === 'date' ?
-      'dd/MM/y' : this.type === 'time' ? 'HH:mm' : this.type === 'datetime' ?
-        'dd/MM/y HH:mm' : 'dd/MM/y');
-  }
-  set format(value: string) {
-    if (this._format !== value) { this._format = value; }
-  }
 
   @Input()
   get required(): boolean { return this._required; }
@@ -239,14 +243,17 @@ export class Md2Datepicker implements OnDestroy, ControlValueAccessor {
   get disabled(): boolean { return this._disabled; }
   set disabled(value) { this._disabled = coerceBooleanProperty(value); }
 
-  @Input() set min(value: Date) {
+  @Input()
+  set min(value: Date) {
     if (value && this._locale.isValidDate(value)) {
       this._min = new Date(value);
       this._min.setHours(0, 0, 0, 0);
       this.getYears();
     } else { this._min = null; }
   }
-  @Input() set max(value: Date) {
+
+  @Input()
+  set max(value: Date) {
     if (value && this._locale.isValidDate(value)) {
       this._max = new Date(value);
       this._max.setHours(0, 0, 0, 0);
@@ -267,6 +274,14 @@ export class Md2Datepicker implements OnDestroy, ControlValueAccessor {
 
   get panelOpen(): boolean {
     return this._panelOpen;
+  }
+
+  get getDateLabel(): string {
+    return this._locale.getDateLabel(this.date);
+  }
+
+  get getMonthLabel(): string {
+    return this._locale.getMonthLabel(this.date.getMonth(), this.date.getFullYear());
   }
 
   toggle(): void {
@@ -332,6 +347,12 @@ export class Md2Datepicker implements OnDestroy, ControlValueAccessor {
     this._panelDoneAnimating = this.panelOpen;
   }
 
+  _handleWindowResize(event: Event) {
+    if (this.container === 'inline') {
+      this.close();
+    }
+  }
+
   private _focusPanel(): void {
     let el: any = document.querySelectorAll('.md2-datepicker-panel')[0];
     el.focus();
@@ -341,10 +362,22 @@ export class Md2Datepicker implements OnDestroy, ControlValueAccessor {
     this._renderer.invokeElementMethod(this._element.nativeElement, 'focus');
   }
 
-  private coerceDateProperty(value: any, fallbackValue = new Date()): Date {
-    let timestamp = Date.parse(value);
-    fallbackValue = null;
-    return isNaN(timestamp) ? fallbackValue : new Date(timestamp);
+  private coerceDateProperty(value: any): Date {
+    let v: Date = null;
+    if (this._locale.isValidDate(value)) {
+      v = value;
+    } else {
+      if (value && this.type === 'time') {
+        let t = value + '';
+        v = new Date();
+        v.setHours(parseInt(t.substring(0, 2)));
+        v.setMinutes(parseInt(t.substring(3, 5)));
+      } else {
+        let timestamp = Date.parse(value);
+        v = isNaN(timestamp) ? null : new Date(timestamp);
+      }
+    }
+    return v;
   }
 
   @HostListener('click', ['$event'])
@@ -482,6 +515,12 @@ export class Md2Datepicker implements OnDestroy, ControlValueAccessor {
     }
   }
 
+  _clearValue(event: Event) {
+    event.stopPropagation();
+    this.value = null;
+    this._emitChangeEvent();
+  }
+
   /**
    * Display Years
    */
@@ -569,8 +608,7 @@ export class Md2Datepicker implements OnDestroy, ControlValueAccessor {
     if (date.calMonth === this._prevMonth) {
       this._updateMonth(-1);
     } else if (date.calMonth === this._currMonth) {
-      this.setDate(new Date(date.dateObj.year, date.dateObj.month,
-        date.dateObj.day, this.date.getHours(), this.date.getMinutes()));
+      this.setDate(date.date);
     } else if (date.calMonth === this._nextMonth) {
       this._updateMonth(1);
     }
@@ -601,6 +639,11 @@ export class Md2Datepicker implements OnDestroy, ControlValueAccessor {
   _updateMonth(noOfMonths: number) {
     this.date = this._locale.incrementMonths(this.date, noOfMonths);
     this.generateCalendar();
+    if (noOfMonths > 0) {
+      this.calendarState('right');
+    } else {
+      this.calendarState('left');
+    }
   }
 
   /**
@@ -642,95 +685,50 @@ export class Md2Datepicker implements OnDestroy, ControlValueAccessor {
    * @return boolean
    */
   private _isDisabledDate(date: Date): boolean {
-    if (this._min && this._max) {
-      return (this._min > date) || (this._max < date);
-    } else if (this._min) {
-      return (this._min > date);
-    } else if (this._max) {
-      return (this._max < date);
-    } else {
-      return false;
+    for (let d of this.enableDates) {
+      if (this._locale.isSameDay(date, d)) { return false; }
     }
-
-    // if (this.disableWeekends) {
-    //   let dayNbr = this.getDayNumber(date);
-    //   if (dayNbr === 0 || dayNbr === 6) {
-    //     return true;
-    //   }
-    // }
-    // return false;
+    for (let d of this.disableDates) {
+      if (this._locale.isSameDay(date, d)) { return true; }
+    }
+    for (let d of this.disableWeekDays) {
+      if (date.getDay() === d) { return true; }
+    }
+    return !this._locale.isDateWithinRange(date, this._min, this._max);
   }
 
   /**
    * Generate Month Calendar
    */
   private generateCalendar(): void {
+    this._dates.length = 0;
     let year = this.date.getFullYear();
     let month = this.date.getMonth();
-
-    this._dates.length = 0;
-
     let firstDayOfMonth = this._locale.getFirstDateOfMonth(this.date);
-    let numberOfDaysInMonth = this._locale.getNumberOfDaysInMonth(this.date);
-    let numberOfDaysInPrevMonth = this._locale.getNumberOfDaysInMonth(
-      this._locale.incrementMonths(this.date, -1));
-
-    let dayNbr = 1;
     let calMonth = this._prevMonth;
-    for (let i = 1; i < 7; i++) {
-      let week: IWeek[] = [];
-      if (i === 1) {
-        let prevMonth = numberOfDaysInPrevMonth - firstDayOfMonth.getDay() + 1;
-        for (let j = prevMonth; j <= numberOfDaysInPrevMonth; j++) {
-          let iDate: IDate = { year: year, month: month - 1, day: j, hour: 0, minute: 0 };
-          let date: Date = new Date(year, month - 1, j);
-          week.push({
-            date: date,
-            dateObj: iDate,
-            calMonth: calMonth,
-            today: this._locale.isSameDay(this.today, date),
-            disabled: this._isDisabledDate(date)
-          });
-        }
-
-        calMonth = this._currMonth;
-        let daysLeft = 7 - week.length;
-        for (let j = 0; j < daysLeft; j++) {
-          let iDate: IDate = { year: year, month: month, day: dayNbr, hour: 0, minute: 0 };
-          let date: Date = new Date(year, month, dayNbr);
-          week.push({
-            date: date,
-            dateObj: iDate,
-            calMonth: calMonth,
-            today: this._locale.isSameDay(this.today, date),
-            disabled: this._isDisabledDate(date)
-          });
-          dayNbr++;
-        }
-      } else {
-        for (let j = 1; j < 8; j++) {
-          if (dayNbr > numberOfDaysInMonth) {
-            dayNbr = 1;
+    let date = this._locale.getFirstDateOfWeek(firstDayOfMonth);
+    do {
+      let week: Array<any> = [];
+      for (let i = 0; i < 7; i++) {
+        if (date.getDate() === 1) {
+          if (calMonth === this._prevMonth) {
+            calMonth = this._currMonth;
+          } else {
             calMonth = this._nextMonth;
           }
-          let iDate: IDate = {
-            year: year,
-            month: calMonth === this._currMonth ? month : month + 1,
-            day: dayNbr, hour: 0, minute: 0
-          };
-          let date: Date = new Date(year, iDate.month, dayNbr);
-          week.push({
-            date: date,
-            dateObj: iDate,
-            calMonth: calMonth,
-            today: this._locale.isSameDay(this.today, date),
-            disabled: this._isDisabledDate(date)
-          });
-          dayNbr++;
         }
+        week.push({
+          date: date,
+          index: date.getDate(),
+          calMonth: calMonth,
+          today: this._locale.isSameDay(this.today, date),
+          disabled: this._isDisabledDate(date)
+        });
+        date = new Date(date.getTime());
+        date.setDate(date.getDate() + 1);
       }
       this._dates.push(week);
-    }
+    } while ((date.getMonth() <= month) && (date.getFullYear() === year));
   }
 
   /**
@@ -784,13 +782,41 @@ export class Md2Datepicker implements OnDestroy, ControlValueAccessor {
   private _createOverlay(): void {
     if (!this._overlayRef) {
       let config = new OverlayState();
-      config.positionStrategy = this.overlay.position()
-        .global()
-        .centerHorizontally()
-        .centerVertically();
-      config.hasBackdrop = true;
-      config.backdropClass = 'cdk-overlay-dark-backdrop';
+      if (this.container === 'inline') {
+        const [posX, fallbackX]: HorizontalConnectionPos[] =
+          this.positionX === 'before' ? ['end', 'start'] : ['start', 'end'];
 
+        const [overlayY, fallbackOverlayY]: VerticalConnectionPos[] =
+          this.positionY === 'above' ? ['bottom', 'top'] : ['top', 'bottom'];
+
+        let originY = overlayY;
+        let fallbackOriginY = fallbackOverlayY;
+
+        if (!this.overlapTrigger) {
+          originY = overlayY === 'top' ? 'bottom' : 'top';
+          fallbackOriginY = fallbackOverlayY === 'top' ? 'bottom' : 'top';
+        }
+        config.positionStrategy = this.overlay.position().connectedTo(this._element,
+          { originX: posX, originY: originY },
+          { overlayX: posX, overlayY: overlayY })
+          .withFallbackPosition(
+          { originX: fallbackX, originY: originY },
+          { overlayX: fallbackX, overlayY: overlayY })
+          .withFallbackPosition(
+          { originX: posX, originY: fallbackOriginY },
+          { overlayX: posX, overlayY: fallbackOverlayY })
+          .withFallbackPosition(
+          { originX: fallbackX, originY: fallbackOriginY },
+          { overlayX: fallbackX, overlayY: fallbackOverlayY });
+        config.hasBackdrop = true;
+        config.backdropClass = 'cdk-overlay-transparent-backdrop';
+      } else {
+        config.positionStrategy = this.overlay.position()
+          .global()
+          .centerHorizontally()
+          .centerVertically();
+        config.hasBackdrop = true;
+      }
       this._overlayRef = this.overlay.create(config);
     }
   }
@@ -799,6 +825,11 @@ export class Md2Datepicker implements OnDestroy, ControlValueAccessor {
     if (this._backdropSubscription) {
       this._backdropSubscription.unsubscribe();
     }
+  }
+
+  private calendarState(direction: string): void {
+    this._calendarState = direction;
+    setTimeout(() => this._calendarState = '', 180);
   }
 
 }
