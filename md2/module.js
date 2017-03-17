@@ -8,7 +8,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 import { NgModule } from '@angular/core';
-import { RtlModule, PortalModule, OverlayModule, A11yModule, StyleCompatibilityModule } from './core/index';
+import { MdRippleModule, RtlModule, ObserveContentModule, PortalModule, OverlayModule, A11yModule, ProjectionModule, CompatibilityModule } from './core/index';
 import { Md2AccordionModule } from './accordion/index';
 import { Md2AutocompleteModule } from './autocomplete/index';
 import { Md2ChipsModule } from './chips/index';
@@ -18,12 +18,13 @@ import { Md2DataTableModule } from './data-table/index';
 import { Md2DatepickerModule } from './datepicker/index';
 import { Md2DialogModule } from './dialog/index';
 import { Md2MenuModule } from './menu/index';
-import { Md2MultiselectModule } from './multiselect/index';
 import { Md2SelectModule } from './select/index';
 import { Md2TabsModule } from './tabs/index';
 import { Md2TagsModule } from './tags/index';
 import { Md2ToastModule } from './toast/index';
 import { Md2TooltipModule } from './tooltip/index';
+import { Md2TreeModule } from './tree/index';
+import { PlatformModule } from './core/platform/index';
 var MD2_MODULES = [
     Md2AccordionModule,
     Md2AutocompleteModule,
@@ -34,17 +35,21 @@ var MD2_MODULES = [
     Md2DatepickerModule,
     Md2DialogModule,
     Md2MenuModule,
-    Md2MultiselectModule,
+    MdRippleModule,
     Md2SelectModule,
     Md2TabsModule,
     Md2TagsModule,
     Md2ToastModule,
     Md2TooltipModule,
+    Md2TreeModule,
     OverlayModule,
     PortalModule,
     RtlModule,
     A11yModule,
-    StyleCompatibilityModule,
+    PlatformModule,
+    ProjectionModule,
+    CompatibilityModule,
+    ObserveContentModule
 ];
 export var Md2RootModule = (function () {
     function Md2RootModule() {
@@ -61,17 +66,21 @@ export var Md2RootModule = (function () {
                 Md2DatepickerModule.forRoot(),
                 Md2DialogModule.forRoot(),
                 Md2MenuModule.forRoot(),
-                Md2MultiselectModule.forRoot(),
+                MdRippleModule.forRoot(),
                 Md2SelectModule.forRoot(),
                 Md2TabsModule.forRoot(),
                 Md2TagsModule.forRoot(),
                 Md2ToastModule.forRoot(),
                 Md2TooltipModule.forRoot(),
-                PortalModule.forRoot(),
-                RtlModule.forRoot(),
+                Md2TreeModule.forRoot(),
                 A11yModule.forRoot(),
                 OverlayModule.forRoot(),
-                StyleCompatibilityModule.forRoot(),
+                PlatformModule.forRoot(),
+                PortalModule.forRoot(),
+                ProjectionModule.forRoot(),
+                RtlModule.forRoot(),
+                ObserveContentModule.forRoot(),
+                CompatibilityModule.forRoot(),
             ],
             exports: MD2_MODULES,
         }), 
@@ -82,6 +91,7 @@ export var Md2RootModule = (function () {
 export var Md2Module = (function () {
     function Md2Module() {
     }
+    /** @deprecated */
     Md2Module.forRoot = function () {
         return { ngModule: Md2RootModule };
     };
@@ -94,5 +104,4 @@ export var Md2Module = (function () {
     ], Md2Module);
     return Md2Module;
 }());
-
 //# sourceMappingURL=module.js.map

@@ -44,21 +44,18 @@ var STRING_MAP_PROTO = Object.getPrototypeOf({});
 export function isStrictStringMap(obj) {
     return typeof obj === 'object' && obj !== null && Object.getPrototypeOf(obj) === STRING_MAP_PROTO;
 }
-export function isDate(obj) {
-    return obj instanceof Date && !isNaN(obj.valueOf());
-}
 export function stringify(token) {
     if (typeof token === 'string') {
         return token;
     }
-    if (token === undefined || token === null) {
+    if (token == null) {
         return '' + token;
     }
     if (token.overriddenName) {
-        return token.overriddenName;
+        return "" + token.overriddenName;
     }
     if (token.name) {
-        return token.name;
+        return "" + token.name;
     }
     var res = token.toString();
     var newLineIndex = res.indexOf('\n');
@@ -74,25 +71,6 @@ export var NumberWrapper = (function () {
         }
         return result;
     };
-    NumberWrapper.parseInt = function (text, radix) {
-        if (radix == 10) {
-            if (/^(\-|\+)?[0-9]+$/.test(text)) {
-                return parseInt(text, radix);
-            }
-        }
-        else if (radix == 16) {
-            if (/^(\-|\+)?[0-9ABCDEFabcdef]+$/.test(text)) {
-                return parseInt(text, radix);
-            }
-        }
-        else {
-            var result = parseInt(text, radix);
-            if (!isNaN(result)) {
-                return result;
-            }
-        }
-        throw new Error('Invalid integer literal when parsing ' + text + ' in base ' + radix);
-    };
     NumberWrapper.isNumeric = function (value) { return !isNaN(value - parseFloat(value)); };
     return NumberWrapper;
 }());
@@ -104,6 +82,7 @@ export function isJsObject(o) {
     return o !== null && (typeof o === 'function' || typeof o === 'object');
 }
 export function print(obj) {
+    // tslint:disable-next-line:no-console
     console.log(obj);
 }
 export function warn(obj) {
@@ -113,12 +92,12 @@ export function setValueOnPath(global, path, value) {
     var parts = path.split('.');
     var obj = global;
     while (parts.length > 1) {
-        var name = parts.shift();
-        if (obj.hasOwnProperty(name) && isPresent(obj[name])) {
-            obj = obj[name];
+        var name_1 = parts.shift();
+        if (obj.hasOwnProperty(name_1) && obj[name_1] != null) {
+            obj = obj[name_1];
         }
         else {
-            obj = obj[name] = {};
+            obj = obj[name_1] = {};
         }
     }
     if (obj === undefined || obj === null) {

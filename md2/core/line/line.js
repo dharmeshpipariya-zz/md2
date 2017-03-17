@@ -8,6 +8,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 import { NgModule, Directive } from '@angular/core';
+import { CompatibilityModule } from '../compatibility/compatibility';
 /**
  * Shared directive to count lines inside a text area, such as a list item.
  * Line elements can be extracted with a @ContentChildren(MdLine) query, then
@@ -17,12 +18,20 @@ export var MdLine = (function () {
     function MdLine() {
     }
     MdLine = __decorate([
-        Directive({ selector: '[md-line]' }), 
+        Directive({
+            selector: '[md-line], [mat-line]',
+            host: {
+                '[class.mat-line]': 'true'
+            }
+        }), 
         __metadata('design:paramtypes', [])
     ], MdLine);
     return MdLine;
 }());
-/* Helper that takes a query list of lines and sets the correct class on the host */
+/**
+ * Helper that takes a query list of lines and sets the correct class on the host.
+ * @docs-private
+ */
 export var MdLineSetter = (function () {
     function MdLineSetter(_lines, _renderer, _element) {
         var _this = this;
@@ -37,16 +46,16 @@ export var MdLineSetter = (function () {
     MdLineSetter.prototype._setLineClass = function (count) {
         this._resetClasses();
         if (count === 2 || count === 3) {
-            this._setClass("md-" + count + "-line", true);
+            this._setClass("mat-" + count + "-line", true);
         }
         else if (count > 3) {
-            this._setClass("md-multi-line", true);
+            this._setClass("mat-multi-line", true);
         }
     };
     MdLineSetter.prototype._resetClasses = function () {
-        this._setClass('md-2-line', false);
-        this._setClass('md-3-line', false);
-        this._setClass('md-multi-line', false);
+        this._setClass('mat-2-line', false);
+        this._setClass('mat-3-line', false);
+        this._setClass('mat-multi-line', false);
     };
     MdLineSetter.prototype._setClass = function (className, bool) {
         this._renderer.setElementClass(this._element.nativeElement, className, bool);
@@ -58,12 +67,12 @@ export var MdLineModule = (function () {
     }
     MdLineModule = __decorate([
         NgModule({
-            exports: [MdLine],
+            imports: [CompatibilityModule],
+            exports: [MdLine, CompatibilityModule],
             declarations: [MdLine],
         }), 
         __metadata('design:paramtypes', [])
     ], MdLineModule);
     return MdLineModule;
 }());
-
 //# sourceMappingURL=line.js.map

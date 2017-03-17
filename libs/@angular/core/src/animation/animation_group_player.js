@@ -7,6 +7,9 @@
  */
 import { isPresent, scheduleMicroTask } from '../facade/lang';
 export var AnimationGroupPlayer = (function () {
+    /**
+     * @param {?} _players
+     */
     function AnimationGroupPlayer(_players) {
         var _this = this;
         this._players = _players;
@@ -14,6 +17,7 @@ export var AnimationGroupPlayer = (function () {
         this._onStartFns = [];
         this._finished = false;
         this._started = false;
+        this._destroyed = false;
         this.parentPlayer = null;
         var count = 0;
         var total = this._players.length;
@@ -31,20 +35,37 @@ export var AnimationGroupPlayer = (function () {
             });
         }
     }
+    /**
+     * @return {?}
+     */
     AnimationGroupPlayer.prototype._onFinish = function () {
         if (!this._finished) {
             this._finished = true;
-            if (!isPresent(this.parentPlayer)) {
-                this.destroy();
-            }
             this._onDoneFns.forEach(function (fn) { return fn(); });
             this._onDoneFns = [];
         }
     };
+    /**
+     * @return {?}
+     */
     AnimationGroupPlayer.prototype.init = function () { this._players.forEach(function (player) { return player.init(); }); };
+    /**
+     * @param {?} fn
+     * @return {?}
+     */
     AnimationGroupPlayer.prototype.onStart = function (fn) { this._onStartFns.push(fn); };
+    /**
+     * @param {?} fn
+     * @return {?}
+     */
     AnimationGroupPlayer.prototype.onDone = function (fn) { this._onDoneFns.push(fn); };
+    /**
+     * @return {?}
+     */
     AnimationGroupPlayer.prototype.hasStarted = function () { return this._started; };
+    /**
+     * @return {?}
+     */
     AnimationGroupPlayer.prototype.play = function () {
         if (!isPresent(this.parentPlayer)) {
             this.init();
@@ -56,28 +77,82 @@ export var AnimationGroupPlayer = (function () {
         }
         this._players.forEach(function (player) { return player.play(); });
     };
+    /**
+     * @return {?}
+     */
     AnimationGroupPlayer.prototype.pause = function () { this._players.forEach(function (player) { return player.pause(); }); };
+    /**
+     * @return {?}
+     */
     AnimationGroupPlayer.prototype.restart = function () { this._players.forEach(function (player) { return player.restart(); }); };
+    /**
+     * @return {?}
+     */
     AnimationGroupPlayer.prototype.finish = function () {
         this._onFinish();
         this._players.forEach(function (player) { return player.finish(); });
     };
+    /**
+     * @return {?}
+     */
     AnimationGroupPlayer.prototype.destroy = function () {
-        this._onFinish();
-        this._players.forEach(function (player) { return player.destroy(); });
+        if (!this._destroyed) {
+            this._onFinish();
+            this._players.forEach(function (player) { return player.destroy(); });
+            this._destroyed = true;
+        }
     };
-    AnimationGroupPlayer.prototype.reset = function () { this._players.forEach(function (player) { return player.reset(); }); };
-    AnimationGroupPlayer.prototype.setPosition = function (p /** TODO #9100 */) {
+    /**
+     * @return {?}
+     */
+    AnimationGroupPlayer.prototype.reset = function () {
+        this._players.forEach(function (player) { return player.reset(); });
+        this._destroyed = false;
+        this._finished = false;
+        this._started = false;
+    };
+    /**
+     * @param {?} p
+     * @return {?}
+     */
+    AnimationGroupPlayer.prototype.setPosition = function (p) {
         this._players.forEach(function (player) { player.setPosition(p); });
     };
+    /**
+     * @return {?}
+     */
     AnimationGroupPlayer.prototype.getPosition = function () {
-        var min = 0;
+        var /** @type {?} */ min = 0;
         this._players.forEach(function (player) {
-            var p = player.getPosition();
+            var /** @type {?} */ p = player.getPosition();
             min = Math.min(p, min);
         });
         return min;
     };
+    Object.defineProperty(AnimationGroupPlayer.prototype, "players", {
+        /**
+         * @return {?}
+         */
+        get: function () { return this._players; },
+        enumerable: true,
+        configurable: true
+    });
     return AnimationGroupPlayer;
 }());
+function AnimationGroupPlayer_tsickle_Closure_declarations() {
+    /** @type {?} */
+    AnimationGroupPlayer.prototype._onDoneFns;
+    /** @type {?} */
+    AnimationGroupPlayer.prototype._onStartFns;
+    /** @type {?} */
+    AnimationGroupPlayer.prototype._finished;
+    /** @type {?} */
+    AnimationGroupPlayer.prototype._started;
+    /** @type {?} */
+    AnimationGroupPlayer.prototype._destroyed;
+    /** @type {?} */
+    AnimationGroupPlayer.prototype.parentPlayer;
+    /** @type {?} */
+    AnimationGroupPlayer.prototype._players;
+}
 //# sourceMappingURL=animation_group_player.js.map

@@ -8,7 +8,7 @@
 import { platformCoreDynamicTesting } from '@angular/compiler/testing';
 import { NgModule, createPlatformFactory } from '@angular/core';
 import { BrowserDynamicTestingModule } from '@angular/platform-browser-dynamic/testing';
-import { INTERNAL_SERVER_PLATFORM_PROVIDERS } from './private_import_platform_server';
+import { INTERNAL_SERVER_PLATFORM_PROVIDERS, SERVER_RENDER_PROVIDERS } from './private_import_platform_server';
 /**
  * Platform for testing
  *
@@ -24,10 +24,10 @@ export var ServerTestingModule = (function () {
     function ServerTestingModule() {
     }
     ServerTestingModule.decorators = [
-        { type: NgModule, args: [{ exports: [BrowserDynamicTestingModule] },] },
+        { type: NgModule, args: [{ exports: [BrowserDynamicTestingModule], providers: SERVER_RENDER_PROVIDERS },] },
     ];
     /** @nocollapse */
-    ServerTestingModule.ctorParameters = [];
+    ServerTestingModule.ctorParameters = function () { return []; };
     return ServerTestingModule;
 }());
 //# sourceMappingURL=server.js.map

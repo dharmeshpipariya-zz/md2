@@ -11,12 +11,10 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var core_1 = require('@angular/core');
 var ColorpickerDemo = (function () {
     function ColorpickerDemo() {
-        this.color = '#123456';
-        this.color2 = '#654321';
+        this.isRequired = false;
+        this.isDisabled = false;
+        this._color = null;
     }
-    ColorpickerDemo.prototype.change = function (value) {
-        console.log('Changed color: ', value);
-    };
     ColorpickerDemo = __decorate([
         core_1.Component({
             moduleId: module.id,
@@ -28,5 +26,4 @@ var ColorpickerDemo = (function () {
     return ColorpickerDemo;
 }());
 exports.ColorpickerDemo = ColorpickerDemo;
-
 //# sourceMappingURL=colorpicker-demo.js.map

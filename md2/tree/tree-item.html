@@ -1,0 +1,6 @@
+<div class="md2-tree-item" (click)="_handleClick()">
+  <span>icon</span>
+  <span>{{ value.value }}</span>
+  <ng-content></ng-content>
+</div>
+<md2-tree *ngIf="value.children" [value]="value.children"></md2-tree>

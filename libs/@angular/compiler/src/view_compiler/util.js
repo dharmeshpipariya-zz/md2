@@ -10,19 +10,26 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
+import { identifierName } from '../compile_metadata';
 import { createDiTokenExpression } from '../compiler_util/identifier_util';
-import { isPresent } from '../facade/lang';
 import * as o from '../output/output_ast';
+import { ViewType } from '../private_import_core';
+/**
+ * @param {?} property
+ * @param {?} callingView
+ * @param {?} definedView
+ * @return {?}
+ */
 export function getPropertyInView(property, callingView, definedView) {
     if (callingView === definedView) {
         return property;
     }
     else {
-        var viewProp = o.THIS_EXPR;
-        var currView = callingView;
-        while (currView !== definedView && isPresent(currView.declarationElement.view)) {
+        var /** @type {?} */ viewProp = o.THIS_EXPR;
+        var /** @type {?} */ currView = callingView;
+        while (currView !== definedView && currView.declarationElement.view) {
             currView = currView.declarationElement.view;
-            viewProp = viewProp.prop('parent');
+            viewProp = viewProp.prop('parentView');
         }
         if (currView !== definedView) {
             throw new Error("Internal error: Could not calculate a property in a parent view: " + property);
@@ -32,17 +39,35 @@ export function getPropertyInView(property, callingView, definedView) {
 }
 var _ReplaceViewTransformer = (function (_super) {
     __extends(_ReplaceViewTransformer, _super);
+    /**
+     * @param {?} _viewExpr
+     * @param {?} _view
+     */
     function _ReplaceViewTransformer(_viewExpr, _view) {
         _super.call(this);
         this._viewExpr = _viewExpr;
         this._view = _view;
     }
+    /**
+     * @param {?} expr
+     * @return {?}
+     */
     _ReplaceViewTransformer.prototype._isThis = function (expr) {
         return expr instanceof o.ReadVarExpr && expr.builtin === o.BuiltinVar.This;
     };
+    /**
+     * @param {?} ast
+     * @param {?} context
+     * @return {?}
+     */
     _ReplaceViewTransformer.prototype.visitReadVarExpr = function (ast, context) {
         return this._isThis(ast) ? this._viewExpr : ast;
     };
+    /**
+     * @param {?} ast
+     * @param {?} context
+     * @return {?}
+     */
     _ReplaceViewTransformer.prototype.visitReadPropExpr = function (ast, context) {
         if (this._isThis(ast.receiver)) {
             // Note: Don't cast for members of the AppView base class...
@@ -55,37 +80,45 @@ var _ReplaceViewTransformer = (function (_super) {
     };
     return _ReplaceViewTransformer;
 }(o.ExpressionTransformer));
-export function injectFromViewParentInjector(token, optional) {
-    var args = [createDiTokenExpression(token)];
+function _ReplaceViewTransformer_tsickle_Closure_declarations() {
+    /** @type {?} */
+    _ReplaceViewTransformer.prototype._viewExpr;
+    /** @type {?} */
+    _ReplaceViewTransformer.prototype._view;
+}
+/**
+ * @param {?} view
+ * @param {?} token
+ * @param {?} optional
+ * @return {?}
+ */
+export function injectFromViewParentInjector(view, token, optional) {
+    var /** @type {?} */ viewExpr;
+    if (view.viewType === ViewType.HOST) {
+        viewExpr = o.THIS_EXPR;
+    }
+    else {
+        viewExpr = o.THIS_EXPR.prop('parentView');
+    }
+    var /** @type {?} */ args = [createDiTokenExpression(token), o.THIS_EXPR.prop('parentIndex')];
     if (optional) {
         args.push(o.NULL_EXPR);
     }
-    return o.THIS_EXPR.prop('parentInjector').callMethod('get', args);
+    return viewExpr.callMethod('injectorGet', args);
 }
-export function getViewFactoryName(component, embeddedTemplateIndex) {
-    return "viewFactory_" + component.type.name + embeddedTemplateIndex;
+/**
+ * @param {?} component
+ * @param {?} embeddedTemplateIndex
+ * @return {?}
+ */
+export function getViewClassName(component, embeddedTemplateIndex) {
+    return "View_" + identifierName(component.type) + embeddedTemplateIndex;
 }
-export function createFlatArray(expressions) {
-    var lastNonArrayExpressions = [];
-    var result = o.literalArr([]);
-    for (var i = 0; i < expressions.length; i++) {
-        var expr = expressions[i];
-        if (expr.type instanceof o.ArrayType) {
-            if (lastNonArrayExpressions.length > 0) {
-                result =
-                    result.callMethod(o.BuiltinMethod.ConcatArray, [o.literalArr(lastNonArrayExpressions)]);
-                lastNonArrayExpressions = [];
-            }
-            result = result.callMethod(o.BuiltinMethod.ConcatArray, [expr]);
-        }
-        else {
-            lastNonArrayExpressions.push(expr);
-        }
-    }
-    if (lastNonArrayExpressions.length > 0) {
-        result =
-            result.callMethod(o.BuiltinMethod.ConcatArray, [o.literalArr(lastNonArrayExpressions)]);
-    }
-    return result;
+/**
+ * @param {?} elementIndex
+ * @return {?}
+ */
+export function getHandleEventMethodName(elementIndex) {
+    return "handleEvent_" + elementIndex;
 }
 //# sourceMappingURL=util.js.map

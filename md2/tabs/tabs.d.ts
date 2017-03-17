@@ -1,13 +1,15 @@
 import { AfterContentInit, ElementRef, EventEmitter, QueryList, TemplateRef, ViewContainerRef, ModuleWithProviders } from '@angular/core';
-export declare class Md2TabChangeEvent {
-    index: number;
+/** Change event object that is emitted when the tab has changed. */
+export declare class Md2TabChange {
     tab: Md2Tab;
+    index: number;
+    constructor(tab: Md2Tab, index: number);
 }
 export declare class Md2Transclude {
     viewRef: ViewContainerRef;
     private _md2Transclude;
     constructor(viewRef: ViewContainerRef);
-    private md2Transclude;
+    md2Transclude: TemplateRef<any>;
 }
 export declare class Md2Tab {
     label: string;
@@ -26,15 +28,16 @@ export declare class Md2Tabs implements AfterContentInit {
     private _isInitialized;
     private _focusIndex;
     private _selectedIndex;
-    private shouldPaginate;
-    private offsetLeft;
-    private inkBarLeft;
-    private inkBarWidth;
+    _shouldPaginate: boolean;
+    _offsetLeft: number;
+    _inkBarLeft: string;
+    _inkBarWidth: string;
     class: string;
     selectedIndex: any;
     focusIndex: number;
     readonly element: any;
-    change: EventEmitter<Md2TabChangeEvent>;
+    change: EventEmitter<Md2TabChange>;
+    selectedIndexChange: EventEmitter<number>;
     constructor(elementRef: ElementRef);
     /**
      * After Content Init
@@ -44,12 +47,8 @@ export declare class Md2Tabs implements AfterContentInit {
      * Calculates the styles from the selected tab for the ink-bar.
      */
     private _updateInkBar();
-    /**
-     * Create Change Event
-     * @param index
-     * @return event of Md2TabChangeEvent
-     */
-    private _createChangeEvent(index);
+    /** Emits an event when the user selects an option. */
+    _emitChangeEvent(): void;
     /**
      * Focus next Tab
      */

@@ -1,63 +1,73 @@
-import { EventEmitter, SimpleChange, OnChanges, DoCheck, ModuleWithProviders } from '@angular/core';
+import { EventEmitter, OnInit, DoCheck, IterableDiffers, ModuleWithProviders } from '@angular/core';
+export declare class Md2PaginationChange {
+    source: Md2Pagination;
+    activePage: number;
+}
 export interface SortEvent {
-    sortField: string | string[];
+    sortBy: string | string[];
     sortOrder: string;
 }
 export interface PageEvent {
     activePage: number;
-    pageLength: number;
+    rowsPerPage: number;
     dataLength: number;
 }
 export interface DataEvent {
     length: number;
 }
-export declare class Md2DataTable implements OnChanges, DoCheck {
-    data: any[];
-    onDataChange: EventEmitter<DataEvent>;
+export declare class Md2DataTable implements DoCheck {
+    private differs;
+    private diff;
+    private isDataChanged;
+    private _data;
+    private _activePage;
+    private _rowsPerPage;
+    private _sortBy;
+    private _sortOrder;
+    data: Array<any>;
+    md2Data: Array<any>;
+    activePage: number;
+    rowsPerPage: number;
+    sortBy: string | Array<string>;
+    sortOrder: string;
+    activePageChange: EventEmitter<number>;
+    sortByChange: EventEmitter<string | string[]>;
+    sortOrderChange: EventEmitter<string>;
     onSortChange: EventEmitter<SortEvent>;
     onPageChange: EventEmitter<PageEvent>;
-    private sortField;
-    private sortOrder;
-    private isDataChanged;
-    inputData: any[];
-    pageLength: number;
-    activePage: number;
-    getSort(): SortEvent;
-    setSort(sortField: string | string[], sortOrder: string): void;
-    getPage(): PageEvent;
-    setPage(activePage: number, pageLength: number): void;
-    private calculateNewActivePage(previousPageLength, currentPageLength);
-    private recalculatePage();
-    ngOnChanges(changes: {
-        [key: string]: SimpleChange;
-    }): any;
+    constructor(differs: IterableDiffers);
     ngDoCheck(): any;
+    getSort(): SortEvent;
+    setSort(sortBy: string | string[], sortOrder: string): void;
+    getPage(): PageEvent;
+    setPage(activePage: number, rowsPerPage: number): void;
+    private calculateNewActivePage(previousRowsPerPage, currentRowsPerPage);
+    private recalculatePage();
     private fillData();
-    private caseInsensitiveIteratee(sortField);
+    private caseInsensitiveIteratee(value);
 }
-export declare class Md2DataTableSortField {
+export declare class Md2DataTableSortBy implements OnInit {
     private _md2Table;
-    private isAsc;
-    private isDesc;
-    private sortField;
+    md2SortBy: string;
+    _isAsc: boolean;
+    _isDesc: boolean;
     constructor(_md2Table: Md2DataTable);
-    private _sort();
+    ngOnInit(): void;
+    _sort(): void;
 }
-export declare class Md2Pagination implements OnChanges {
-    private injectMd2Table;
-    private _md2Table;
-    private _minRows;
+export declare class Md2Pagination {
+    private _dataTable;
     private _activePage;
-    private _rows;
-    private _lastPage;
-    private dataLength;
-    rows: any;
-    md2InputTable: Md2DataTable;
-    constructor(injectMd2Table: Md2DataTable);
-    ngOnChanges(changes: any): any;
-    private _setPage(page);
-    private _setRows(rows);
-    private _onPageChange;
+    rowsPerPageSet: any;
+    md2Table: Md2DataTable;
+    _rowsPerPage: number;
+    _dataLength: number;
+    _lastPage: number;
+    constructor(_dataTable: Md2DataTable);
+    ngDoCheck(): void;
+    _setPage(pageNumber: number): void;
+    _setRows(event: any): void;
+    private onPageChangeSubscriber;
 }
 export declare const MD2_DATA_TABLE_DIRECTIVES: any[];
 export declare class Md2DataTableModule {

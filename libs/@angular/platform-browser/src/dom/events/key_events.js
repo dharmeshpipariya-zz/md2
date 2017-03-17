@@ -11,46 +11,57 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 import { Injectable } from '@angular/core';
-import { ListWrapper } from '../../facade/collection';
-import { isPresent } from '../../facade/lang';
 import { getDOM } from '../dom_adapter';
 import { EventManagerPlugin } from './event_manager';
-var modifierKeys = ['alt', 'control', 'meta', 'shift'];
-var modifierKeyGetters = {
+var /** @type {?} */ MODIFIER_KEYS = ['alt', 'control', 'meta', 'shift'];
+var /** @type {?} */ MODIFIER_KEY_GETTERS = {
     'alt': function (event) { return event.altKey; },
     'control': function (event) { return event.ctrlKey; },
     'meta': function (event) { return event.metaKey; },
     'shift': function (event) { return event.shiftKey; }
 };
 /**
- * @experimental
+ * \@experimental
  */
 export var KeyEventsPlugin = (function (_super) {
     __extends(KeyEventsPlugin, _super);
     function KeyEventsPlugin() {
         _super.call(this);
     }
-    KeyEventsPlugin.prototype.supports = function (eventName) {
-        return isPresent(KeyEventsPlugin.parseEventName(eventName));
-    };
+    /**
+     * @param {?} eventName
+     * @return {?}
+     */
+    KeyEventsPlugin.prototype.supports = function (eventName) { return KeyEventsPlugin.parseEventName(eventName) != null; };
+    /**
+     * @param {?} element
+     * @param {?} eventName
+     * @param {?} handler
+     * @return {?}
+     */
     KeyEventsPlugin.prototype.addEventListener = function (element, eventName, handler) {
-        var parsedEvent = KeyEventsPlugin.parseEventName(eventName);
-        var outsideHandler = KeyEventsPlugin.eventCallback(element, parsedEvent['fullKey'], handler, this.manager.getZone());
+        var /** @type {?} */ parsedEvent = KeyEventsPlugin.parseEventName(eventName);
+        var /** @type {?} */ outsideHandler = KeyEventsPlugin.eventCallback(parsedEvent['fullKey'], handler, this.manager.getZone());
         return this.manager.getZone().runOutsideAngular(function () {
             return getDOM().onAndCancel(element, parsedEvent['domEventName'], outsideHandler);
         });
     };
+    /**
+     * @param {?} eventName
+     * @return {?}
+     */
     KeyEventsPlugin.parseEventName = function (eventName) {
-        var parts = eventName.toLowerCase().split('.');
-        var domEventName = parts.shift();
+        var /** @type {?} */ parts = eventName.toLowerCase().split('.');
+        var /** @type {?} */ domEventName = parts.shift();
         if ((parts.length === 0) || !(domEventName === 'keydown' || domEventName === 'keyup')) {
             return null;
         }
-        var key = KeyEventsPlugin._normalizeKey(parts.pop());
-        var fullKey = '';
-        modifierKeys.forEach(function (modifierName) {
-            if (parts.indexOf(modifierName) > -1) {
-                ListWrapper.remove(parts, modifierName);
+        var /** @type {?} */ key = KeyEventsPlugin._normalizeKey(parts.pop());
+        var /** @type {?} */ fullKey = '';
+        MODIFIER_KEYS.forEach(function (modifierName) {
+            var /** @type {?} */ index = parts.indexOf(modifierName);
+            if (index > -1) {
+                parts.splice(index, 1);
                 fullKey += modifierName + '.';
             }
         });
@@ -59,14 +70,18 @@ export var KeyEventsPlugin = (function (_super) {
             // returning null instead of throwing to let another plugin process the event
             return null;
         }
-        var result = {};
+        var /** @type {?} */ result = {};
         result['domEventName'] = domEventName;
         result['fullKey'] = fullKey;
         return result;
     };
+    /**
+     * @param {?} event
+     * @return {?}
+     */
     KeyEventsPlugin.getEventFullKey = function (event) {
-        var fullKey = '';
-        var key = getDOM().getEventKey(event);
+        var /** @type {?} */ fullKey = '';
+        var /** @type {?} */ key = getDOM().getEventKey(event);
         key = key.toLowerCase();
         if (key === ' ') {
             key = 'space'; // for readability
@@ -74,9 +89,9 @@ export var KeyEventsPlugin = (function (_super) {
         else if (key === '.') {
             key = 'dot'; // because '.' is used as a separator in event names
         }
-        modifierKeys.forEach(function (modifierName) {
+        MODIFIER_KEYS.forEach(function (modifierName) {
             if (modifierName != key) {
-                var modifierGetter = modifierKeyGetters[modifierName];
+                var /** @type {?} */ modifierGetter = MODIFIER_KEY_GETTERS[modifierName];
                 if (modifierGetter(event)) {
                     fullKey += modifierName + '.';
                 }
@@ -85,16 +100,26 @@ export var KeyEventsPlugin = (function (_super) {
         fullKey += key;
         return fullKey;
     };
-    KeyEventsPlugin.eventCallback = function (element, fullKey, handler, zone) {
+    /**
+     * @param {?} fullKey
+     * @param {?} handler
+     * @param {?} zone
+     * @return {?}
+     */
+    KeyEventsPlugin.eventCallback = function (fullKey, handler, zone) {
         return function (event /** TODO #9100 */) {
             if (KeyEventsPlugin.getEventFullKey(event) === fullKey) {
                 zone.runGuarded(function () { return handler(event); });
             }
         };
     };
-    /** @internal */
+    /**
+     * \@internal
+     * @param {?} keyName
+     * @return {?}
+     */
     KeyEventsPlugin._normalizeKey = function (keyName) {
-        // TODO: switch to a StringMap if the mapping grows too much
+        // TODO: switch to a Map if the mapping grows too much
         switch (keyName) {
             case 'esc':
                 return 'escape';
@@ -106,7 +131,16 @@ export var KeyEventsPlugin = (function (_super) {
         { type: Injectable },
     ];
     /** @nocollapse */
-    KeyEventsPlugin.ctorParameters = [];
+    KeyEventsPlugin.ctorParameters = function () { return []; };
     return KeyEventsPlugin;
 }(EventManagerPlugin));
+function KeyEventsPlugin_tsickle_Closure_declarations() {
+    /** @type {?} */
+    KeyEventsPlugin.decorators;
+    /**
+     * @nocollapse
+     * @type {?}
+     */
+    KeyEventsPlugin.ctorParameters;
+}
 //# sourceMappingURL=key_events.js.map

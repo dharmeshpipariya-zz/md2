@@ -25,12 +25,12 @@ var data_table_demo_1 = require('./data-table/data-table-demo');
 var datepicker_demo_1 = require('./datepicker/datepicker-demo');
 var dialog_demo_1 = require('./dialog/dialog-demo');
 var menu_demo_1 = require('./menu/menu-demo');
-var multiselect_demo_1 = require('./multiselect/multiselect-demo');
 var select_demo_1 = require('./select/select-demo');
 var tabs_demo_1 = require('./tabs/tabs-demo');
 var tags_demo_1 = require('./tags/tags-demo');
 var toast_demo_1 = require('./toast/toast-demo');
 var tooltip_demo_1 = require('./tooltip/tooltip-demo');
+var tree_demo_1 = require('./tree/tree-demo');
 var DemoAppModule = (function () {
     function DemoAppModule(_appRef) {
         this._appRef = _appRef;
@@ -44,7 +44,8 @@ var DemoAppModule = (function () {
                 platform_browser_1.BrowserModule,
                 forms_1.FormsModule,
                 http_1.HttpModule,
-                router_1.RouterModule.forRoot(routes_1.DEMO_APP_ROUTES),
+                forms_1.ReactiveFormsModule,
+                router_1.RouterModule.forRoot(routes_1.DEMO_APP_ROUTES, { useHash: true }),
                 md2_1.Md2Module.forRoot(),
             ],
             declarations: [
@@ -60,12 +61,12 @@ var DemoAppModule = (function () {
                 datepicker_demo_1.DatepickerDemo,
                 dialog_demo_1.DialogDemo,
                 menu_demo_1.MenuDemo,
-                multiselect_demo_1.MultiselectDemo,
                 select_demo_1.SelectDemo,
                 tabs_demo_1.TabsDemo,
                 tags_demo_1.TagsDemo,
                 toast_demo_1.ToastDemo,
                 tooltip_demo_1.TooltipDemo,
+                tree_demo_1.TreeDemo,
             ],
             entryComponents: [
                 demo_app_1.DemoApp,
@@ -76,5 +77,4 @@ var DemoAppModule = (function () {
     return DemoAppModule;
 }());
 exports.DemoAppModule = DemoAppModule;
-
 //# sourceMappingURL=demo-app-module.js.map

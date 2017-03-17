@@ -1,24 +1,24 @@
 import { Component } from '@angular/core';
 
 @Component({
-  moduleId: module.id,
-  selector: 'md-chips-demo',
-  templateUrl: 'chips-demo.html'
+    moduleId: module.id,
+    selector: 'md-chips-demo',
+    templateUrl: 'chips-demo.html'
 })
 export class ChipsDemo {
-
-  private items: Array<any> =
-  [
-    'Data1', 'Data2', 'Data3', 'Data4', 'Data5', 'Data6', 'Data7', 'Data8'
-  ];
-  private itemsData: Array<any> =
-  [
-    'Data1', 'Data2', 'Data3'
-  ];
-
-  private validPattern = /^[0-9]*$/;
-
-  private change(value: any) {
-    console.log('Changed data: ', value);
-  }
+    private _item: Array<any>;
+    private _itemsData: Array<any> = [
+        { name: 'Vadodara', value: '1' },
+        { name: 'Mumbai', value: '5' },
+        { name: 'Goa', value: '6' }
+    ];
+    private _items: Array<any> = [
+        { text: 'Vadodaraa', value: '8' },
+        { text: 'Mumbaia', value: '2' },
+        { text: 'Goaa', value: '4' }
+    ];
+    private _validPattern = /^[0-9]*$/;
+    handleChange(value: any) {
+        console.log('Changed data: ', value);
+    }
 }

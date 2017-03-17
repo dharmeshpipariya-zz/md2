@@ -6,19 +6,20 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { Inject, LOCALE_ID, Pipe } from '@angular/core';
-import { DateFormatter } from '../facade/intl';
-import { NumberWrapper, isBlank, isDate } from '../facade/lang';
+import { NumberWrapper } from '../facade/lang';
+import { DateFormatter } from './intl';
 import { InvalidPipeArgumentError } from './invalid_pipe_argument_error';
+var /** @type {?} */ ISO8601_DATE_REGEX = /^(\d{4})-?(\d\d)-?(\d\d)(?:T(\d\d)(?::?(\d\d)(?::?(\d\d)(?:\.(\d+))?)?)?(Z|([+-])(\d\d):?(\d\d))?)?$/;
 /**
- * @ngModule CommonModule
- * @whatItDoes Formats a date according to locale rules.
- * @howToUse `date_expression | date[:format]`
- * @description
+ * \@ngModule CommonModule
+ * \@whatItDoes Formats a date according to locale rules.
+ * \@howToUse `date_expression | date[:format]`
+ * \@description
  *
  * Where:
  * - `expression` is a date object or a number (milliseconds since UTC epoch) or an ISO string
  * (https://www.w3.org/TR/NOTE-datetime).
- * - `format` indicates which date/time components to include. The format can be predifined as
+ * - `format` indicates which date/time components to include. The format can be predefined as
  *   shown below or custom as shown in the table.
  *   - `'medium'`: equivalent to `'yMMMdjms'` (e.g. `Sep 3, 2010, 12:05:08 PM` for `en-US`)
  *   - `'short'`: equivalent to `'yMdjm'` (e.g. `9/3/2010, 12:05 PM` for `en-US`)
@@ -30,26 +31,29 @@ import { InvalidPipeArgumentError } from './invalid_pipe_argument_error';
  *   - `'shortTime'`: equivalent to `'jm'` (e.g. `12:05 PM` for `en-US`)
  *
  *
- *  | Component | Symbol | Short Form   | Long Form         | Numeric   | 2-digit   |
- *  |-----------|:------:|--------------|-------------------|-----------|-----------|
- *  | era       |   G    | G (AD)       | GGGG (Anno Domini)| -         | -         |
- *  | year      |   y    | -            | -                 | y (2015)  | yy (15)   |
- *  | month     |   M    | MMM (Sep)    | MMMM (September)  | M (9)     | MM (09)   |
- *  | day       |   d    | -            | -                 | d (3)     | dd (03)   |
- *  | weekday   |   E    | EEE (Sun)    | EEEE (Sunday)     | -         | -         |
- *  | hour      |   j    | -            | -                 | j (13)    | jj (13)   |
- *  | hour12    |   h    | -            | -                 | h (1 PM)  | hh (01 PM)|
- *  | hour24    |   H    | -            | -                 | H (13)    | HH (13)   |
- *  | minute    |   m    | -            | -                 | m (5)     | mm (05)   |
- *  | second    |   s    | -            | -                 | s (9)     | ss (09)   |
- *  | timezone  |   z    | -            | z (Pacific Standard Time)| -  | -         |
- *  | timezone  |   Z    | Z (GMT-8:00) | -                 | -         | -         |
- *  | timezone  |   a    | a (PM)       | -                 | -         | -         |
+ *  | Component | Symbol | Narrow | Short Form   | Long Form         | Numeric   | 2-digit   |
+ *  |-----------|:------:|--------|--------------|-------------------|-----------|-----------|
+ *  | era       |   G    | G (A)  | GGG (AD)     | GGGG (Anno Domini)| -         | -         |
+ *  | year      |   y    | -      | -            | -                 | y (2015)  | yy (15)   |
+ *  | month     |   M    | L (S)  | MMM (Sep)    | MMMM (September)  | M (9)     | MM (09)   |
+ *  | day       |   d    | -      | -            | -                 | d (3)     | dd (03)   |
+ *  | weekday   |   E    | E (S)  | EEE (Sun)    | EEEE (Sunday)     | -         | -         |
+ *  | hour      |   j    | -      | -            | -                 | j (13)    | jj (13)   |
+ *  | hour12    |   h    | -      | -            | -                 | h (1 PM)  | hh (01 PM)|
+ *  | hour24    |   H    | -      | -            | -                 | H (13)    | HH (13)   |
+ *  | minute    |   m    | -      | -            | -                 | m (5)     | mm (05)   |
+ *  | second    |   s    | -      | -            | -                 | s (9)     | ss (09)   |
+ *  | timezone  |   z    | -      | -            | z (Pacific Standard Time)| -  | -         |
+ *  | timezone  |   Z    | -      | Z (GMT-8:00) | -                 | -         | -         |
+ *  | timezone  |   a    | -      | a (PM)       | -                 | -         | -         |
  *
  * In javascript, only the components specified will be respected (not the ordering,
  * punctuations, ...) and details of the formatting will be dependent on the locale.
  *
  * Timezone of the formatted text will be the local system timezone of the end-user's machine.
+ *
+ * When the expression is a ISO string without time (e.g. 2016-09-19) the time zone offset is not
+ * applied and the formatted text will have the same day, month and year of the expression.
  *
  * WARNINGS:
  * - this pipe is marked as pure hence it will not be re-evaluated when the input is mutated.
@@ -71,29 +75,62 @@ import { InvalidPipeArgumentError } from './invalid_pipe_argument_error';
  *     {{ dateObj | date:'mmss' }}        // output is '43:11'
  * ```
  *
- * {@example common/pipes/ts/date_pipe.ts region='DatePipe'}
+ * {\@example common/pipes/ts/date_pipe.ts region='DatePipe'}
  *
- * @stable
+ * \@stable
  */
 export var DatePipe = (function () {
+    /**
+     * @param {?} _locale
+     */
     function DatePipe(_locale) {
         this._locale = _locale;
     }
+    /**
+     * @param {?} value
+     * @param {?=} pattern
+     * @return {?}
+     */
     DatePipe.prototype.transform = function (value, pattern) {
         if (pattern === void 0) { pattern = 'mediumDate'; }
-        if (isBlank(value))
+        var /** @type {?} */ date;
+        if (isBlank(value) || value !== value)
             return null;
-        if (!this.supports(value)) {
-            throw new InvalidPipeArgumentError(DatePipe, value);
+        if (typeof value === 'string') {
+            value = value.trim();
         }
-        if (NumberWrapper.isNumeric(value)) {
-            value = parseFloat(value);
+        if (isDate(value)) {
+            date = value;
         }
-        return DateFormatter.format(new Date(value), this._locale, DatePipe._ALIASES[pattern] || pattern);
-    };
-    DatePipe.prototype.supports = function (obj) {
-        return isDate(obj) || NumberWrapper.isNumeric(obj) ||
-            (typeof obj === 'string' && isDate(new Date(obj)));
+        else if (NumberWrapper.isNumeric(value)) {
+            date = new Date(parseFloat(value));
+        }
+        else if (typeof value === 'string' && /^(\d{4}-\d{1,2}-\d{1,2})$/.test(value)) {
+            /**
+            * For ISO Strings without time the day, month and year must be extracted from the ISO String
+            * before Date creation to avoid time offset and errors in the new Date.
+            * If we only replace '-' with ',' in the ISO String ("2015,01,01"), and try to create a new
+            * date, some browsers (e.g. IE 9) will throw an invalid Date error
+            * If we leave the '-' ("2015-01-01") and try to create a new Date("2015-01-01") the timeoffset
+            * is applied
+            * Note: ISO months are 0 for January, 1 for February, ...
+            */
+            var _a = value.split('-').map(function (val) { return parseInt(val, 10); }), y = _a[0], m = _a[1], d = _a[2];
+            date = new Date(y, m - 1, d);
+        }
+        else {
+            date = new Date(value);
+        }
+        if (!isDate(date)) {
+            var /** @type {?} */ match = void 0;
+            if ((typeof value === 'string') && (match = value.match(ISO8601_DATE_REGEX))) {
+                date = isoStringToDate(match);
+            }
+            else {
+                throw new InvalidPipeArgumentError(DatePipe, value);
+            }
+        }
+        return DateFormatter.format(date, this._locale, DatePipe._ALIASES[pattern] || pattern);
     };
     /** @internal */
     DatePipe._ALIASES = {
@@ -110,9 +147,68 @@ export var DatePipe = (function () {
         { type: Pipe, args: [{ name: 'date', pure: true },] },
     ];
     /** @nocollapse */
-    DatePipe.ctorParameters = [
+    DatePipe.ctorParameters = function () { return [
         { type: undefined, decorators: [{ type: Inject, args: [LOCALE_ID,] },] },
-    ];
+    ]; };
     return DatePipe;
 }());
+function DatePipe_tsickle_Closure_declarations() {
+    /**
+     * \@internal
+     * @type {?}
+     */
+    DatePipe._ALIASES;
+    /** @type {?} */
+    DatePipe.decorators;
+    /**
+     * @nocollapse
+     * @type {?}
+     */
+    DatePipe.ctorParameters;
+    /** @type {?} */
+    DatePipe.prototype._locale;
+}
+/**
+ * @param {?} obj
+ * @return {?}
+ */
+function isBlank(obj) {
+    return obj == null || obj === '';
+}
+/**
+ * @param {?} obj
+ * @return {?}
+ */
+function isDate(obj) {
+    return obj instanceof Date && !isNaN(obj.valueOf());
+}
+/**
+ * @param {?} match
+ * @return {?}
+ */
+function isoStringToDate(match) {
+    var /** @type {?} */ date = new Date(0);
+    var /** @type {?} */ tzHour = 0;
+    var /** @type {?} */ tzMin = 0;
+    var /** @type {?} */ dateSetter = match[8] ? date.setUTCFullYear : date.setFullYear;
+    var /** @type {?} */ timeSetter = match[8] ? date.setUTCHours : date.setHours;
+    if (match[9]) {
+        tzHour = toInt(match[9] + match[10]);
+        tzMin = toInt(match[9] + match[11]);
+    }
+    dateSetter.call(date, toInt(match[1]), toInt(match[2]) - 1, toInt(match[3]));
+    var /** @type {?} */ h = toInt(match[4] || '0') - tzHour;
+    var /** @type {?} */ m = toInt(match[5] || '0') - tzMin;
+    var /** @type {?} */ s = toInt(match[6] || '0');
+    var /** @type {?} */ ms = Math.round(parseFloat('0.' + (match[7] || 0)) * 1000);
+    timeSetter.call(date, h, m, s, ms);
+    return date;
+}
+/**
+ * @param {?} str
+ * @return {?}
+ */
+function toInt(str) {
+    return parseInt(str, 10);
+}
 //# sourceMappingURL=date_pipe.js.map

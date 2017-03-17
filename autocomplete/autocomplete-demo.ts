@@ -6,7 +6,10 @@ import { Component } from '@angular/core';
   templateUrl: 'autocomplete-demo.html'
 })
 export class AutocompleteDemo {
-  private items: Array<any> = [
+  isRequired = false;
+  isDisabled = false;
+  item: string = null;
+  items: Array<any> = [
     { name: 'Vadodara', value: '1' },
     { name: 'Rajkot', value: '2' },
     { name: 'Delhi', value: '3' },
@@ -14,8 +17,4 @@ export class AutocompleteDemo {
     { name: 'Mumbai', value: '5' },
     { name: 'Goa', value: '6' }
   ];
-  private item: any;
-  private change(value: any) {
-    console.log('Changed data: ', value);
-  }
 }

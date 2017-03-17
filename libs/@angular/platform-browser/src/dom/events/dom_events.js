@@ -11,32 +11,41 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 import { Injectable } from '@angular/core';
-import { getDOM } from '../dom_adapter';
 import { EventManagerPlugin } from './event_manager';
 export var DomEventsPlugin = (function (_super) {
     __extends(DomEventsPlugin, _super);
     function DomEventsPlugin() {
         _super.apply(this, arguments);
     }
-    // This plugin should come last in the list of plugins, because it accepts all
-    // events.
+    /**
+     * @param {?} eventName
+     * @return {?}
+     */
     DomEventsPlugin.prototype.supports = function (eventName) { return true; };
+    /**
+     * @param {?} element
+     * @param {?} eventName
+     * @param {?} handler
+     * @return {?}
+     */
     DomEventsPlugin.prototype.addEventListener = function (element, eventName, handler) {
-        var zone = this.manager.getZone();
-        var outsideHandler = function (event /** TODO #9100 */) { return zone.runGuarded(function () { return handler(event); }); };
-        return this.manager.getZone().runOutsideAngular(function () { return getDOM().onAndCancel(element, eventName, outsideHandler); });
-    };
-    DomEventsPlugin.prototype.addGlobalEventListener = function (target, eventName, handler) {
-        var element = getDOM().getGlobalEventTarget(target);
-        var zone = this.manager.getZone();
-        var outsideHandler = function (event /** TODO #9100 */) { return zone.runGuarded(function () { return handler(event); }); };
-        return this.manager.getZone().runOutsideAngular(function () { return getDOM().onAndCancel(element, eventName, outsideHandler); });
+        element.addEventListener(eventName, /** @type {?} */ (handler), false);
+        return function () { return element.removeEventListener(eventName, /** @type {?} */ (handler), false); };
     };
     DomEventsPlugin.decorators = [
         { type: Injectable },
     ];
     /** @nocollapse */
-    DomEventsPlugin.ctorParameters = [];
+    DomEventsPlugin.ctorParameters = function () { return []; };
     return DomEventsPlugin;
 }(EventManagerPlugin));
+function DomEventsPlugin_tsickle_Closure_declarations() {
+    /** @type {?} */
+    DomEventsPlugin.decorators;
+    /**
+     * @nocollapse
+     * @type {?}
+     */
+    DomEventsPlugin.ctorParameters;
+}
 //# sourceMappingURL=dom_events.js.map

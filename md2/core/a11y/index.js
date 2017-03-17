@@ -8,27 +8,30 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 import { NgModule } from '@angular/core';
-import { FocusTrap } from './focus-trap';
-import { MdLiveAnnouncer } from './live-announcer';
+import { FocusTrapDirective, FocusTrapDeprecatedDirective, FocusTrapFactory } from './focus-trap';
+import { LIVE_ANNOUNCER_PROVIDER } from './live-announcer';
 import { InteractivityChecker } from './interactivity-checker';
-export var A11Y_PROVIDERS = [MdLiveAnnouncer, InteractivityChecker];
+import { CommonModule } from '@angular/common';
+import { PlatformModule } from '../platform/index';
 export var A11yModule = (function () {
     function A11yModule() {
     }
+    /** @deprecated */
     A11yModule.forRoot = function () {
         return {
             ngModule: A11yModule,
-            providers: A11Y_PROVIDERS,
+            providers: [],
         };
     };
     A11yModule = __decorate([
         NgModule({
-            declarations: [FocusTrap],
-            exports: [FocusTrap],
+            imports: [CommonModule, PlatformModule],
+            declarations: [FocusTrapDirective, FocusTrapDeprecatedDirective],
+            exports: [FocusTrapDirective, FocusTrapDeprecatedDirective],
+            providers: [InteractivityChecker, FocusTrapFactory, LIVE_ANNOUNCER_PROVIDER]
         }), 
         __metadata('design:paramtypes', [])
     ], A11yModule);
     return A11yModule;
 }());
-
 //# sourceMappingURL=index.js.map

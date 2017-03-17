@@ -7,88 +7,97 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { ApplicationRef, ComponentFactoryResolver, Injectable, ReflectiveInjector, NgModule } from '@angular/core';
+import { Component, Injectable, NgModule, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Md2ToastComponent } from './toast.component';
+import { Overlay, OverlayState, ComponentPortal, OVERLAY_PROVIDERS } from '../core';
 export var Toast = (function () {
     function Toast(message) {
         this.message = message;
     }
     return Toast;
 }());
+export var Md2ToastConfig = (function () {
+    function Md2ToastConfig() {
+        this.duration = 3000;
+        this.viewContainerRef = null;
+    }
+    return Md2ToastConfig;
+}());
 export var Md2Toast = (function () {
-    function Md2Toast(_componentFactory, _appRef) {
-        this._componentFactory = _componentFactory;
-        this._appRef = _appRef;
-        this.delay = 3000;
+    function Md2Toast(_overlay, _config) {
+        this._overlay = _overlay;
+        this._config = _config;
         this.index = 0;
     }
     /**
      * toast message
      * @param toast string or object with message and other properties of toast
      */
-    Md2Toast.prototype.toast = function (toast) {
-        this.show(toast);
+    Md2Toast.prototype.toast = function (message, duration) {
+        this.show(message, duration);
     };
     /**
      * show toast
      * @param toastObj string or object with message and other properties of toast
      */
-    Md2Toast.prototype.show = function (toastObj) {
+    Md2Toast.prototype.show = function (message, duration) {
+        if (!message || !message.trim()) {
+            return;
+        }
+        if (duration) {
+            this._config.duration = duration;
+        }
         var toast;
-        if (typeof toastObj === 'string') {
-            toast = new Toast(toastObj);
-        }
-        else if (typeof toastObj === 'object') {
-            toast = new Toast(toastObj.message);
-            this.delay = toastObj.hideDelay;
-        }
+        toast = new Toast(message);
         if (toast) {
-            if (!this.container) {
-                var app = this._appRef;
-                var appContainer = app['_rootComponents'][0]['_hostElement'].vcRef;
-                var providers = ReflectiveInjector.resolve([]);
-                var toastFactory = this._componentFactory.resolveComponentFactory(Md2ToastComponent);
-                var childInjector = ReflectiveInjector.fromResolvedProviders(providers, appContainer.parentInjector);
-                this.container = appContainer.createComponent(toastFactory, appContainer.length, childInjector);
-                this.setupToast(toast);
+            if (!this._toastInstance) {
+                this._createToast();
             }
-            else {
-                this.setupToast(toast);
-            }
+            this._setToastMessage(toast);
         }
     };
-    /**
-     * toast timeout
-     * @param toastId
-     */
-    Md2Toast.prototype.startTimeout = function (toastId) {
-        var _this = this;
-        setTimeout(function () {
-            _this.clear(toastId);
-        }, this.delay);
+    /** Create the toast to display */
+    Md2Toast.prototype._createToast = function () {
+        this._createOverlay();
+        var portal = new ComponentPortal(Md2ToastComponent, this._config.viewContainerRef);
+        this._toastInstance = this._overlayRef.attach(portal).instance;
     };
-    /**
-     * setup toast
-     * @param toast
-     */
-    Md2Toast.prototype.setupToast = function (toast) {
+    /** Create the overlay config and position strategy */
+    Md2Toast.prototype._createOverlay = function () {
+        if (!this._overlayRef) {
+            var config = new OverlayState();
+            config.positionStrategy = this._overlay.position()
+                .global()
+                .top('0').right('0');
+            this._overlayRef = this._overlay.create(config);
+        }
+    };
+    /** Disposes the current toast and the overlay it is attached to */
+    Md2Toast.prototype._disposeToast = function () {
+        this._overlayRef.dispose();
+        this._overlayRef = null;
+        this._toastInstance = null;
+    };
+    /** Updates the toast message and repositions the overlay according to the new message length */
+    Md2Toast.prototype._setToastMessage = function (toast) {
+        var _this = this;
         toast.id = ++this.index;
-        this.container.instance.add(toast);
-        this.startTimeout(toast.id);
+        this._toastInstance.addToast(toast);
+        setTimeout(function () {
+            _this.clearToast(toast.id);
+        }, this._config.duration);
     };
     /**
      * clear specific toast
      * @param toastId
      */
-    Md2Toast.prototype.clear = function (toastId) {
+    Md2Toast.prototype.clearToast = function (toastId) {
         var _this = this;
-        if (this.container) {
-            var instance_1 = this.container.instance;
-            instance_1.remove(toastId);
+        if (this._toastInstance) {
+            this._toastInstance.removeToast(toastId);
             setTimeout(function () {
-                if (!instance_1.hasToast()) {
-                    _this.dispose();
+                if (!_this._toastInstance.hasToast()) {
+                    _this._disposeToast();
                 }
             }, 250);
         }
@@ -96,30 +105,84 @@ export var Md2Toast = (function () {
     /**
      * clear all toasts
      */
-    Md2Toast.prototype.clearAll = function () {
+    Md2Toast.prototype.clearAllToasts = function () {
         var _this = this;
-        if (this.container) {
-            var instance_2 = this.container.instance;
-            instance_2.removeAll();
+        if (this._toastInstance) {
+            this._toastInstance.removeAllToasts();
             setTimeout(function () {
-                if (!instance_2.hasToast()) {
-                    _this.dispose();
+                if (!_this._toastInstance.hasToast()) {
+                    _this._disposeToast();
                 }
             }, 250);
         }
     };
-    /**
-     * dispose all toasts
-     */
-    Md2Toast.prototype.dispose = function () {
-        this.container.destroy();
-        this.container = null;
-    };
     Md2Toast = __decorate([
         Injectable(), 
-        __metadata('design:paramtypes', [ComponentFactoryResolver, ApplicationRef])
+        __metadata('design:paramtypes', [Overlay, Md2ToastConfig])
     ], Md2Toast);
     return Md2Toast;
+}());
+export var Md2ToastComponent = (function () {
+    function Md2ToastComponent() {
+        this.toasts = [];
+        this.maxShown = 5;
+    }
+    /**
+     * add toast
+     * @param toast toast object with all parameters
+     */
+    Md2ToastComponent.prototype.addToast = function (toast) {
+        var _this = this;
+        setTimeout(function () {
+            toast.isVisible = true;
+        }, 1);
+        this.toasts.push(toast);
+        if (this.toasts.length > this.maxShown) {
+            this.toasts[0].isVisible = false;
+            setTimeout(function () {
+                _this.toasts.splice(0, (_this.toasts.length - _this.maxShown));
+            }, 250);
+        }
+    };
+    /**
+     * remove toast
+     * @param toastId number of toast id
+     */
+    Md2ToastComponent.prototype.removeToast = function (toastId) {
+        var _this = this;
+        this.toasts.forEach(function (t) { if (t.id === toastId) {
+            t.isVisible = false;
+        } });
+        setTimeout(function () {
+            _this.toasts = _this.toasts.filter(function (toast) { return toast.id !== toastId; });
+        }, 250);
+    };
+    /**
+     * remove all toasts
+     * @param toastId number of toast id
+     */
+    Md2ToastComponent.prototype.removeAllToasts = function () {
+        var _this = this;
+        this.toasts.forEach(function (t) { t.isVisible = false; });
+        setTimeout(function () {
+            _this.toasts = [];
+        }, 250);
+    };
+    /**
+     * check has any toast
+     * @return boolean
+     */
+    Md2ToastComponent.prototype.hasToast = function () { return this.toasts.length > 0; };
+    Md2ToastComponent = __decorate([
+        Component({
+            selector: 'md2-toast',
+            template: "<div *ngFor=\"let toast of toasts\" class=\"md2-toast\" [class.in]=\"toast.isVisible\" (click)=\"remove(toast.id)\">{{ toast.message }}</div> ",
+            styles: ["md2-toast { display: block; box-sizing: border-box; cursor: default; overflow: hidden; min-width: 304px; max-width: 100%; padding: 8px; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; } .md2-toast { position: relative; padding: 14px 24px; margin-bottom: 5px; display: block; margin-top: -53px; opacity: 0; background-color: #323232; color: #fafafa; box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26); border-radius: 2px; font-size: 14px; overflow: hidden; word-wrap: break-word; transition: all 250ms linear; } .md2-toast.in { margin-top: 0; opacity: 1; } .cdk-visually-hidden { border: 0; clip: rect(0 0 0 0); height: 1px; margin: -1px; overflow: hidden; padding: 0; position: absolute; text-transform: none; width: 1px; } .cdk-overlay-container, .cdk-global-overlay-wrapper { pointer-events: none; top: 0; left: 0; height: 100%; width: 100%; } .cdk-overlay-container { position: fixed; z-index: 1000; } .cdk-global-overlay-wrapper { display: flex; position: absolute; z-index: 1000; } .cdk-overlay-pane { position: absolute; pointer-events: auto; box-sizing: border-box; z-index: 1000; } /*# sourceMappingURL=toast.css.map */ "],
+            encapsulation: ViewEncapsulation.None,
+        }), 
+        __metadata('design:paramtypes', [])
+    ], Md2ToastComponent);
+    return Md2ToastComponent;
 }());
 export var MD2_TOAST_DIRECTIVES = [Md2ToastComponent];
 export var Md2ToastModule = (function () {
@@ -136,12 +199,11 @@ export var Md2ToastModule = (function () {
             imports: [CommonModule],
             exports: MD2_TOAST_DIRECTIVES,
             declarations: MD2_TOAST_DIRECTIVES,
-            providers: [Md2Toast],
-            entryComponents: MD2_TOAST_DIRECTIVES
+            entryComponents: MD2_TOAST_DIRECTIVES,
+            providers: [Md2Toast, Md2ToastConfig, OVERLAY_PROVIDERS]
         }), 
         __metadata('design:paramtypes', [])
     ], Md2ToastModule);
     return Md2ToastModule;
 }());
-
 //# sourceMappingURL=toast.js.map

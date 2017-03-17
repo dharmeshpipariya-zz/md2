@@ -7,7 +7,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Injectable } from '@angular/core';
+import { Injectable, Optional, SkipSelf } from '@angular/core';
 /**
  * Class to coordinate unique selection based on name.
  * Intended to be consumed as an Angular service.
@@ -17,26 +17,38 @@ import { Injectable } from '@angular/core';
  * This service does not *store* any IDs and names because they may change at any time, so it is
  * less error-prone if they are simply passed through when the events occur.
  */
-export var MdUniqueSelectionDispatcher = (function () {
-    function MdUniqueSelectionDispatcher() {
+export var UniqueSelectionDispatcher = (function () {
+    function UniqueSelectionDispatcher() {
         this._listeners = [];
     }
-    /** Notify other items that selection for the given name has been set. */
-    MdUniqueSelectionDispatcher.prototype.notify = function (id, name) {
+    /**
+     * Notify other items that selection for the given name has been set.
+     * @param id ID of the item.
+     * @param name Name of the item.
+     */
+    UniqueSelectionDispatcher.prototype.notify = function (id, name) {
         for (var _i = 0, _a = this._listeners; _i < _a.length; _i++) {
             var listener = _a[_i];
             listener(id, name);
         }
     };
     /** Listen for future changes to item selection. */
-    MdUniqueSelectionDispatcher.prototype.listen = function (listener) {
+    UniqueSelectionDispatcher.prototype.listen = function (listener) {
         this._listeners.push(listener);
     };
-    MdUniqueSelectionDispatcher = __decorate([
+    UniqueSelectionDispatcher = __decorate([
         Injectable(), 
         __metadata('design:paramtypes', [])
-    ], MdUniqueSelectionDispatcher);
-    return MdUniqueSelectionDispatcher;
+    ], UniqueSelectionDispatcher);
+    return UniqueSelectionDispatcher;
 }());
-
+export function UNIQUE_SELECTION_DISPATCHER_PROVIDER_FACTORY(parentDispatcher) {
+    return parentDispatcher || new UniqueSelectionDispatcher();
+}
+export var UNIQUE_SELECTION_DISPATCHER_PROVIDER = {
+    // If there is already a dispatcher available, use that. Otherwise, provide a new one.
+    provide: UniqueSelectionDispatcher,
+    deps: [[new Optional(), new SkipSelf(), UniqueSelectionDispatcher]],
+    useFactory: UNIQUE_SELECTION_DISPATCHER_PROVIDER_FACTORY
+};
 //# sourceMappingURL=unique-selection-dispatcher.js.map

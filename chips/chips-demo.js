@@ -11,15 +11,19 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var core_1 = require('@angular/core');
 var ChipsDemo = (function () {
     function ChipsDemo() {
-        this.items = [
-            'Data1', 'Data2', 'Data3', 'Data4', 'Data5', 'Data6', 'Data7', 'Data8'
+        this._itemsData = [
+            { name: 'Vadodara', value: '1' },
+            { name: 'Mumbai', value: '5' },
+            { name: 'Goa', value: '6' }
         ];
-        this.itemsData = [
-            'Data1', 'Data2', 'Data3'
+        this._items = [
+            { text: 'Vadodaraa', value: '8' },
+            { text: 'Mumbaia', value: '2' },
+            { text: 'Goaa', value: '4' }
         ];
-        this.validPattern = /^[0-9]*$/;
+        this._validPattern = /^[0-9]*$/;
     }
-    ChipsDemo.prototype.change = function (value) {
+    ChipsDemo.prototype.handleChange = function (value) {
         console.log('Changed data: ', value);
     };
     ChipsDemo = __decorate([
@@ -33,5 +37,4 @@ var ChipsDemo = (function () {
     return ChipsDemo;
 }());
 exports.ChipsDemo = ChipsDemo;
-
 //# sourceMappingURL=chips-demo.js.map

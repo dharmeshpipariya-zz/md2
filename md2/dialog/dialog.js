@@ -12,10 +12,18 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Component, Output, Input, EventEmitter, ViewChild, ViewEncapsulation, Directive, ViewContainerRef, TemplateRef, NgModule } from '@angular/core';
+import { Component, Output, Input, EventEmitter, ViewChild, ViewEncapsulation, Directive, ViewContainerRef, style, trigger, state, transition, animate, TemplateRef, NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Overlay, OVERLAY_PROVIDERS, OverlayState, TemplatePortal } from '../core/core';
-import { Animate } from './animate';
+import { Overlay, OverlayState, OverlayModule, TemplatePortalDirective } from '../core/core';
+import { extendObject } from '../core/util/object-extend';
+import 'rxjs/add/operator/first';
+export var Md2DialogConfig = (function () {
+    function Md2DialogConfig() {
+        this.role = 'dialog';
+        this.disableClose = false;
+    }
+    return Md2DialogConfig;
+}());
 export var Md2DialogPortal = (function (_super) {
     __extends(Md2DialogPortal, _super);
     function Md2DialogPortal(templateRef, viewContainerRef) {
@@ -26,7 +34,10 @@ export var Md2DialogPortal = (function (_super) {
         __metadata('design:paramtypes', [TemplateRef, ViewContainerRef])
     ], Md2DialogPortal);
     return Md2DialogPortal;
-}(TemplatePortal));
+}(TemplatePortalDirective));
+/**
+ * Title of a dialog element. Stays fixed to the top of the dialog when scrolling.
+ */
 export var Md2DialogTitle = (function () {
     function Md2DialogTitle() {
     }
@@ -36,132 +47,179 @@ export var Md2DialogTitle = (function () {
     ], Md2DialogTitle);
     return Md2DialogTitle;
 }());
-export var Md2DialogFooter = (function () {
-    function Md2DialogFooter() {
+/**
+ * Scrollable content container of a dialog.
+ */
+export var Md2DialogContent = (function () {
+    function Md2DialogContent() {
     }
-    Md2DialogFooter = __decorate([
-        Directive({ selector: 'md2-dialog-footer' }), 
+    Md2DialogContent = __decorate([
+        Directive({ selector: 'md2-dialog-content' }), 
         __metadata('design:paramtypes', [])
-    ], Md2DialogFooter);
-    return Md2DialogFooter;
+    ], Md2DialogContent);
+    return Md2DialogContent;
+}());
+/**
+ * Container for the bottom action buttons in a dialog.
+ * Stays fixed to the bottom when scrolling.
+ */
+export var Md2DialogActions = (function () {
+    function Md2DialogActions() {
+    }
+    Md2DialogActions = __decorate([
+        Directive({ selector: 'md2-dialog-footer, md2-dialog-actions' }), 
+        __metadata('design:paramtypes', [])
+    ], Md2DialogActions);
+    return Md2DialogActions;
 }());
 export var Md2Dialog = (function () {
-    function Md2Dialog(overlay) {
-        this.overlay = overlay;
-        this.onShow = new EventEmitter();
+    function Md2Dialog(_overlay) {
+        this._overlay = _overlay;
+        this._panelOpen = false;
+        this._overlayRef = null;
+        /** Property watched by the animation framework to show or hide the dialog */
+        this._visibility = 'initial';
+        this.onOpen = new EventEmitter();
         this.onClose = new EventEmitter();
-        this.onCancel = new EventEmitter();
-        /** Is the dialog active? */
-        this.isOpened = false;
-        /** Overlay configuration for positioning the dialog */
-        this.config = new OverlayState();
-        /** @internal */
-        this.overlayRef = null;
     }
-    Md2Dialog.prototype.ngOnDestroy = function () {
-        return this.close();
-    };
-    /** Show the dialog */
-    Md2Dialog.prototype.show = function () {
-        return this.open();
-    };
+    Md2Dialog.prototype.ngOnDestroy = function () { this.destroyPanel(); };
     /** Open the dialog */
-    Md2Dialog.prototype.open = function () {
-        var _this = this;
-        return this.close()
-            .then(function () { return _this.overlay.create(_this.config); })
-            .then(function (ref) {
-            _this.overlayRef = ref;
-            return ref.attach(_this.portal);
-        })
-            .then(function () { return Animate.wait(); })
-            .then(function () {
-            _this.isOpened = true;
-            _this.onShow.emit(_this);
-            return _this;
-        });
-    };
-    /** Close the dialog */
-    Md2Dialog.prototype.close = function (result, cancel) {
-        var _this = this;
-        if (result === void 0) { result = true; }
-        if (cancel === void 0) { cancel = false; }
-        if (!this.overlayRef) {
+    Md2Dialog.prototype.open = function (config) {
+        this.config = _applyConfigDefaults(config);
+        if (this._panelOpen) {
             return Promise.resolve(this);
         }
-        this.isOpened = false;
-        // TODO(jd): this is terrible, use animate states
-        return Animate.wait(100)
-            .then(function () { return _this.overlayRef.detach(); })
-            .then(function () {
-            _this.overlayRef.dispose();
-            _this.overlayRef = null;
-            if (cancel) {
-                _this.onCancel.emit(result);
-            }
-            else {
-                _this.onClose.emit(result);
-            }
-            return _this;
-        });
+        this._createOverlay();
+        this._overlayRef.attach(this._portal);
+        this._subscribeToBackdrop();
+        this._panelOpen = true;
+        this._visibility = 'visible';
+        return Promise.resolve(this);
     };
-    Md2Dialog.prototype.onDocumentKeypress = function (event) {
-        if (event.keyCode == 27) {
+    /** Close the dialog */
+    Md2Dialog.prototype.close = function () {
+        this._visibility = 'hidden';
+        this._panelOpen = false;
+        if (this._overlayRef) {
+            this._overlayRef.detach();
+            if (this._backdropSubscription) {
+                this._backdropSubscription.unsubscribe();
+            }
+        }
+        return Promise.resolve(this);
+    };
+    /** Removes the panel from the DOM. */
+    Md2Dialog.prototype.destroyPanel = function () {
+        if (this._overlayRef) {
+            this._overlayRef.dispose();
+            this._overlayRef = null;
+            this._cleanUpSubscriptions();
+        }
+    };
+    Md2Dialog.prototype._onPanelDone = function () {
+        if (this._panelOpen) {
+            this.onOpen.emit(this);
+        }
+        else {
+            this.onClose.emit();
+        }
+    };
+    Md2Dialog.prototype._handleEscKeydown = function (event) {
+        if (this._panelOpen && !this.config.disableClose) {
             this.close();
+        }
+    };
+    Md2Dialog.prototype._subscribeToBackdrop = function () {
+        var _this = this;
+        if (!this.config.disableClose) {
+            this._backdropSubscription = this._overlayRef.backdropClick().first().subscribe(function () { return _this.close(); });
+        }
+    };
+    Md2Dialog.prototype._createOverlay = function () {
+        if (!this._overlayRef) {
+            var config = new OverlayState();
+            config.positionStrategy = this._overlay.position()
+                .global()
+                .centerHorizontally()
+                .centerVertically();
+            config.hasBackdrop = true;
+            this._overlayRef = this._overlay.create(config);
+        }
+    };
+    Md2Dialog.prototype._cleanUpSubscriptions = function () {
+        if (this._backdropSubscription) {
+            this._backdropSubscription.unsubscribe();
         }
     };
     __decorate([
         Output(), 
         __metadata('design:type', EventEmitter)
-    ], Md2Dialog.prototype, "onShow", void 0);
+    ], Md2Dialog.prototype, "onOpen", void 0);
     __decorate([
         Output(), 
         __metadata('design:type', EventEmitter)
     ], Md2Dialog.prototype, "onClose", void 0);
     __decorate([
-        Output(), 
-        __metadata('design:type', EventEmitter)
-    ], Md2Dialog.prototype, "onCancel", void 0);
-    __decorate([
         ViewChild(Md2DialogPortal), 
         __metadata('design:type', Md2DialogPortal)
-    ], Md2Dialog.prototype, "portal", void 0);
+    ], Md2Dialog.prototype, "_portal", void 0);
     __decorate([
         Input('title'), 
         __metadata('design:type', String)
     ], Md2Dialog.prototype, "dialogTitle", void 0);
-    __decorate([
-        Input(), 
-        __metadata('design:type', Object)
-    ], Md2Dialog.prototype, "config", void 0);
     Md2Dialog = __decorate([
         Component({selector: 'md2-dialog',
-            template: "\n    <template md2DialogPortal>\n      <div class=\"md2-dialog\" [class.open]=\"isOpened\">\n        <div class=\"md2-dialog-container\">\n          <div class=\"md2-dialog-header\">\n            <button type=\"button\" class=\"close\" aria-label=\"Close\" (click)=\"close()\">&times;</button>\n            <h2 *ngIf=\"dialogTitle\" class=\"md2-dialog-title\" id=\"myDialogLabel\" [innerHtml]=\"dialogTitle\"></h2>\n            <ng-content select=\"md2-dialog-title\"></ng-content>\n          </div>\n          <div class=\"md2-dialog-body\">\n            <ng-content></ng-content>\n          </div>\n          <ng-content select=\"md2-dialog-footer\"></ng-content>\n        </div>\n      </div>\n    </template>\n  ",
-            styles: ["\n    .md2-dialog-open { overflow-y: hidden; }\n    .md2-dialog { position: fixed; top: 0; right: 0; bottom: 0; left: 0; z-index: 1050; background-color: rgba(33, 33, 33, 0.48); display: none; overflow-x: hidden; overflow-y: scroll; -webkit-overflow-scrolling: touch; outline: 0; }\n    .md2-dialog.open { display: block; }\n    .md2-dialog .md2-dialog-container { position: relative; width: auto; margin: 15px; background-color: #fff; -webkit-background-clip: padding-box; -moz-background-clip: padding-box; background-clip: padding-box; border-radius: 0 0 4px 4px; outline: 0; -webkit-box-shadow: 0 7px 8px -4px rgba(0,0,0,.2),0 13px 19px 2px rgba(0,0,0,.14),0 5px 24px 4px rgba(0,0,0,.12); box-shadow: 0 7px 8px -4px rgba(0,0,0,.2),0 13px 19px 2px rgba(0,0,0,.14),0 5px 24px 4px rgba(0,0,0,.12); -webkit-transition: .3s; -o-transition: .3s; -moz-transition: .3s; transition: .3s; -webkit-transform: scale(0.1); -ms-transform: scale(0.1); -o-transform: scale(0.1); -moz-transform: scale(0.1); transform: scale(0.1); }\n    .md2-dialog.open .md2-dialog-container { -webkit-transform: scale(1); -ms-transform: scale(1); -o-transform: scale(1); -moz-transform: scale(1); transform: scale(1); }\n    @media (min-width: 768px) {\n      .md2-dialog .md2-dialog-container { width: 600px; margin: 30px auto; }\n    }\n    .md2-dialog-header { background: #2196f3; color: #fff; font-size: 25px; line-height: 1.1; font-weight: 500; padding: 0 48px 0 16px; border-bottom: 1px solid #e5e5e5; word-wrap: break-word; }\n    .md2-dialog-header .close { position: absolute; top: 21px; right: 16px; display: inline-block; width: 18px; height: 18px; overflow: hidden; -webkit-appearance: none; padding: 0; cursor: pointer; background: 0 0; border: 0; outline: 0; opacity: 0.8; font-size: 0; z-index: 1; min-width: initial; box-shadow: none; margin: 0; }\n    .md2-dialog-header .close::before,\n    .md2-dialog-header .close::after { content: ''; position: absolute; top: 50%; left: 0; height: 2px; width: 100%; margin-top: -1px;background: #ccc;border-radius: 2px;height: 2px;}\n    .md2-dialog-header .close::before {-webkit-transform: rotate(45deg);-moz-transform: rotate(45deg);-ms-transform: rotate(45deg);-o-transform: rotate(45deg);transform: rotate(45deg);}\n    .md2-dialog-header .close::after {-webkit-transform: rotate(-45deg);-moz-transform: rotate(-45deg);-ms-transform: rotate(-45deg);-o-transform: rotate(-45deg);transform: rotate(-45deg);}\n    .md2-dialog-header .close:hover { opacity: 1; }\n    .md2-dialog-header md2-dialog-title, .md2-dialog-header .md2-dialog-title { display: block; margin: 0; padding: 16px 0; font-size: 25px; font-weight: 500; }\n    .md2-dialog-header dialog-header { line-height: 33px; }\n    .md2-dialog-body { position: relative; padding: 16px; }\n    .md2-dialog-footer, md2-dialog-footer { display: block; padding: 16px; text-align: right; border-top: 1px solid rgba(0,0,0,0.12); }\n  "],
+            template: "<template md2DialogPortal> <div class=\"md2-dialog-panel\" [attr.role]=\"dialogConfig?.role\" [@state]=\"_visibility\" (@state.done)=\"_onPanelDone()\"> <div class=\"md2-dialog-content\"> <div class=\"md2-dialog-header\"> <button *ngIf=\"!config.disableClose\" type=\"button\" class=\"close\" aria-label=\"Close\" (click)=\"close()\">&times;</button> <h2 *ngIf=\"dialogTitle\" class=\"md2-dialog-title\" id=\"myDialogLabel\" [innerHtml]=\"dialogTitle\"></h2> <ng-content select=\"md2-dialog-title\"></ng-content> </div> <div class=\"md2-dialog-body\"> <ng-content select=\"md2-dialog-content\"></ng-content> <ng-content></ng-content> </div> <ng-content select=\"md2-dialog-footer\"></ng-content> <ng-content select=\"md2-dialog-actions\"></ng-content> </div> </div> </template>",
+            styles: [".md2-dialog-panel { position: relative; max-width: 90vw; width: 600px; border-radius: 3px; background-color: white; overflow: hidden; box-shadow: 0 11px 15px -7px rgba(0, 0, 0, 0.2), 0 24px 38px 3px rgba(0, 0, 0, 0.14), 0 9px 46px 8px rgba(0, 0, 0, 0.12); } .md2-dialog-header { background: #2196f3; color: #fff; font-size: 25px; line-height: 1.1; font-weight: 500; padding: 0 48px 0 16px; border-bottom: 1px solid #e5e5e5; word-wrap: break-word; } .md2-dialog-header .close { position: absolute; top: 21px; right: 16px; display: inline-block; width: 18px; height: 18px; overflow: hidden; -webkit-appearance: none; padding: 0; cursor: pointer; background: 0 0; border: 0; outline: 0; opacity: 0.8; font-size: 0; z-index: 1; min-width: initial; box-shadow: none; margin: 0; } .md2-dialog-header .close::before, .md2-dialog-header .close::after { content: ''; position: absolute; top: 50%; left: 0; width: 100%; height: 2px; margin-top: -1px; background: #ccc; border-radius: 2px; } .md2-dialog-header .close::before { transform: rotate(45deg); } .md2-dialog-header .close::after { transform: rotate(-45deg); } .md2-dialog-header .close:hover { opacity: 1; } .md2-dialog-header md2-dialog-title, .md2-dialog-header .md2-dialog-title { display: block; margin: 0; padding: 16px 0; font-size: 25px; font-weight: 500; } .md2-dialog-header dialog-header { line-height: 33px; } .md2-dialog-body { position: relative; max-height: 65vh; padding: 16px; overflow-y: auto; } .md2-dialog-footer, md2-dialog-footer { display: block; padding: 16px; text-align: right; border-top: 1px solid rgba(0, 0, 0, 0.12); } .cdk-overlay-container, .cdk-global-overlay-wrapper { pointer-events: none; top: 0; left: 0; height: 100%; width: 100%; } .cdk-overlay-container { position: fixed; z-index: 1000; } .cdk-global-overlay-wrapper { display: flex; position: absolute; z-index: 1000; } .cdk-overlay-pane { position: absolute; pointer-events: auto; box-sizing: border-box; z-index: 1000; } .cdk-overlay-backdrop { position: absolute; top: 0; bottom: 0; left: 0; right: 0; z-index: 1000; pointer-events: auto; transition: opacity 400ms cubic-bezier(0.25, 0.8, 0.25, 1); opacity: 0; } .cdk-overlay-backdrop.cdk-overlay-backdrop-showing { opacity: 0.48; } .cdk-overlay-dark-backdrop { background: rgba(0, 0, 0, 0.6); } /*# sourceMappingURL=dialog.css.map */ "],
             host: {
                 'tabindex': '0',
-                '(body:keydown)': 'onDocumentKeypress($event)'
+                '[attr.role]': 'config?.role',
+                '(body:keydown.esc)': '_handleEscKeydown($event)'
             },
+            animations: [
+                trigger('state', [
+                    state('void', style({ transform: 'scale(0.3)' })),
+                    state('initial', style({ transform: 'scale(0.3)' })),
+                    state('visible', style({ transform: 'scale(1)' })),
+                    state('hidden', style({ transform: 'scale(0.3)' })),
+                    transition('* => visible', animate('150ms cubic-bezier(0.0, 0.0, 0.2, 1)')),
+                    transition('* => hidden', animate('150ms cubic-bezier(0.4, 0.0, 1, 1)')),
+                ])
+            ],
             encapsulation: ViewEncapsulation.None,
+            exportAs: 'md2Dialog'
         }), 
         __metadata('design:paramtypes', [Overlay])
     ], Md2Dialog);
     return Md2Dialog;
 }());
-export var MD2_DIALOG_DIRECTIVES = [Md2Dialog, Md2DialogTitle, Md2DialogFooter, Md2DialogPortal];
-export var MD2_DIALOG_PROVIDERS = [Overlay, OVERLAY_PROVIDERS];
+/**
+ * Applies default options to the dialog config.
+ * @param dialogConfig Config to be modified.
+ * @returns The new configuration object.
+ */
+function _applyConfigDefaults(dialogConfig) {
+    return extendObject(new Md2DialogConfig(), dialogConfig);
+}
+export var MD2_DIALOG_DIRECTIVES = [
+    Md2Dialog,
+    Md2DialogTitle,
+    Md2DialogContent,
+    Md2DialogActions,
+    Md2DialogPortal
+];
 export var Md2DialogModule = (function () {
     function Md2DialogModule() {
     }
     Md2DialogModule.forRoot = function () {
         return {
             ngModule: Md2DialogModule,
-            providers: MD2_DIALOG_PROVIDERS
+            providers: []
         };
     };
     Md2DialogModule = __decorate([
         NgModule({
-            imports: [CommonModule],
+            imports: [CommonModule, OverlayModule],
             exports: MD2_DIALOG_DIRECTIVES,
             declarations: MD2_DIALOG_DIRECTIVES,
         }), 
@@ -169,5 +227,4 @@ export var Md2DialogModule = (function () {
     ], Md2DialogModule);
     return Md2DialogModule;
 }());
-
 //# sourceMappingURL=dialog.js.map

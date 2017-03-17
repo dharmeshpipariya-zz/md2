@@ -6,6 +6,7 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 /**
  * Wrapper around Error that sets the error message.
+ * @docs-private
  */
 export var MdError = (function (_super) {
     __extends(MdError, _super);
@@ -15,5 +16,4 @@ export var MdError = (function (_super) {
     }
     return MdError;
 }(Error));
-
 //# sourceMappingURL=error.js.map

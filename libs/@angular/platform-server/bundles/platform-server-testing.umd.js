@@ -1,6 +1,6 @@
 /**
- * @license Angular v2.1.2
- * (c) 2010-2016 Google, Inc. https://angular.io/
+ * @license Angular v2.4.10
+ * (c) 2010-2017 Google, Inc. https://angular.io/
  * License: MIT
  */
 (function (global, factory) {
@@ -10,6 +10,7 @@
 }(this, function (exports,_angular_compiler_testing,_angular_core,_angular_platformBrowserDynamic_testing,_angular_platformServer) { 'use strict';
 
     var INTERNAL_SERVER_PLATFORM_PROVIDERS = _angular_platformServer.__platform_server_private__.INTERNAL_SERVER_PLATFORM_PROVIDERS;
+    var SERVER_RENDER_PROVIDERS = _angular_platformServer.__platform_server_private__.SERVER_RENDER_PROVIDERS;
 
     /**
      * Platform for testing
@@ -26,10 +27,10 @@
         function ServerTestingModule() {
         }
         ServerTestingModule.decorators = [
-            { type: _angular_core.NgModule, args: [{ exports: [_angular_platformBrowserDynamic_testing.BrowserDynamicTestingModule] },] },
+            { type: _angular_core.NgModule, args: [{ exports: [_angular_platformBrowserDynamic_testing.BrowserDynamicTestingModule], providers: SERVER_RENDER_PROVIDERS },] },
         ];
         /** @nocollapse */
-        ServerTestingModule.ctorParameters = [];
+        ServerTestingModule.ctorParameters = function () { return []; };
         return ServerTestingModule;
     }());
 

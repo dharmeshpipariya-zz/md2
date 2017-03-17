@@ -8,6 +8,9 @@
 import { isPresent, scheduleMicroTask } from '../facade/lang';
 import { NoOpAnimationPlayer } from './animation_player';
 export var AnimationSequencePlayer = (function () {
+    /**
+     * @param {?} _players
+     */
     function AnimationSequencePlayer(_players) {
         var _this = this;
         this._players = _players;
@@ -16,10 +19,15 @@ export var AnimationSequencePlayer = (function () {
         this._onStartFns = [];
         this._finished = false;
         this._started = false;
+        this._destroyed = false;
         this.parentPlayer = null;
         this._players.forEach(function (player) { player.parentPlayer = _this; });
         this._onNext(false);
     }
+    /**
+     * @param {?} start
+     * @return {?}
+     */
     AnimationSequencePlayer.prototype._onNext = function (start) {
         var _this = this;
         if (this._finished)
@@ -33,7 +41,7 @@ export var AnimationSequencePlayer = (function () {
             this._onFinish();
         }
         else {
-            var player = this._players[this._currentIndex++];
+            var /** @type {?} */ player = this._players[this._currentIndex++];
             player.onDone(function () { return _this._onNext(true); });
             this._activePlayer = player;
             if (start) {
@@ -41,20 +49,37 @@ export var AnimationSequencePlayer = (function () {
             }
         }
     };
+    /**
+     * @return {?}
+     */
     AnimationSequencePlayer.prototype._onFinish = function () {
         if (!this._finished) {
             this._finished = true;
-            if (!isPresent(this.parentPlayer)) {
-                this.destroy();
-            }
             this._onDoneFns.forEach(function (fn) { return fn(); });
             this._onDoneFns = [];
         }
     };
+    /**
+     * @return {?}
+     */
     AnimationSequencePlayer.prototype.init = function () { this._players.forEach(function (player) { return player.init(); }); };
+    /**
+     * @param {?} fn
+     * @return {?}
+     */
     AnimationSequencePlayer.prototype.onStart = function (fn) { this._onStartFns.push(fn); };
+    /**
+     * @param {?} fn
+     * @return {?}
+     */
     AnimationSequencePlayer.prototype.onDone = function (fn) { this._onDoneFns.push(fn); };
+    /**
+     * @return {?}
+     */
     AnimationSequencePlayer.prototype.hasStarted = function () { return this._started; };
+    /**
+     * @return {?}
+     */
     AnimationSequencePlayer.prototype.play = function () {
         if (!isPresent(this.parentPlayer)) {
             this.init();
@@ -66,24 +91,83 @@ export var AnimationSequencePlayer = (function () {
         }
         this._activePlayer.play();
     };
+    /**
+     * @return {?}
+     */
     AnimationSequencePlayer.prototype.pause = function () { this._activePlayer.pause(); };
+    /**
+     * @return {?}
+     */
     AnimationSequencePlayer.prototype.restart = function () {
+        this.reset();
         if (this._players.length > 0) {
-            this.reset();
             this._players[0].restart();
         }
     };
-    AnimationSequencePlayer.prototype.reset = function () { this._players.forEach(function (player) { return player.reset(); }); };
+    /**
+     * @return {?}
+     */
+    AnimationSequencePlayer.prototype.reset = function () {
+        this._players.forEach(function (player) { return player.reset(); });
+        this._destroyed = false;
+        this._finished = false;
+        this._started = false;
+    };
+    /**
+     * @return {?}
+     */
     AnimationSequencePlayer.prototype.finish = function () {
         this._onFinish();
         this._players.forEach(function (player) { return player.finish(); });
     };
+    /**
+     * @return {?}
+     */
     AnimationSequencePlayer.prototype.destroy = function () {
-        this._onFinish();
-        this._players.forEach(function (player) { return player.destroy(); });
+        if (!this._destroyed) {
+            this._onFinish();
+            this._players.forEach(function (player) { return player.destroy(); });
+            this._destroyed = true;
+            this._activePlayer = new NoOpAnimationPlayer();
+        }
     };
-    AnimationSequencePlayer.prototype.setPosition = function (p /** TODO #9100 */) { this._players[0].setPosition(p); };
+    /**
+     * @param {?} p
+     * @return {?}
+     */
+    AnimationSequencePlayer.prototype.setPosition = function (p) { this._players[0].setPosition(p); };
+    /**
+     * @return {?}
+     */
     AnimationSequencePlayer.prototype.getPosition = function () { return this._players[0].getPosition(); };
+    Object.defineProperty(AnimationSequencePlayer.prototype, "players", {
+        /**
+         * @return {?}
+         */
+        get: function () { return this._players; },
+        enumerable: true,
+        configurable: true
+    });
     return AnimationSequencePlayer;
 }());
+function AnimationSequencePlayer_tsickle_Closure_declarations() {
+    /** @type {?} */
+    AnimationSequencePlayer.prototype._currentIndex;
+    /** @type {?} */
+    AnimationSequencePlayer.prototype._activePlayer;
+    /** @type {?} */
+    AnimationSequencePlayer.prototype._onDoneFns;
+    /** @type {?} */
+    AnimationSequencePlayer.prototype._onStartFns;
+    /** @type {?} */
+    AnimationSequencePlayer.prototype._finished;
+    /** @type {?} */
+    AnimationSequencePlayer.prototype._started;
+    /** @type {?} */
+    AnimationSequencePlayer.prototype._destroyed;
+    /** @type {?} */
+    AnimationSequencePlayer.prototype.parentPlayer;
+    /** @type {?} */
+    AnimationSequencePlayer.prototype._players;
+}
 //# sourceMappingURL=animation_sequence_player.js.map
