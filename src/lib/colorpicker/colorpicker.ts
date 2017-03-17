@@ -98,10 +98,14 @@ export class Md2Colorpicker implements OnDestroy, ControlValueAccessor {
   /** Whether the select is disabled.  */
   private _disabled: boolean = false;
 
+  /** Whether the select is disabled.  */
+  private _format: string;
+
   /** The placeholder displayed in the trigger of the select. */
   private _placeholder: string;
 
   private _container: Container = 'inline';
+  private _openOnFocus: boolean = false;
 
   /** Position of the menu in the X axis. */
   positionX: PanelPositionX = 'after';
@@ -136,6 +140,14 @@ export class Md2Colorpicker implements OnDestroy, ControlValueAccessor {
   @Output() change: EventEmitter<Md2ColorChange> = new EventEmitter<Md2ColorChange>();
 
   @ViewChildren(TemplatePortalDirective) templatePortals: QueryList<Portal<any>>;
+
+  @Input()
+  get format() { return this._format || this._locale.format; }
+  set format(value: string) {
+    if (this._format !== value) {
+      this._format = value;
+    }
+  }
 
   @Input()
   get value() { return this._value; }
@@ -184,7 +196,20 @@ export class Md2Colorpicker implements OnDestroy, ControlValueAccessor {
   get disabled() { return this._disabled; }
   set disabled(value: any) { this._disabled = coerceBooleanProperty(value); }
 
+  @Input() okLabel: string = 'Ok';
+  @Input() cancelLabel: string = 'Cancel';
   @Input() tabindex: number = 0;
+
+  @Input()
+  get openOnFocus(): boolean { return this._openOnFocus; }
+  set openOnFocus(value: boolean) { this._openOnFocus = coerceBooleanProperty(value); }
+
+  @Input()
+  set isOpen(value: boolean) {
+    if (value && !this.panelOpen) {
+      this.open();
+    }
+  }
 
   /** Whether or not the overlay panel is open. */
   get panelOpen(): boolean { return this._panelOpen; }
