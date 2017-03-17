@@ -12,7 +12,8 @@
   </div>
 </div>
 <template portal>
-  <div class="md2-colorpicker-panel" [@fadeInContent]="'showing'" (@fadeInContent.done)="_onPanelDone()" tabindex="0">
+  <div class="md2-colorpicker-panel" [@fadeInContent]="'showing'" (@fadeInContent.done)="_onPanelDone()"
+       [attr.container]="container" tabindex="0">
     <div class="md2-colorpicker-content">
       <div class="md2-colorpicker-header" [class.dark]="_isDark" [style.background]="value">
         <div class="md2-colorpicker-header-input"> {{ value }} </div>

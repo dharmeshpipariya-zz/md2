@@ -34,6 +34,8 @@ import {
   TemplatePortal,
   PortalModule,
   TemplatePortalDirective,
+  HorizontalConnectionPos,
+  VerticalConnectionPos,
 } from '../core';
 import { coerceBooleanProperty } from '../core/coercion/boolean-property';
 import { Subscription } from 'rxjs/Subscription';
@@ -41,6 +43,7 @@ import { ENTER, SPACE } from '../core/keyboard/keycodes';
 import { ColorLocale, Rgba } from './color-locale';
 import { Md2ColorSpectrum } from './color-spectrum';
 import { Md2Slide } from './slide';
+import { Container, PanelPositionX, PanelPositionY } from '../datepicker/datepicker';
 
 /** Change event object emitted by Md2Colorpicker. */
 export class Md2ColorChange {
@@ -61,7 +64,8 @@ export class Md2ColorChange {
     '[attr.aria-invalid]': '_control?.invalid || "false"',
     '[class.md2-colorpicker-disabled]': 'disabled',
     '(keydown)': '_handleKeydown($event)',
-    '(blur)': '_onBlur()'
+    '(blur)': '_onBlur()',
+    '(window:resize)': '_handleWindowResize($event)'
   },
   animations: [
     trigger('fadeInContent', [
@@ -96,6 +100,16 @@ export class Md2Colorpicker implements OnDestroy, ControlValueAccessor {
 
   /** The placeholder displayed in the trigger of the select. */
   private _placeholder: string;
+
+  private _container: Container = 'inline';
+
+  /** Position of the menu in the X axis. */
+  positionX: PanelPositionX = 'after';
+
+  /** Position of the menu in the Y axis. */
+  positionY: PanelPositionY = 'below';
+
+  overlapTrigger: boolean = true;
 
   _formats: Array<string> = ['hex', 'rgb', 'hsl'];
 
@@ -146,6 +160,15 @@ export class Md2Colorpicker implements OnDestroy, ControlValueAccessor {
   @Input()
   get color() { return this._color; }
   set color(value: string) { this._color = value; }
+
+  @Input()
+  get container() { return this._container; }
+  set container(value: Container) {
+    if (this._container !== value) {
+      this._container = value || 'inline';
+      this.destroyPanel();
+    }
+  }
 
   /** Placeholder to be shown if no value has been selected. */
   @Input()
@@ -217,6 +240,12 @@ export class Md2Colorpicker implements OnDestroy, ControlValueAccessor {
     }
   }
 
+  _handleWindowResize(event: Event) {
+    if (this.container === 'inline') {
+      this.close();
+    }
+  }
+
   _onPanelDone(): void {
     if (this.panelOpen) {
       this._renderer.invokeElementMethod(document.querySelectorAll('.md2-colorpicker-panel')[0], 'focus');
@@ -282,13 +311,41 @@ export class Md2Colorpicker implements OnDestroy, ControlValueAccessor {
   private _createOverlay(): void {
     if (!this._overlayRef) {
       let config = new OverlayState();
-      config.positionStrategy = this.overlay.position()
-        .global()
-        .centerHorizontally()
-        .centerVertically();
-      config.hasBackdrop = true;
-      config.backdropClass = 'cdk-overlay-dark-backdrop';
+      if (this.container === 'inline') {
+        const [posX, fallbackX]: HorizontalConnectionPos[] =
+          this.positionX === 'before' ? ['end', 'start'] : ['start', 'end'];
 
+        const [overlayY, fallbackOverlayY]: VerticalConnectionPos[] =
+          this.positionY === 'above' ? ['bottom', 'top'] : ['top', 'bottom'];
+
+        let originY = overlayY;
+        let fallbackOriginY = fallbackOverlayY;
+
+        if (!this.overlapTrigger) {
+          originY = overlayY === 'top' ? 'bottom' : 'top';
+          fallbackOriginY = fallbackOverlayY === 'top' ? 'bottom' : 'top';
+        }
+        config.positionStrategy = this.overlay.position().connectedTo(this._element,
+          { originX: posX, originY: originY },
+          { overlayX: posX, overlayY: overlayY })
+          .withFallbackPosition(
+          { originX: fallbackX, originY: originY },
+          { overlayX: fallbackX, overlayY: overlayY })
+          .withFallbackPosition(
+          { originX: posX, originY: fallbackOriginY },
+          { overlayX: posX, overlayY: fallbackOverlayY })
+          .withFallbackPosition(
+          { originX: fallbackX, originY: fallbackOriginY },
+          { overlayX: fallbackX, overlayY: fallbackOverlayY });
+        config.hasBackdrop = true;
+        config.backdropClass = 'cdk-overlay-transparent-backdrop';
+      } else {
+        config.positionStrategy = this.overlay.position()
+          .global()
+          .centerHorizontally()
+          .centerVertically();
+        config.hasBackdrop = true;
+      }
       this._overlayRef = this.overlay.create(config);
     }
   }

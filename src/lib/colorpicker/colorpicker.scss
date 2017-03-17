@@ -152,16 +152,21 @@ md2-colorpicker {
   overflow: auto;
   -webkit-overflow-scrolling: touch;
   background: white;
-  box-shadow: 0 0 3px rgba(black, 0.2), 0 8px 10px 1px rgba(black, 0.14), 0 3px 14px 2px rgba(black, 0.12);
+  box-shadow: 0 5px 5px -3px rgba(black, 0.2), 0 8px 10px 1px rgba(black, 0.14), 0 3px 14px 2px rgba(black, 0.12);
   box-sizing: border-box;
   outline: none;
   user-select: none;
+
+  &[container='dialog'] {
+    box-shadow: 0 11px 15px -7px rgba(black, 0.2), 0 24px 38px 3px rgba(black, 0.14), 0 9px 46px 8px rgba(black, 0.12);
+  }
 }
 
 .md2-colorpicker-content {
 }
 
 .md2-colorpicker-header {
+  height: 80px;
   color: white;
 
   &.dark {
@@ -170,10 +175,10 @@ md2-colorpicker {
 }
 
 .md2-colorpicker-header-input {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 700;
   text-align: center;
-  line-height: 60px;
+  line-height: 50px;
 }
 
 .md2-colorpicker-formats {
@@ -181,7 +186,7 @@ md2-colorpicker {
 
   span {
     flex: 1;
-    padding: 8px 8px 6px;
+    padding: 4px 8px 3px;
     text-align: center;
     text-transform: uppercase;
     cursor: pointer;
