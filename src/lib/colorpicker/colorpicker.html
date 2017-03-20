@@ -1,8 +1,14 @@
-﻿<div class="md2-colorpicker-trigger" (click)="toggle()">
-  <div class="md2-colorpicker-preview"><span [style.background]="color"></span></div>
-  <div class="md2-colorpicker-input">
+﻿<div class="md2-colorpicker-trigger">
+  <div class="md2-colorpicker-preview" (click)="toggle()"><span [style.background]="color"></span></div>
+  <div class="md2-colorpicker-input" [class.md2-colorpicker-input-focused]="_inputFocused">
     <span class="md2-colorpicker-placeholder" [class.md2-floating-placeholder]="color"> {{ placeholder }} </span>
-    <span class="md2-colorpicker-value"> {{ color }} </span>
+    <input class="md2-colorpicker-value"
+           [tabindex]="tabindex"
+           [disabled]="disabled"
+           [(ngModel)]="color"
+           (focus)="_handleFocus($event)"
+           (blur)="_handleBlur($event)" />
+    <!--<span class="md2-colorpicker-value"> {{ color }} </span>-->
     <span *ngIf="color && !required && !disabled"
           class="md2-colorpicker-clear" (click)="_clearValue($event)">
       <svg viewBox="0 0 24 24" width="24" height="24">

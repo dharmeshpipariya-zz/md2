@@ -85,6 +85,11 @@ md2-colorpicker {
     background-repeat: repeat-x;
   }
 
+  &.md2-colorpicker-input-focused {
+    color: $primary;
+    border-color: $primary;
+  }
+
   md2-colorpicker:focus:not(.md2-colorpicker-disabled) & {
     color: $primary;
     border-color: $primary;
@@ -128,10 +133,12 @@ md2-colorpicker {
 
 .md2-colorpicker-value {
   position: relative;
-  white-space: nowrap;
-  overflow-x: hidden;
-  text-overflow: ellipsis;
+  width: 100%;
+  padding: 2px;
   color: rgba(black, 0.87);
+  border: 0;
+  outline: none;
+  background: transparent;
 
   .md2-colorpicker-disabled & {
     color: rgba(black, 0.38);

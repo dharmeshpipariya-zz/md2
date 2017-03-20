@@ -22,7 +22,8 @@ import {
 } from '@angular/core';
 import {
   ControlValueAccessor,
-  NgControl
+  NgControl,
+  FormsModule
 } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import {
@@ -57,14 +58,14 @@ export class Md2ColorChange {
   styleUrls: ['colorpicker.css'],
   host: {
     'role': 'colorpicker',
-    '[attr.tabindex]': 'disabled ? -1 : tabindex',
+    //'[attr.tabindex]': 'disabled ? -1 : tabindex',
     '[attr.aria-label]': 'placeholder',
     '[attr.aria-required]': 'required.toString()',
     '[attr.aria-disabled]': 'disabled.toString()',
     '[attr.aria-invalid]': '_control?.invalid || "false"',
     '[class.md2-colorpicker-disabled]': 'disabled',
-    '(keydown)': '_handleKeydown($event)',
-    '(blur)': '_onBlur()',
+    //'(keydown)': '_handleKeydown($event)',
+    //'(blur)': '_onBlur()',
     '(window:resize)': '_handleWindowResize($event)'
   },
   animations: [
@@ -116,6 +117,7 @@ export class Md2Colorpicker implements OnDestroy, ControlValueAccessor {
   overlapTrigger: boolean = true;
 
   _formats: Array<string> = ['hex', 'rgb', 'hsl'];
+  _inputFocused: boolean = false;
 
   _onChange = (value: any) => { };
   _onTouched = () => { };
@@ -265,6 +267,14 @@ export class Md2Colorpicker implements OnDestroy, ControlValueAccessor {
     }
   }
 
+  _handleFocus(event: Event) {
+    this._inputFocused = true;
+  }
+
+  _handleBlur(event: Event) {
+    this._inputFocused = false;
+  }
+
   _handleWindowResize(event: Event) {
     if (this.container === 'inline') {
       this.close();
@@ -389,7 +399,7 @@ export class Md2Colorpicker implements OnDestroy, ControlValueAccessor {
 export const MD2_COLORPICKER_DIRECTIVES = [Md2Colorpicker, Md2Slide, Md2ColorSpectrum];
 
 @NgModule({
-  imports: [CommonModule, OverlayModule, PortalModule],
+  imports: [CommonModule, FormsModule, OverlayModule, PortalModule],
   exports: MD2_COLORPICKER_DIRECTIVES,
   declarations: MD2_COLORPICKER_DIRECTIVES,
 })
