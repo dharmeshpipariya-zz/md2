@@ -103,25 +103,30 @@ md2-colorpicker {
 
 .md2-colorpicker-placeholder {
   position: absolute;
+  right: 18px;
+  bottom: 100%;
   left: 0;
   padding: 0 2px;
+  transform: translate3d(0, 26px, 0) scale(1);
   transform-origin: left top;
   white-space: nowrap;
   overflow-x: hidden;
   text-overflow: ellipsis;
+  transition: all 150ms cubic-bezier(0.25, 0.8, 0.25, 1);
 
   &.md2-floating-placeholder {
-    top: -16px;
     left: -2px;
     text-align: left;
-    transform: scale(0.75);
+    transform: translate3d(0, 6px, 0) scale(0.75);
   }
 
   [dir='rtl'] & {
+    right: 0;
+    left: 18px;
     transform-origin: right top;
 
     &.md2-floating-placeholder {
-      left: 2px;
+      right: -2px;
       text-align: right;
     }
   }

@@ -1,11 +1,12 @@
 ﻿<div class="md2-colorpicker-trigger">
-  <div class="md2-colorpicker-preview" (click)="toggle()"><span [style.background]="color"></span></div>
+  <div class="md2-colorpicker-preview" tabindex="0" (click)="toggle()"><span [style.background]="color"></span></div>
   <div class="md2-colorpicker-input" [class.md2-colorpicker-input-focused]="_inputFocused">
-    <span class="md2-colorpicker-placeholder" [class.md2-floating-placeholder]="color"> {{ placeholder }} </span>
+    <span class="md2-colorpicker-placeholder" [class.md2-floating-placeholder]="color || _inputFocused"> {{ placeholder }} </span>
     <input class="md2-colorpicker-value"
            [tabindex]="tabindex"
            [disabled]="disabled"
            [(ngModel)]="color"
+           (change)="$event.stopPropagation()"
            (focus)="_handleFocus($event)"
            (blur)="_handleBlur($event)" />
     <!--<span class="md2-colorpicker-value"> {{ color }} </span>-->

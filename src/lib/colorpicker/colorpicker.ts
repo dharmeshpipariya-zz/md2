@@ -65,7 +65,6 @@ export class Md2ColorChange {
     '[attr.aria-invalid]': '_control?.invalid || "false"',
     '[class.md2-colorpicker-disabled]': 'disabled',
     //'(keydown)': '_handleKeydown($event)',
-    //'(blur)': '_onBlur()',
     '(window:resize)': '_handleWindowResize($event)'
   },
   animations: [
@@ -273,6 +272,11 @@ export class Md2Colorpicker implements OnDestroy, ControlValueAccessor {
 
   _handleBlur(event: Event) {
     this._inputFocused = false;
+    if (!this.panelOpen) {
+      this._onTouched();
+    }
+    /* TODO: check the color is changed and it is valid then its change else set default color */
+    this._emitChangeEvent();
   }
 
   _handleWindowResize(event: Event) {
@@ -327,6 +331,10 @@ export class Md2Colorpicker implements OnDestroy, ControlValueAccessor {
   registerOnChange(fn: (value: any) => void): void { this._onChange = fn; }
 
   registerOnTouched(fn: () => {}): void { this._onTouched = fn; }
+
+  setDisabledState(isDisabled: boolean): void {
+    this.disabled = isDisabled;
+  }
 
   /** Focuses the host element when the panel closes. */
   private _focusHost(): void {
