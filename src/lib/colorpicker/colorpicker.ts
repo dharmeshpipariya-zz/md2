@@ -275,8 +275,7 @@ export class Md2Colorpicker implements OnDestroy, ControlValueAccessor {
     if (!this.panelOpen) {
       this._onTouched();
     }
-    /* TODO: check the color is changed and it is valid then its change else set default color */
-    this._emitChangeEvent();
+    if (this._locale.isColorValid(this.color)) { this._emitChangeEvent(); }
   }
 
   _handleWindowResize(event: Event) {

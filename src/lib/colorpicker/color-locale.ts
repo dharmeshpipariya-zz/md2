@@ -26,6 +26,7 @@ export class SliderDimension {
 export class ColorLocale {
   format: string = 'hex';
   defaultValue: string = '#000000';
+
   colors: Array<any> = [
     { name: "AliceBlue", code: "#F0F8FF" },
     { name: "AntiqueWhite", code: "#FAEBD7" },
@@ -176,13 +177,20 @@ export class ColorLocale {
     { name: "Yellow", code: "#FFFF00" },
     { name: "YellowGreen", code: "#9ACD32" }
   ];
+
+  getColor(color: string) {
+    let _element = document.createElement("div");
+    _element.style.color = color;
+    return _element.style.color.split(/\s+/).join('').toLowerCase();
+  }
+
   /**
    * Checks whether a color is valid.
    * @param {Color} color
    * @return {boolean} Whether the color is a valid Color.
    */
-  isValidColor(color: string) {
-    return color != null;
+  isColorValid(color: string) {
+    return !!this.getColor(color) ? true : false;
   }
 
   hsla2hsva(hsla: Hsla) {
