@@ -7,7 +7,6 @@ import {
   PortalModule,
   OverlayModule,
   A11yModule,
-  ProjectionModule,
   CompatibilityModule,
 } from './core/index';
 
@@ -28,6 +27,7 @@ import { Md2TooltipModule } from './tooltip/index';
 import { Md2TreeModule } from './tree/index';
 
 import { PlatformModule } from './core/platform/index';
+import { StyleModule } from './core/style/index';
 
 const MD2_MODULES = [
   Md2AccordionModule,
@@ -49,9 +49,9 @@ const MD2_MODULES = [
   OverlayModule,
   PortalModule,
   RtlModule,
+  StyleModule,
   A11yModule,
   PlatformModule,
-  ProjectionModule,
   CompatibilityModule,
   ObserveContentModule
 ];
@@ -74,14 +74,14 @@ const MD2_MODULES = [
     Md2ToastModule.forRoot(),
     Md2TooltipModule.forRoot(),
     Md2TreeModule.forRoot(),
-
-    A11yModule.forRoot(),
-    OverlayModule.forRoot(),
-    PlatformModule.forRoot(),
     PortalModule.forRoot(),
-    ProjectionModule.forRoot(),
     RtlModule.forRoot(),
     ObserveContentModule.forRoot(),
+
+    // These modules include providers.
+    A11yModule.forRoot(),
+    PlatformModule.forRoot(),
+    OverlayModule.forRoot(),
     CompatibilityModule.forRoot(),
   ],
   exports: MD2_MODULES,
