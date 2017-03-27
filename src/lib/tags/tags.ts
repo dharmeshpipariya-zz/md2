@@ -286,7 +286,7 @@ export class Md2Tags implements AfterContentInit, ControlValueAccessor {
   }
 
   private removeAndSelectAdjacentTag(index: number) {
-    var selIndex = this.getAdjacentTagIndex(index);
+    let selIndex = this.getAdjacentTagIndex(index);
     this.removeTag(index);
     this.selectAndFocusTagSafe(selIndex);
   }
@@ -296,7 +296,7 @@ export class Md2Tags implements AfterContentInit, ControlValueAccessor {
   }
 
   private getAdjacentTagIndex(index: number) {
-    var len = this._items.length - 1;
+    let len = this._items.length - 1;
     return (len === 0) ? -1 :
       (index === len) ? index - 1 : index;
   }
@@ -343,10 +343,10 @@ export class Md2Tags implements AfterContentInit, ControlValueAccessor {
   private selectAndFocusTagSafe = function (index: number) {
     if (!this._items.length) {
       this._selectTag(-1);
-      this.onFocus();
+      this._handleFocus();
       return;
     }
-    if (index === this._items.length) { return this.onFocus(); }
+    if (index === this._items.length) { return this._handleFocus(); }
     index = Math.max(index, 0);
     index = Math.min(index, this._items.length - 1);
     this._selectTag(index);
@@ -411,6 +411,11 @@ export class Md2Tags implements AfterContentInit, ControlValueAccessor {
   registerOnChange(fn: any) { this._onChangeCallback = fn; }
 
   registerOnTouched(fn: any) { this._onTouchedCallback = fn; }
+
+  setDisabledState(isDisabled: boolean): void {
+    this.disabled = isDisabled;
+  }
+
 }
 
 export const MD2_TAGS_DIRECTIVES = [Md2Tags];
