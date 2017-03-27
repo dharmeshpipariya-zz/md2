@@ -8,14 +8,7 @@ export const SOURCE_ROOT = join(PROJECT_ROOT, 'src');
 export const DIST_ROOT = join(PROJECT_ROOT, 'dist');
 export const DIST_COMPONENTS_ROOT = join(DIST_ROOT, 'md2');
 
-export const SASS_AUTOPREFIXER_OPTIONS = {
-  browsers: [
-    'last 2 versions',
-    'not ie <= 10',
-    'not ie_mob <= 10',
-  ],
-  cascade: false,
-};
+export const COVERAGE_RESULT_FILE = join(DIST_ROOT, 'coverage', 'coverage-summary.json');
 
 export const HTML_MINIFIER_OPTIONS = {
   collapseWhitespace: true,
@@ -26,7 +19,7 @@ export const HTML_MINIFIER_OPTIONS = {
 
 export const LICENSE_BANNER = `/**
   * @license Md2 v${MATERIAL_VERSION}
-  * Copyright (c) 2017 Md2, Inc. https://dharmeshpipariya.github.io/md2/
+  * Copyright (c) 2017 Promact, Inc. http://code.promactinfo.com/md2/
   * License: MIT
   */`;
 
