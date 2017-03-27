@@ -7,13 +7,12 @@
   <span class="md2-select-value" *ngIf="_selectionModel.hasValue()">
     <span class="md2-select-value-text">{{ triggerValue }}</span>
   </span>
-
   <span class="md2-select-arrow"></span>
   <span class="md2-select-underline"></span>
 </div>
-<template cdk-connected-overlay [origin]="origin" [open]="panelOpen" hasBackdrop (backdropClick)="close()"
-          backdropClass="cdk-overlay-transparent-backdrop" [positions]="_positions" [minWidth]="_triggerWidth"
-          [offsetY]="_offsetY" [offsetX]="_offsetX" (attach)="_setScrollTop()">
+<ng-template cdk-connected-overlay [origin]="origin" [open]="panelOpen" hasBackdrop (backdropClick)="close()"
+             backdropClass="cdk-overlay-transparent-backdrop" [positions]="_positions" [minWidth]="_triggerWidth"
+             [offsetY]="_offsetY" [offsetX]="_offsetX" (attach)="_setScrollTop()">
   <div class="md2-select-panel" [@transformPanel]="'showing'" (@transformPanel.done)="_onPanelDone()"
        (keydown)="_keyManager.onKeydown($event)" [style.transformOrigin]="_transformOrigin"
        [class.md2-select-panel-done-animating]="_panelDoneAnimating">
@@ -22,4 +21,4 @@
       <ng-content></ng-content>
     </div>
   </div>
-</template>
+</ng-template>

@@ -448,6 +448,7 @@ export class Md2Select implements AfterContentInit, ControlValueAccessor, OnDest
       this.onOpen.emit();
     } else {
       this.onClose.emit();
+      this._panelDoneAnimating = false;
     }
   }
 
