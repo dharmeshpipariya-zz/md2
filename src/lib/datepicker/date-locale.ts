@@ -72,8 +72,6 @@ export abstract class DateLocale {
   getCalendarYearHeaderLabel: (date: Date) => string;
 
 
-  //firstDayOfWeek = 0;
-
   //months = [
   //  { full: 'January', short: 'Jan' },
   //  { full: 'February', short: 'Feb' },
@@ -99,20 +97,15 @@ export abstract class DateLocale {
   //  { full: 'Saturday', short: 'Sat', xshort: 'S' },
   //];
 
-  //getDays() {
-  //  return this.days.slice(this.firstDayOfWeek, this.days.length)
-  //    .concat(this.days.slice(0, this.firstDayOfWeek));
-  //}
+  getDays: () => any;
 
-  //getDayLabel(d: number) { return `${d}`; }
+  getDayLabel: (d: number) => string;
 
-  //getDateLabel(d: Date) {
-  //  return `${this.days[d.getDay()].short}, ${this.months[d.getMonth()].short} ${d.getDate()}`;
-  //}
+  getDateLabel: (d: Date) => string;
 
-  //getMonthLabel(m: number, y: number) { return `${this.months[m].full} ${y}`; }
+  getMonthLabel: (m: number, y: number) => string;
 
-  //getYearLabel(y: number) { return `${y}`; }
+  getYearLabel: (y: number) => string;
 
 }
 
@@ -207,4 +200,19 @@ export class DefaultDateLocale implements DateLocale {
     }
     return null;
   }
+
+  getDays() {
+    return this.days.slice(this.firstDayOfWeek, this.days.length)
+      .concat(this.days.slice(0, this.firstDayOfWeek));
+  }
+
+  getDayLabel(d: number) { return `${d}`; }
+
+  getDateLabel(d: Date) {
+    return `${this.shortDays[d.getDay()]}, ${this.shortMonths[d.getMonth()]} ${d.getDate()}`;
+  }
+
+  getMonthLabel(m: number, y: number) { return `${this.months[m]} ${y}`; }
+
+  getYearLabel(y: number) { return `${y}`; }
 }
