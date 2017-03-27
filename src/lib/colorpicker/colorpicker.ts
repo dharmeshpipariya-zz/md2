@@ -10,16 +10,18 @@ import {
   Self,
   ViewChildren,
   QueryList,
-  style,
-  trigger,
-  state,
-  transition,
-  animate,
   ViewContainerRef,
   ViewEncapsulation,
   NgModule,
   ModuleWithProviders
 } from '@angular/core';
+import {
+  animate,
+  state,
+  style,
+  transition,
+  trigger,
+} from '@angular/animations';
 import {
   ControlValueAccessor,
   NgControl,
