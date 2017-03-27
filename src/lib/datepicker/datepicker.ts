@@ -13,8 +13,6 @@ import {
   ViewChild,
   ViewContainerRef,
   ViewEncapsulation,
-  NgModule,
-  ModuleWithProviders
 } from '@angular/core';
 import {
   ControlValueAccessor,
@@ -863,21 +861,4 @@ export class Md2Datepicker implements OnDestroy, ControlValueAccessor {
     setTimeout(() => this._calendarState = '', 180);
   }
 
-}
-
-export const MD2_DATEPICKER_DIRECTIVES = [Md2Datepicker, Md2Clock];
-
-@NgModule({
-  imports: [CommonModule, FormsModule, OverlayModule, PortalModule],
-  exports: MD2_DATEPICKER_DIRECTIVES,
-  declarations: MD2_DATEPICKER_DIRECTIVES,
-  providers: [DateLocale, DateUtil]
-})
-export class Md2DatepickerModule {
-  static forRoot(): ModuleWithProviders {
-    return {
-      ngModule: Md2DatepickerModule,
-      providers: []
-    };
-  }
 }
