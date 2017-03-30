@@ -1,10 +1,10 @@
 import {NgModule, ApplicationRef} from '@angular/core';
 import {BrowserModule} from '@angular/platform-browser';
 import {HttpModule} from '@angular/http';
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {RouterModule} from '@angular/router';
+import {FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {DemoApp, Home} from './demo-app/demo-app';
+import {RouterModule} from '@angular/router';
 import {Md2Module} from 'md2';
 import {DEMO_APP_ROUTES} from './demo-app/routes';
 import {AccordionDemo} from './accordion/accordion-demo';
@@ -22,7 +22,6 @@ import {TagsDemo} from './tags/tags-demo';
 import {ToastDemo} from './toast/toast-demo';
 import {TooltipDemo} from './tooltip/tooltip-demo';
 import {TreeDemo} from './tree/tree-demo';
-
 
 @NgModule({
   imports: [

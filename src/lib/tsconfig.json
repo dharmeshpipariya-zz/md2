@@ -1,30 +1,31 @@
 {
   "compilerOptions": {
-    "baseUrl": ".",
     "declaration": true,
-    "stripInternal": false,
+    "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
+    "lib": ["es6", "es2015", "dom"],
     "module": "es2015",
     "moduleResolution": "node",
-    "outDir": "../../dist/packages/md2",
-    "paths": {},
+    "noEmitOnError": true,
+    "noImplicitAny": true,
+    "outDir": "../../dist/md2",
     "rootDir": ".",
     "sourceMap": true,
+    "target": "es6",
     "inlineSources": true,
-    "target": "es2015",
-    "lib": ["es2015", "dom"],
-    "skipLibCheck": true,
-    "types": []
+    "stripInternal": false,
+    "baseUrl": "",
+    "typeRoots": [
+      "../../node_modules/@types/!(node)"
+    ],
+    "types": [
+      "jasmine",
+      "rx/rx.all"
+    ]
   },
-  "files": [
-    "public_api.ts",
-    "typings.d.ts"
-  ],
   "angularCompilerOptions": {
-    "annotateForClosureCompiler": true,
-    "strictMetadataEmit": true,
-    "flatModuleOutFile": "index.js",
-    "flatModuleId": "md2",
-    "skipTemplateCodegen": true
+    "genDir": "../../dist",
+    "skipTemplateCodegen": true,
+    "debug": true
   }
 }

@@ -19,7 +19,7 @@ import {
   state,
   style,
   transition,
-  trigger,
+  trigger
 } from '@angular/animations';
 import { CommonModule } from '@angular/common';
 import {

@@ -112,8 +112,7 @@ export class Md2Tooltip implements OnInit, OnDestroy {
     }
   }
 
-  constructor(
-    private _overlay: Overlay,
+  constructor(private _overlay: Overlay,
     private _elementRef: ElementRef,
     private _scrollDispatcher: ScrollDispatcher,
     private _viewContainerRef: ViewContainerRef,
