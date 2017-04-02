@@ -12,8 +12,6 @@ import {
   QueryList,
   ViewContainerRef,
   ViewEncapsulation,
-  NgModule,
-  ModuleWithProviders
 } from '@angular/core';
 import {
   animate,
@@ -25,17 +23,13 @@ import {
 import {
   ControlValueAccessor,
   NgControl,
-  FormsModule
 } from '@angular/forms';
-import { CommonModule } from '@angular/common';
 import {
   Overlay,
-  OverlayModule,
   OverlayState,
   OverlayRef,
   Portal,
   TemplatePortal,
-  PortalModule,
   TemplatePortalDirective,
   HorizontalConnectionPos,
   VerticalConnectionPos,
@@ -43,9 +37,8 @@ import {
 import { coerceBooleanProperty } from '../core/coercion/boolean-property';
 import { Subscription } from 'rxjs/Subscription';
 import { ENTER, SPACE } from '../core/keyboard/keycodes';
-import { ColorLocale, Rgba } from './color-locale';
-import { Md2ColorSpectrum } from './color-spectrum';
-import { Md2Slide } from './slide';
+import { ColorLocale } from './color-locale';
+import { ColorUtil, Rgba } from './color-util';
 import { Container, PanelPositionX, PanelPositionY } from '../datepicker/datepicker';
 
 /** Change event object emitted by Md2Colorpicker. */
@@ -60,13 +53,11 @@ export class Md2ColorChange {
   styleUrls: ['colorpicker.css'],
   host: {
     'role': 'colorpicker',
-    //'[attr.tabindex]': 'disabled ? -1 : tabindex',
     '[attr.aria-label]': 'placeholder',
     '[attr.aria-required]': 'required.toString()',
     '[attr.aria-disabled]': 'disabled.toString()',
     '[attr.aria-invalid]': '_control?.invalid || "false"',
     '[class.md2-colorpicker-disabled]': 'disabled',
-    //'(keydown)': '_handleKeydown($event)',
     '(window:resize)': '_handleWindowResize($event)'
   },
   animations: [
@@ -125,7 +116,8 @@ export class Md2Colorpicker implements OnDestroy, ControlValueAccessor {
 
   constructor(private _element: ElementRef, private overlay: Overlay,
     private _viewContainerRef: ViewContainerRef, private _renderer: Renderer,
-    private _locale: ColorLocale, @Self() @Optional() public _control: NgControl) {
+    private _locale: ColorLocale, private _util: ColorUtil,
+    @Self() @Optional() public _control: NgControl) {
     if (this._control) {
       this._control.valueAccessor = this;
     }
@@ -160,10 +152,10 @@ export class Md2Colorpicker implements OnDestroy, ControlValueAccessor {
     } else {
       this._value = this._locale.defaultValue;
     }
-    let hsva = this._locale.stringToHsva(this._value);
-    let rgba = this._locale.denormalizeRGBA(this._locale.hsvaToRgba(hsva));
+    let hsva = this._util.stringToHsva(this._value);
+    let rgba = this._util.denormalizeRGBA(this._util.hsvaToRgba(hsva));
     let rgbaText = new Rgba(rgba.r, rgba.g, rgba.b, Math.round(rgba.a * 100) / 100);
-    this._value = this._locale.outputFormat(hsva, this._locale.format);
+    this._value = this._util.outputFormat(hsva, this._locale.format);
     if (Math.round((rgbaText.r * 299 + rgbaText.g * 587 + rgbaText.b * 114) / 1000) >= 128
       || hsva.a < 0.35) {
       this._isDark = true;
@@ -235,9 +227,9 @@ export class Md2Colorpicker implements OnDestroy, ControlValueAccessor {
   /** Closes the overlay panel and focuses the host element. */
   close(): void {
     this._panelOpen = false;
-    //if (!this._color) {
+    // if (!this._color) {
     //  this._placeholderState = '';
-    //}
+    // }
     this._focusHost();
     if (this._overlayRef) {
       this._overlayRef.detach();
@@ -277,7 +269,7 @@ export class Md2Colorpicker implements OnDestroy, ControlValueAccessor {
     if (!this.panelOpen) {
       this._onTouched();
     }
-    if (this._locale.isColorValid(this.color)) { this._emitChangeEvent(); }
+    if (this._util.isColorValid(this.color)) { this._emitChangeEvent(); }
   }
 
   _handleWindowResize(event: Event) {
@@ -297,11 +289,11 @@ export class Md2Colorpicker implements OnDestroy, ControlValueAccessor {
 
   _setFormat(format: string) {
     this._locale.format = format;
-    let hsva = this._locale.stringToHsva(this._value);
+    let hsva = this._util.stringToHsva(this._value);
     if (this._locale.format === 'hex' && hsva.a < 1) {
       this._locale.format = 'rgb';
     }
-    this._value = this._locale.outputFormat(hsva, this._locale.format);
+    this._value = this._util.outputFormat(hsva, this._locale.format);
   }
 
   _spectrumColorChange(event: string) {
@@ -403,20 +395,4 @@ export class Md2Colorpicker implements OnDestroy, ControlValueAccessor {
     }
   }
 
-}
-
-export const MD2_COLORPICKER_DIRECTIVES = [Md2Colorpicker, Md2Slide, Md2ColorSpectrum];
-
-@NgModule({
-  imports: [CommonModule, FormsModule, OverlayModule, PortalModule],
-  exports: MD2_COLORPICKER_DIRECTIVES,
-  declarations: MD2_COLORPICKER_DIRECTIVES,
-})
-export class Md2ColorpickerModule {
-  static forRoot(): ModuleWithProviders {
-    return {
-      ngModule: Md2ColorpickerModule,
-      providers: [ColorLocale]
-    };
-  }
 }

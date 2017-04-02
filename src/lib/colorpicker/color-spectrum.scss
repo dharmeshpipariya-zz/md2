@@ -1,0 +1,76 @@
+@mixin md2-color-spectrum() {
+  position: relative;
+  width: 100%;
+  height: 30px;
+  margin-top: 12px;
+  border-radius: 3px;
+  cursor: crosshair;
+
+  .pointer {
+    position: absolute;
+    top: -2px;
+    bottom: -2px;
+    margin-left: -3px;
+    width: 6px;
+    border: 2px solid black;
+    border-radius: 2px;
+    box-sizing: border-box;
+  }
+}
+
+:host {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding-top: 50%;
+}
+
+.md2-color-saturation {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  bottom: 88px;
+  border-radius: 3px;
+  background: linear-gradient(to bottom, transparent, black), linear-gradient(to right, white, transparent);
+  cursor: crosshair;
+
+  .pointer {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    margin: -8px;
+    border: 2px solid black;
+    border-radius: 50%;
+    box-sizing: border-box;
+
+    &::after {
+      content: '';
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      border: 2px solid white;
+      border-radius: 50%;
+      box-sizing: border-box;
+    }
+  }
+}
+
+.md2-color-hue {
+  @include md2-color-spectrum();
+  background: linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00);
+}
+
+.md2-color-alpha {
+  @include md2-color-spectrum();
+  background: linear-gradient(45deg, #ddd 25%, transparent 0, transparent 75%, #ddd 0, #ddd), linear-gradient(45deg, #ddd 25%, transparent 0, transparent 75%, #ddd 0, #ddd);
+  background-size: 12px 12px, 12px 12px;
+  background-position: 0 0, 6px 6px;
+
+  .alpha-gradient {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+  }
+}

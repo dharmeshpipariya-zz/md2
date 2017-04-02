@@ -2,6 +2,8 @@ import {
   Injectable,
 } from '@angular/core';
 
+import { SimpleDate } from './date-util';
+
 /** Whether the browser supports the Intl API. */
 const SUPPORTS_INTL_API = !!Intl;
 
@@ -13,6 +15,34 @@ function range<T>(length: number, valueFunction: (index: number) => T): T[] {
 /** Date locale info. TODO(mmalerba): Integrate with i18n solution once we know what we're doing. */
 @Injectable()
 export class DateLocale {
+  formatDate: (date: SimpleDate) => string;
+  parseDate(value: any) {
+    if (value instanceof SimpleDate) {
+      return value;
+    }
+    let timestamp = typeof value == 'number' ? value : Date.parse(value);
+    return isNaN(timestamp) ? null : SimpleDate.fromNativeDate(new Date(timestamp));
+  }
+  dates = [null].concat(
+    SUPPORTS_INTL_API ? this._createDatesArray('numeric') : range(31, i => String(i + 1)));
+  private _createDatesArray(format: string) {
+    let dtf = new Intl.DateTimeFormat(undefined, { day: format });
+    return range(31, i => dtf.format(new Date(2017, 0, i + 1)));
+  }
+  getCalendarMonthHeaderLabel = this._createFormatFunction({ month: 'short', year: 'numeric' }) ||
+  ((date: SimpleDate) => this.shortMonths[date.month] + ' ' + date.year);
+
+  getCalendarYearHeaderLabel = this._createFormatFunction({ year: 'numeric' }) ||
+  ((date: SimpleDate) => String(date.year));
+
+  private _createFormatFunction(options: Object): (date: SimpleDate) => string {
+    if (SUPPORTS_INTL_API) {
+      let dtf = new Intl.DateTimeFormat(undefined, options);
+      return (date: SimpleDate) => dtf.format(date.toNativeDate());
+    }
+    return null;
+  }
+
   firstDayOfWeek = 0;
 
   months = [

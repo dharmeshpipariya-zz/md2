@@ -1,6 +1,5 @@
 import {
   Component,
-  ElementRef,
   Input,
   ViewEncapsulation,
   NgModule,

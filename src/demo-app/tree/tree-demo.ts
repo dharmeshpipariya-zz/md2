@@ -23,5 +23,5 @@ export class TreeDemo {
         { value: 'Child 13' }
       ]
     }
-  ]
+  ];
 }

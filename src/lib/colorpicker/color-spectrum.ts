@@ -3,17 +3,16 @@ import {
   Input,
   Output,
   EventEmitter,
-  ViewContainerRef,
-  ViewEncapsulation
 } from '@angular/core';
-import { ColorLocale, Hsva, Rgba } from './color-locale';
+import { ColorLocale } from './color-locale';
+import { ColorUtil, Hsva } from './color-util';
 
 @Component({
   moduleId: module.id,
   selector: 'md2-color-spectrum',
   templateUrl: 'color-spectrum.html',
-  styleUrls: ['colorpicker.css'],
-  encapsulation: ViewEncapsulation.None
+  styleUrls: ['color-spectrum.css'],
+  exportAs: 'md2ColorSpectrum'
 })
 export class Md2ColorSpectrum {
 
@@ -22,7 +21,7 @@ export class Md2ColorSpectrum {
   _hue: string;
   _alpha: string;
 
-  constructor(private _locale: ColorLocale) { }
+  constructor(private _locale: ColorLocale, private _util: ColorUtil) { }
 
   @Output() colorChange: EventEmitter<string> = new EventEmitter<string>();
 
@@ -31,7 +30,7 @@ export class Md2ColorSpectrum {
   set color(value: string) {
     if (this._color !== value) {
       this._color = value || this._locale.defaultValue;
-      this.hsva = this._locale.stringToHsva(this.color);
+      this.hsva = this._util.stringToHsva(this.color);
       this.update(false);
     }
   }
@@ -78,12 +77,12 @@ export class Md2ColorSpectrum {
   }
 
   private update(isInitialized: boolean) {
-    let rgba = this._locale.denormalizeRGBA(this._locale.hsvaToRgba(this.hsva));
-    let hueRgba = this._locale.denormalizeRGBA(this._locale.hsvaToRgba(new Hsva(this.hsva.h, 1, 1, 1)));
+    let rgba = this._util.denormalizeRGBA(this._util.hsvaToRgba(this.hsva));
+    let hueRgba = this._util.denormalizeRGBA(this._util.hsvaToRgba(new Hsva(this.hsva.h, 1, 1, 1)));
 
     this._alpha = 'rgb(' + rgba.r + ',' + rgba.g + ',' + rgba.b + ')';
     this._hue = 'rgb(' + hueRgba.r + ',' + hueRgba.g + ',' + hueRgba.b + ')';
-    this._color = this._locale.outputFormat(this.hsva, this._locale.format);
+    this._color = this._util.outputFormat(this.hsva, this._locale.format);
     if (isInitialized) {
       this._emitChangeEvent();
     }

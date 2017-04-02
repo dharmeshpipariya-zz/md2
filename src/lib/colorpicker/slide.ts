@@ -2,7 +2,6 @@ import {
   Directive,
   ElementRef,
   Input,
-  OnDestroy,
   Output,
   EventEmitter,
 } from '@angular/core';

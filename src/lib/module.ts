@@ -62,7 +62,7 @@ const MD2_MODULES = [
     Md2AutocompleteModule.forRoot(),
     Md2ChipsModule.forRoot(),
     Md2CollapseModule.forRoot(),
-    Md2ColorpickerModule.forRoot(),
+    Md2ColorpickerModule,
     Md2DataTableModule.forRoot(),
     Md2DatepickerModule,
     Md2DialogModule.forRoot(),
