@@ -39,7 +39,7 @@ export * from './year-view';
     MdYearView,
     Md2Clock
   ],
-  providers: [DateLocale, DateUtil, SimpleDate],
+  providers: [DateLocale, DateUtil],
   entryComponents: [
     Md2Datepicker,
   ]
