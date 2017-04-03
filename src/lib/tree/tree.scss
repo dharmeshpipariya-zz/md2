@@ -1,0 +1,52 @@
+md2-tree {
+  display: block;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+
+  md2-tree {
+    padding-left: 15px;
+    display: none;
+  }
+
+  .md2-tree-expanded > & {
+    display: block;
+  }
+}
+
+md2-tree-item {
+  display: block;
+  margin: 3px 0 0 16px;
+}
+
+.md2-tree-item {
+  height: 24px;
+}
+
+.md2-tree-node-icon {
+  display: inline-block;
+  cursor: pointer;
+
+  .expand {
+    display: none;
+  }
+
+  .md2-tree-expanded > .md2-tree-item > & {
+    .collapse {
+      display: none;
+    }
+
+    .expand {
+      display: inline-block;
+    }
+  }
+
+  .md2-tree-node-leaf & {
+    display: none;
+  }
+}
+
+.md2-tree-node-label {
+  vertical-align: top;
+  line-height: 24px;
+}

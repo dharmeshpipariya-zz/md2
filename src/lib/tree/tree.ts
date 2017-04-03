@@ -31,7 +31,7 @@ export class Md2Tree {
   host: {
     'role': 'tree-item',
     '[class.md2-tree-expanded]': 'isExpanded',
-    '(click)': '_handleClick($event)'
+    '[class.md2-tree-node-leaf]': '!value.children',
   },
   encapsulation: ViewEncapsulation.None
 })
@@ -43,7 +43,7 @@ export class Md2TreeItem {
 
   get isExpanded(): boolean { return this._isExpanded; }
 
-  _handleClick(event: Event) {
+  _handleClick() {
     this._isExpanded = !this._isExpanded;
   }
 
