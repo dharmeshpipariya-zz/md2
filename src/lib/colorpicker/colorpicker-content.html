@@ -1,1 +1,16 @@
-﻿
+﻿<div class="md2-colorpicker-header" [class.dark]="_isDark" [style.background]="value">
+  <input type="text" autocomplete="off" class="md2-colorpicker-header-input"
+         [tabindex]="tabindex" [(ngModel)]="value" />
+  <div class="md2-colorpicker-formats">
+    <span *ngFor="let f of _formats"
+          [class.active]="f===_locale.format"
+          (click)="_setFormat(f)">{{ f }}</span>
+  </div>
+</div>
+<div class="md2-colorpicker-container">
+  <md2-color-spectrum [color]="value" (colorChange)="_spectrumColorChange($event)"></md2-color-spectrum>
+</div>
+<div class="md2-colorpicker-actions">
+  <div class="md2-button" (click)="close()">Cancel</div>
+  <div class="md2-button" (click)="_onClickOk()">Ok</div>
+</div>

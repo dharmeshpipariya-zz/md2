@@ -1,9 +1,12 @@
-import {
-  Injectable,
-} from '@angular/core';
+import { Injectable } from '@angular/core';
 
 @Injectable()
-export class ColorLocale {
-  format: string = 'hex';
-  defaultValue: string = '#000000';
+export abstract class ColorLocale {
+  formatColor: string;
+  defaultColor: string;
+}
+
+export class DefaultColorLocale implements ColorLocale {
+  formatColor = 'hex';
+  defaultColor = 'black';
 }

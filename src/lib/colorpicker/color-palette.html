@@ -1,0 +1,16 @@
+<div class="mat-calendar-body" tabindex="0" (keydown)="_handleCalendarBodyKeydown($event)"
+     cdkMonitorSubtreeFocus>
+  <md-month-view *ngIf="_monthView"
+                 [activeDate]="_activeDate"
+                 [selected]="selected"
+                 [dateFilter]="_dateFilterForViews"
+                 (selectedChange)="_dateSelected($event)">
+  </md-month-view>
+
+  <md-year-view *ngIf="!_monthView"
+                [activeDate]="_activeDate"
+                [selected]="selected"
+                [dateFilter]="_dateFilterForViews"
+                (selectedChange)="_monthSelected($event)">
+  </md-year-view>
+</div>
