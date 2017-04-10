@@ -321,7 +321,6 @@ html, body {
     }
 
     .source-code {
-      float: right;
       fill: currentColor;
       color: $white;
     }
@@ -459,6 +458,7 @@ html, body {
 
   .content {
     padding: 16px;
+    overflow: auto;
   }
 
   .header {
