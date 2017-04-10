@@ -1,1 +1,0 @@
-{"version":3,"file":"menu-demo.js","sourceRoot":"","sources":["../../src/demo-app/menu/menu-demo.ts"],"names":[],"mappings":";;;;;;;;;;AAAA,qBAA0B,eAAe,CAAC,CAAA;AAO1C;IAAA;IAAwB,CAAC;IALzB;QAAC,gBAAS,CAAC;YACT,QAAQ,EAAE,MAAM,CAAC,EAAE;YACnB,QAAQ,EAAE,WAAW;YACrB,WAAW,EAAE,gBAAgB;SAC9B,CAAC;;gBAAA;IACsB,eAAC;AAAD,CAAC,AAAzB,IAAyB;AAAZ,gBAAQ,WAAI,CAAA"}

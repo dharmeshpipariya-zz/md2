@@ -240,7 +240,6 @@ html, body {
       padding: 16px 0;
       line-height: 28px; }
     .main .toolbar .source-code {
-      float: right;
       fill: currentColor;
       color: #ffffff; }
   .main .footer {
@@ -295,6 +294,7 @@ html, body {
   .sidenav-backdrop.open {
     display: block; }
   .sidenav {
+    overflow-y: auto;
     transform: translateX(-100%); }
     .sidenav.open {
       transform: translateX(0); }
@@ -332,7 +332,8 @@ html, body {
   background: #ffffff;
   box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.14); }
   .card .content {
-    padding: 16px; }
+    padding: 16px;
+    overflow: auto; }
   .card .header {
     margin: -20px 20px 10px;
     padding: 15px;

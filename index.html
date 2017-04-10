@@ -28,15 +28,10 @@
     </div>
   </demo-app>
 
-  <script src="libs/core-js/client/core.js"></script>
-  <script src="libs/systemjs/dist/system.src.js"></script>
   <script src="libs/zone.js/dist/zone.js"></script>
+  <script src="libs/reflect-metadata/Reflect.js"></script>
   <script src="libs/hammerjs/hammer.min.js"></script>
+  <script src="bundle.js"></script>
 
-  <script>
-    System.import('system-config.js').then(function () {
-      System.import('main');
-    }).catch(console.error.bind(console));
-  </script>
 </body>
 </html>

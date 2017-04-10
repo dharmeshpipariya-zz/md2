@@ -321,7 +321,6 @@ html, body {
     }
 
     .source-code {
-      float: right;
       fill: currentColor;
       color: $white;
     }
@@ -398,6 +397,7 @@ html, body {
   }
 
   .sidenav {
+    overflow-y: auto;
     transform: translateX(-100%);
 
     &.open {
@@ -458,6 +458,7 @@ html, body {
 
   .content {
     padding: 16px;
+    overflow: auto;
   }
 
   .header {
