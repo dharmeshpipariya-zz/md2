@@ -2,14 +2,15 @@ import {
   Component,
   ViewEncapsulation,
   ChangeDetectionStrategy,
+  ElementRef,
   Input,
   AfterContentInit,
   Output,
   EventEmitter
 } from '@angular/core';
-import { MdCalendarCell } from './calendar-table';
+import { Md2CalendarCell } from './calendar-table';
 import { DateLocale } from './date-locale';
-import { SimpleDate } from './date-util';
+import { DateUtil } from './date-util';
 
 
 /**
@@ -18,104 +19,107 @@ import { SimpleDate } from './date-util';
  */
 @Component({
   moduleId: module.id,
-  selector: 'md-year-view',
+  selector: 'md2-year-view',
   templateUrl: 'year-view.html',
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MdYearView implements AfterContentInit {
+export class Md2YearView implements AfterContentInit {
   /** The date to display in this year view (everything other than the year is ignored). */
   @Input()
   get activeDate() { return this._activeDate; }
   set activeDate(value) {
     let oldActiveDate = this._activeDate;
-    this._activeDate = this._locale.parseDate(value) || SimpleDate.today();
-    if (oldActiveDate.year != this._activeDate.year) {
+    this._activeDate = this._locale.parseDate(value) || this._util.today();
+    this._activeYear = this._getYearInCurrentDate(this._activeDate);
+    if (oldActiveDate.getFullYear() != this._activeDate.getFullYear()) {
       this._init();
     }
   }
-  private _activeDate = SimpleDate.today();
+  private _activeDate = this._util.today();
 
   /** The currently selected date. */
   @Input()
   get selected() { return this._selected; }
   set selected(value) {
     this._selected = this._locale.parseDate(value);
-    this._selectedMonth = this._getMonthInCurrentYear(this.selected);
+    this._selectedYear = this._getYearInCurrentDate(this.selected);
   }
-  private _selected: SimpleDate;
+  private _selected: Date;
+
+  /** The minimum selectable date. */
+  @Input()
+  get minDate(): Date { return this._minDate; };
+  set minDate(date: Date) { this._minDate = this._locale.parseDate(date); }
+  private _minDate: Date;
+
+  /** The maximum selectable date. */
+  @Input()
+  get maxDate(): Date { return this._maxDate; };
+  set maxDate(date: Date) { this._maxDate = this._locale.parseDate(date); }
+  private _maxDate: Date;
 
   /** A function used to filter which dates are selectable. */
-  @Input() dateFilter: (date: SimpleDate) => boolean;
+  @Input() dateFilter: (date: Date) => boolean;
 
   /** Emits when a new month is selected. */
-  @Output() selectedChange = new EventEmitter<SimpleDate>();
+  @Output() selectedChange = new EventEmitter<Date>();
 
   /** Grid of calendar cells representing the months of the year. */
-  _months: MdCalendarCell[][];
-
-  /** The label for this year (e.g. "2017"). */
-  _yearLabel: string;
-
-  /** The month in this year that today falls on. Null if today is in a different year. */
-  _todayMonth: number;
+  _years: Array<number>;
 
   /**
    * The month in this year that the selected Date falls on.
    * Null if the selected Date is in a different year.
    */
-  _selectedMonth: number;
+  _selectedYear: number;
+  _activeYear: number;
 
-  constructor(private _locale: DateLocale) {}
+  constructor(private _element: ElementRef,
+    private _locale: DateLocale, private _util: DateUtil) { }
 
   ngAfterContentInit() {
     this._init();
   }
 
   /** Handles when a new month is selected. */
-  _monthSelected(month: number) {
-    this.selectedChange.emit(new SimpleDate(this.activeDate.year, month, this._activeDate.date));
+  _yearSelected(year: number) {
+    this.selectedChange.emit(new Date(year, this.activeDate.getMonth(), this._activeDate.getDate(),
+      this.activeDate.getHours(), this.activeDate.getMinutes(), this.activeDate.getSeconds()));
   }
 
   /** Initializes this month view. */
   private _init() {
-    this._selectedMonth = this._getMonthInCurrentYear(this.selected);
-    this._todayMonth = this._getMonthInCurrentYear(SimpleDate.today());
-    this._yearLabel = this._locale.getCalendarYearHeaderLabel(this.activeDate);
+    this._selectedYear = this._getYearInCurrentDate(this.selected);
+    this._createYears();
+  }
 
-    // First row of months only contains 5 elements so we can fit the year label on the same row.
-    this._months = [[0, 1, 2, 3, 4], [5, 6, 7, 8, 9, 10, 11]].map(row => row.map(
-        month => this._createCellForMonth(month)));
+  /** Create years. */
+  private _createYears() {
+    let startYear = this._minDate ? this._minDate.getFullYear() : 1900;
+    let endYear = this._maxDate ? this._maxDate.getFullYear() : this._util.today().getFullYear() + 100;
+    this._years = [];
+    for (let i = startYear; i <= endYear; i++) {
+      this._years.push(i);
+    }
+    this._setScrollTop();
+  }
+
+  /** Set Scroll of the years container. */
+  private _setScrollTop(): void {
+    setTimeout(() => {
+      const scrollContainer =
+        this._element.nativeElement;
+      const selectedIndex = (this._selectedYear ? this._selectedYear : this._activeYear) - 1900;
+      scrollContainer.scrollTop = 20 + (selectedIndex * 40) - (scrollContainer.clientHeight / 2);
+    }, 10);
   }
 
   /**
    * Gets the month in this year that the given Date falls on.
    * Returns null if the given Date is in another year.
    */
-  private _getMonthInCurrentYear(date: SimpleDate) {
-    return date && date.year == this.activeDate.year ? date.month : null;
-  }
-
-  /** Creates an MdCalendarCell for the given month. */
-  private _createCellForMonth(month: number) {
-    return new MdCalendarCell(
-        month, this._locale.shortMonths[month].toLocaleUpperCase(), this._isMonthEnabled(month));
-  }
-
-  /** Whether the given month is enabled. */
-  private _isMonthEnabled(month: number) {
-    if (!this.dateFilter) {
-      return true;
-    }
-
-    // If any date in the month is enabled count the month as enabled.
-    for (let date = new SimpleDate(this.activeDate.year, month, 1); date.month === month;
-         date = date.add({days: 1})) {
-      if (this.dateFilter(date)) {
-        return true;
-      }
-    }
-
-    return false;
+  private _getYearInCurrentDate(date: Date) {
+    return date ? date.getFullYear() : null;
   }
 }

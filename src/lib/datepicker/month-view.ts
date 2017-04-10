@@ -7,9 +7,9 @@ import {
   Output,
   AfterContentInit
 } from '@angular/core';
-import { MdCalendarCell } from './calendar-table';
+import { Md2CalendarCell } from './calendar-table';
 import { DateLocale } from './date-locale';
-import { SimpleDate } from './date-util';
+import { DateUtil } from './date-util';
 
 
 const DAYS_PER_WEEK = 7;
@@ -21,12 +21,12 @@ const DAYS_PER_WEEK = 7;
  */
 @Component({
   moduleId: module.id,
-  selector: 'md-month-view',
+  selector: 'md2-month-view',
   templateUrl: 'month-view.html',
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MdMonthView implements AfterContentInit {
+export class Md2MonthView implements AfterContentInit {
   /**
    * The date to display in this month view (everything other than the month and year is ignored).
    */
@@ -34,12 +34,12 @@ export class MdMonthView implements AfterContentInit {
   get activeDate() { return this._activeDate; }
   set activeDate(value) {
     let oldActiveDate = this._activeDate;
-    this._activeDate = this._locale.parseDate(value) || SimpleDate.today();
-    if (!this._hasSameMonthAndYear(oldActiveDate, this._activeDate)) {
+    this._activeDate = this._locale.parseDate(value) || this._util.today();
+    if (!this._util.isSameMonthAndYear(oldActiveDate, this._activeDate)) {
       this._init();
     }
   }
-  private _activeDate = SimpleDate.today();
+  private _activeDate = this._util.today();
 
   /** The currently selected date. */
   @Input()
@@ -48,22 +48,25 @@ export class MdMonthView implements AfterContentInit {
     this._selected = this._locale.parseDate(value);
     this._selectedDate = this._getDateInCurrentMonth(this.selected);
   }
-  private _selected: SimpleDate;
+  private _selected: Date;
 
   /** A function used to filter which dates are selectable. */
-  @Input() dateFilter: (date: SimpleDate) => boolean;
+  @Input() dateFilter: (date: Date) => boolean;
 
   /** Emits when a new date is selected. */
-  @Output() selectedChange = new EventEmitter<SimpleDate>();
+  @Output() selectedChange = new EventEmitter<Date>();
 
   /** The label for this month (e.g. "January 2017"). */
   _monthLabel: string;
 
   /** Grid of calendar cells representing the dates of the month. */
-  _weeks: MdCalendarCell[][];
+  _weeks: Md2CalendarCell[][];
 
   /** The number of blank cells in the first row before the 1st of the month. */
   _firstWeekOffset: number;
+
+  /** The names of the weekdays. */
+  _weekdays: string[];
 
   /**
    * The date of the month that the currently selected Date falls on.
@@ -74,7 +77,10 @@ export class MdMonthView implements AfterContentInit {
   /** The date of the month that today falls on. Null if today is in another month. */
   _todayDate: number;
 
-  constructor(private _locale: DateLocale) { }
+  constructor(private _locale: DateLocale, private _util: DateUtil) {
+    this._weekdays = this._locale.narrowDays.slice(this._locale.firstDayOfWeek)
+      .concat(this._locale.narrowDays.slice(0, this._locale.firstDayOfWeek));
+  }
 
   ngAfterContentInit(): void {
     this._init();
@@ -85,25 +91,27 @@ export class MdMonthView implements AfterContentInit {
     if (this._selectedDate == date) {
       return;
     }
-    this.selectedChange.emit(new SimpleDate(this.activeDate.year, this.activeDate.month, date));
+    this.selectedChange.emit(new Date(this.activeDate.getFullYear(), this.activeDate.getMonth(), date,
+      this.activeDate.getHours(), this.activeDate.getMinutes(), this.activeDate.getSeconds()));
   }
 
   /** Initializes this month view. */
   private _init() {
     this._selectedDate = this._getDateInCurrentMonth(this.selected);
-    this._todayDate = this._getDateInCurrentMonth(SimpleDate.today());
-    this._monthLabel = this._locale.shortMonths[this.activeDate.month].toLocaleUpperCase();
+    this._todayDate = this._getDateInCurrentMonth(this._util.today());
+    this._monthLabel = this._locale.shortMonths[this.activeDate.getMonth()].toLocaleUpperCase();
 
-    let firstOfMonth = new SimpleDate(this.activeDate.year, this.activeDate.month, 1);
+    let firstOfMonth = new Date(this.activeDate.getFullYear(), this.activeDate.getMonth(), 1,
+      this.activeDate.getHours(), this.activeDate.getMinutes(), this.activeDate.getSeconds());
     this._firstWeekOffset =
-      (DAYS_PER_WEEK + firstOfMonth.day - this._locale.firstDayOfWeek) % DAYS_PER_WEEK;
+      (DAYS_PER_WEEK + firstOfMonth.getDay() - this._locale.firstDayOfWeek) % DAYS_PER_WEEK;
 
     this._createWeekCells();
   }
 
-  /** Creates MdCalendarCells for the dates in this month. */
+  /** Creates Md2CalendarCells for the dates in this month. */
   private _createWeekCells() {
-    let daysInMonth = new SimpleDate(this.activeDate.year, this.activeDate.month + 1, 0).date;
+    let daysInMonth = new Date(this.activeDate.getFullYear(), this.activeDate.getMonth() + 1, 0).getDate();
     this._weeks = [[]];
     for (let i = 0, cell = this._firstWeekOffset; i < daysInMonth; i++ , cell++) {
       if (cell == DAYS_PER_WEEK) {
@@ -111,9 +119,9 @@ export class MdMonthView implements AfterContentInit {
         cell = 0;
       }
       let enabled = !this.dateFilter ||
-        this.dateFilter(new SimpleDate(this.activeDate.year, this.activeDate.month, i + 1));
+        this.dateFilter(new Date(this.activeDate.getFullYear(), this.activeDate.getMonth(), i + 1));
       this._weeks[this._weeks.length - 1]
-        .push(new MdCalendarCell(i + 1, this._locale.dates[i + 1], enabled));
+        .push(new Md2CalendarCell(i + 1, this._locale.dates[i + 1], enabled));
     }
   }
 
@@ -121,12 +129,7 @@ export class MdMonthView implements AfterContentInit {
    * Gets the date in this month that the given Date falls on.
    * Returns null if the given Date is in another month.
    */
-  private _getDateInCurrentMonth(date: SimpleDate): number {
-    return this._hasSameMonthAndYear(date, this.activeDate) ? date.date : null;
-  }
-
-  /** Checks whether the 2 dates are non-null and fall within the same month of the same year. */
-  private _hasSameMonthAndYear(d1: SimpleDate, d2: SimpleDate): boolean {
-    return !!(d1 && d2 && d1.month == d2.month && d1.year == d2.year);
+  private _getDateInCurrentMonth(date: Date): number {
+    return this._util.isSameMonthAndYear(date, this.activeDate) ? date.getDate() : null;
   }
 }

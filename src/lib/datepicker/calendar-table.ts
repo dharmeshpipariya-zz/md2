@@ -12,7 +12,7 @@ import {
  * An internal class that represents the data corresponding to a single calendar cell.
  * @docs-private
  */
-export class MdCalendarCell {
+export class Md2CalendarCell {
   constructor(public value: number, public displayValue: string, public enabled: boolean) {}
 }
 
@@ -23,18 +23,18 @@ export class MdCalendarCell {
  */
 @Component({
   moduleId: module.id,
-  selector: 'md-calendar-table',
+  selector: 'md2-calendar-table',
   templateUrl: 'calendar-table.html',
   styleUrls: ['calendar-table.css'],
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MdCalendarTable {
+export class Md2CalendarTable {
   /** The label for the table. (e.g. "Jan 2017"). */
   @Input() label: string;
 
   /** The cells to display in the table. */
-  @Input() rows: MdCalendarCell[][];
+  @Input() rows: Md2CalendarCell[][];
 
   /** The value in the table that corresponds to today. */
   @Input() todayValue: number;
@@ -57,7 +57,7 @@ export class MdCalendarTable {
   /** Emits when a new value is selected. */
   @Output() selectedValueChange = new EventEmitter<number>();
 
-  _cellClicked(cell: MdCalendarCell): void {
+  _cellClicked(cell: Md2CalendarCell): void {
     if (!this.allowDisabledSelection && !cell.enabled) {
       return;
     }

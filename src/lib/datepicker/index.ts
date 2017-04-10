@@ -1,9 +1,9 @@
 import { NgModule } from '@angular/core';
-import { MdMonthView } from './month-view';
+import { Md2MonthView } from './month-view';
 import { CommonModule } from '@angular/common';
-import { MdCalendarTable } from './calendar-table';
-import { MdYearView } from './year-view';
-import { DateUtil, SimpleDate } from './date-util';
+import { Md2CalendarTable } from './calendar-table';
+import { Md2YearView } from './year-view';
+import { DateUtil } from './date-util';
 import { DateLocale } from './date-locale';
 import { OverlayModule, PortalModule } from '../core';
 import { Md2Datepicker } from './datepicker';
@@ -33,10 +33,10 @@ export * from './year-view';
   ],
   declarations: [
     Md2Calendar,
-    MdCalendarTable,
+    Md2CalendarTable,
     Md2Datepicker,
-    MdMonthView,
-    MdYearView,
+    Md2MonthView,
+    Md2YearView,
     Md2Clock
   ],
   providers: [DateLocale, DateUtil],

@@ -7,7 +7,7 @@ import {
   Output,
   ViewEncapsulation
 } from '@angular/core';
-import { SimpleDate } from './date-util';
+import { DateUtil } from './date-util';
 import { DateLocale } from './date-locale';
 import {
   DOWN_ARROW,
@@ -41,7 +41,7 @@ export class Md2Calendar implements AfterContentInit {
   @Input()
   get startAt() { return this._startAt; }
   set startAt(value: any) { this._startAt = this._locale.parseDate(value); }
-  private _startAt: SimpleDate;
+  private _startAt: Date;
 
   /** Whether the calendar should be started in month or year view. */
   @Input() startView: 'month' | 'year' = 'month';
@@ -50,32 +50,32 @@ export class Md2Calendar implements AfterContentInit {
   @Input()
   get selected() { return this._selected; }
   set selected(value: any) { this._selected = this._locale.parseDate(value); }
-  private _selected: SimpleDate;
+  private _selected: Date;
 
   /** The minimum selectable date. */
   @Input()
-  get minDate(): SimpleDate { return this._minDate; };
-  set minDate(date: SimpleDate) { this._minDate = this._locale.parseDate(date); }
-  private _minDate: SimpleDate;
+  get minDate(): Date { return this._minDate; };
+  set minDate(date: Date) { this._minDate = this._locale.parseDate(date); }
+  private _minDate: Date;
 
   /** The maximum selectable date. */
   @Input()
-  get maxDate(): SimpleDate { return this._maxDate; };
-  set maxDate(date: SimpleDate) { this._maxDate = this._locale.parseDate(date); }
-  private _maxDate: SimpleDate;
+  get maxDate(): Date { return this._maxDate; };
+  set maxDate(date: Date) { this._maxDate = this._locale.parseDate(date); }
+  private _maxDate: Date;
 
   /** A function used to filter which dates are selectable. */
-  @Input() dateFilter: (date: SimpleDate) => boolean;
+  @Input() dateFilter: (date: Date) => boolean;
 
   /** Emits when the currently selected date changes. */
-  @Output() selectedChange = new EventEmitter<SimpleDate>();
+  @Output() selectedChange = new EventEmitter<Date>();
 
   /** Date filter for the month and year views. */
-  _dateFilterForViews = (date: SimpleDate) => {
+  _dateFilterForViews = (date: Date) => {
     return !!date &&
       (!this.dateFilter || this.dateFilter(date)) &&
-      (!this.minDate || date.compare(this.minDate) >= 0) &&
-      (!this.maxDate || date.compare(this.maxDate) <= 0);
+      (!this.minDate || this._util.isSameDay(date, this.minDate)) &&
+      (!this.maxDate || this._util.isSameDay(date, this.maxDate));
   }
 
   /**
@@ -83,43 +83,37 @@ export class Md2Calendar implements AfterContentInit {
    * highlighted when using keyboard navigation.
    */
   get _activeDate() { return this._clampedActiveDate; }
-  set _activeDate(value: SimpleDate) {
-    this._clampedActiveDate = value.clamp(this.minDate, this.maxDate);
+  set _activeDate(value: Date) {
+    this._clampedActiveDate = this._util.clampDate(value, this.minDate, this.maxDate);
   }
-  private _clampedActiveDate: SimpleDate;
+  private _clampedActiveDate: Date;
 
   /** Whether the calendar is in month view. */
   _monthView: boolean;
 
-  /** The names of the weekdays. */
-  _weekdays: string[];
-
   /** The label for the current calendar view. */
   get _label(): string {
     return this._monthView ?
-      this._locale.getCalendarMonthHeaderLabel(this._activeDate).toLocaleUpperCase() :
+      this._locale.getCalendarMonthHeaderLabel(this._activeDate) :
       this._locale.getCalendarYearHeaderLabel(this._activeDate);
   }
 
-  constructor(private _locale: DateLocale) {
-    this._weekdays = this._locale.narrowDays.slice(this._locale.firstDayOfWeek)
-      .concat(this._locale.narrowDays.slice(0, this._locale.firstDayOfWeek));
-  }
+  constructor(private _locale: DateLocale, private _util: DateUtil) { }
 
   ngAfterContentInit() {
-    this._activeDate = this.startAt || SimpleDate.today();
+    this._activeDate = this.startAt || this._util.today();
     this._monthView = this.startView != 'year';
   }
 
   /** Handles date selection in the month view. */
-  _dateSelected(date: SimpleDate): void {
-    if ((!date || !this.selected) && date != this.selected || date.compare(this.selected)) {
+  _dateSelected(date: Date): void {
+    if ((!date || !this.selected) && date != this.selected || this._util.isSameDay(date, this.selected)) {
       this.selectedChange.emit(date);
     }
   }
 
   /** Handles month selection in the year view. */
-  _monthSelected(month: SimpleDate): void {
+  _monthSelected(month: Date): void {
     this._activeDate = month;
     this._monthView = true;
   }
@@ -132,14 +126,14 @@ export class Md2Calendar implements AfterContentInit {
   /** Handles user clicks on the previous button. */
   _previousClicked(): void {
     this._activeDate = this._monthView ?
-      this._addCalendarMonths(this._activeDate, -1) :
-      this._addCalendarYears(this._activeDate, -1);
+      this._util.incrementMonths(this._activeDate, -1) :
+      this._util.incrementYears(this._activeDate, -1);
   }
 
   /** Handles user clicks on the next button. */
   _nextClicked(): void {
     this._activeDate = this._monthView ?
-      this._addCalendarMonths(this._activeDate, 1) : this._addCalendarYears(this._activeDate, 1);
+      this._util.incrementMonths(this._activeDate, 1) : this._util.incrementYears(this._activeDate, 1);
   }
 
   /** Whether the previous period button is enabled. */
@@ -156,10 +150,10 @@ export class Md2Calendar implements AfterContentInit {
   }
 
   /** Whether the two dates represent the same view in the current view mode (month or year). */
-  private _isSameView(date1: SimpleDate, date2: SimpleDate): boolean {
+  private _isSameView(date1: Date, date2: Date): boolean {
     return this._monthView ?
-      date1.year == date2.year && date1.month == date2.month :
-      date1.year == date2.year;
+      date1.getFullYear() == date2.getFullYear() && date1.getMonth() == date2.getMonth() :
+      date1.getFullYear() == date2.getFullYear();
   }
 
   /** Handles keydown events on the calendar body. */
@@ -178,32 +172,32 @@ export class Md2Calendar implements AfterContentInit {
   private _handleCalendarBodyKeydownInMonthView(event: KeyboardEvent): void {
     switch (event.keyCode) {
       case LEFT_ARROW:
-        this._activeDate = this._addCalendarDays(this._activeDate, -1);
+        this._activeDate = this._util.incrementDays(this._activeDate, -1);
         break;
       case RIGHT_ARROW:
-        this._activeDate = this._addCalendarDays(this._activeDate, 1);
+        this._activeDate = this._util.incrementDays(this._activeDate, 1);
         break;
       case UP_ARROW:
-        this._activeDate = this._addCalendarDays(this._activeDate, -7);
+        this._activeDate = this._util.incrementDays(this._activeDate, -7);
         break;
       case DOWN_ARROW:
-        this._activeDate = this._addCalendarDays(this._activeDate, 7);
+        this._activeDate = this._util.incrementDays(this._activeDate, 7);
         break;
       case HOME:
-        this._activeDate = new SimpleDate(this._activeDate.year, this._activeDate.month, 1);
+        this._activeDate = this._util.getFirstDateOfMonth(this._activeDate);
         break;
       case END:
-        this._activeDate = new SimpleDate(this._activeDate.year, this._activeDate.month + 1, 0);
+        this._activeDate = this._util.getLastDateOfMonth(this._activeDate);
         break;
       case PAGE_UP:
         this._activeDate = event.altKey ?
-          this._addCalendarYears(this._activeDate, -1) :
-          this._addCalendarMonths(this._activeDate, -1);
+          this._util.incrementYears(this._activeDate, -1) :
+          this._util.incrementMonths(this._activeDate, -1);
         break;
       case PAGE_DOWN:
         this._activeDate = event.altKey ?
-          this._addCalendarYears(this._activeDate, 1) :
-          this._addCalendarMonths(this._activeDate, 1);
+          this._util.incrementYears(this._activeDate, 1) :
+          this._util.incrementMonths(this._activeDate, 1);
         break;
       case ENTER:
         if (this._dateFilterForViews(this._activeDate)) {
@@ -223,10 +217,10 @@ export class Md2Calendar implements AfterContentInit {
   private _handleCalendarBodyKeydownInYearView(event: KeyboardEvent): void {
     switch (event.keyCode) {
       case LEFT_ARROW:
-        this._activeDate = this._addCalendarMonths(this._activeDate, -1);
+        this._activeDate = this._util.incrementMonths(this._activeDate, -1);
         break;
       case RIGHT_ARROW:
-        this._activeDate = this._addCalendarMonths(this._activeDate, 1);
+        this._activeDate = this._util.incrementMonths(this._activeDate, 1);
         break;
       case UP_ARROW:
         this._activeDate = this._prevMonthInSameCol(this._activeDate);
@@ -235,16 +229,16 @@ export class Md2Calendar implements AfterContentInit {
         this._activeDate = this._nextMonthInSameCol(this._activeDate);
         break;
       case HOME:
-        this._activeDate = this._addCalendarMonths(this._activeDate, -this._activeDate.month);
+        this._activeDate = this._util.incrementMonths(this._activeDate, -this._activeDate.getMonth());
         break;
       case END:
-        this._activeDate = this._addCalendarMonths(this._activeDate, 11 - this._activeDate.month);
+        this._activeDate = this._util.incrementMonths(this._activeDate, 11 - this._activeDate.getMonth());
         break;
       case PAGE_UP:
-        this._activeDate = this._addCalendarYears(this._activeDate, event.altKey ? -10 : -1);
+        this._activeDate = this._util.incrementYears(this._activeDate, event.altKey ? -10 : -1);
         break;
       case PAGE_DOWN:
-        this._activeDate = this._addCalendarYears(this._activeDate, event.altKey ? 10 : 1);
+        this._activeDate = this._util.incrementYears(this._activeDate, event.altKey ? 10 : 1);
         break;
       case ENTER:
         this._monthSelected(this._activeDate);
@@ -257,58 +251,25 @@ export class Md2Calendar implements AfterContentInit {
     event.preventDefault();
   }
 
-  /** Adds the given number of days to the date. */
-  private _addCalendarDays(date: SimpleDate, days: number): SimpleDate {
-    return date.add({ days });
-  }
-
-  /**
-   * Adds the given number of months to the date. Months are counted as if flipping pages on a
-   * calendar and then finding the closest date in the new month. For example when adding 1 month to
-   * Jan 31, 2017, the resulting date will be Feb 28, 2017.
-   */
-  private _addCalendarMonths(date: SimpleDate, months: number): SimpleDate {
-    let newDate = date.add({ months });
-
-    // It's possible to wind up in the wrong month if the original month has more days than the new
-    // month. In this case we want to go to the last day of the desired month.
-    // Note: the additional + 12 % 12 ensures we end up with a positive number, since JS % doesn't
-    // guarantee this.
-    if (newDate.month != ((date.month + months) % 12 + 12) % 12) {
-      newDate = new SimpleDate(newDate.year, newDate.month, 0);
-    }
-
-    return newDate;
-  }
-
-  /**
-   * Adds the given number of months to the date. Months are counted as if flipping 12 pages for
-   * each year on a calendar and then finding the closest date in the new month. For example when
-   * adding 1 year to Feb 29, 2016, the resulting date will be Feb 28, 2017.
-   */
-  private _addCalendarYears(date: SimpleDate, years: number): SimpleDate {
-    return this._addCalendarMonths(date, years * 12);
-  }
-
   /**
    * Determine the date for the month that comes before the given month in the same column in the
    * calendar table.
    */
-  private _prevMonthInSameCol(date: SimpleDate) {
+  private _prevMonthInSameCol(date: Date) {
     // Determine how many months to jump forward given that there are 2 empty slots at the beginning
     // of each year.
-    let increment = date.month <= 4 ? -5 : (date.month >= 7 ? -7 : -12);
-    return this._addCalendarMonths(date, increment);
+    let increment = date.getMonth() <= 4 ? -5 : (date.getMonth() >= 7 ? -7 : -12);
+    return this._util.incrementMonths(date, increment);
   }
 
   /**
    * Determine the date for the month that comes after the given month in the same column in the
    * calendar table.
    */
-  private _nextMonthInSameCol(date: SimpleDate): SimpleDate {
+  private _nextMonthInSameCol(date: Date): Date {
     // Determine how many months to jump forward given that there are 2 empty slots at the beginning
     // of each year.
-    let increment = date.month <= 4 ? 7 : (date.month >= 7 ? 5 : 12);
-    return this._addCalendarMonths(date, increment);
+    let increment = date.getMonth() <= 4 ? 7 : (date.getMonth() >= 7 ? 5 : 12);
+    return this._util.incrementMonths(date, increment);
   }
 }
