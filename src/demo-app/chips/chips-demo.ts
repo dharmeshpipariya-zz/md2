@@ -1,9 +1,8 @@
 import { Component } from '@angular/core';
 
 @Component({
-  moduleId: module.id,
   selector: 'md-chips-demo',
-  templateUrl: 'chips-demo.html'
+  templateUrl: '../chips/chips-demo.html'
 })
 export class ChipsDemo {
   isDisabled: boolean = false;

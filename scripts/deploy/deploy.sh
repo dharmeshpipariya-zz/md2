@@ -22,6 +22,8 @@ git clone https://dharmeshpipariya:$GH_TOKEN@github.com/dharmeshpipariya/md2.git
 rm -rf deploy/**/* || exit 0
 
 # Deploy demo.
+gulp rollup:prepare
+./node_modules/.bin/rollup -c ./dist/rollup-config.js
 gulp deploy
 
 # Configure cloned repo.

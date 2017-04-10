@@ -1,9 +1,8 @@
 import { Component } from '@angular/core';
 
 @Component({
-  moduleId: module.id,
   selector: 'autocomplete-demo',
-  templateUrl: 'autocomplete-demo.html'
+  templateUrl: '../autocomplete/autocomplete-demo.html'
 })
 export class AutocompleteDemo {
   isRequired = false;

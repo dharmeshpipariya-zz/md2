@@ -6,17 +6,9 @@ import { Location } from '@angular/common';
 import { Router } from '@angular/router';
 
 @Component({
-  moduleId: module.id,
-  selector: 'home',
-  templateUrl: 'home.html',
-})
-export class Home { }
-
-@Component({
-  moduleId: module.id,
   selector: 'demo-app',
   providers: [],
-  templateUrl: 'demo-app.html',
+  templateUrl: '../demo-app/demo-app.html',
   encapsulation: ViewEncapsulation.None,
 })
 export class DemoApp {

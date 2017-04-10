@@ -4,7 +4,7 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "lib": ["es6", "es2015", "dom"],
-    "module": "commonjs",
+    "module": "es2015",
     "moduleResolution": "node",
     "noEmitOnError": true,
     "noImplicitAny": true,
@@ -20,7 +20,6 @@
     }
   },
   "files": [
-    "./demo-app-types.d.ts",
     "./demo-app-module.ts",
     "./main-aot.ts"
   ],

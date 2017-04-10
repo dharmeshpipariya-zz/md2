@@ -1,9 +1,8 @@
 import { Component } from '@angular/core';
 
 @Component({
-  moduleId: module.id,
   selector: 'tabs-demo',
-  templateUrl: 'tabs-demo.html'
+  templateUrl: '../tabs/tabs-demo.html'
 })
 export class TabsDemo {
   tabs: Array<any> = [

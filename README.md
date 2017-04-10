@@ -46,7 +46,7 @@ export class AppModule { }
 
 ### Demo
 
-[demo](https://dharmeshpipariya.github.io/md2/) and [demo sources](https://github.com/dharmeshpipariya/md2/tree/master/src/demo-app).
+[demo](https://dharmeshpipariya.github.io/md2) and [demo sources](https://github.com/dharmeshpipariya/md2/tree/master/src/demo-app).
 
 
 ### Components:

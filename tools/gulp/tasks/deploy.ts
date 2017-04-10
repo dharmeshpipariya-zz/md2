@@ -1,62 +1,77 @@
-import * as gulp from 'gulp';
-// import * as path from 'path';
+import { task, watch, src, dest } from 'gulp';
+import { join } from 'path';
+import { ScriptTarget, ModuleKind } from 'typescript';
 import * as fs from 'fs';
-import gulpRunSequence = require('run-sequence');
 
+import {
+  DIST_ROOT, PROJECT_ROOT, COMPONENTS_DIR, HTML_MINIFIER_OPTIONS, LICENSE_BANNER
+} from '../constants';
+import {
+  sassBuildTask, tsBuildTask, execNodeTask, sequenceTask,
+  triggerLivereload
+} from '../util/task_helpers';
+
+// There are no type definitions available for these imports.
+const gulpMinifyHtml = require('gulp-htmlmin');
+const gulpIf = require('gulp-if');
+
+import gulpRunSequence = require('run-sequence');
 const bump = require('gulp-bump');
 const git = require('gulp-git');
 const changelog = require('gulp-conventional-changelog');
+const exec = require('child_process').exec;
+const rename = require('gulp-rename');
 // const releaser = require('conventional-github-releaser');
 
-// Deploy demo source
-gulp.task('deploy', ['build:devapp'], () => {
-  fs.readFile('./dist/index.html', 'utf8', (err, data) => {
-    if (err) { return console.log(err); }
-    const result = data.replace('<base href="/">', '<base href=".">');
+// Prepare rollup
+task('rollup:prepare',['aot:build'], () => {
+  return src('md2/**/*', { cwd: join(DIST_ROOT, '**') })
+    .pipe(dest(join(DIST_ROOT, 'node_modules')));
+});
 
-    fs.writeFile('./dist/index.html', result, 'utf8', (e) => {
-      if (e) {
-        return console.log(e);
-      } else {
-        return gulp.src('./dist/**/*')
-          .pipe(gulp.dest('./deploy'));
-      }
-    });
-  });
+// Deploy demo source
+task('deploy', () => {
+  src(join(DIST_ROOT, 'index-aot.html'))
+    .pipe(rename('index.html'))
+    .pipe(dest(join(PROJECT_ROOT, 'deploy')));
+
+  return src(['assets/**/*', 'libs/reflect-metadata/**/*', 'libs/zone.js/**/*', 'libs/hammerjs/**/*',
+    'bundle.js', 'bundle.js.map', 'favicon.ico'], { cwd: join(DIST_ROOT, '**') })
+    .pipe(dest(join(PROJECT_ROOT, 'deploy')));
 });
 
 // update package.json version
-gulp.task(':release:version', () => {
-  gulp.src(['./package.json'])
+task(':release:version', () => {
+  src(['./package.json'])
     .pipe(bump({ type: 'patch' }))
-    .pipe(gulp.dest('./'));
-  return gulp.src(['./src/lib/package.json'])
+    .pipe(dest('./'));
+  return src(['./src/lib/package.json'])
     .pipe(bump({ type: 'patch' }))
-    .pipe(gulp.dest('./src/lib'));
+    .pipe(dest('./src/lib'));
 });
 
 // update CHANGELOG.md
-gulp.task(':release:changelog', () => {
-  return gulp.src('CHANGELOG.md', { buffer: false })
+task(':release:changelog', () => {
+  return src('CHANGELOG.md', { buffer: false })
     .pipe(changelog({ preset: 'angular' }))
-    .pipe(gulp.dest('./'));
+    .pipe(dest('./'));
 });
 
 // release commit
-gulp.task(':release:commit', () => {
+task(':release:commit', () => {
   let version = JSON.parse(fs.readFileSync('./package.json', 'utf8')).version;
-  return gulp.src('.')
+  return src('.')
     .pipe(git.add())
     .pipe(git.commit('Released MD2@' + version));
 });
 
 // release push
-gulp.task(':release:push', (cb: any) => {
+task(':release:push', (cb: any) => {
   git.push('origin', 'master', cb);
 });
 
 // release tag
-gulp.task(':release:tag', (cb: any) => {
+task(':release:tag', (cb: any) => {
   let version = JSON.parse(fs.readFileSync('./package.json', 'utf8')).version;
   git.tag(version, 'Created Tag for version: ' + version, function (error: any) {
     if (error) { return cb(error); }
@@ -65,7 +80,7 @@ gulp.task(':release:tag', (cb: any) => {
 });
 
 // release
-// gulp.task('github-release', function (done: any) {
+// task('github-release', function (done: any) {
 //  releaser({
 //    type: 'oauth',
 //    token: '0126af95c0e2d9b0a7c78738c4c00a860b04acc8'
@@ -75,7 +90,7 @@ gulp.task(':release:tag', (cb: any) => {
 //    }, done);
 // });
 
-gulp.task('release', (callback: any) => {
+task('release', (callback: any) => {
   gulpRunSequence(
     ':release:version',
     ':release:changelog',

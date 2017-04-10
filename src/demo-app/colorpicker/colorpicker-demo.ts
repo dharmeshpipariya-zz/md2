@@ -1,12 +1,11 @@
 import { Component } from '@angular/core';
 
 @Component({
-  moduleId: module.id,
   selector: 'colorpicker-demo',
-  templateUrl: 'colorpicker-demo.html'
+  templateUrl: '../colorpicker/colorpicker-demo.html'
 })
 export class ColorpickerDemo {
+  _color: string = null;
   isRequired = false;
   isDisabled = false;
-  _color: string = null;
 }
