@@ -137,7 +137,7 @@ export class Md2Colorpicker implements OnDestroy, ControlValueAccessor {
   @ViewChildren(TemplatePortalDirective) templatePortals: QueryList<Portal<any>>;
 
   @Input()
-  get format() { return this._format || this._locale.format; }
+  get format() { return this._format || this._locale.formatColor; }
   set format(value: string) {
     if (this._format !== value) {
       this._format = value;
@@ -150,12 +150,12 @@ export class Md2Colorpicker implements OnDestroy, ControlValueAccessor {
     if (value && this._value !== value) {
       this._value = value;
     } else {
-      this._value = this._locale.defaultValue;
+      this._value = this._locale.defaultColor;
     }
     let hsva = this._util.stringToHsva(this._value);
     let rgba = this._util.denormalizeRGBA(this._util.hsvaToRgba(hsva));
     let rgbaText = new Rgba(rgba.r, rgba.g, rgba.b, Math.round(rgba.a * 100) / 100);
-    this._value = this._util.outputFormat(hsva, this._locale.format);
+    this._value = this._util.outputFormat(hsva, this._locale.formatColor);
     if (Math.round((rgbaText.r * 299 + rgbaText.g * 587 + rgbaText.b * 114) / 1000) >= 128
       || hsva.a < 0.35) {
       this._isDark = true;
@@ -288,12 +288,12 @@ export class Md2Colorpicker implements OnDestroy, ControlValueAccessor {
   }
 
   _setFormat(format: string) {
-    this._locale.format = format;
+    this._locale.formatColor = format;
     let hsva = this._util.stringToHsva(this._value);
-    if (this._locale.format === 'hex' && hsva.a < 1) {
-      this._locale.format = 'rgb';
+    if (this._locale.formatColor === 'hex' && hsva.a < 1) {
+      this._locale.formatColor = 'rgb';
     }
-    this._value = this._util.outputFormat(hsva, this._locale.format);
+    this._value = this._util.outputFormat(hsva, this._locale.formatColor);
   }
 
   _spectrumColorChange(event: string) {

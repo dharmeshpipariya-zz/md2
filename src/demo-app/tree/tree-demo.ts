@@ -1,9 +1,8 @@
 import { Component } from '@angular/core';
 
 @Component({
-  moduleId: module.id,
   selector: 'tree-demo',
-  templateUrl: 'tree-demo.html'
+  templateUrl: '../tree/tree-demo.html'
 })
 export class TreeDemo {
   tree: Array<any> = [

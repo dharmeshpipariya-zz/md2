@@ -29,7 +29,7 @@ export class Md2ColorSpectrum {
   get color() { return this._color; }
   set color(value: string) {
     if (this._color !== value) {
-      this._color = value || this._locale.defaultValue;
+      this._color = value || this._locale.defaultColor;
       this.hsva = this._util.stringToHsva(this.color);
       this.update(false);
     }
@@ -82,7 +82,7 @@ export class Md2ColorSpectrum {
 
     this._alpha = 'rgb(' + rgba.r + ',' + rgba.g + ',' + rgba.b + ')';
     this._hue = 'rgb(' + hueRgba.r + ',' + hueRgba.g + ',' + hueRgba.b + ')';
-    this._color = this._util.outputFormat(this.hsva, this._locale.format);
+    this._color = this._util.outputFormat(this.hsva, this._locale.formatColor);
     if (isInitialized) {
       this._emitChangeEvent();
     }
