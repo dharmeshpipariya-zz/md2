@@ -1,5 +1,11 @@
 #!/bin/bash
-set -e # Exit with nonzero exit code if anything fails
+
+echo "=======  Starting deploy.sh  ========================================"
+
+# Go to project dir
+cd $(dirname $0)/../..
+
+set -ex # Exit with nonzero exit code if anything fails
 
 SOURCE_BRANCH="master"
 TARGET_BRANCH="gh-pages"
@@ -8,7 +14,7 @@ COMMIT_MSG=`git log --format=%B --no-merges -n 1`
 # Pull requests and commits to other branches shouldn't try to deploy, just build to verify
 if [ "$TRAVIS_PULL_REQUEST" != "false" ] || [ "$TRAVIS_BRANCH" != "$SOURCE_BRANCH" ] || [[ $COMMIT_MSG != "publish-"* ]]; then
   echo "Building demo-app"
-  gulp build:devapp
+  $(npm bin)/gulp build:devapp
   exit 0
 fi
 
@@ -22,9 +28,9 @@ git clone https://dharmeshpipariya:$GH_TOKEN@github.com/dharmeshpipariya/md2.git
 rm -rf deploy/**/* || exit 0
 
 # Deploy demo.
-gulp rollup:prepare
+$(npm bin)/gulp rollup:prepare
 ./node_modules/.bin/rollup -c ./dist/rollup-config.js
-gulp deploy
+$(npm bin)/gulp deploy
 
 # Configure cloned repo.
 cd deploy
