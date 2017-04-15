@@ -29,7 +29,7 @@ rm -rf deploy/**/* || exit 0
 
 # Deploy demo.
 $(npm bin)/gulp rollup:prepare
-./node_modules/.bin/rollup -c ./dist/rollup-config.js
+$(npm bin)/rollup -c ./dist/rollup-config.js
 $(npm bin)/gulp deploy
 
 # Configure cloned repo.
