@@ -19,6 +19,11 @@ export class SliderDimension {
 }
 
 export class ColorUtil {
+
+  parse(value: string) {
+    return value;
+  }
+
   colors: Array<any> = [
     { name: 'AliceBlue', code: '#F0F8FF' },
     { name: 'AntiqueWhite', code: '#FAEBD7' },

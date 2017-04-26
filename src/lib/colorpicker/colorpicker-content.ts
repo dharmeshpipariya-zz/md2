@@ -8,6 +8,9 @@ import {
   Output,
   ViewEncapsulation
 } from '@angular/core';
+import { ColorLocale } from './color-locale';
+import { ColorUtil, Hsva, Rgba } from './color-util';
+
 
 @Component({
   moduleId: module.id,
@@ -17,31 +20,115 @@ import {
   host: {
     'class': 'md2-colorpicker-content'
   },
-  encapsulation: ViewEncapsulation.None,
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  //encapsulation: ViewEncapsulation.None,
+  //changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Md2ColorpickerContent implements AfterContentInit {
 
   /** The selected color. */
   @Input()
+  get color(): string { return this._color; }
+  set color(value: string) {
+    //this._color = this._util.parse(value);
+    this._color = value;
+  }
+  private _color: string;
+
+  /** Emits when the currently color changes. */
+  @Output() colorChange = new EventEmitter<string>();
+
   get selected(): string { return this._selected; }
   set selected(value: string) {
-    //this._selected = this._util.parse(value);
-    this._selected = value;
+    this._selected = this._util.parse(value);
+    this.hsva = this._util.stringToHsva(this._selected);
+    this.update();
   }
   private _selected: string;
 
-  /** Emits when the currently selected date changes. */
-  @Output() selectedChange = new EventEmitter<string>();
+  get saturation(): any {
+    return {
+      'left': `${this.hsva.s * 100}%`,
+      'top': `${100 - this.hsva.v * 100}%`
+    };
+  }
 
-  constructor(private _element: ElementRef) { }
+  get hue(): { [key: string]: string } {
+    return {
+      'left': `${this.hsva.h * 100}%`
+    };
+  }
+
+  get alpha(): { [key: string]: string } {
+    return {
+      'background': `linear-gradient(to right, transparent, ${this._alpha})`
+    };
+  }
+
+  get alphaPointer(): { [key: string]: string } {
+    return {
+      'left': `${this.hsva.a * 100}%`
+    };
+  }
+
+  private hsva: Hsva;
+  _hue: string;
+  _alpha: string;
+  _isColorDarker: boolean = false;
+  _formats: Array<string> = ['hex', 'rgb', 'hsl'];
+
+  constructor(private _element: ElementRef, private _locale: ColorLocale,
+    private _util: ColorUtil) { }
 
   ngAfterContentInit() {
+    this.selected = this._selected || this._locale.defaultColor;
+
     this._init();
   }
 
   /** Handles color selection. */
   _colorSelected(value: string): void {
+  }
+
+  _setSaturation(event: any) {
+    this.hsva.s = event.x / event.width;
+    this.hsva.v = 1 - event.y / event.height;
+    this.update();
+  }
+
+  _setHue(event: any) {
+    this.hsva.h = event.x / event.width;
+    this.update();
+  }
+
+  _setAlpha(event: any) {
+    this.hsva.a = event.x / event.width;
+    this.update();
+  }
+
+  _setFormat(format: string) {
+    this._locale.formatColor = format;
+    let hsva = this._util.stringToHsva(this._selected);
+    if (this._locale.formatColor === 'hex' && hsva.a < 1) {
+      this._locale.formatColor = 'rgb';
+    }
+    this._selected = this._util.outputFormat(hsva, this._locale.formatColor);
+  }
+
+  private update() {
+    let rgba = this._util.denormalizeRGBA(this._util.hsvaToRgba(this.hsva));
+    let hueRgba = this._util.denormalizeRGBA(this._util.hsvaToRgba(new Hsva(this.hsva.h, 1, 1, 1)));
+
+    this._alpha = 'rgb(' + rgba.r + ',' + rgba.g + ',' + rgba.b + ')';
+    this._hue = 'rgb(' + hueRgba.r + ',' + hueRgba.g + ',' + hueRgba.b + ')';
+    this._selected = this._util.outputFormat(this.hsva, this._locale.formatColor);
+
+    let rgbaText = new Rgba(rgba.r, rgba.g, rgba.b, Math.round(rgba.a * 100) / 100);
+    if (Math.round((rgbaText.r * 299 + rgbaText.g * 587 + rgbaText.b * 114) / 1000) >= 128
+      || this.hsva.a < 0.35) {
+      this._isColorDarker = true;
+    } else {
+      this._isColorDarker = false;
+    }
   }
 
   /** Initializes this clock view. */

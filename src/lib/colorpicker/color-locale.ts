@@ -8,5 +8,5 @@ export abstract class ColorLocale {
 
 export class DefaultColorLocale implements ColorLocale {
   formatColor = 'hex';
-  defaultColor = 'black';
+  defaultColor = '#000000';
 }
