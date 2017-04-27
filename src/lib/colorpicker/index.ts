@@ -5,6 +5,7 @@ import { OverlayModule, PortalModule } from '../core';
 import { Md2Colorpicker } from './colorpicker';
 import { Md2ColorSpectrum } from './color-spectrum';
 import { Md2ColorSpectrum1 } from './color-spectrum1';
+import { Md2ColorpickerToggle, Md2ColorPanel } from './colorpicker-toggle';
 import { Md2ColorpickerContent } from './colorpicker-content';
 import { Md2Slide } from './slide';
 import { ColorLocale, DefaultColorLocale } from './color-locale';
@@ -30,18 +31,23 @@ export * from './slide';
     Md2Colorpicker,
     Md2ColorSpectrum,
     Md2ColorSpectrum1,
-    Md2ColorpickerContent
+    Md2ColorpickerContent,
+    Md2ColorpickerToggle,
+    Md2ColorPanel
   ],
   declarations: [
     Md2Colorpicker,
     Md2ColorSpectrum,
     Md2ColorSpectrum1,
     Md2ColorpickerContent,
+    Md2ColorpickerToggle,
+    Md2ColorPanel,
     Md2Slide
   ],
   providers: [{ provide: ColorLocale, useClass: DefaultColorLocale }, ColorUtil],
   entryComponents: [
     Md2Colorpicker,
+    Md2ColorPanel
   ]
 })
 export class Md2ColorpickerModule { }
