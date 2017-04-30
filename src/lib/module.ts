@@ -18,6 +18,7 @@ import { Md2ColorpickerModule } from './colorpicker/index';
 import { Md2DataTableModule } from './data-table/index';
 import { Md2DatepickerModule } from './datepicker/index';
 import { Md2DialogModule } from './dialog/index';
+import { Md2HighlightModule } from './highlight/index';
 import { Md2MenuModule } from './menu/index';
 import { Md2SelectModule } from './select/index';
 import { Md2TabsModule } from './tabs/index';
@@ -38,6 +39,7 @@ const MD2_MODULES = [
   Md2DataTableModule,
   Md2DatepickerModule,
   Md2DialogModule,
+  Md2HighlightModule,
   Md2MenuModule,
   MdRippleModule,
   Md2SelectModule,
@@ -66,6 +68,7 @@ const MD2_MODULES = [
     Md2DataTableModule.forRoot(),
     Md2DatepickerModule,
     Md2DialogModule.forRoot(),
+    Md2HighlightModule.forRoot(),
     Md2MenuModule.forRoot(),
     MdRippleModule.forRoot(),
     Md2SelectModule.forRoot(),

@@ -8,6 +8,7 @@ import { ColorpickerDemo } from '../colorpicker/colorpicker-demo';
 import { DataTableDemo } from '../data-table/data-table-demo';
 import { DatepickerDemo } from '../datepicker/datepicker-demo';
 import { DialogDemo } from '../dialog/dialog-demo';
+import { HighlightDemo } from '../highlight/highlight-demo';
 import { MenuDemo } from '../menu/menu-demo';
 import { SelectDemo } from '../select/select-demo';
 import { TabsDemo } from '../tabs/tabs-demo';
@@ -26,6 +27,7 @@ export const DEMO_APP_ROUTES: Routes = [
   { path: 'datatable', component: DataTableDemo },
   { path: 'datepicker', component: DatepickerDemo },
   { path: 'dialog', component: DialogDemo },
+  { path: 'highlight', component: HighlightDemo },
   { path: 'menu', component: MenuDemo },
   { path: 'select', component: SelectDemo },
   { path: 'tabs', component: TabsDemo },

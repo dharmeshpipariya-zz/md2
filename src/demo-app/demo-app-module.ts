@@ -15,6 +15,7 @@ import {ColorpickerDemo} from './colorpicker/colorpicker-demo';
 import {DataTableDemo, DataTablePipe} from './data-table/data-table-demo';
 import {DatepickerDemo} from './datepicker/datepicker-demo';
 import {DialogDemo} from './dialog/dialog-demo';
+import {HighlightDemo} from './highlight/highlight-demo';
 import {Home} from './home/home';
 import {MenuDemo} from './menu/menu-demo';
 import {SelectDemo} from './select/select-demo';
@@ -46,6 +47,7 @@ import {TreeDemo} from './tree/tree-demo';
     DataTablePipe,
     DatepickerDemo,
     DialogDemo,
+    HighlightDemo,
     MenuDemo,
     SelectDemo,
     TabsDemo,

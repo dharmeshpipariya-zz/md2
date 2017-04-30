@@ -24,7 +24,7 @@ export const LICENSE_BANNER = `/**
   */`;
 
 export const NPM_VENDOR_FILES = [
-  '@angular', 'core-js/client', 'hammerjs', 'rxjs', 'systemjs/dist',
+  '@angular', 'core-js/client', 'hammerjs', 'highlightjs', 'rxjs', 'systemjs/dist',
   'zone.js/dist', 'reflect-metadata', 'web-animations-js'
 ];
 

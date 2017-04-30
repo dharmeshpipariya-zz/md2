@@ -9,6 +9,7 @@ export * from './colorpicker/index';
 export * from './data-table/index';
 export * from './datepicker/index';
 export * from './dialog/index';
+export * from './highlight/index';
 export * from './menu/index';
 export * from './select/index';
 export * from './tabs/index';

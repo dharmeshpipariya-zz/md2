@@ -23,6 +23,7 @@ export class DemoApp {
     { name: 'Data Table', route: 'datatable' },
     { name: 'Datepicker', route: 'datepicker' },
     { name: 'Dialog', route: 'dialog' },
+    { name: 'Highlight', route: 'highlight' },
     { name: 'Menu', route: 'menu' },
     { name: 'Select', route: 'select' },
     { name: 'Tabs', route: 'tabs' },
