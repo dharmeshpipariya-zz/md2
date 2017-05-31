@@ -33,7 +33,7 @@ import {TreeDemo} from './tree/tree-demo';
     HttpModule,
     ReactiveFormsModule,
     RouterModule.forRoot(DEMO_APP_ROUTES, { useHash: true }),
-    Md2Module.forRoot(),
+    Md2Module,
   ],
   declarations: [
     DemoApp,

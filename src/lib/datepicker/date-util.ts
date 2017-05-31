@@ -22,7 +22,8 @@ export class DateUtil {
     'k': [3, 1],
     's': 5,
     'S': 6,
-    'a': [3, ['am', 'pm']]
+    'a': [3, ['am', 'pm']],
+    'A': [3, ['AM', 'PM']]
   };
 
   replace(s: string, regexp: any, sub?: string) {
@@ -112,7 +113,7 @@ export class DateUtil {
           timezoneIndex = reIndex;
           reIndex += 3;
           return '([+-])(\\d\\d)(\\d\\d)';
-        } else if (/[Nna]/.test(placeholderChar)) {
+        } else if (/[NnaA]/.test(placeholderChar)) {
           indexMap[reIndex++] = [placeholderChar, param && param.split(',')];
           return '([a-zA-Z\\u0080-\\u1fff]+)';
         } else if (/w/i.test(placeholderChar)) {
@@ -146,7 +147,7 @@ export class DateUtil {
         if (listValue == null) {
           return undefined;
         }
-        if (placeholderChar == 'a') {
+        if (placeholderChar == 'a' || placeholderChar == 'A') {
           ctorArgs[ctorIndex] += listValue * 12;
         } else {
           ctorArgs[ctorIndex] = listValue;
@@ -164,6 +165,37 @@ export class DateUtil {
     let d = new Date(ctorArgs[0], ctorArgs[1], ctorArgs[2], ctorArgs[3], ctorArgs[4],
       ctorArgs[5], ctorArgs[6]);
     return d;
+  }
+
+  parse(value: any, format?: Object): Date | null {
+    let timestamp = typeof value == 'number' ? value : Date.parse(value);
+    return isNaN(timestamp) ? null : new Date(timestamp);
+  }
+
+  compareDate(first: Date, second: Date): number {
+    return this.getYear(first) - this.getYear(second) ||
+      this.getMonth(first) - this.getMonth(second) ||
+      this.getDate(first) - this.getDate(second);
+  }
+
+  getYear(date: Date): number {
+    return date.getFullYear();
+  }
+
+  getMonth(date: Date): number {
+    return date.getMonth();
+  }
+
+  getDate(date: Date): number {
+    return date.getDate();
+  }
+
+  getHour(date: Date): number {
+    return date.getHours();
+  }
+
+  getMinute(date: Date): number {
+    return date.getMinutes();
   }
 
   /**
@@ -232,6 +264,26 @@ export class DateUtil {
    */
   isSameDay(d1: Date, d2: Date) {
     return d1 && d2 && d1.getDate() == d2.getDate() && this.isSameMonthAndYear(d1, d2);
+  }
+
+  /**
+   * Gets whether two dates are the same hours.
+   * @param {Date} d1
+   * @param {Date} d2
+   * @returns {boolean}
+   */
+  isSameHour(d1: Date, d2: Date) {
+    return d1 && d2 && d1.getHours() == d2.getHours() && this.isSameDay(d1, d2);
+  }
+
+  /**
+   * Gets whether two dates are the same minutes.
+   * @param {Date} d1
+   * @param {Date} d2
+   * @returns {boolean}
+   */
+  isSameMinute(d1: Date, d2: Date) {
+    return d1 && d2 && d1.getMinutes() == d2.getMinutes() && this.isSameHour(d1, d2);
   }
 
   /**
@@ -409,6 +461,20 @@ export class DateUtil {
     let maxDateAtMidnight = this.isValidDate(maxDate) ? this.createDateAtMidnight(maxDate) : null;
     return (!minDateAtMidnight || minDateAtMidnight <= dateAtMidnight) &&
       (!maxDateAtMidnight || maxDateAtMidnight >= dateAtMidnight);
+  }
+
+  /**
+   * Checks if a date is within a min and max range.
+   * If minDate or maxDate are not dates, they are ignored.
+   * @param {Date} date
+   * @param {Date} minDate
+   * @param {Date} maxDate
+   */
+  isDateWithinRange1(date: Date, minDate: Date, maxDate: Date) {
+    minDate = this.isValidDate(minDate) ? minDate : null;
+    maxDate = this.isValidDate(maxDate) ? maxDate : null;
+    return (!minDate || minDate <= date) &&
+      (!maxDate || maxDate >= date);
   }
 
   /**

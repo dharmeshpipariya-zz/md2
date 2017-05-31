@@ -16,13 +16,14 @@ Datepicker allow the user to select date and time.
 | `cancelLabel` | `string` | Datepicker Cancel label |
 | `format` | `string` | The date format of datepicker |
 | `tabindex` | `number` | The tabIndex of the datepicker. |
+| `timeInterval` | `number` | Select minutes in specific time interval, default is 1. |
 | `openOnFocus` | `boolean` | Opend Calendar Whether or not the datepicker is openOnFocus. |
 | `isOpen` | `boolean` | Opend Calendar Whether or not the datepicker is isOpen. |
 | `enableDates` | `Array<Date>` | Enable dates. |
 | `disableDates` | `Array<Date>` | Disable Dates. |
 | `disableWeekDays` | `Array<number>` | Disable Week Days. |
-| `mode` | `'auto' | 'portrait' | 'landscape'` | Mode of the Datepicker, default auto. |
-| `container` | `'inline' | 'dialog'` | Container of the Datepicker, default inline. |
+| `mode` | `'auto'` &#124; `'portrait'` &#124; `'landscape'` | Mode of the Datepicker, default auto. |
+| `container` | `'inline'` &#124; `'dialog'` | Container of the Datepicker, default inline. |
 
 ### Events
 
@@ -48,6 +49,8 @@ A datepicker would have the following markup.
 | hour      | `H`    | -      | -          | -                | H(13)   | HH(13)  |
 | minute    | `m`    | -      | -          | -                | m(5)    | mm(05)  |
 | second    | `s`    | -      | -          | -                | s(5)    | ss(05)  |
+| am/pm     | `a`    | -      | -          | -                | -       | -       |
+| AM/PM     | `A`    | -      | -          | -                | -       | -       |
 
 
 #### Keyboard interaction:
@@ -61,4 +64,4 @@ A datepicker would have the following markup.
 - <kbd>PAGE_DOWN</kbd>: Focus a month forward
 - <kbd>SHIFT + PAGE_UP</kbd>: Focus a year backward
 - <kbd>SHIFT + PAGE_DOWN</kbd>: Focus a year forward
-- <kbd>ENTER</kbd> or <kbd>SPACE</kbd>: Select focused item
+- <kbd>ENTER</kbd>: Select focused item

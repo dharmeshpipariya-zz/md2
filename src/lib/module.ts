@@ -3,11 +3,11 @@ import { NgModule, ModuleWithProviders } from '@angular/core';
 import {
   MdRippleModule,
   RtlModule,
-  ObserveContentModule,
   PortalModule,
   OverlayModule,
   A11yModule,
   CompatibilityModule,
+  MdNativeDateModule,
 } from './core/index';
 
 import { Md2AccordionModule } from './accordion/index';
@@ -55,50 +55,11 @@ const MD2_MODULES = [
   A11yModule,
   PlatformModule,
   CompatibilityModule,
-  ObserveContentModule
+  MdNativeDateModule,
 ];
-
-@NgModule({
-  imports: [
-    Md2AccordionModule.forRoot(),
-    Md2AutocompleteModule.forRoot(),
-    Md2ChipsModule.forRoot(),
-    Md2CollapseModule.forRoot(),
-    Md2ColorpickerModule,
-    Md2DataTableModule.forRoot(),
-    Md2DatepickerModule,
-    Md2DialogModule.forRoot(),
-    Md2HighlightModule.forRoot(),
-    Md2MenuModule.forRoot(),
-    MdRippleModule.forRoot(),
-    Md2SelectModule.forRoot(),
-    Md2TabsModule.forRoot(),
-    Md2TagsModule.forRoot(),
-    Md2ToastModule.forRoot(),
-    Md2TooltipModule.forRoot(),
-    Md2TreeModule.forRoot(),
-    PortalModule.forRoot(),
-    RtlModule.forRoot(),
-    ObserveContentModule.forRoot(),
-
-    // These modules include providers.
-    A11yModule.forRoot(),
-    PlatformModule.forRoot(),
-    OverlayModule.forRoot(),
-    CompatibilityModule.forRoot(),
-  ],
-  exports: MD2_MODULES,
-})
-export class Md2RootModule { }
-
 
 @NgModule({
   imports: MD2_MODULES,
   exports: MD2_MODULES,
 })
-export class Md2Module {
-  /** @deprecated */
-  static forRoot(): ModuleWithProviders {
-    return { ngModule: Md2RootModule };
-  }
-}
+export class Md2Module { }

@@ -11,7 +11,6 @@ import {
   IterableDiffer,
   ViewEncapsulation,
   NgModule,
-  ModuleWithProviders,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -307,14 +306,8 @@ export const MD2_DATA_TABLE_DIRECTIVES: any[] = [
 ];
 
 @NgModule({
-  imports: [CommonModule, FormsModule, Md2SelectModule.forRoot()],
+  imports: [CommonModule, FormsModule, Md2SelectModule],
   exports: MD2_DATA_TABLE_DIRECTIVES,
   declarations: MD2_DATA_TABLE_DIRECTIVES,
 })
-export class Md2DataTableModule {
-  static forRoot(): ModuleWithProviders {
-    return {
-      ngModule: Md2DataTableModule
-    };
-  }
-}
+export class Md2DataTableModule { }

@@ -7,26 +7,28 @@ import {
   OnChanges,
   SimpleChanges,
   OnDestroy,
-  OpaqueToken,
+  InjectionToken,
   Optional,
 } from '@angular/core';
 import {RippleConfig, RippleRenderer} from './ripple-renderer';
-import {ViewportRuler} from '../overlay/position/viewport-ruler';
 import {RippleRef} from './ripple-ref';
-
-/** OpaqueToken that can be used to specify the global ripple options. */
-export const MD_RIPPLE_GLOBAL_OPTIONS = new OpaqueToken('md-ripple-global-options');
+import {ViewportRuler} from '../overlay/position/viewport-ruler';
+import {Platform} from '../platform/platform';
 
 export interface RippleGlobalOptions {
   disabled?: boolean;
   baseSpeedFactor?: number;
 }
 
+/** Injection token that can be used to specify the global ripple options. */
+export const MD_RIPPLE_GLOBAL_OPTIONS =
+    new InjectionToken<RippleGlobalOptions>('md-ripple-global-options');
+
 @Directive({
   selector: '[md-ripple], [mat-ripple], [mdRipple], [matRipple]',
   exportAs: 'mdRipple',
   host: {
-    '[class.mat-ripple]': 'true',
+    'class': 'mat-ripple',
     '[class.mat-ripple-unbounded]': 'unbounded'
   }
 })
@@ -82,9 +84,10 @@ export class MdRipple implements OnChanges, OnDestroy {
     elementRef: ElementRef,
     ngZone: NgZone,
     ruler: ViewportRuler,
+    platform: Platform,
     @Optional() @Inject(MD_RIPPLE_GLOBAL_OPTIONS) globalOptions: RippleGlobalOptions
   ) {
-    this._rippleRenderer = new RippleRenderer(elementRef, ngZone, ruler);
+    this._rippleRenderer = new RippleRenderer(elementRef, ngZone, ruler, platform);
     this._globalOptions = globalOptions ? globalOptions : {};
 
     this._updateRippleRenderer();

@@ -11,7 +11,7 @@ import {
   transition,
   trigger,
 } from '@angular/animations';
-import { Md2Accordion } from './accordionpanel';
+import { Md2Accordion } from './accordion';
 import { coerceBooleanProperty } from '../core';
 
 @Directive({ selector: 'md2-accordion-header' })
@@ -70,7 +70,7 @@ export class Md2AccordionTab {
   get active(): boolean { return this._active; }
   set active(value) {
     this._active = coerceBooleanProperty(value);
-    if (this._active) {
+    if (this._active && !this._accordion.multiple) {
       for (let i = 0; i < this._accordion.tabs.length; i++) {
         if (this._accordion.tabs[i] !== this) { this._accordion.tabs[i].active = false; }
       }

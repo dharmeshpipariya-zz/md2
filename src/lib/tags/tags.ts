@@ -8,15 +8,11 @@ import {
   Input,
   Output,
   ViewEncapsulation,
-  NgModule,
-  ModuleWithProviders
 } from '@angular/core';
 import {
   NG_VALUE_ACCESSOR,
   ControlValueAccessor,
-  FormsModule,
 } from '@angular/forms';
-import { CommonModule } from '@angular/common';
 import {
   coerceBooleanProperty,
   LEFT_ARROW,
@@ -26,7 +22,6 @@ import {
   TAB,
   ESCAPE
 } from '../core/core';
-import { Md2AutocompleteModule } from '../autocomplete/autocomplete';
 
 const noop = () => { };
 
@@ -417,20 +412,4 @@ export class Md2Tags implements AfterContentInit, ControlValueAccessor {
     this.disabled = isDisabled;
   }
 
-}
-
-export const MD2_TAGS_DIRECTIVES = [Md2Tags];
-
-@NgModule({
-  imports: [CommonModule, FormsModule, Md2AutocompleteModule],
-  exports: MD2_TAGS_DIRECTIVES,
-  declarations: MD2_TAGS_DIRECTIVES,
-})
-export class Md2TagsModule {
-  static forRoot(): ModuleWithProviders {
-    return {
-      ngModule: Md2TagsModule,
-      providers: []
-    };
-  }
 }

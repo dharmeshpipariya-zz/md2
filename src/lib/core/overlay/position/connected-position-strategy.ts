@@ -16,7 +16,7 @@ import {Scrollable} from '../scroll/scrollable';
  * where top and bottom are the y-axis coordinates of the bounding rectangle and left and right are
  * the x-axis coordinates.
  */
-export type ElementBoundingPositions = {
+type ElementBoundingPositions = {
   top: number;
   right: number;
   bottom: number;
@@ -60,7 +60,7 @@ export class ConnectedPositionStrategy implements PositionStrategy {
   private _lastConnectedPosition: ConnectionPositionPair;
 
   _onPositionChange:
-      Subject<ConnectedOverlayPositionChange> = new Subject<ConnectedOverlayPositionChange>();
+  Subject<ConnectedOverlayPositionChange> = new Subject<ConnectedOverlayPositionChange>();
 
   /** Emits an event when the connection point changes. */
   get onPositionChange(): Observable<ConnectedOverlayPositionChange> {
@@ -68,10 +68,10 @@ export class ConnectedPositionStrategy implements PositionStrategy {
   }
 
   constructor(
-      private _connectedTo: ElementRef,
-      private _originPos: OriginConnectionPosition,
-      private _overlayPos: OverlayConnectionPosition,
-      private _viewportRuler: ViewportRuler) {
+    private _connectedTo: ElementRef,
+    private _originPos: OriginConnectionPosition,
+    private _overlayPos: OverlayConnectionPosition,
+    private _viewportRuler: ViewportRuler) {
     this._origin = this._connectedTo.nativeElement;
     this.withFallbackPosition(_originPos, _overlayPos);
   }
@@ -108,6 +108,7 @@ export class ConnectedPositionStrategy implements PositionStrategy {
 
     // Fallback point if none of the fallbacks fit into the viewport.
     let fallbackPoint: OverlayPoint = null;
+    let fallbackPosition: ConnectionPositionPair = null;
 
     // We want to place the overlay in the first of the preferred positions such that the
     // overlay fits on-screen.
@@ -119,7 +120,7 @@ export class ConnectedPositionStrategy implements PositionStrategy {
 
       // If the overlay in the calculated position fits on-screen, put it there and we're done.
       if (overlayPoint.fitsInViewport) {
-        this._setElementPosition(element, overlayPoint);
+        this._setElementPosition(element, overlayRect, overlayPoint, pos);
 
         // Save the last connected position in case the position needs to be re-calculated.
         this._lastConnectedPosition = pos;
@@ -132,12 +133,13 @@ export class ConnectedPositionStrategy implements PositionStrategy {
         return Promise.resolve(null);
       } else if (!fallbackPoint || fallbackPoint.visibleArea < overlayPoint.visibleArea) {
         fallbackPoint = overlayPoint;
+        fallbackPosition = pos;
       }
     }
 
     // If none of the preferred positions were in the viewport, take the one
     // with the largest visible area.
-    this._setElementPosition(element, fallbackPoint);
+    this._setElementPosition(element, overlayRect, fallbackPoint, fallbackPosition);
 
     return Promise.resolve(null);
   }
@@ -155,7 +157,7 @@ export class ConnectedPositionStrategy implements PositionStrategy {
 
     let originPoint = this._getOriginConnectionPoint(originRect, lastPosition);
     let overlayPoint = this._getOverlayPoint(originPoint, overlayRect, viewportRect, lastPosition);
-    this._setElementPosition(this._pane, overlayPoint);
+    this._setElementPosition(this._pane, overlayRect, overlayPoint, lastPosition);
   }
 
   /**
@@ -173,8 +175,8 @@ export class ConnectedPositionStrategy implements PositionStrategy {
    * @param overlayPos
    */
   withFallbackPosition(
-      originPos: OriginConnectionPosition,
-      overlayPos: OverlayConnectionPosition): this {
+    originPos: OriginConnectionPosition,
+    overlayPos: OverlayConnectionPosition): this {
     this._preferredPositions.push(new ConnectionPositionPair(originPos, overlayPos));
     return this;
   }
@@ -256,10 +258,10 @@ export class ConnectedPositionStrategy implements PositionStrategy {
    * would be inside the viewport at that position.
    */
   private _getOverlayPoint(
-      originPoint: Point,
-      overlayRect: ClientRect,
-      viewportRect: ClientRect,
-      pos: ConnectionPositionPair): OverlayPoint {
+    originPoint: Point,
+    overlayRect: ClientRect,
+    viewportRect: ClientRect,
+    pos: ConnectionPositionPair): OverlayPoint {
     // Calculate the (overlayStartX, overlayStartY), the start of the potential overlay position
     // relative to the origin point.
     let overlayStartX: number;
@@ -320,8 +322,8 @@ export class ConnectedPositionStrategy implements PositionStrategy {
 
   /** Whether the element is completely out of the view of any of the containers. */
   private isElementOutsideView(
-      elementBounds: ElementBoundingPositions,
-      containersBounds: ElementBoundingPositions[]): boolean {
+    elementBounds: ElementBoundingPositions,
+    containersBounds: ElementBoundingPositions[]): boolean {
     return containersBounds.some((containerBounds: ElementBoundingPositions) => {
       const outsideAbove = elementBounds.bottom < containerBounds.top;
       const outsideBelow = elementBounds.top > containerBounds.bottom;
@@ -334,8 +336,8 @@ export class ConnectedPositionStrategy implements PositionStrategy {
 
   /** Whether the element is clipped by any of the containers. */
   private isElementClipped(
-      elementBounds: ElementBoundingPositions,
-      containersBounds: ElementBoundingPositions[]): boolean {
+    elementBounds: ElementBoundingPositions,
+    containersBounds: ElementBoundingPositions[]): boolean {
     return containersBounds.some((containerBounds: ElementBoundingPositions) => {
       const clippedAbove = elementBounds.top < containerBounds.top;
       const clippedBelow = elementBounds.bottom > containerBounds.bottom;
@@ -346,14 +348,47 @@ export class ConnectedPositionStrategy implements PositionStrategy {
     });
   }
 
-  /**
-   * Physically positions the overlay element to the given coordinate.
-   * @param element
-   * @param overlayPoint
-   */
-  private _setElementPosition(element: HTMLElement, overlayPoint: Point) {
-    element.style.left = overlayPoint.x + 'px';
-    element.style.top = overlayPoint.y + 'px';
+  /** Physically positions the overlay element to the given coordinate. */
+  private _setElementPosition(
+    element: HTMLElement,
+    overlayRect: ClientRect,
+    overlayPoint: Point,
+    pos: ConnectionPositionPair) {
+
+    // We want to set either `top` or `bottom` based on whether the overlay wants to appear above
+    // or below the origin and the direction in which the element will expand.
+    let verticalStyleProperty: any = pos.overlayY === 'bottom' ? 'bottom' : 'top';
+
+    // When using `bottom`, we adjust the y position such that it is the distance
+    // from the bottom of the viewport rather than the top.
+    let y = verticalStyleProperty === 'top' ?
+      overlayPoint.y :
+      document.documentElement.clientHeight - (overlayPoint.y + overlayRect.height);
+
+    // We want to set either `left` or `right` based on whether the overlay wants to appear "before"
+    // or "after" the origin, which determines the direction in which the element will expand.
+    // For the horizontal axis, the meaning of "before" and "after" change based on whether the
+    // page is in RTL or LTR.
+    let horizontalStyleProperty: any;
+    if (this._dir === 'rtl') {
+      horizontalStyleProperty = pos.overlayX === 'end' ? 'left' : 'right';
+    } else {
+      horizontalStyleProperty = pos.overlayX === 'end' ? 'right' : 'left';
+    }
+
+    // When we're setting `right`, we adjust the x position such that it is the distance
+    // from the right edge of the viewport rather than the left edge.
+    let x = horizontalStyleProperty === 'left' ?
+      overlayPoint.x :
+      document.documentElement.clientWidth - (overlayPoint.x + overlayRect.width);
+
+
+    // Reset any existing styles. This is necessary in case the preferred position has
+    // changed since the last `apply`.
+    ['top', 'bottom', 'left', 'right'].forEach((p: any) => element.style[p] = null);
+
+    element.style[verticalStyleProperty] = `${y}px`;
+    element.style[horizontalStyleProperty] = `${x}px`;
   }
 
   /** Returns the bounding positions of the provided element with respect to the viewport. */
