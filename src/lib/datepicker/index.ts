@@ -23,15 +23,12 @@ export * from './date-locale';
   ],
   exports: [
     Md2Datepicker,
-    Md2Clock,
   ],
   declarations: [
     Md2Datepicker,
     Md2Clock,
   ],
   providers: [DateLocale, DateUtil],
-  entryComponents: [
-    Md2Datepicker,
-  ]
+  entryComponents: [Md2Datepicker]
 })
 export class Md2DatepickerModule { }

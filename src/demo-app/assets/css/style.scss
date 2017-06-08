@@ -320,7 +320,12 @@ html, body {
       line-height: 28px;
     }
 
+    .right-nav {
+      margin-right: -30px;
+    }
+
     .source-code {
+      margin-right: 16px;
       fill: currentColor;
       color: $white;
     }
@@ -391,6 +396,12 @@ html, body {
   }
 }
 
+.table-card {
+  .content {
+    overflow-x: auto;
+  }
+}
+
 @media (max-width: 767px) {
   .sidenav-backdrop.open {
     display: block;
@@ -419,6 +430,10 @@ html, body {
 
       .sidenav-toggle {
         display: block;
+      }
+
+      .right-nav {
+        margin-right: -15px;
       }
     }
 
