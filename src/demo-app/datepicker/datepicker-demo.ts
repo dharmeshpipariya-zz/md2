@@ -9,6 +9,11 @@ import { Component } from '@angular/core';
       width: 150px;
       margin-right: 16px;
       padding: 16px 0;
+      vertical-align: top;
+    }
+  `,
+  `.error-helper {
+      color: #dd2c00;
     }
   `]
 })
@@ -39,10 +44,11 @@ export class DatepickerDemo {
     { text: 'Portrait', value: 'portrait' },
     { text: 'Landscape', value: 'landscape' }];
 
-  container: string = 'inline';
-  containers: Array<any> = [
-    { text: 'Inline', value: 'inline' },
-    { text: 'Dialog', value: 'dialog' }];
+  startView: string = 'month';
+  startViews: Array<any> = [
+    { text: 'Clock', value: 'clock' },
+    { text: 'Month', value: 'month' },
+    { text: 'Year', value: 'year' }];
 
   date: Date;
   minDate: Date;
