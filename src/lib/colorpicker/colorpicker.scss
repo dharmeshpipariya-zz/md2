@@ -1,0 +1,280 @@
+$primary: #106cc8 !default;
+$warn: #f44336 !default;
+
+$md2-colorpicker-input-height: 30px !default;
+$md2-color-spectrum-size: 255px !default;
+
+md2-colorpicker {
+  position: relative;
+  display: block;
+  outline: none;
+  backface-visibility: hidden;
+
+  &.md2-colorpicker-disabled {
+    pointer-events: none;
+    cursor: default;
+  }
+}
+
+.md2-colorpicker-trigger {
+  display: flex;
+  margin: 18px 0;
+  cursor: pointer;
+}
+
+.md2-colorpicker-preview {
+  position: relative;
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  margin-right: 8px;
+  border: 2px solid white;
+  border-radius: 50%;
+  overflow: hidden;
+  background-color: white;
+  background-image: linear-gradient(45deg, #ddd 25%, transparent 0, transparent 75%, #ddd 0, #ddd), linear-gradient(45deg, #ddd 25%, transparent 0, transparent 75%, #ddd 0, #ddd);
+  background-size: 12px 12px;
+  background-position: 0 0, 6px 6px;
+  box-shadow: 0 3px 1px -2px rgba(black, 0.14), 0 2px 2px 0 rgba(black, 0.098), 0 1px 5px 0 rgba(black, 0.084);
+
+  span {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.md2-colorpicker-input {
+  position: relative;
+  display: flex;
+  flex: 1;
+  color: rgba(black, 0.38);
+  justify-content: space-between;
+  align-items: center;
+  height: $md2-colorpicker-input-height;
+  line-height: 22px;
+  border-bottom: 1px solid rgba(black, 0.12);
+  box-sizing: border-box;
+
+  .md2-colorpicker-disabled & {
+    color: rgba(black, 0.38);
+    border-color: transparent;
+    background-image: linear-gradient(to right, rgba(black, 0.38) 0%, rgba(black, 0.38) 33%, transparent 0%);
+    background-position: bottom -1px left 0;
+    background-size: 4px 1px;
+    background-repeat: repeat-x;
+  }
+
+  &.md2-colorpicker-input-focused {
+    color: $primary;
+    border-color: $primary;
+  }
+
+  md2-colorpicker:focus:not(.md2-colorpicker-disabled) & {
+    color: $primary;
+    border-color: $primary;
+  }
+
+  md2-colorpicker.ng-invalid.ng-touched:not(.md2-colorpicker-disabled) & {
+    color: $warn;
+    border-color: $warn;
+  }
+}
+
+.md2-colorpicker-placeholder {
+  position: absolute;
+  right: 18px;
+  bottom: 100%;
+  left: 0;
+  padding: 0 2px;
+  transform: translate3d(0, 26px, 0) scale(1);
+  transform-origin: left top;
+  white-space: nowrap;
+  overflow-x: hidden;
+  text-overflow: ellipsis;
+  transition: all 150ms cubic-bezier(0.25, 0.8, 0.25, 1);
+
+  &.md2-floating-placeholder {
+    left: -2px;
+    text-align: left;
+    transform: translate3d(0, 6px, 0) scale(0.75);
+  }
+
+  [dir='rtl'] & {
+    right: 0;
+    left: 18px;
+    transform-origin: right top;
+
+    &.md2-floating-placeholder {
+      right: -2px;
+      text-align: right;
+    }
+  }
+
+  [aria-required=true] &::after {
+    content: '*';
+  }
+}
+
+.md2-colorpicker-value {
+  position: relative;
+  width: 100%;
+  padding: 2px;
+  color: rgba(black, 0.87);
+  border: 0;
+  outline: none;
+  background: transparent;
+
+  .md2-colorpicker-disabled & {
+    color: rgba(black, 0.38);
+  }
+}
+
+.md2-colorpicker-clear {
+  color: rgba(black, 0.54);
+
+  svg {
+    fill: currentColor;
+  }
+}
+
+.md2-colorpicker-panel {
+  max-width: 350px;
+  border-radius: 3px;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  background: white;
+  box-shadow: 0 5px 5px -3px rgba(black, 0.2), 0 8px 10px 1px rgba(black, 0.14), 0 3px 14px 2px rgba(black, 0.12);
+  box-sizing: border-box;
+  outline: none;
+  user-select: none;
+
+  &[container='dialog'] {
+    box-shadow: 0 11px 15px -7px rgba(black, 0.2), 0 24px 38px 3px rgba(black, 0.14), 0 9px 46px 8px rgba(black, 0.12);
+  }
+}
+
+.md2-colorpicker-content {
+}
+
+.md2-colorpicker-header {
+  height: 80px;
+  color: white;
+
+  &.dark {
+    color: black;
+  }
+}
+
+.md2-colorpicker-header-input {
+  font-size: 16px;
+  font-weight: 700;
+  text-align: center;
+  line-height: 50px;
+}
+
+.md2-colorpicker-formats {
+  display: flex;
+
+  span {
+    flex: 1;
+    padding: 4px 8px 3px;
+    text-align: center;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    background: rgba(white, 0.25);
+    box-sizing: border-box;
+
+    .dark & {
+      background: rgba(black, 0.25);
+    }
+
+    &.active {
+      cursor: default;
+      background: transparent;
+      border-color: rgba(white, 0.5);
+
+      .dark & {
+        border-color: rgba(black, 0.5);
+      }
+    }
+  }
+}
+
+.md2-colorpicker-container {
+  width: 256px;
+  padding: 8px;
+}
+
+/* Actions */
+.md2-colorpicker-actions {
+  text-align: right;
+
+  .md2-button {
+    display: inline-block;
+    min-width: 64px;
+    margin: 4px 8px 8px 0;
+    padding: 0 12px;
+    font-size: 14px;
+    color: $primary;
+    line-height: 36px;
+    text-align: center;
+    text-transform: uppercase;
+    border-radius: 2px;
+    cursor: pointer;
+    box-sizing: border-box;
+    transition: all 450ms cubic-bezier(0.23, 1, 0.32, 1);
+
+    &:hover {
+      background: darken(white, 8);
+    }
+  }
+}
+
+/* Overlay */
+.cdk-overlay-container, .cdk-global-overlay-wrapper {
+  pointer-events: none;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+}
+
+.cdk-overlay-container {
+  position: fixed;
+  z-index: 1000;
+}
+
+.cdk-global-overlay-wrapper {
+  display: flex;
+  position: absolute;
+  z-index: 1000;
+}
+
+.cdk-overlay-pane {
+  position: absolute;
+  pointer-events: auto;
+  box-sizing: border-box;
+  z-index: 1000;
+}
+
+.cdk-overlay-backdrop {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  pointer-events: auto;
+  transition: opacity 400ms cubic-bezier(0.25, 0.8, 0.25, 1);
+  opacity: 0;
+}
+
+  .cdk-overlay-backdrop.cdk-overlay-backdrop-showing {
+    opacity: 0.48;
+  }
+
+.cdk-overlay-dark-backdrop {
+  background: rgba(black, 0.6);
+}

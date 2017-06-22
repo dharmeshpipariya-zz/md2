@@ -1,0 +1,42 @@
+﻿<div class="md2-colorpicker-trigger">
+  <div class="md2-colorpicker-preview" tabindex="0" (click)="toggle()"><span [style.background]="color"></span></div>
+  <div class="md2-colorpicker-input" [class.md2-colorpicker-input-focused]="_inputFocused">
+    <span class="md2-colorpicker-placeholder" [class.md2-floating-placeholder]="color || _inputFocused"> {{ placeholder }} </span>
+    <input class="md2-colorpicker-value"
+           [tabindex]="tabindex"
+           [disabled]="disabled"
+           [(ngModel)]="color"
+           (change)="$event.stopPropagation()"
+           (focus)="_handleFocus($event)"
+           (blur)="_handleBlur($event)" />
+    <!--<span class="md2-colorpicker-value"> {{ color }} </span>-->
+    <span *ngIf="color && !required && !disabled"
+          class="md2-colorpicker-clear" (click)="_clearValue($event)">
+      <svg viewBox="0 0 24 24" width="24" height="24">
+        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+      </svg>
+    </span>
+  </div>
+</div>
+<ng-template portal>
+  <div class="md2-colorpicker-panel" [@fadeInContent]="'showing'" (@fadeInContent.done)="_onPanelDone()"
+       [attr.container]="container" tabindex="0">
+    <div class="md2-colorpicker-content">
+      <div class="md2-colorpicker-header" [class.dark]="_isDark" [style.background]="value">
+        <div class="md2-colorpicker-header-input"> {{ value }} </div>
+        <div class="md2-colorpicker-formats">
+          <span *ngFor="let f of _formats"
+                [class.active]="f===_locale.format"
+                (click)="_setFormat(f)">{{ f }}</span>
+        </div>
+      </div>
+      <div class="md2-colorpicker-container">
+        <md2-color-spectrum [color]="value" (colorChange)="_spectrumColorChange($event)"></md2-color-spectrum>
+      </div>
+      <div class="md2-colorpicker-actions">
+        <div class="md2-button" (click)="close()">Cancel</div>
+        <div class="md2-button" (click)="_onClickOk()">Ok</div>
+      </div>
+    </div>
+  </div>
+</ng-template>

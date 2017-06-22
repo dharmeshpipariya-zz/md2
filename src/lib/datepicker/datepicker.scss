@@ -1,0 +1,238 @@
+$primary: #106cc8 !default;
+$warn: #f44336 !default;
+
+$md2-datepicker-trigger-height: 30px !default;
+$md2-datepicker-trigger-min-width: 168px !default;
+$md2-datepicker-arrow-size: 5px !default;
+$md2-datepicker-arrow-margin: 4px !default;
+$md2-datepicker-date-cell-size: 40px !default;
+$md2-datepicker-calendar-height: 280px !default;
+
+$md2-clock-size: 240px !default;
+
+md2-datepicker {
+  position: relative;
+  display: inline-block;
+  min-width: 175px;
+  outline: none;
+  backface-visibility: hidden;
+
+  &.md2-datepicker-disabled {
+    pointer-events: none;
+    cursor: default;
+  }
+}
+
+.md2-datepicker-trigger {
+  display: block;
+  padding: 18px 0 4px 46px;
+  white-space: nowrap;
+}
+
+.md2-datepicker-button {
+  position: absolute;
+  top: 13px;
+  left: 0;
+  display: inline-block;
+  height: 40px;
+  width: 40px;
+  padding: 8px;
+  line-height: 24px;
+  color: rgba(black, 0.54);
+  fill: currentColor;
+  border: 0;
+  border-radius: 50%;
+  outline: none;
+  user-select: none;
+  cursor: pointer;
+  box-sizing: border-box;
+  background: none;
+  vertical-align: middle;
+  align-items: center;
+  text-align: center;
+
+  &:focus {
+    background-color: rgba(158, 158, 158, 0.2);
+  }
+
+  .md2-datepicker-disabled & {
+    color: rgba(black, 0.38);
+  }
+}
+
+.md2-datepicker-input {
+  color: rgba(black, 0.38);
+  border-bottom: 1px solid rgba(black, 0.12);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: $md2-datepicker-trigger-height;
+  min-width: $md2-datepicker-trigger-min-width;
+  line-height: 22px;
+  position: relative;
+  padding-right: 20px;
+  box-sizing: border-box;
+
+  [aria-disabled='true'] & {
+    background-image: linear-gradient(to right, rgba(black, 0.26) 0, rgba(black, 0.26) 33%, transparent 0);
+    background-size: 4px 1px;
+    background-repeat: repeat-x;
+    border-color: transparent;
+    background-position: 0 bottom;
+    cursor: default;
+    user-select: none;
+  }
+
+
+  &.md2-datepicker-input-focused {
+    color: $primary;
+    border-color: $primary;
+  }
+
+  md2-datepicker.ng-invalid.ng-touched:not(.md2-datepicker-disabled) & {
+    color: $warn;
+    border-color: $warn;
+  }
+}
+
+.md2-datepicker-placeholder {
+  position: absolute;
+  right: 18px;
+  bottom: 100%;
+  left: 0;
+  padding: 0 2px;
+  transform: translate3d(0, 26px, 0) scale(1);
+  transform-origin: left top;
+  white-space: nowrap;
+  overflow-x: hidden;
+  text-overflow: ellipsis;
+  transition: all 150ms cubic-bezier(0.25, 0.8, 0.25, 1);
+
+  &.md2-floating-placeholder {
+    left: -2px;
+    text-align: left;
+    transform: translate3d(0, 6px, 0) scale(0.75);
+  }
+
+  [dir='rtl'] & {
+    right: 0;
+    left: 18px;
+    transform-origin: right top;
+
+    &.md2-floating-placeholder {
+      right: -2px;
+      text-align: right;
+    }
+  }
+
+  [aria-required=true] &::after {
+    content: '*';
+  }
+}
+
+.md2-datepicker-value {
+  position: relative;
+  width: 100%;
+  white-space: nowrap;
+  overflow-x: hidden;
+  text-overflow: ellipsis;
+  color: rgba(black, 0.87);
+  border: 0;
+  outline: none;
+  background: transparent;
+
+  .md2-datepicker-disabled & {
+    color: rgba(black, 0.38);
+  }
+
+  [dir='rtl'] & {
+    left: auto;
+    right: 0;
+  }
+}
+
+.md2-datepicker-arrow {
+  position: absolute;
+  right: 0;
+  width: 0;
+  height: 0;
+  border-left: $md2-datepicker-arrow-size solid transparent;
+  border-right: $md2-datepicker-arrow-size solid transparent;
+  border-top: $md2-datepicker-arrow-size solid;
+  margin: 0 $md2-datepicker-arrow-margin;
+  color: rgba(black, 0.38);
+
+  .md2-datepicker-input-focused & {
+    color: $primary;
+  }
+
+  md2-datepicker.ng-invalid.ng-touched:not(.md2-datepicker-disabled) & {
+    color: $warn;
+  }
+}
+
+.md2-calendar-years {
+  position: absolute;
+  top: 10px;
+  right: 100%;
+  bottom: 10px;
+  display: block;
+  width: 100%;
+  line-height: 40px;
+  background: white;
+  overflow-x: hidden;
+  overflow-y: auto;
+  transition: 300ms;
+
+  &.active {
+    right: 0;
+  }
+
+  .md2-calendar-years-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 100%;
+  }
+}
+
+.md2-calendar-year {
+  position: relative;
+  display: block;
+  margin: 0 auto;
+  padding: 0;
+  font-size: 17px;
+  font-weight: 400;
+  text-align: center;
+  cursor: pointer;
+
+  &.selected {
+    color: $primary;
+    font-size: 26px;
+    font-weight: 500;
+  }
+}
+
+.md2-datepicker-actions {
+  text-align: right;
+
+  .md2-button {
+    display: inline-block;
+    min-width: 64px;
+    margin: 4px 8px 8px 0;
+    padding: 0 12px;
+    font-size: 14px;
+    color: $primary;
+    line-height: 36px;
+    text-align: center;
+    text-transform: uppercase;
+    border-radius: 2px;
+    cursor: pointer;
+    box-sizing: border-box;
+    transition: all 450ms cubic-bezier(0.23, 1, 0.32, 1);
+
+    &:hover {
+      background: darken(white, 8);
+    }
+  }
+}

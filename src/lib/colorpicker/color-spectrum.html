@@ -1,0 +1,11 @@
+﻿<div class="md2-color-saturation" [style.background-color]="_hue"
+     slide (slideChange)="_setSaturation($event)">
+  <span [ngStyle]="saturation" class="pointer"></span>
+</div>
+<div class="md2-color-hue" slide (slideChange)="_setHue($event)">
+  <span [ngStyle]="hue" class="pointer"></span>
+</div>
+<div class="md2-color-alpha" slide (slideChange)="_setAlpha($event)">
+  <span [ngStyle]="alpha" class="alpha-gradient"></span>
+  <span [ngStyle]="alphaPointer" class="pointer"></span>
+</div>

@@ -1,0 +1,28 @@
+﻿<div class="md2-picker-header" [class.darker]="_isColorDarker">
+  <div class="md2-color-preview" [style.background]="selected">
+    <div class="md2-picker-header-input"> {{ selected }} </div>
+    <!--<input type="text" autocomplete="off" class="md2-picker-header-input" [(ngModel)]="selected" />-->
+    <div class="md2-color-formats">
+      <span *ngFor="let f of _formats"
+            [class.active]="f===_locale.format"
+            (click)="_setFormat(f)">{{ f }}</span>
+    </div>
+  </div>
+</div>
+<div class="md2-picker-content">
+  <div class="md2-color-saturation" [style.background-color]="_hue"
+       slide (slideChange)="_setSaturation($event)">
+    <span class="pointer" [ngStyle]="saturation"></span>
+  </div>
+  <div class="md2-color-hue" slide (slideChange)="_setHue($event)">
+    <span class="pointer" [ngStyle]="hue"></span>
+  </div>
+  <div class="md2-color-alpha" slide (slideChange)="_setAlpha($event)">
+    <span class="alpha-track" [ngStyle]="alpha"></span>
+    <span class="pointer" [ngStyle]="alphaPointer"></span>
+  </div>
+</div>
+<div class="md2-picker-actions">
+  <div class="md2-button">Cancel</div>
+  <div class="md2-button">Ok</div>
+</div>

@@ -1,0 +1,54 @@
+@import '../style/menu-common';
+@import '../style/vendor-prefixes';
+@import '../a11y/a11y';
+
+/**
+ * This mixin contains shared option styles between the select and
+ * autocomplete components.
+ */
+@mixin mat-option() {
+  .mat-option {
+    @include mat-menu-item-base();
+    position: relative;
+    cursor: pointer;
+    outline: none;
+
+    &[aria-disabled='true'] {
+      @include user-select(none);
+      cursor: default;
+    }
+
+    .mat-optgroup &:not(.mat-option-multiple) {
+      padding-left: $mat-menu-side-padding * 2;
+
+      [dir='rtl'] & {
+        padding-left: $mat-menu-side-padding;
+        padding-right: $mat-menu-side-padding * 2;
+      }
+    }
+  }
+
+  .mat-option-ripple {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+
+    // Prevents the ripple from completely covering the option in high contrast mode.
+    @include cdk-high-contrast {
+      opacity: 0.5;
+    }
+  }
+
+  .mat-option-pseudo-checkbox {
+    $margin: $mat-menu-side-padding / 2;
+    margin-right: $margin;
+
+    [dir='rtl'] & {
+      margin-left: $margin;
+      margin-right: 0;
+    }
+  }
+}
+

@@ -1,0 +1,13 @@
+<div class="md2-tree-item">
+  <span class="md2-tree-node-icon" (click)="_handleClick()">
+    <svg class="collapse" fill="#757575" viewBox="0 0 24 24" width="24" height="24">
+      <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path>
+    </svg>
+    <svg class="expand" fill="#757575" viewBox="0 0 24 24" width="24" height="24">
+      <path d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"></path>
+    </svg>
+  </span>
+  <span class="md2-tree-node-label">{{ value.value }}</span>
+  <ng-content></ng-content>
+</div>
+<md2-tree *ngIf="value.children" [value]="value.children"></md2-tree>
