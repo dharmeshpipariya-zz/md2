@@ -99,7 +99,7 @@ export class Md2Chips implements ControlValueAccessor, AfterContentInit {
   @Output() change: EventEmitter<any> = new EventEmitter<any>();
   @ViewChild('chipInputForm') chipInputForm: NgForm;
 
-  _onChange = (value: any) => { };
+  _onChange: (value: any) => void = () => { };
   _onTouched = () => { };
 
   chipItemList: Array<Chip> = [];
@@ -239,16 +239,15 @@ export class Md2Chips implements ControlValueAccessor, AfterContentInit {
     this._resetSelected();
   }
 
-  inputBlurred(event: Event): void {
+  inputBlurred(): void {
     this.inputFocused = false;
     if (this.inputValue) {
       this.addNewChip(this.inputValue);
     }
     this._onTouched();
-    this.addNewChip(this.inputValue);
   }
 
-  inputFocus(event: Event): void {
+  inputFocus(): void {
     if (this.disabled) { return; }
     this.inputFocused = true;
   }

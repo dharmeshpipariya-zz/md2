@@ -29,7 +29,6 @@
                       [disabled]="isDisabled"
                       [openOnFocus]="isOpenOnFocus"
                       [dateFilter]="filterOdd ? dateFilter : null"
-                      [isOpen]="isOpen"
                       [type]="type"
                       [min]="minDate"
                       [max]="maxDate"
@@ -96,7 +95,6 @@
       </div>
       <div>
         <button type="button" button="primary" (click)="setDate()">SET VALUE</button>
-        <button type="button" button="primary" (click)="openDatepicker()">OPEN DATEPICKER</button>
         <button type="button" button="primary" (click)="minDateControl.reset();maxDateControl.reset();dateControl.reset()">RESET</button>
       </div>
     </form>

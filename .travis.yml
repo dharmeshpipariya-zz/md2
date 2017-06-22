@@ -1,23 +1,32 @@
 language: node_js
 sudo: false
+dist: trusty
 
 node_js:
-  - '6.10.2'
+  - '--lts'
 
 branches:
   only:
   - master
 
+env:
+  global:
+  - LOGS_DIR=/tmp/md2-build/logs
+
+before_install:
+  - npm i -g npm@^5.0.1
+
 install:
   - npm install
 
+before_script:
+  - mkdir -p $LOGS_DIR
+
 script:
-  - bash ./scripts/deploy/deploy.sh
+  - bash ./scripts/ci/test-build-and-deploy.sh
 
 before_deploy:
-  - gulp clean
-  - gulp :build:components:release
-  - gulp :build:release:clean-spec
+  - gulp build:release
   - cd dist
   - cd md2
 
@@ -34,4 +43,4 @@ deploy:
 
 cache:
   directories:
-    - node_modules
+    - $HOME/.npm

@@ -9,6 +9,7 @@ import {
   OnDestroy,
   Renderer2,
   ChangeDetectorRef,
+  ViewEncapsulation,
 } from '@angular/core';
 import {
   style,
@@ -25,7 +26,6 @@ import {
   ComponentPortal,
   OverlayConnectionPosition,
   OriginConnectionPosition,
-  RepositionScrollStrategy,
 } from '../core';
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
@@ -201,10 +201,12 @@ export class Md2Tooltip implements OnDestroy {
     });
 
     let config = new OverlayState();
+
     config.direction = this._dir ? this._dir.value : 'ltr';
     config.positionStrategy = strategy;
-    config.scrollStrategy =
-      new RepositionScrollStrategy(this._scrollDispatcher, SCROLL_THROTTLE_MS);
+    config.scrollStrategy = this._overlay.scrollStrategies.reposition({
+      scrollThrottle: SCROLL_THROTTLE_MS
+    });
 
     this._overlayRef = this._overlay.create(config);
   }
@@ -301,8 +303,10 @@ export type TooltipVisibility = 'initial' | 'visible' | 'hidden';
     ])
   ],
   host: {
+    '[style.zoom]': '_visibility === "visible" ? 1 : null',
     '(body:click)': 'this._handleBodyInteraction()'
-  }
+  },
+  encapsulation: ViewEncapsulation.None
 })
 export class Md2TooltipComponent {
   /** Message to display in the tooltip */
