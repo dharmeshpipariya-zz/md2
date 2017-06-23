@@ -39,7 +39,7 @@ deploy:
   on:
     branch: master
     repo: dharmeshpipariya/md2
-    condition: "/^deploy-.*$/"
+    condition: "/^publish-.*$/"
 
 cache:
   directories:
